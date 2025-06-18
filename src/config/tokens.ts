@@ -55,7 +55,7 @@ const tokens = [
   {
     chainId: "neutron-1",
     denom:
-      "ibc/78F7404035221CD1010518C7BC3DD99B90E59C2BA37ABFC3CE56B0CFB7E8901B",
+      "ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E",
     symbol: "wBTC",
     icon: "https://bitcoin-outpost-fe.vercel.app/images/WBTC.svg",
     description: "Wrapped Bitcoin",
