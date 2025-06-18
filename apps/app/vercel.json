@@ -1,6 +1,10 @@
 {
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/app && pnpm build",
+  "outputDirectory": ".next",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "framework": "nextjs",
   "functions": {
-    "app/**": {
+    "**": {
       "maxDuration": 60
     }
   },

@@ -2,9 +2,9 @@
   "version": 2,
   "name": "bitcoin-outpost-docs",
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm build --filter=@bitcoin-outpost/docs",
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/docs && pnpm build",
   "outputDirectory": ".next",
-  "installCommand": "cd ../.. && pnpm install",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "rootDirectory": "apps/docs",
   "domains": ["docs.bitcoin-outpost.com"]
 } 

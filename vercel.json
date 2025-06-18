@@ -1,8 +1,8 @@
 {
-  "buildCommand": "pnpm turbo build --filter=@bitcoin-outpost/app",
+  "buildCommand": "cd apps/app && pnpm build",
   "outputDirectory": "apps/app/.next",
   "installCommand": "pnpm install --frozen-lockfile",
-  "framework": null,
+  "framework": "nextjs",
   "build": {
     "env": {
       "NODE_OPTIONS": "--max-old-space-size=4096"
