@@ -1,51 +1,21 @@
 {
-  "name": "bitcoin-outpost",
+  "name": "bitcoin-outpost-monorepo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@cosmjs/cosmwasm-stargate": "^0.33.0",
-    "@cosmos-kit/cosmostation": "^2.14.6",
-    "@cosmos-kit/keplr": "^2.14.7",
-    "@cosmos-kit/leap": "^2.14.7",
-    "@cosmos-kit/okxwallet": "^2.11.6",
-    "@cosmos-kit/react": "^2.21.7",
-    "@cosmos-kit/station": "^2.12.6",
-    "@cosmos-kit/vectis": "^2.13.7",
-    "@cosmos-kit/xdefi": "^2.12.0",
-    "@interchain-kit/core": "^0.2.205",
-    "@interchain-kit/react": "^0.2.205",
-    "@interchain-ui/react": "^1.26.2",
-    "@vercel/analytics": "^1.5.0",
-    "chain-registry": "^1.69.145",
-    "concurrently": "^8.2.2",
-    "next": "15.2.1",
-    "pino-pretty": "^13.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-toastify": "^11.0.5",
-    "recharts": "^2.15.1",
-    "swr": "^2.3.3",
-    "zustand": "^5.0.3"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "clean": "turbo clean",
+    "type-check": "turbo type-check"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/tailwindcss": "^3.1.0",
-    "autoprefixer": "^10",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.1",
-    "postcss": "^8",
-    "tailwindcss": "^4.0.0",
-    "terser-webpack-plugin": "^5.3.14",
+    "turbo": "^2.3.0",
     "typescript": "^5"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "name": "bitcoin-outpost-docs",
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm build --filter=@bitcoin-outpost/docs",
+  "outputDirectory": ".next",
+  "installCommand": "cd ../.. && pnpm install",
+  "domains": ["docs.bitcoin-outpost.com"]
+} 

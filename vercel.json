@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "projects": [
+    {
+      "name": "bitcoin-outpost-app",
+      "source": "apps/app",
+      "framework": "nextjs"
+    },
+    {
+      "name": "bitcoin-outpost-docs", 
+      "source": "apps/docs",
+      "framework": "nextjs"
+    },
+    {
+      "name": "bitcoin-outpost-landing",
+      "source": "apps/landing", 
+      "framework": "nextjs"
+    }
+  ]
+} 

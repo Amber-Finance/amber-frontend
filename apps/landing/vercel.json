@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "name": "bitcoin-outpost-landing",
+  "framework": "nextjs", 
+  "buildCommand": "cd ../.. && pnpm build --filter=@bitcoin-outpost/landing",
+  "outputDirectory": ".next",
+  "installCommand": "cd ../.. && pnpm install",
+  "domains": ["bitcoin-outpost.com"]
+} 
