@@ -179,8 +179,8 @@ export default function MarketDetails() {
                 />
                 <MetricRow
                   label="Deposit cap"
-                  value={metrics.depositCapUsd}
-                  isCurrency={true}
+                  value={metrics.depositCap}
+                  isCurrency={false}
                 />
                 <MetricRow
                   label="Cap usage"

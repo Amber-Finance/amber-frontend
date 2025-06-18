@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         hostname: "raw.githubusercontent.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "bitcoin-outpost-fe.vercel.app",
+        pathname: "/**",
+      },
     ],
   },
   webpack: (config, { isServer }) => {

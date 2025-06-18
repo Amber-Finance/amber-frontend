@@ -87,6 +87,7 @@ interface MarketWithValues extends Market {
 interface MarketMetrics {
   reserveSizeUsd: number;
   availableLiquidityUsd: number;
+  depositCap: number;
   depositCapUsd: number;
   depositCapUsagePercent: number;
   utilizationRate: number;

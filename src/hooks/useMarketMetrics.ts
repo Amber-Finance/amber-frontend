@@ -14,6 +14,7 @@ export function useMarketMetrics(market: Market): MarketMetrics {
       return {
         reserveSizeUsd: 0,
         availableLiquidityUsd: 0,
+        depositCap: 0,
         depositCapUsd: 0,
         depositCapUsagePercent: 0,
         utilizationRate: 0,
@@ -51,6 +52,9 @@ export function useMarketMetrics(market: Market): MarketMetrics {
       parseFloat(market.price.price),
       market.asset.decimals
     );
+    const depositCapAmount = new BigNumber(depositCap)
+      .shiftedBy(-market.asset.decimals)
+      .toNumber();
 
     const depositCapUsagePercent =
       depositCapUsd > 0
@@ -78,6 +82,7 @@ export function useMarketMetrics(market: Market): MarketMetrics {
     return {
       reserveSizeUsd,
       availableLiquidityUsd,
+      depositCap: depositCapAmount,
       depositCapUsd,
       depositCapUsagePercent,
       utilizationRate,
