@@ -1,14 +1,25 @@
 "use client";
 
+import Tooltip from "@/components/ui/Tooltip";
+import { copyToClipboard } from "@/utils/clipboard";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 
 interface MarketHeaderProps {
   market: Market;
 }
 
 const MarketHeader: React.FC<MarketHeaderProps> = ({ market }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   if (!market || !market.asset) return null;
+
+  const handleCopyDenom = async () => {
+    const success = await copyToClipboard(market.asset.denom);
+    if (success) {
+      setShowTooltip(true);
+    }
+  };
 
   return (
     <div className="flex items-center mb-4 sm:mb-6 bg-white dark:bg-zinc-900 p-3 sm:p-4 sm:rounded-lg shadow">
@@ -33,6 +44,20 @@ const MarketHeader: React.FC<MarketHeaderProps> = ({ market }) => {
         </h1>
         <div className="text-base sm:text-lg text-gray-500 dark:text-gray-400">
           {market.asset.symbol}
+        </div>
+        <div className="relative inline-block">
+          <button
+            onClick={handleCopyDenom}
+            className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer font-mono"
+          >
+            {market.asset.denom}
+          </button>
+          <Tooltip
+            show={showTooltip}
+            message="Copied to clipboard"
+            onDismiss={() => setShowTooltip(false)}
+            position="top"
+          />
         </div>
       </div>
     </div>
