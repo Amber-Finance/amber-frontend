@@ -66,7 +66,7 @@ const tokens = [
     denom:
       "ibc/DF8722298D192AAB85D86D0462E8166234A6A9A572DD4A2EA7996029DF4DB363",
     symbol: "wBTC.axl",
-    icon: "https://bitcoin-outpost-fe.vercel.app/images/wBTC.axl.svg",
+    icon: "https://bitcoin-outpost-fe.vercel.app/images/WBTC.axl.svg",
     description: "Wrapped Bitcoin Axelar",
     decimals: 8,
   },
