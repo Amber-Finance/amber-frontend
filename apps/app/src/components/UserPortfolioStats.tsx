@@ -3,7 +3,7 @@
 import { FormattedValue } from "@/components/common";
 import HealthFactorModal from "@/components/modals/HealthFactorModal";
 import UserPortfolioStatsSkeleton from "@/components/skeletons/UserPortfolioStatsSkeleton";
-import { Button } from "@/components/ui/button";
+
 import chainConfig from "@/config/chain";
 import useHealthComputer from "@/hooks/useHealthComputer";
 import { useStore } from "@/store/useStore";
@@ -12,6 +12,7 @@ import { calculateUsdValue } from "@/utils/format";
 import { useChain } from "@cosmos-kit/react";
 import { BigNumber } from "bignumber.js";
 import React, { useState } from "react";
+import { Button } from "./ui/Button";
 
 /**
  * UserPortfolioStats component displays the user's net worth and net APY

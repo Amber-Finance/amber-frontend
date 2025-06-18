@@ -1,7 +1,7 @@
 "use client";
 
 import { WalletModal } from "@/components/modals";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import chainConfig from "@/config/chain";
 import { useChain } from "@cosmos-kit/react";
 import { useState } from "react";

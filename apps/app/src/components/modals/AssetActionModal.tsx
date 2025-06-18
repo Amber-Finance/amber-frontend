@@ -3,7 +3,7 @@
 import { FormattedValue } from "@/components/common";
 import Spinner from "@/components/common/Spinner";
 import Modal from "@/components/modals/Modal";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import useHealthComputer from "@/hooks/useHealthComputer";
 import { useStore } from "@/store/useStore";
 import { convertAprToApy } from "@/utils/finance";

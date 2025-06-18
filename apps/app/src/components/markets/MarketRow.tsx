@@ -1,7 +1,7 @@
 "use client";
 
 import { FormattedValue } from "@/components/common";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { track } from "@/utils/analytics";
 import BigNumber from "bignumber.js";
 import Image from "next/image";

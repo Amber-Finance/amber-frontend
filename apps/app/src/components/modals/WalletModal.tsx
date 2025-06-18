@@ -3,7 +3,7 @@
 import CopyableAddress from "@/components/common/CopyableAddress";
 import TokenBalance from "@/components/common/TokenBalance";
 import { Modal } from "@/components/modals";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import chainConfig from "@/config/chain";
 import useWalletBalances from "@/hooks/useWalletBalances";
 import { useStore } from "@/store/useStore";

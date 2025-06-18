@@ -1,4 +1,4 @@
-export { Button } from "@/components/ui/button";
+export { Button } from "@/components/ui/Button";
 export { FlickeringGrid } from "@/components/ui/FlickeringGrid";
 export { default as FormattedValueStatic } from "@/components/ui/FormattedValueStatic";
 export { Particles } from "@/components/ui/Particles";

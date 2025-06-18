@@ -3,7 +3,7 @@
 import { FormattedValue, TokenBalance } from "@/components/common";
 import { AssetActionType, UnifiedAssetModal } from "@/components/modals";
 import AssetItemSkeleton from "@/components/skeletons/AssetItemSkeleton";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import chainConfig from "@/config/chain";
 import { convertAprToApy } from "@/utils/finance";
 import { useChain } from "@cosmos-kit/react";

@@ -4,7 +4,7 @@ import { ConnectButton } from "@/components/common/ConnectButton";
 import Logo from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AuroraText } from "@/components/ui/AuroraText";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { initializeWasm } from "@/utils/health_computer/initWasm";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

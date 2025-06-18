@@ -4,7 +4,7 @@ import TokenBalance from "@/components/common/TokenBalance";
 import UnifiedAssetModal, {
   AssetActionType,
 } from "@/components/modals/UnifiedAssetModal";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useStore } from "@/store/useStore";
 import React, { useMemo, useState } from "react";
 
