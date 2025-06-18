@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "name": "bitcoin-outpost-app",
-  "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm install && pnpm build --filter=@bitcoin-outpost/app",
-  "outputDirectory": ".next",
-  "installCommand": "cd ../.. && pnpm install",
-  "rootDirectory": "apps/app"
-} 
