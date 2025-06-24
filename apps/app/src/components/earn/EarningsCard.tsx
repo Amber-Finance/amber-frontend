@@ -3,8 +3,8 @@ import GlassCard from '@/components/common/GlassCard'
 import { Info } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
-import { useState } from 'react'
-import { EarningsAssetModal } from '@/components/modals/EarningsAssetModal'
+// import { useState } from 'react'
+// import { EarningsAssetModal } from '@/components/modals/EarningsAssetModal'
 
 type EarningsCardProps = {
   asset: string
@@ -14,39 +14,15 @@ type EarningsCardProps = {
 }
 
 export default function EarningsCard({ asset, icon, balance, apr }: EarningsCardProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  // const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
+  // const handleOpenModal = () => {
+  //   setIsModalOpen(true)
+  // }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  // This is a placeholder. We will need to adjust it based on the actual data available.
-  const mockMarket = {
-    asset: {
-      denom: 'eth',
-      symbol: asset,
-      name: asset,
-      icon: icon || '',
-      decimals: 18,
-    },
-    calculatedValues: {
-      suppliedUsd: 0,
-      borrowedUsd: 0,
-      supplyApy: apr.toString(),
-      borrowApy: '0',
-      liqLtv: '0',
-      vaultTotal: 1854202, // Mock data based on the image
-      layerTotal: 31384430, // Mock data based on the image
-    },
-    user: {
-      walletBalance: balance,
-      deposits: 0,
-    },
-  }
+  // const handleCloseModal = () => {
+  //   setIsModalOpen(false)
+  // }
 
   return (
     <>
@@ -78,7 +54,7 @@ export default function EarningsCard({ asset, icon, balance, apr }: EarningsCard
               </div>
             </div>
             <div className='flex justify-between py-2 border-t border-white/5'>
-              <span className='text-muted-text text-sm'>Earnings</span>
+              <span className='text-muted-text text-sm'>My Earnings</span>
               <div className='flex items-center'>
                 <span className='text-primary-text text-sm'>
                   {balance} {asset}
@@ -86,22 +62,27 @@ export default function EarningsCard({ asset, icon, balance, apr }: EarningsCard
               </div>
             </div>
             <div className='flex justify-between py-2 border-t border-white/5'>
-              <span className='text-muted-text text-sm'>Net APR</span>
+              <span className='text-muted-text text-sm'>Total Deposits</span>
+              <div className='flex items-center'>
+                <span className='text-primary-text text-sm'>
+                  {balance} {asset}
+                </span>
+              </div>
+            </div>
+            <div className='flex justify-between py-2 border-t border-white/5'>
+              <span className='text-muted-text text-sm'>Net APY</span>
               <div className='flex items-center'>
                 <span className='text-primary-text text-sm'>{apr}%</span>
                 <Info className='text-muted-text ml-2' size={14} />
               </div>
             </div>
           </div>
-          <Button
-            onClick={handleOpenModal}
-            className='w-full cursor-pointer bg-white/5 backdrop-blur-xl border border-white/10 hover:bg-white/8 text-primary-text font-semibold py-2 px-4 rounded-lg transition-all duration-300 text-sm shadow-lg hover:shadow-xl'
-          >
+          <Button onClick={() => {}} variant='glass' className='w-full'>
             START EARNING
           </Button>
         </CardContent>
       </GlassCard>
-      <EarningsAssetModal isOpen={isModalOpen} onClose={handleCloseModal} market={mockMarket} />
+      {/* <EarningsAssetModal isOpen={isModalOpen} onClose={handleCloseModal} market={mockMarket} /> */}
     </>
   )
 }

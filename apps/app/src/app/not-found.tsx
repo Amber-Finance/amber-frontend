@@ -10,7 +10,7 @@ export default function NotFound() {
         Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been removed,
         had its name changed, or is temporarily unavailable.
       </p>
-      <Button variant='default' size='default' asChild>
+      <Button variant='hero' size='lg' asChild>
         <Link href='/'>Back to Dashboard</Link>
       </Button>
     </div>
