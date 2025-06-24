@@ -1,4 +1,4 @@
-import { Navbar } from '@/components/layout'
+import Navbar from '@/components/layout/Navbar'
 import { CosmosKitProvider } from '@/components/providers/CosmosKitProvider'
 import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
@@ -56,7 +56,7 @@ export default function RootLayout({
                   staticity={30}
                   refresh={false}
                 />
-                <div className='relative z-10 w-full max-w-full'>
+                <div className='relative z-10 w-full max-w-screen-2xl mx-auto'>
                   <Navbar />
                   <Hero />
                   {children}

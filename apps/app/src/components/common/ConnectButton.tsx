@@ -1,12 +1,12 @@
 'use client'
 
-import { WalletModal } from '@/components/modals'
+import WalletModal from '@/components/modals/WalletModal'
 import { Button } from '@/components/ui/Button'
 import chainConfig from '@/config/chain'
 import { useChain } from '@cosmos-kit/react'
 import { useState } from 'react'
 
-export const ConnectButton: React.FC = () => {
+export default function ConnectButton() {
   const [showWalletModal, setShowWalletModal] = useState(false)
 
   const { connect, isWalletConnecting, isWalletConnected, address, username, wallet } = useChain(

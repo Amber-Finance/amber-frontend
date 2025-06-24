@@ -1,7 +1,7 @@
-import RunningCircle from '@/components/common/RunningCircle'
 import { Button } from '@/components/ui/Button'
+import RunningCircle from '@/components/common/RunningCircle'
 
-const Hero = () => {
+export default function Hero() {
   return (
     <section className='relative w-full my-15 text-center'>
       {/* Background circle */}
@@ -25,5 +25,3 @@ const Hero = () => {
     </section>
   )
 }
-
-export default Hero

@@ -1,17 +1,17 @@
 'use client'
 
-import { ConnectButton } from '@/components/common/ConnectButton'
-import Logo from '@/components/layout/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import Logo from '@/components/layout/Logo'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
-import { NavLink } from '@/components/ui/NavLink'
+import ConnectButton from '@/components/common/ConnectButton'
 import { initializeWasm } from '@/utils/health_computer/initWasm'
+import NavLink from '@/components/common/NavLink'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 
-const Navbar = () => {
+export default function Navbar() {
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -27,7 +27,7 @@ const Navbar = () => {
 
   return (
     <nav className='w-full mt-14'>
-      <div className='flex h-14 items-center justify-between px-4 max-w-screen-2xl mx-auto'>
+      <div className='flex h-14 items-center justify-between px-4'>
         <div className='flex items-center gap-6'>
           <Link href='/' className='flex items-center gap-2 text-lg font-semibold'>
             <Logo className='w-8 h-8' />
@@ -40,7 +40,7 @@ const Navbar = () => {
           </Link>
         </div>
         {/* Desktop Navigation */}
-        <div className='hidden md:flex items-center gap-4 border border-muted-text/5 p-1 rounded-xl bg-primary/3'>
+        <div className='hidden md:flex items-center gap-4 border border-muted-text/5 p-1 rounded-xl bg-primary/3 ml-14'>
           <NavLink href='/'>EARN</NavLink>
 
           <div className='w-px h-3 bg-muted-text/10' />
@@ -93,5 +93,3 @@ const Navbar = () => {
     </nav>
   )
 }
-
-export default Navbar

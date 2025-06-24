@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-const RunningCircle = () => {
+export default function RunningCircle() {
   return (
     <div className='flex items-center justify-center'>
       <div className='relative w-36 h-36 rounded-full p-[1.25px] overflow-hidden'>
@@ -20,5 +20,3 @@ const RunningCircle = () => {
     </div>
   )
 }
-
-export default RunningCircle
