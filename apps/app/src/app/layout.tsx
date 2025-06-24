@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import './globals.css'
 import Background from '@/components/layout/Background'
 import { Particles } from '@/components/ui/Particles'
-import Hero from '@/components/Hero'
+import Hero from '@/components/layout/Hero'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
