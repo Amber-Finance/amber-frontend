@@ -34,6 +34,8 @@ const config = {
         'button-border-top': 'var(--button-border-top)',
         'button-border-x': 'var(--button-border-x)',
         'button-span-gradient': 'var(--button-span-gradient)',
+        // Card colors
+        'card-accent': 'var(--card-accent-color)',
       },
       fontFamily: {
         sans: ['var(--font-geist-sans)'],
