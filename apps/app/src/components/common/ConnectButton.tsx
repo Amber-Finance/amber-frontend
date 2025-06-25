@@ -1,10 +1,10 @@
 'use client'
 
 import WalletModal from '@/components/modals/WalletModal'
-import { Button } from '@/components/ui/Button'
 import chainConfig from '@/config/chain'
 import { useChain } from '@cosmos-kit/react'
 import { useState } from 'react'
+import { HoverBaseButton } from '../ui/HoverBaseButton'
 
 export default function ConnectButton() {
   const [showWalletModal, setShowWalletModal] = useState(false)
@@ -42,7 +42,12 @@ export default function ConnectButton() {
 
   return (
     <>
-      <Button variant='hero' size='lg' onClick={handleClick} disabled={isWalletConnecting}>
+      <HoverBaseButton
+        onClick={handleClick}
+        disabled={isWalletConnecting}
+        className='text-sm'
+        dotColor={isWalletConnected ? 'bg-green-500' : 'bg-red-500'}
+      >
         {/* Different text for mobile vs desktop */}
         {connectText || (
           <>
@@ -55,13 +60,13 @@ export default function ConnectButton() {
               </>
             ) : (
               <>
-                <span className='hidden md:inline'>CONNECT WALLET</span>
-                <span className='md:hidden'>CONNECT</span>
+                <span className='hidden md:inline'>Connect</span>
+                <span className='md:hidden'>Connect</span>
               </>
             )}
           </>
         )}
-      </Button>
+      </HoverBaseButton>
 
       {/* Wallet Modal */}
       <WalletModal isOpen={showWalletModal} onClose={() => setShowWalletModal(false)} />

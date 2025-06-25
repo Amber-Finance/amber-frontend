@@ -7,12 +7,12 @@ export default function LandingPage() {
             Bitcoin Outpost
           </h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
-            The premier destination for Bitcoin DeFi. Lend, borrow, and earn
-            with your Bitcoin assets.
+            Bridge your liquid staking tokens and earn maximum yield. Get both
+            staking rewards plus additional lending APY on your Bitcoin LSTs.
           </p>
           <div className="flex gap-4 justify-center">
             <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-8 rounded-lg transition-colors shadow-sm">
-              Launch App
+              Bridge & Deposit
             </button>
             <button className="border border-border hover:bg-accent hover:text-accent-foreground text-foreground font-medium py-3 px-8 rounded-lg transition-colors">
               Learn More
@@ -22,26 +22,24 @@ export default function LandingPage() {
 
         <div className="mt-16 grid md:grid-cols-3 gap-8">
           <div className="text-center p-6 rounded-lg border bg-card">
-            <div className="text-4xl mb-4">🏦</div>
-            <h3 className="text-xl font-semibold mb-2">Lend & Earn</h3>
+            <div className="text-4xl mb-4">🌉</div>
+            <h3 className="text-xl font-semibold mb-2">Bridge LSTs</h3>
             <p className="text-muted-foreground">
-              Earn yield on your Bitcoin by lending to the protocol
+              Bridge your liquid staking tokens from Ethereum and other networks
             </p>
           </div>
           <div className="text-center p-6 rounded-lg border bg-card">
             <div className="text-4xl mb-4">💰</div>
-            <h3 className="text-xl font-semibold mb-2">Borrow Assets</h3>
+            <h3 className="text-xl font-semibold mb-2">Earn Combined Yield</h3>
             <p className="text-muted-foreground">
-              Use your Bitcoin as collateral to borrow other assets
+              Get both underlying staking rewards plus additional lending APY
             </p>
           </div>
           <div className="text-center p-6 rounded-lg border bg-card">
             <div className="text-4xl mb-4">🔒</div>
-            <h3 className="text-xl font-semibold mb-2">
-              Secure & Decentralized
-            </h3>
+            <h3 className="text-xl font-semibold mb-2">Secure & Liquid</h3>
             <p className="text-muted-foreground">
-              Built on secure blockchain infrastructure
+              Maintain liquidity while maximizing yield on your Bitcoin assets
             </p>
           </div>
         </div>

@@ -38,8 +38,8 @@ const config = {
         'card-accent': 'var(--card-accent-color)',
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)'],
-        mono: ['var(--font-geist-mono)'],
+        sans: ['var(--font-space-mono)', 'monospace'],
+        mono: ['var(--font-space-mono)', 'monospace'],
       },
     },
   },
