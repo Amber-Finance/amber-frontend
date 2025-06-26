@@ -49,6 +49,15 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        'rotate-border': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+      },
+      animation: {
+        'rotate-border': 'rotate-border 15s linear infinite',
+      },
     },
   },
   plugins: [],

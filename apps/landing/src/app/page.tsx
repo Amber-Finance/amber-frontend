@@ -1,49 +1,87 @@
+import SplineObject from '../components/SplineObject'
+
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center">
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
-            Bitcoin Outpost
-          </h1>
-          <p className="text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
-            Bridge your liquid staking tokens and earn maximum yield. Get both
-            staking rewards plus additional lending APY on your Bitcoin LSTs.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-8 rounded-lg transition-colors shadow-sm">
-              Bridge & Deposit
-            </button>
-            <button className="border border-border hover:bg-accent hover:text-accent-foreground text-foreground font-medium py-3 px-8 rounded-lg transition-colors">
-              Learn More
-            </button>
-          </div>
-        </div>
+    <div className="relative w-full h-screen">
+      <div className="absolute inset-0 w-full h-full">
+        <SplineObject />
+      </div>
 
-        <div className="mt-16 grid md:grid-cols-3 gap-8">
-          <div className="text-center p-6 rounded-lg border bg-card">
-            <div className="text-4xl mb-4">🌉</div>
-            <h3 className="text-xl font-semibold mb-2">Bridge LSTs</h3>
-            <p className="text-muted-foreground">
-              Bridge your liquid staking tokens from Ethereum and other networks
-            </p>
-          </div>
-          <div className="text-center p-6 rounded-lg border bg-card">
-            <div className="text-4xl mb-4">💰</div>
-            <h3 className="text-xl font-semibold mb-2">Earn Combined Yield</h3>
-            <p className="text-muted-foreground">
-              Get both underlying staking rewards plus additional lending APY
-            </p>
-          </div>
-          <div className="text-center p-6 rounded-lg border bg-card">
-            <div className="text-4xl mb-4">🔒</div>
-            <h3 className="text-xl font-semibold mb-2">Secure & Liquid</h3>
-            <p className="text-muted-foreground">
-              Maintain liquidity while maximizing yield on your Bitcoin assets
-            </p>
+      <div className="relative z-10 h-full flex items-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl">
+            <div className="text-white">
+              <h1 className="text-[60px] font-semibold mb-6 tracking-wider bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent">
+                Stake Your Bitcoin
+              </h1>
+              <p className="text-xl mb-8 text-muted-foreground">
+                Bridge your liquid staking tokens and earn maximum yield. Get both
+                staking rewards plus additional lending APY on your Bitcoin LSTs.
+              </p>
+              <div className="flex">
+              <div className="slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]">
+                <button className="slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136]  text-white font-medium py-2 px-8 w-full h-full">
+                  Enter App
+                </button>
+              </div>
+              <div className="slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]">
+                <button className="slanted-btn-2 bg-[#0f0f0f] text-white font-medium py-2 px-8 w-full h-full">
+                  Learn More
+                </button>
+              </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </main>
+
+      {/* Footer overlay to hide Spline watermark */}
+      <footer className="absolute bottom-0 right-0 w-full h-16 bg-[#0f0f0f] z-10">
+        <div className="h-full flex items-center justify-center text-white text-sm opacity-70">
+        </div>
+      </footer>
+    </div>
+    // <div className="relative w-full min-h-screen">
+    //   {/* Main content */}
+    //   <main className="mx-auto w-full min-h-screen flex items-center">
+    //     <div className="container mx-auto px-4 flex items-center justify-between">
+    //       {/* Left side - Text content */}
+    //       <div className="flex-1 max-w-2xl">
+    //         <div className="text-white">
+    //           <h1 className="text-[70px] font-semibold mb-4 tracking-wider bg-gradient-to-b from-[rgb(239,121,87)] to-[rgba(239,117,51,255)] bg-clip-text text-transparent">
+    //           Stake Your Bitcoin
+    //            </h1>
+    //           <p className="text-2xl mb-8 text-muted-foreground">
+    //             Bridge your liquid staking tokens and earn maximum yield. Get both
+    //             staking rewards plus additional lending APY on your Bitcoin LSTs.
+    //           </p>
+    //         <div className="flex">
+    //         <div className="slanted-border p-[2px] inline-block bg-gradient-to-r from-red-700 to-yellow-700">
+    //           <button className="slanted-btn bg-gradient-to-r from-red-700 to-yellow-700 text-white font-medium py-2 px-8 w-full h-full">
+    //             Enter App
+    //           </button>
+    //         </div>
+    //         <div className="slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-red-700 to-yellow-700">
+    //           <button className="slanted-btn-2 bg-[#0f0f0f] text-white font-medium py-2 px-8 w-full h-full">
+    //             Learn More
+    //           </button>
+    //         </div>
+    //         </div>
+    //         </div>
+    //       </div>
+
+    //       {/* Right side - Spline Object */}
+    //       <div className="flex-1 h-screen">
+    //         <SplineObject />
+    //       </div>
+    //     </div>
+    //   </main>
+
+    //   {/* Footer overlay to hide Spline watermark */}
+    //   <footer className="absolute bottom-0 right-0 w-full h-16 bg-[#0A0B10] z-10">
+    //     <div className="h-full flex items-center justify-center text-white text-sm opacity-70">
+    //     </div>
+    //   </footer>
+    // </div>
   );
 }
