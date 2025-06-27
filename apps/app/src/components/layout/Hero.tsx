@@ -54,38 +54,71 @@ export default function Hero({ markets }: HeroProps) {
 
   return (
     <section className='relative w-full pt-20 pb-8 sm:pt-24 sm:pb-12 lg:pt-28 lg:pb-16 text-center'>
-      {/* Background circle */}
-      <div className='absolute left-1/2 top-1/2 w-[480px] h-[480px] lg:w-[640px] lg:h-[640px] -translate-x-1/2 -translate-y-[55%] rounded-full border border-border/20 -z-10 opacity-50' />
-
       {/* Additional background effects */}
       <div className='absolute left-1/2 top-1/2 w-[240px] h-[240px] -translate-x-1/2 -translate-y-[55%] rounded-full bg-primary/5 blur-3xl -z-10' />
 
       <div className='relative max-w-3xl mx-auto px-3 sm:px-5 lg:px-6'>
         <div className='space-y-5'>
-          <h1 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight'>
-            Max <AuroraText colors={['#FF8C00', '#FF6B35', '#F7931E', '#FFA500']}>BTC</AuroraText>
+          <h1 className='text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#f48a59] flex items-center justify-center'>
+            <span style={{ display: 'inline-block' }}>
+              <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>Bit</AuroraText>
+            </span>
+            <svg
+              height='60'
+              viewBox='0 0 240 100'
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
+              style={{
+                marginTop: '10px',
+              }}
+            >
+              <defs>
+                <linearGradient
+                  id='spire-gradient'
+                  x1='0'
+                  y1='0'
+                  x2='400'
+                  y2='0'
+                  gradientUnits='userSpaceOnUse'
+                >
+                  <stop stopColor='#b1241e' />
+                  <stop offset='0.5' stopColor='#FF6B35' />
+                  <stop offset='1' stopColor='#f57136' />
+                </linearGradient>
+              </defs>
+              <text
+                x='0'
+                y='70'
+                fontFamily="'Space Mono', monospace"
+                fontWeight='bold'
+                fontSize='80'
+                fill='none'
+                stroke='url(#spire-gradient)'
+                strokeWidth='2'
+              >
+                Spire
+              </text>
+            </svg>
           </h1>
 
-          <p className='mx-auto max-w-xl text-sm sm:text-base text-muted-foreground leading-relaxed'>
-            Bridge your liquid staking tokens and enter yield farming strategies. Earn both
-            underlying staking rewards plus additional protocol yields.
+          <p className='mx-auto max-w-2xl text-sm text-muted-foreground leading-relaxed'>
+            Bridge your liquid staking tokens and earn maximum yield. Deposit LSTs to earn both
+            underlying staking rewards plus additional lending APY.
           </p>
 
-          <div className='flex flex-col sm:flex-row gap-3 justify-center items-center'>
-            <Button className='bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold px-6 py-2 h-10 group transition-all duration-200 hover:shadow-lg hover:shadow-primary/25'>
-              <span className='flex items-center gap-2'>
-                <Landmark className='w-3.5 h-3.5' />
-                Bridge
-                <ArrowRight className='w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5' />
-              </span>
-            </Button>
-
-            <Button className='h-10 px-6 py-2 font-semibold border border-border/50 hover:border-border hover:bg-muted/50 bg-background'>
-              <span className='flex items-center gap-2 text-card-foreground'>
-                <Coins className='w-3.5 h-3.5' />
-                Deposit
-              </span>
-            </Button>
+          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
+            <div className='flex'>
+              <div className='slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]'>
+                <button className='slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136] text-white font-medium py-2 px-8 w-full h-full text-sm'>
+                  Bridge
+                </button>
+              </div>
+              <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]'>
+                <button className='slanted-btn-2 bg-background text-white font-medium py-2 px-10 w-full h-full text-sm'>
+                  Swap
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Stats Row */}
