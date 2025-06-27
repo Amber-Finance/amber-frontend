@@ -1,4 +1,4 @@
-import SplineObject from '../components/SplineObject'
+import SplineObject from '@/components/SplineObject'
 
 export default function LandingPage() {
   return (

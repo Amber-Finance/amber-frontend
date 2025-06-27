@@ -1,5 +1,5 @@
 // Import the shared theme colors
-import { grayColors } from "../theme/themeColors";
+import { grayColors } from "@/theme/themeColors";
 
 // Define the Theme interface based on the CosmosKit theme structure
 export interface Theme {

@@ -1,194 +1,145 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { AnimatePresence, motion, Variants } from 'motion/react'
-import { AlignJustify, XIcon } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import ConnectButton from '../common/ConnectButton'
-import RunningCircle from '../common/RunningCircle'
-import { ThemeToggle } from '../ui/ThemeToggle'
-import { AuroraText } from '../ui/AuroraText'
+import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import ConnectButton from '@/components/common/ConnectButton'
+import RunningCircle from '@/components/common/RunningCircle'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { AuroraText } from '@/components/ui/AuroraText'
 
-const menuItem = [
-  {
-    id: 1,
-    label: 'Bridge',
-    href: '/',
-  },
-  {
-    id: 2,
-    label: 'Deposit',
-    href: '/deposit',
-  },
-  {
-    id: 3,
-    label: 'Swap',
-    href: '/swap',
-  },
+const navigation = [
+  { name: 'Yield', href: '/' },
+  { name: 'Strategies', href: '/strategies' },
+  { name: 'Swap', href: '/swap' },
 ]
 
 export function Navbar() {
-  const mobileNavbarVariant = {
-    initial: {
-      opacity: 0,
-      scale: 1,
-    },
-    animate: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.2,
-        ease: 'easeOut',
-      },
-    },
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.2,
-        delay: 0.2,
-        ease: 'easeOut',
-      },
-    },
-  }
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
 
-  const mobileLinkVar = {
-    initial: {
-      y: '-20px',
-      opacity: 0,
-    },
-    open: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.3,
-        ease: 'easeOut',
-      },
-    },
-  }
-
-  const containerVariants = {
-    open: {
-      transition: {
-        staggerChildren: 0.06,
-      },
-    },
-  }
-
-  const [hamburgerMenuIsOpen, setHamburgerMenuIsOpen] = useState(false)
-
+  // Close mobile menu when route changes
   useEffect(() => {
-    const html = document.querySelector('html')
-    if (html) html.classList.toggle('overflow-hidden', hamburgerMenuIsOpen)
-  }, [hamburgerMenuIsOpen])
+    setMobileMenuOpen(false)
+  }, [pathname])
 
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    const closeHamburgerNavigation = () => setHamburgerMenuIsOpen(false)
-    window.addEventListener('orientationchange', closeHamburgerNavigation)
-    window.addEventListener('resize', closeHamburgerNavigation)
-
-    return () => {
-      window.removeEventListener('orientationchange', closeHamburgerNavigation)
-      window.removeEventListener('resize', closeHamburgerNavigation)
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
     }
-  }, [setHamburgerMenuIsOpen])
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [mobileMenuOpen])
 
   return (
     <>
-      <header className='fixed left-0 top-0 z-50 w-full border-b backdrop-blur-[12px]'>
-        <div className='mx-auto max-w-screen-2xl px-4 flex h-[7rem] items-center justify-between'>
-          {/* Logo section with running circle */}
-          <Link className='flex items-center gap-3' href='/'>
-            <RunningCircle className='scale-75' />
-            <span className='text-lg font-bold'>
-              Max <AuroraText colors={['#FF8C00', '#FF6B35', '#F7931E', '#FFA500']}>BTC</AuroraText>
-            </span>
-          </Link>
-
-          {/* Desktop Navigation Links - Center */}
-          <nav className='hidden md:flex items-center gap-8 py-4'>
-            {menuItem.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className='text-lg font-medium transition-colors hover:text-primary py-2'
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right side controls */}
-          <div className='flex h-full items-center gap-2'>
-            <ThemeToggle />
-            <ConnectButton />
-            <button
-              className='ml-2 md:hidden'
-              onClick={() => setHamburgerMenuIsOpen((open) => !open)}
-            >
-              <span className='sr-only'>Toggle menu</span>
-              {hamburgerMenuIsOpen ? <XIcon /> : <AlignJustify />}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        <motion.nav
-          initial='initial'
-          exit='exit'
-          variants={mobileNavbarVariant as Variants}
-          animate={hamburgerMenuIsOpen ? 'animate' : 'exit'}
-          className={cn(
-            `fixed left-0 top-0 z-50 h-screen w-full overflow-auto bg-background/70 backdrop-blur-[12px] `,
-            {
-              'pointer-events-none': !hamburgerMenuIsOpen,
-            },
-          )}
-        >
-          <div className='mx-auto max-w-screen-2xl px-4 flex h-[5rem] items-center justify-between'>
-            <Link className='flex items-center gap-3' href='/'>
-              <RunningCircle className='scale-75' />
-              <span className='text-lg font-bold'>
-                Max{' '}
-                <AuroraText colors={['#FF8C00', '#FF6B35', '#F7931E', '#FFA500']}>BTC</AuroraText>
+      {/* Main Navigation */}
+      <header className='fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50'>
+        <nav className='mx-auto py-2 max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
+          <div className='flex items-center justify-between h-16'>
+            {/* Logo */}
+            <Link href='/' className='flex items-center space-x-2 group'>
+              <RunningCircle className='scale-[0.7]' />
+              <span className='text-lg font-bold group-hover:text-primary transition-colors'>
+                Max <AuroraText colors={['#FF8C00', '#FF6B35', '#F7931E', '#FFA500']}>BTC</AuroraText>
               </span>
             </Link>
 
-            <button
-              className='ml-6 md:hidden'
-              onClick={() => setHamburgerMenuIsOpen((open) => !open)}
-            >
-              <span className='sr-only'>Toggle menu</span>
-              {hamburgerMenuIsOpen ? <XIcon /> : <AlignJustify />}
-            </button>
-          </div>
-          <motion.ul
-            className={`flex flex-col md:flex-row md:items-center uppercase md:normal-case ease-in`}
-            variants={containerVariants}
-            initial='initial'
-            animate={hamburgerMenuIsOpen ? 'open' : 'exit'}
-          >
-            {menuItem.map((item) => (
-              <motion.li
-                variants={mobileLinkVar as Variants}
-                key={item.id}
-                className='border-grey-dark pl-6 py-0.5 border-b md:border-none'
+            {/* Desktop Navigation */}
+            <div className='hidden md:flex md:items-center md:space-x-8'>
+              {navigation.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      'text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md',
+                      isActive 
+                        ? 'text-primary bg-primary/10' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Desktop Actions */}
+            <div className='hidden md:flex md:items-center md:space-x-3'>
+              <ThemeToggle />
+              <ConnectButton />
+            </div>
+
+            {/* Mobile menu button */}
+            <div className='flex items-center space-x-3 md:hidden'>
+              <ThemeToggle />
+              <button
+                type='button'
+                className='inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors'
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-expanded='false'
               >
-                <Link
-                  className={`hover:text-grey flex h-[var(--navigation-height)] w-full items-center text-xl transition-[color,transform] duration-300 md:translate-y-0 md:text-sm md:transition-colors ${
-                    hamburgerMenuIsOpen ? '[&_a]:translate-y-0' : ''
-                  }`}
-                  href={item.href}
-                >
-                  {item.label}
-                </Link>
-              </motion.li>
-            ))}
-          </motion.ul>
-        </motion.nav>
-      </AnimatePresence>
+                <span className='sr-only'>Open main menu</span>
+                {mobileMenuOpen ? (
+                  <X className='block h-5 w-5' aria-hidden='true' />
+                ) : (
+                  <Menu className='block h-5 w-5' aria-hidden='true' />
+                )}
+              </button>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className='fixed inset-0 z-40 md:hidden'>
+          {/* Backdrop */}
+          <div 
+            className='fixed inset-0 bg-background/80 backdrop-blur-sm'
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          
+          {/* Menu Panel */}
+          <div className='fixed top-16 left-0 right-0 bg-background border-b border-border shadow-lg'>
+            <div className='px-4 py-6 space-y-4'>
+              {navigation.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      'block px-4 py-3 text-base font-medium rounded-lg transition-colors',
+                      isActive
+                        ? 'text-primary bg-primary/10'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    )}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                )
+              })}
+              
+              {/* Mobile Connect Button */}
+              <div className='pt-4 border-t border-border'>
+                <ConnectButton />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

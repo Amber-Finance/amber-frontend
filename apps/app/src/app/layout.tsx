@@ -7,7 +7,7 @@ import type { Metadata } from 'next'
 import { Space_Mono } from 'next/font/google'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import './globals.css'
+import '@/app/globals.css'
 import { Background } from '@/components/layout/Background'
 import { Particles } from '@/components/ui/Particles'
 
@@ -31,19 +31,18 @@ export default function RootLayout({
   return (
     <html
       lang='en'
-      className='overflow-y-auto overflow-x-hidden no-scrollbar'
+      className='overflow-y-scroll no-scrollbar'
       suppressHydrationWarning
-      style={{ overscrollBehavior: 'none' }}
     >
       <head />
       <body
-        className={`${spaceMono.variable} antialiased cursor-default overflow-x-hidden font-mono`}
+        className={`${spaceMono.variable} antialiased overflow-x-hidden font-mono`}
         style={{ overscrollBehavior: 'none' }}
       >
         <ThemeProvider defaultTheme='dark' storageKey='btc-outpost-theme'>
           <SWRProvider>
             <CosmosKitProvider>
-              <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background'>
+              <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
                 <Background />
                 <Particles
                   className='absolute inset-0 z-0'
@@ -54,9 +53,8 @@ export default function RootLayout({
                   staticity={30}
                   refresh={false}
                 />
-                <div className='relative z-10 w-full max-w-screen-2xl mx-auto'>
+                <div className='relative z-10 w-full max-w-screen-2xl mx-auto w'>
                   <Navbar />
-                  <div className='h-[7rem]' />
                   {children}
                 </div>
 

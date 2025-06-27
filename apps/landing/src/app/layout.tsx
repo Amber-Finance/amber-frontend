@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ReactNode } from "react";
-import "./globals.css";
-import RunningLogo from "../components/RunningLogo";
+import "@/app/globals.css";
+import RunningLogo from "@/components/RunningLogo";
 import { Space_Mono } from 'next/font/google'
 
 const spaceMono = Space_Mono({
