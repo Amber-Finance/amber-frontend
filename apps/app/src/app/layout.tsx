@@ -9,7 +9,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import '@/app/globals.css'
 import { Background } from '@/components/layout/Background'
-import { Particles } from '@/components/ui/Particles'
+import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
 const spaceMono = Space_Mono({
   variable: '--font-space-mono',
@@ -44,11 +44,10 @@ export default function RootLayout({
             <CosmosKitProvider>
               <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
                 <Background />
-                <Particles
+                <ThemedParticles
                   className='absolute inset-0 z-0'
                   quantity={150}
                   ease={70}
-                  color='#f7931a'
                   size={0.6}
                   staticity={30}
                   refresh={false}

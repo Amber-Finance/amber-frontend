@@ -50,7 +50,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   return (
     <Card
-      className='group relative w-[272px] transition-all duration-300 hover:shadow-xl bg-card/75 backdrop-blur-sm border overflow-hidden'
+      className='group relative w-[272px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card/75 backdrop-blur-sm border overflow-hidden'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -71,13 +71,12 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           background: `linear-gradient(135deg, ${token.brandColor}08 0%, transparent 50%, transparent 100%)`,
         }}
       />
-      <div className='flex flex-col justify-between gap-4 h-full'>
-
-      <CardHeader className='relative pb-3 space-y-2 z-20'>
-        <div className='flex items-start justify-between'>
-          <div className='flex items-center gap-2'>
+      {/* Header Section - Fixed Height */}
+      <CardHeader className='relative pb-3 z-20 flex-shrink-0 h-20'>
+        <div className='flex items-start justify-between h-full'>
+          <div className='flex items-start gap-2 min-w-0 flex-1'>
             {/* Token Icon with brand color glow effect */}
-            <div className='relative'>
+            <div className='relative flex-shrink-0'>
               <div
                 className='absolute inset-0 rounded-full blur-md scale-110 opacity-0 group-hover:opacity-100 transition-all duration-300'
                 style={{
@@ -95,37 +94,47 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               </div>
             </div>
 
-            <div className='space-y-0.5'>
-              <CardTitle className='text-base font-semibold text-card-foreground flex items-center gap-2'>
+            <div className='min-w-0 flex-1 max-w-[120px]'>
+              <CardTitle className='text-base font-semibold text-card-foreground truncate'>
                 {token.symbol}
               </CardTitle>
-              <CardDescription className='text-xs text-muted-foreground/90 font-medium'>
-                {token.protocol}
+              <CardDescription className='text-xs text-muted-foreground/90 font-medium h-8 overflow-hidden leading-tight'>
+                <div 
+                  className='overflow-hidden'
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical' as const,
+                  }}
+                >
+                  {token.protocol}
+                </div>
               </CardDescription>
             </div>
           </div>
 
-          <div className='flex flex-col items-end gap-1'>
+          <div className='flex flex-col items-end justify-start flex-shrink-0 ml-2 min-w-[80px]'>
             {/* Total APY - Clean display in header */}
             <div className='text-right'>
-              <div className='text-xl font-bold' style={{ color: token.brandColor }}>
+              <div className='text-xl font-bold leading-tight' style={{ color: token.brandColor }}>
                 <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
               </div>
-              <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
+              <div className='text-xs text-muted-foreground/80 font-medium leading-tight whitespace-nowrap'>Total APY</div>
             </div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className='relative space-y-4 z-20'>
+      {/* Content Section - Flexible Height */}
+      <CardContent className='relative z-20 flex-1 flex flex-col justify-between px-6 space-y-4'>
         {/* Yield Breakdown Section */}
         <div className='space-y-3'>
-          <div className='space-y-2'>
+          <div className='space-y-3'>
             {/* Staking APY for LSTs - Always show for consistent layout */}
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-2'>
                 <Zap
-                  className='w-3 h-3'
+                  className='w-3 h-3 flex-shrink-0'
                   style={{ color: `${token.brandColor}CC` }} // 80% opacity
                 />
                 <span className='text-xs text-muted-foreground/90'>Staking APY</span>
@@ -145,7 +154,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-2'>
                 <Percent
-                  className='w-3 h-3'
+                  className='w-3 h-3 flex-shrink-0'
                   style={{ color: `${token.brandColor}CC` }} // 80% opacity
                 />
                 <span className='text-xs text-muted-foreground/90'>Protocol APY</span>
@@ -155,48 +164,51 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               </span>
             </div>
           </div>
-        </div>
 
-        <Separator className='bg-border/60' />
+          <Separator className='bg-border/60' />
 
-        {/* Wallet Balance Section - Better Layout */}
-        <div className='space-y-3'>
-          {/* Wallet Balance Section */}
-          <div className='flex flex-col space-y-2 gap-2'>
-            <div className='flex items-center gap-2 text-muted-foreground/90'>
-              <Wallet className='w-3 h-3' />
-              <span className='text-xs font-medium'>Wallet Balance</span>
-            </div>
-            <div className='flex items-center justify-between'>
-              <div className='text-card-foreground font-semibold text-xs'>
-                {formatBalance(metrics.balance)} {token.symbol}
-              </div>
-              <div className='text-xs text-muted-foreground/80'>{formatUsd(metrics.valueUsd)}</div>
-            </div>
-          </div>
-
-          {/* Deposited Section - Only show if there's a deposit */}
-          {metrics.deposited > 0 && (
+          {/* Wallet Balance Section - Consistent Layout */}
+          <div className='space-y-3'>
+            {/* Wallet Balance Section */}
             <div className='space-y-2'>
               <div className='flex items-center gap-2 text-muted-foreground/90'>
-                <Coins className='w-3 h-3' />
-                <span className='text-xs font-medium'>Deposited</span>
+                <Wallet className='w-3 h-3 flex-shrink-0' />
+                <span className='text-xs font-medium'>Wallet Balance</span>
               </div>
-              <div className='text-card-foreground font-semibold text-xs'>
-                {formatBalance(metrics.deposited)} {token.symbol}
+              <div className='flex items-center justify-between'>
+                <div className='text-card-foreground font-semibold text-xs'>
+                  {formatBalance(metrics.balance)} {token.symbol}
+                </div>
+                <div className='text-xs text-muted-foreground/80'>{formatUsd(metrics.valueUsd)}</div>
               </div>
             </div>
-          )}
+
+            {/* Deposited Section - Only show if there's a deposit */}
+            {metrics.deposited > 0 && (
+              <div className='space-y-2'>
+                <div className='flex items-center gap-2 text-muted-foreground/90'>
+                  <Coins className='w-3 h-3 flex-shrink-0' />
+                  <span className='text-xs font-medium'>Deposited</span>
+                </div>
+                <div className='flex items-center justify-between'>
+                  <div className='text-card-foreground font-semibold text-xs'>
+                    {formatBalance(metrics.deposited)} {token.symbol}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
 
-      <CardFooter className='relative pt-3 z-20 space-y-2'>
+      {/* Footer Section - Fixed Height */}
+      <CardFooter className='relative pt-3 z-20 flex-shrink-0 px-6'>
         <div className='flex gap-2 w-full'>
           <Button
             className='flex-1 h-9 font-semibold transition-all duration-200 group shadow-sm bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-xs'
           >
             <span className='flex items-center gap-1.5'>
-              <Landmark className='w-3 h-3' />
+              <Landmark className='w-3 h-3 flex-shrink-0' />
               Bridge
             </span>
           </Button>
@@ -204,13 +216,12 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             className='flex-1 h-9 font-semibold transition-all duration-200 group shadow-sm border border-border/50 hover:border-border hover:bg-muted/50 bg-background text-xs'
           >
             <span className='flex items-center gap-1.5 text-card-foreground'>
-              <Coins className='w-3 h-3' />
+              <Coins className='w-3 h-3 flex-shrink-0' />
               Deposit
             </span>
           </Button>
         </div>
       </CardFooter>
-      </div>
     </Card>
   )
 }
