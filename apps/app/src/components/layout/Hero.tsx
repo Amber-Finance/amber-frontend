@@ -81,7 +81,7 @@ export default function Hero({ markets }: HeroProps) {
             </Button>
 
             <Button className='h-10 px-6 py-2 font-semibold border border-border/50 hover:border-border hover:bg-muted/50 bg-background'>
-              <span className='flex items-center gap-2'>
+              <span className='flex items-center gap-2 text-card-foreground'>
                 <Coins className='w-3.5 h-3.5' />
                 Deposit
               </span>

@@ -156,7 +156,7 @@ export default function StrategiesPage() {
                   </span>
                 </Button>
                 <Button className='flex-1 py-2 px-3 border border-border/50 hover:border-border hover:bg-muted/50 bg-background rounded-lg text-xs font-medium transition-colors'>
-                  <span className='flex items-center gap-1.5'>
+                  <span className='flex items-center gap-1.5 text-card-foreground'>
                     <Coins className='w-3 h-3' />
                     Deposit
                   </span>
