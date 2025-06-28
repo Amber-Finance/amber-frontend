@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
+import { Slider } from '@/components/ui/slider'
 import {
   Coins,
   Percent,
@@ -21,6 +22,7 @@ import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { BigNumber } from 'bignumber.js'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { AmountInput } from '@/components/ui/AmountInput'
 
 type TabType = 'deposit' | 'withdraw'
 
@@ -57,7 +59,6 @@ export default function DepositPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [selectedToken, setSelectedToken] = useState<TokenData | null>(null)
 
-  // Get market data
   useMarkets()
   const { markets } = useStore()
 
@@ -199,16 +200,8 @@ export default function DepositPage() {
     }
   }
 
-  const handleMaxClick = () => {
-    if (activeTab === 'deposit') {
-      setDepositAmount(metrics.balance.toString())
-    } else {
-      setWithdrawAmount(metrics.deposited.toString())
-    }
-  }
-
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const percentage = parseFloat(e.target.value)
+  const handleSliderChange = (value: number[]) => {
+    const percentage = value[0]
     const maxAmount = activeTab === 'deposit' ? metrics.balance : metrics.deposited
     const amount = (maxAmount * percentage) / 100
     if (activeTab === 'deposit') {
@@ -225,8 +218,8 @@ export default function DepositPage() {
 
   return (
     <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-8 mt-20'>
-      {/* Back button for mobile, above the grid */}
-      <div className='block sm:hidden mb-2'>
+      {/* Back button for both mobile and desktop, outside the grid */}
+      <div className='mb-4'>
         <button
           onClick={() => router.back()}
           className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer'
@@ -235,8 +228,8 @@ export default function DepositPage() {
           Back
         </button>
       </div>
+
       <div className='relative mb-4 sm:mb-8'>
-        {/* FlickeringGrid always fills header */}
         <div className='absolute inset-0 z-0 w-full overflow-hidden'>
           <FlickeringGrid
             className='w-full h-full'
@@ -250,127 +243,65 @@ export default function DepositPage() {
           />
         </div>
 
-        {/* Header content: mobile vs desktop */}
+        {/* Header content */}
         <div className='relative z-10'>
-          {/* Mobile layout */}
-          <div className='flex flex-col gap-2 sm:hidden min-h-[160px] pt-4'>
-            <div className='flex items-start justify-between relative'>
-              {/* Token info left */}
-              <div className='flex items-center gap-3 pt-2 pl-2'>
-                <div className='relative w-8 h-8 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
-                  <Image
-                    src={token.icon}
-                    alt={token.symbol}
-                    fill
-                    className='object-contain'
-                    sizes='32px'
-                  />
-                </div>
-                <div>
-                  <h1 className='text-lg font-bold text-foreground leading-tight'>
-                    {token.symbol} Deposit
-                  </h1>
-                  <p className='text-xs text-muted-foreground leading-tight'>{token.protocol}</p>
-                </div>
+          {/* Main header row */}
+          <div className='flex flex-row items-center justify-between gap-4 p-4'>
+            {/* Token info left */}
+            <div className='flex items-center gap-3'>
+              <div className='relative w-8 h-8 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
+                <Image
+                  src={token.icon}
+                  alt={token.symbol}
+                  fill
+                  className='object-contain'
+                  sizes='32px'
+                />
               </div>
-              {/* APY absolute top right */}
-              <div className='absolute top-2 right-2 text-right'>
-                <div className='text-lg font-bold' style={{ color: token.brandColor }}>
-                  <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
-                </div>
-                <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
+              <div>
+                <h1 className='text-lg sm:text-xl font-bold text-foreground'>
+                  {token.symbol} Deposit
+                </h1>
+                <p className='text-xs sm:text-sm text-muted-foreground'>{token.protocol}</p>
               </div>
             </div>
-            {/* Tabs full width below, inside grid */}
-            <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 w-full max-w-full'>
-              <button
-                onClick={() => setActiveTab('deposit')}
-                className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all duration-200 ${
-                  activeTab === 'deposit'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <div className='flex items-center gap-1 justify-center'>
-                  <ArrowUpRight className='w-3 h-3' />
-                  Deposit
-                </div>
-              </button>
-              <button
-                onClick={() => setActiveTab('withdraw')}
-                className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all duration-200 ${
-                  activeTab === 'withdraw'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <div className='flex items-center gap-1 justify-center'>
-                  <ArrowRight className='w-3 h-3' />
-                  Withdraw
-                </div>
-              </button>
-            </div>
-          </div>
-          {/* Desktop layout (unchanged) */}
-          <div className='hidden sm:flex flex-row items-center gap-4 p-4'>
-            <div className='flex flex-col items-start gap-4'>
-              <button
-                onClick={() => router.back()}
-                className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors'
-              >
-                <ArrowLeft className='w-4 h-4' />
-                Back
-              </button>
-              <div className='flex items-center gap-3'>
-                <div className='relative w-8 h-8 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
-                  <Image
-                    src={token.icon}
-                    alt={token.symbol}
-                    fill
-                    className='object-contain'
-                    sizes='32px'
-                  />
-                </div>
-                <div>
-                  <h1 className='text-xl font-bold text-foreground'>{token.symbol} Deposit</h1>
-                  <p className='text-sm text-muted-foreground'>{token.protocol}</p>
-                </div>
-              </div>
-            </div>
-            <div className='ml-auto text-right'>
-              <div className='text-2xl font-bold' style={{ color: token.brandColor }}>
+            {/* APY right */}
+            <div className='text-right'>
+              <div className='text-lg sm:text-2xl font-bold' style={{ color: token.brandColor }}>
                 <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
               </div>
               <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
-              <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-3 w-full sm:w-[400px] lg:w-[550px]'>
-                <button
-                  onClick={() => setActiveTab('deposit')}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all duration-200 ${
-                    activeTab === 'deposit'
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <div className='flex items-center gap-1.5 justify-center'>
-                    <ArrowUpRight className='w-3 h-3' />
-                    Deposit
-                  </div>
-                </button>
-                <button
-                  onClick={() => setActiveTab('withdraw')}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-medium transition-all duration-200 ${
-                    activeTab === 'withdraw'
-                      ? 'bg-background text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <div className='flex items-center gap-1.5 justify-center'>
-                    <ArrowRight className='w-3 h-3' />
-                    Withdraw
-                  </div>
-                </button>
-              </div>
             </div>
+          </div>
+
+          {/* Tabs below header */}
+          <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 sm:mt-3 w-full sm:w-[400px] lg:w-[550px] ml-auto'>
+            <button
+              onClick={() => setActiveTab('deposit')}
+              className={`flex-1 py-1.5 px-2 sm:px-3 rounded-md text-xs font-medium transition-all duration-200 ${
+                activeTab === 'deposit'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                <ArrowUpRight className='w-3 h-3' />
+                Deposit
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('withdraw')}
+              className={`flex-1 py-1.5 px-2 sm:px-3 rounded-md text-xs font-medium transition-all duration-200 ${
+                activeTab === 'withdraw'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                <ArrowRight className='w-3 h-3' />
+                Withdraw
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -437,7 +368,7 @@ export default function DepositPage() {
               <div className='flex justify-between items-center p-2 rounded-lg bg-muted/20'>
                 <div className='flex items-center gap-2'>
                   <Percent className='w-3 h-3 sm:w-4 sm:h-4' style={{ color: token.brandColor }} />
-                  <span className='text-xs sm:text-sm font-medium'>Lending APY</span>
+                  <span className='text-xs sm:text-sm font-medium'>{token.protocol} Yield APY</span>
                 </div>
                 <span className='text-xs sm:text-sm font-bold text-card-foreground'>
                   <CountingNumber value={metrics.lendingApy} decimalPlaces={2} />%
@@ -531,60 +462,45 @@ export default function DepositPage() {
                   {activeTab === 'deposit' ? 'Deposit Amount' : 'Withdraw Amount'}
                 </h3>
 
-                {/* Input Field */}
-                <div className='relative mb-3'>
-                  <input
-                    type='number'
-                    value={currentAmount}
-                    onChange={(e) => {
-                      if (activeTab === 'deposit') {
-                        setDepositAmount(e.target.value)
-                      } else {
-                        setWithdrawAmount(e.target.value)
-                      }
-                    }}
-                    placeholder='0.000000'
-                    className='w-full bg-background/50 border border-border/60 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-offset-background focus:ring-blue-500'
-                    style={
-                      {
-                        '--tw-ring-color': token.brandColor,
-                      } as React.CSSProperties
+                <AmountInput
+                  value={currentAmount}
+                  onChange={(e) => {
+                    if (activeTab === 'deposit') {
+                      setDepositAmount(e.target.value)
+                    } else {
+                      setWithdrawAmount(e.target.value)
                     }
-                  />
-                  <div className='absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1.5'>
-                    <span className='text-xs text-muted-foreground'>{token.symbol}</span>
-                    <button
-                      onClick={handleMaxClick}
-                      className='text-xs px-2 py-0.5 rounded bg-muted/50 hover:bg-muted/70 transition-colors font-medium'
-                      style={{ color: token.brandColor }}
-                    >
-                      MAX
-                    </button>
-                  </div>
-                </div>
+                  }}
+                  token={token}
+                  usdValue={formatUsd(
+                    (parseFloat(currentAmount || '0') || 0) *
+                      (metrics.valueUsd / metrics.balance || 1),
+                  )}
+                  balance={
+                    activeTab === 'deposit'
+                      ? metrics.balance.toString()
+                      : metrics.deposited.toString()
+                  }
+                />
 
-                {/* Slider */}
-                <div className='space-y-1.5 mb-4'>
+                <div className='space-y-2 mb-8'>
                   <div className='flex justify-between items-center'>
                     <span className='text-xs text-muted-foreground'>Amount</span>
                     <span className='text-xs font-medium text-card-foreground'>
                       {percentage.toFixed(1)}%
                     </span>
                   </div>
-                  <input
-                    type='range'
-                    min='0'
-                    max='100'
-                    value={percentage}
-                    onChange={handleSliderChange}
-                    className='w-full h-2 bg-muted/50 rounded-lg appearance-none cursor-pointer slider'
-                    style={{
-                      background: `linear-gradient(to right, ${token.brandColor} 0%, ${token.brandColor} ${percentage}%, #374151 ${percentage}%, #374151 100%)`,
-                    }}
+                  <Slider
+                    value={[percentage]}
+                    onValueChange={handleSliderChange}
+                    max={100}
+                    min={0}
+                    step={0.1}
+                    className='w-full'
+                    brandColor={token.brandColor}
                   />
                 </div>
 
-                {/* Estimated Earnings (for deposit) */}
                 {activeTab === 'deposit' && parseFloat(currentAmount || '0') > 0 && (
                   <div className='p-3 rounded-lg bg-muted/20 border border-border/40 mb-4'>
                     <div className='flex items-center gap-1.5 mb-2'>
@@ -602,14 +518,13 @@ export default function DepositPage() {
                   </div>
                 )}
 
-                {/* Action Button */}
                 <div
                   className='p-[1px] inline-block w-full rounded-lg'
                   style={{ background: token.brandColor }}
                 >
                   <button
                     onClick={activeTab === 'deposit' ? handleDeposit : handleWithdraw}
-                    // disabled={isProcessing || !currentAmount || parseFloat(currentAmount) <= 0}
+                    disabled={isProcessing || !currentAmount || parseFloat(currentAmount) <= 0}
                     className='cursor-pointer bg-card text-white font-medium py-2.5 px-6 w-full h-full rounded-lg text-sm hover:bg-card/90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5'
                   >
                     {isProcessing ? (

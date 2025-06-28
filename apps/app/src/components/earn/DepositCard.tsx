@@ -10,9 +10,10 @@ import { Separator } from '@/components/ui/separator'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
-import { Coins, TrendingUp, Wallet, Zap } from 'lucide-react'
+import { Coins, Percent, TrendingUp, Wallet, Zap } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 
 interface DepositCardProps {
   token: {
@@ -120,6 +121,18 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               </CardDescription>
             </div>
           </div>
+
+          <div className='flex flex-col items-end justify-start flex-shrink-0 ml-2 min-w-[80px]'>
+            {/* Total APY - Clean display in header */}
+            <div className='text-right'>
+              <div className='text-xl font-bold leading-tight' style={{ color: token.brandColor }}>
+                <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
+              </div>
+              <div className='text-xs text-muted-foreground/80 font-medium leading-tight whitespace-nowrap'>
+                Total APY
+              </div>
+            </div>
+          </div>
         </div>
       </CardHeader>
 
@@ -127,7 +140,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         {/* Yield Breakdown Section */}
         <div className='space-y-3'>
           <div className='space-y-2'>
-            <div className='flex justify-between items-center'>
+            {/* <div className='flex justify-between items-center'>
               <div className='flex items-center gap-2 pt-2'>
                 <Zap
                   className='w-3 h-3 flex-shrink-0'
@@ -143,6 +156,37 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 ) : (
                   <span className='text-muted-foreground/90'>N/A</span>
                 )}
+              </span>
+            </div> */}
+            <div className='flex justify-between items-center'>
+              <div className='flex items-center gap-2'>
+                <Zap
+                  className='w-3 h-3 flex-shrink-0'
+                  style={{ color: `${token.brandColor}CC` }} // 80% opacity
+                />
+                <span className='text-xs text-muted-foreground/90'>Staking APY</span>
+              </div>
+              <span className='text-xs font-semibold text-card-foreground'>
+                {token.stakingApy > 0 ? (
+                  <span>
+                    <CountingNumber value={token.stakingApy} decimalPlaces={2} />%
+                  </span>
+                ) : (
+                  <span className='text-muted-foreground/90'>N/A</span>
+                )}
+              </span>
+            </div>
+            {/* Protocol APY */}
+            <div className='flex justify-between items-center'>
+              <div className='flex items-center gap-2'>
+                <Percent
+                  className='w-3 h-3 flex-shrink-0'
+                  style={{ color: `${token.brandColor}CC` }} // 80% opacity
+                />
+                <span className='text-xs text-muted-foreground/90'>Protocol APY</span>
+              </div>
+              <span className='text-xs font-semibold text-card-foreground'>
+                <CountingNumber value={metrics.lendingApy} decimalPlaces={2} />%
               </span>
             </div>
           </div>
@@ -182,7 +226,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 className='size-16 text-xs'
               />
               <div className='text-center'>
-                <div className='text-xs font-medium text-card-foreground'>Lending APY</div>
+                <div className='text-xs font-medium text-card-foreground'>Protocol APY</div>
               </div>
             </div>
           </div>
@@ -222,15 +266,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className='relative pt-3 z-20'>
-        <div className='p-[1px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136] w-full rounded-sm'>
-          <button
-            onClick={handleDepositClick}
-            className='cursor-pointer bg-card text-white font-medium py-2 px-6 w-full h-full rounded-sm text-sm hover:bg-card/90 transition-colors duration-200'
-          >
-            Deposit
-          </button>
-        </div>
+      <CardFooter className='relative pt-3 z-20 w-full'>
+        <Button variant='outline-gradient' className='w-full' onClick={handleDepositClick}>
+          Deposit
+        </Button>
       </CardFooter>
     </Card>
   )
