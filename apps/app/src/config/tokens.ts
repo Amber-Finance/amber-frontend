@@ -33,7 +33,7 @@ const tokens = [
     isLST: true,
     stakingApy: 3.8,
     protocol: 'Solv Protocol',
-    brandColor: '#8B5CF6', // Solv purple/violet
+    brandColor: '#EAB308', // Solv yellow
   },
   {
     chainId: 'neutron-1',
@@ -45,7 +45,7 @@ const tokens = [
     isLST: true,
     stakingApy: 0,
     protocol: 'Edge Protocol',
-    brandColor: '#06B6D4', // Edge cyan/blue
+    brandColor: '#EC4899', // Edge pink
   },
   {
     chainId: 'neutron-1',
@@ -57,7 +57,7 @@ const tokens = [
     isLST: true,
     stakingApy: 0,
     protocol: 'Pump Protocol',
-    brandColor: '#F59E0B', // Pump amber/gold
+    brandColor: '#3B82F6', // Pump blue
   },
   {
     chainId: 'neutron-1',
@@ -93,7 +93,7 @@ const tokens = [
     isLST: true,
     stakingApy: 0,
     protocol: 'Axelar',
-    brandColor: '#3B82F6', // Axelar blue (classic blue)
+    brandColor: '#6B7280', // Axelar grey
   },
 ]
 
