@@ -10,10 +10,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-gradient-to-r from-[#b1241e] to-[#f57136] text-primary-foreground shadow hover:bg-primary/90 disabled:opacity-50',
+          'bg-gradient-to-r from-gradient-start to-gradient-end text-foreground shadow hover:bg-primary/90 disabled:opacity-50',
         outline:
-          'bg-card text-card-foreground border border-border hover:bg-accent hover:text-accent-foreground disabled:opacity-50',
-        'outline-gradient': 'bg-card text-card-foreground hover:bg-card/90',
+          'bg-card text-foreground border border-border hover:bg-secondary hover:text-foreground disabled:bg-muted/30 disabled:text-muted-foreground disabled:border-muted-foreground/20 disabled:cursor-not-allowed disabled:shadow-none',
+        'outline-gradient': 'bg-card text-foreground hover:bg-card/90',
       },
       size: {
         default: 'h-9 px-4 py-2',
@@ -41,7 +41,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button'
 
     if (variant === 'outline-gradient') {
-      const defaultGradient = 'bg-gradient-to-r from-[#b1241e] to-[#f57136]'
+      const defaultGradient = 'bg-gradient-to-r from-gradient-start to-gradient-end'
       const gradientStyle = gradientColor ? { background: gradientColor } : {}
 
       return (

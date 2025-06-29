@@ -10,7 +10,7 @@ interface InfoCardProps {
 export default function InfoCard({ title, children, className }: InfoCardProps) {
   return (
     <div className={cn('bg-card/50 backdrop-blur-sm border rounded-lg p-3 sm:p-4', className)}>
-      <h3 className='text-sm font-semibold text-card-foreground mb-3'>{title}</h3>
+      <h3 className='text-sm font-semibold text-foreground mb-3'>{title}</h3>
       {children}
     </div>
   )

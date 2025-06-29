@@ -167,7 +167,7 @@ export default function DepositPage() {
       </button>
 
       <div className='relative mb-4 sm:mb-6'>
-        <div className='absolute inset-0 z-0 w-full overflow-hidden'>
+        <div className='absolute inset-0 z-10 w-full overflow-hidden'>
           <FlickeringGrid
             className='w-full h-full'
             color={token.brandColor}
@@ -180,7 +180,7 @@ export default function DepositPage() {
           />
         </div>
 
-        <div className='relative z-10'>
+        <div className='relative z-20'>
           <div className='flex justify-between p-4'>
             <div className='flex items-center justify-start gap-3'>
               <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
@@ -336,7 +336,7 @@ export default function DepositPage() {
               <div className='flex flex-col gap-4 mb-8'>
                 <div className='flex justify-between items-center'>
                   <span className='text-xs text-muted-foreground'>Amount</span>
-                  <span className='text-xs font-medium text-card-foreground'>
+                  <span className='text-xs font-medium text-foreground'>
                     {percentage.toFixed(1)}%
                   </span>
                 </div>
@@ -355,11 +355,11 @@ export default function DepositPage() {
                 <div className='p-3 rounded-lg bg-muted/20 border border-border/40 mb-4'>
                   <div className='flex items-center gap-1.5 mb-2'>
                     <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} />
-                    <span className='text-sm font-semibold text-card-foreground'>
+                    <span className='text-sm font-semibold text-foreground'>
                       Estimated Annual Earnings
                     </span>
                   </div>
-                  <div className='text-lg font-bold text-card-foreground'>
+                  <div className='text-lg font-bold text-foreground'>
                     {estimatedApyEarnings.toFixed(6)} {token.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>

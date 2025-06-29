@@ -104,7 +104,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
 
             <div className='min-w-0 flex-1 max-w-[120px]'>
-              <CardTitle className='text-base font-semibold text-card-foreground truncate'>
+              <CardTitle className='text-base font-semibold text-foreground truncate'>
                 {token.symbol}
               </CardTitle>
               <CardDescription className='text-xs text-muted-foreground/90 font-medium h-8 overflow-hidden leading-tight'>
@@ -148,7 +148,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 />
                 <span className='text-xs text-muted-foreground/90'>Total APY</span>
               </div>
-              <span className='text-xs font-semibold text-card-foreground'>
+              <span className='text-xs font-semibold text-foreground'>
                 {token.stakingApy > 0 ? (
                   <span>
                     <CountingNumber value={token.stakingApy} decimalPlaces={2} />%
@@ -166,7 +166,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 />
                 <span className='text-xs text-muted-foreground/90'>Staking APY</span>
               </div>
-              <span className='text-xs font-semibold text-card-foreground'>
+              <span className='text-xs font-semibold text-foreground'>
                 {token.stakingApy > 0 ? (
                   <span>
                     <CountingNumber value={token.stakingApy} decimalPlaces={2} />%
@@ -185,7 +185,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 />
                 <span className='text-xs text-muted-foreground/90'>Protocol APY</span>
               </div>
-              <span className='text-xs font-semibold text-card-foreground'>
+              <span className='text-xs font-semibold text-foreground'>
                 <CountingNumber value={metrics.lendingApy} decimalPlaces={2} />%
               </span>
             </div>
@@ -212,7 +212,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 className='size-16 text-xs'
               />
               <div className='text-center'>
-                <div className='text-xs font-medium text-card-foreground'>Staking APY</div>
+                <div className='text-xs font-medium text-foreground'>Staking APY</div>
               </div>
             </div>
 
@@ -226,7 +226,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 className='size-16 text-xs'
               />
               <div className='text-center'>
-                <div className='text-xs font-medium text-card-foreground'>Protocol APY</div>
+                <div className='text-xs font-medium text-foreground'>Protocol APY</div>
               </div>
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <span className='text-xs font-medium'>Wallet</span>
             </div>
             <div className='text-right'>
-              <div className='text-card-foreground font-semibold text-xs'>
+              <div className='text-foreground font-semibold text-xs'>
                 {formatBalance(metrics.balance)} {token.symbol}
               </div>
               <div className='text-xs text-muted-foreground/80'>{formatUsd(metrics.valueUsd)}</div>
@@ -257,7 +257,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 <span className='text-xs font-medium'>Deposited</span>
               </div>
               <div className='text-right'>
-                <div className='text-card-foreground font-semibold text-xs'>
+                <div className='text-foreground font-semibold text-xs'>
                   {formatBalance(metrics.deposited)} {token.symbol}
                 </div>
               </div>

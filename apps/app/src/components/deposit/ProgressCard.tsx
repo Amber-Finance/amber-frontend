@@ -31,7 +31,7 @@ export default function ProgressCard({
         className={cn(className, 'text-xs')}
       />
       <div className='text-center'>
-        <div className='text-xs font-medium text-card-foreground'>{label}</div>
+        <div className='text-xs font-medium text-foreground'>{label}</div>
         {subtitle && <div className='text-xs text-muted-foreground/80'>{subtitle}</div>}
       </div>
     </div>

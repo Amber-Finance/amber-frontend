@@ -21,21 +21,8 @@ const config = {
         'rotate-border': 'rotate-border 15s linear infinite',
       },
       colors: {
-        background: 'var(--background)',
-        'primary-text': 'var(--primary-text)',
-        'muted-text': 'var(--muted-text)',
-        // Hero component colors
-        'hero-border': 'var(--hero-border)',
-        'hero-gradient-from': 'var(--hero-gradient-from)',
-        'hero-gradient-to': 'var(--hero-gradient-to)',
-        // Button colors
-        'button-gradient-from': 'var(--button-gradient-from)',
-        'button-gradient-via': 'var(--button-gradient-via)',
-        'button-border-top': 'var(--button-border-top)',
-        'button-border-x': 'var(--button-border-x)',
-        'button-span-gradient': 'var(--button-span-gradient)',
-        // Card colors
-        'card-accent': 'var(--card-accent-color)',
+        'gradient-start': 'rgb(var(--gradient-start))',
+        'gradient-end': 'rgb(var(--gradient-end))',
       },
       fontFamily: {
         sans: ['var(--font-space-mono)', 'monospace'],

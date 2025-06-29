@@ -36,16 +36,16 @@ export default function SwapPage() {
       icon: '/btcGolden.png',
       balance: '0.00',
       price: 0,
-      denom: 'maxbtc'
+      denom: 'maxbtc',
     },
-    ...tokens.map(token => ({
+    ...tokens.map((token) => ({
       symbol: token.symbol,
       name: token.description,
       icon: token.icon,
       balance: '0.00',
       price: 0,
-      denom: token.denom
-    }))
+      denom: token.denom,
+    })),
   ]
 
   // Calculate exchange rate and to amount
@@ -96,49 +96,55 @@ export default function SwapPage() {
 
   const isSwapValid = fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0
 
-  const TokenSelector = ({ 
-    selectedToken, 
-    onToggle, 
-    isOpen, 
-    isFromToken 
-  }: { 
+  const TokenSelector = ({
+    selectedToken,
+    onToggle,
+    isOpen,
+    isFromToken,
+  }: {
     selectedToken: SwapToken | null
     onToggle: () => void
     isOpen: boolean
     isFromToken: boolean
   }) => (
-    <div className="relative">
+    <div className='relative'>
       <button
         onClick={onToggle}
-        className="flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors min-w-[140px]"
+        className='flex items-center gap-2 p-2 rounded-lg border hover:bg-muted/50 transition-colors min-w-[140px]'
       >
         {selectedToken ? (
           <>
-            <img src={selectedToken.icon} alt={selectedToken.symbol} className="w-6 h-6 rounded-full" />
-            <span className="font-medium">{selectedToken.symbol}</span>
+            <img
+              src={selectedToken.icon}
+              alt={selectedToken.symbol}
+              className='w-6 h-6 rounded-full'
+            />
+            <span className='font-medium'>{selectedToken.symbol}</span>
           </>
         ) : (
-          <span className="text-muted-foreground">Select token</span>
+          <span className='text-muted-foreground'>Select token</span>
         )}
-        <ChevronDown className="w-4 h-4 ml-auto" />
+        <ChevronDown className='w-4 h-4 ml-auto' />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-2 left-0 right-0 z-50 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div className='absolute top-full mt-2 left-0 right-0 z-50 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto'>
           {swapTokens.map((token) => (
             <button
               key={token.symbol}
               onClick={() => handleTokenSelect(token, isFromToken)}
-              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors"
-              disabled={isFromToken ? toToken?.symbol === token.symbol : fromToken?.symbol === token.symbol}
+              className='w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors'
+              disabled={
+                isFromToken ? toToken?.symbol === token.symbol : fromToken?.symbol === token.symbol
+              }
             >
-              <img src={token.icon} alt={token.symbol} className="w-8 h-8 rounded-full" />
-              <div className="text-left">
-                <div className="font-medium">{token.symbol}</div>
-                <div className="text-sm text-muted-foreground">{token.name}</div>
+              <img src={token.icon} alt={token.symbol} className='w-8 h-8 rounded-full' />
+              <div className='text-left'>
+                <div className='font-medium'>{token.symbol}</div>
+                <div className='text-sm text-muted-foreground'>{token.name}</div>
               </div>
-              <div className="ml-auto text-right">
-                <div className="text-sm font-medium">{token.balance}</div>
+              <div className='ml-auto text-right'>
+                <div className='text-sm font-medium'>{token.balance}</div>
               </div>
             </button>
           ))}
@@ -152,9 +158,7 @@ export default function SwapPage() {
       <div className='space-y-8'>
         {/* Header */}
         <div className='text-center space-y-4'>
-          <h1 className='text-4xl sm:text-5xl font-bold text-foreground'>
-            Swap Bitcoin Assets
-          </h1>
+          <h1 className='text-4xl sm:text-5xl font-bold text-foreground'>Swap Bitcoin Assets</h1>
           <p className='text-xl text-muted-foreground max-w-2xl mx-auto'>
             Trade between Bitcoin LSTs, wBTC, and maxBTC with minimal slippage and competitive rates
           </p>
@@ -185,8 +189,8 @@ export default function SwapPage() {
                         key={value}
                         onClick={() => setSlippage(value)}
                         className={`px-3 py-1 rounded text-sm ${
-                          slippage === value 
-                            ? 'bg-primary text-primary-foreground' 
+                          slippage === value
+                            ? 'bg-primary text-foreground'
                             : 'bg-muted hover:bg-muted/80'
                         }`}
                       >
@@ -194,7 +198,7 @@ export default function SwapPage() {
                       </button>
                     ))}
                     <input
-                      type="text"
+                      type='text'
                       value={slippage}
                       onChange={(e) => setSlippage(e.target.value)}
                       className='px-2 py-1 rounded text-sm border bg-background w-16'
@@ -224,10 +228,10 @@ export default function SwapPage() {
                 />
                 <div className='flex-1 relative'>
                   <input
-                    type="text"
+                    type='text'
                     value={fromAmount}
                     onChange={(e) => setFromAmount(e.target.value)}
-                    placeholder="0.0"
+                    placeholder='0.0'
                     className='w-full p-3 rounded-lg border bg-background text-right text-lg'
                   />
                   <button
@@ -255,9 +259,7 @@ export default function SwapPage() {
               <div className='flex items-center justify-between'>
                 <label className='text-sm font-medium'>To</label>
                 {toToken && (
-                  <span className='text-xs text-muted-foreground'>
-                    Balance: {toToken.balance}
-                  </span>
+                  <span className='text-xs text-muted-foreground'>Balance: {toToken.balance}</span>
                 )}
               </div>
               <div className='flex gap-2'>
@@ -269,10 +271,10 @@ export default function SwapPage() {
                 />
                 <div className='flex-1'>
                   <input
-                    type="text"
+                    type='text'
                     value={toAmount}
                     readOnly
-                    placeholder="0.0"
+                    placeholder='0.0'
                     className='w-full p-3 rounded-lg border bg-muted/20 text-right text-lg'
                   />
                 </div>
@@ -284,7 +286,9 @@ export default function SwapPage() {
               <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span className='text-muted-foreground'>Rate</span>
-                  <span>1 {fromToken.symbol} ≈ 0.98 {toToken.symbol}</span>
+                  <span>
+                    1 {fromToken.symbol} ≈ 0.98 {toToken.symbol}
+                  </span>
                 </div>
                 <div className='flex justify-between'>
                   <span className='text-muted-foreground'>Price Impact</span>
@@ -292,29 +296,24 @@ export default function SwapPage() {
                 </div>
                 <div className='flex justify-between'>
                   <span className='text-muted-foreground'>Minimum Received</span>
-                  <span>{(parseFloat(toAmount) * 0.995).toFixed(8)} {toToken.symbol}</span>
+                  <span>
+                    {(parseFloat(toAmount) * 0.995).toFixed(8)} {toToken.symbol}
+                  </span>
                 </div>
               </div>
             )}
 
             {/* Swap Button */}
-            <Button
-              disabled={!isSwapValid}
-              className='w-full py-3 text-lg'
-            >
-              {!fromToken || !toToken 
-                ? 'Select tokens' 
-                : !fromAmount 
-                ? 'Enter amount' 
-                : 'Swap'
-              }
+            <Button disabled={!isSwapValid} className='w-full py-3 text-lg'>
+              {!fromToken || !toToken ? 'Select tokens' : !fromAmount ? 'Enter amount' : 'Swap'}
             </Button>
 
             {/* Warning */}
             <div className='flex items-start gap-2 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20'>
               <Info className='w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0' />
               <p className='text-xs text-orange-700 dark:text-orange-300'>
-                Trading crypto involves risk. Always verify the details before confirming any transaction.
+                Trading crypto involves risk. Always verify the details before confirming any
+                transaction.
               </p>
             </div>
           </Card>

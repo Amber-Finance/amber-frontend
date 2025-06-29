@@ -31,7 +31,7 @@ export default function MetricRow({
         {Icon && <Icon className='w-3 h-3 sm:w-4 sm:h-4' style={{ color: brandColor }} />}
         <span className='text-xs font-medium text-muted-foreground'>{label}</span>
       </div>
-      <span className='text-xs font-medium text-card-foreground'>
+      <span className='text-xs font-medium text-foreground'>
         {value}
         {suffix}
       </span>
