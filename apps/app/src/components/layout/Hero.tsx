@@ -1,7 +1,5 @@
-import { Button } from '@/components/ui/Button'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { CountingNumber } from '@/components/ui/CountingNumber'
-import { ArrowRight, Landmark, Coins } from 'lucide-react'
 import tokens from '@/config/tokens'
 
 interface HeroProps {
@@ -18,7 +16,6 @@ interface HeroProps {
 }
 
 export default function Hero({ markets }: HeroProps) {
-  // Calculate stats from market data
   const maxApy =
     markets && markets.length > 0 ? Math.max(...markets.map((m) => m.metrics.totalApy)) : 4.5
 
@@ -29,7 +26,6 @@ export default function Hero({ markets }: HeroProps) {
 
   const totalBtcDerivatives = tokens.filter((token) => token.isLST).length
 
-  // Format TVL for display
   const formatTvl = (usd: number) => {
     if (usd >= 1000000000) {
       const billions = usd / 1000000000
@@ -61,7 +57,7 @@ export default function Hero({ markets }: HeroProps) {
         <div className='space-y-5'>
           <h1 className='text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#f48a59] flex items-center justify-center'>
             <span style={{ display: 'inline-block' }}>
-              <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>Bit</AuroraText>
+              <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>Amber</AuroraText>
             </span>
             <svg
               height='60'
@@ -96,7 +92,7 @@ export default function Hero({ markets }: HeroProps) {
                 stroke='url(#spire-gradient)'
                 strokeWidth='2'
               >
-                Spire
+                Fi
               </text>
             </svg>
           </h1>
