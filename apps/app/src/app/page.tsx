@@ -5,16 +5,14 @@ import Hero from '@/components/layout/Hero'
 import { useMarkets, useLstMarkets } from '@/hooks'
 
 export default function Home() {
-  // Get market data
   useMarkets()
   const lstMarkets = useLstMarkets()
 
   return (
     <>
-      {/* Hero Section with Market Data */}
       <Hero markets={lstMarkets} />
 
-      <div className='w-full max-w-8xl mx-auto pt-6 pb-2'>
+      <div className='w-full pt-6 pb-2'>
         {lstMarkets.length > 0 ? (
           <div className='flex flex-wrap gap-4 justify-center'>
             {lstMarkets.map((item) => (

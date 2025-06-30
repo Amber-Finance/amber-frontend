@@ -49,104 +49,96 @@ export default function Hero({ markets }: HeroProps) {
   }
 
   return (
-    <section className='relative w-full pt-20 pb-8 sm:pt-24 sm:pb-12 lg:pt-28 lg:pb-16 text-center'>
-      {/* Additional background effects */}
-      <div className='absolute left-1/2 top-1/2 w-[240px] h-[240px] -translate-x-1/2 -translate-y-[55%] rounded-full bg-primary/5 blur-3xl -z-10' />
+    <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-8'>
+      <div className='flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-12'>
+        {/* Left Column - Main Content */}
+        <div className='flex-1 flex flex-col justify-between gap-6'>
+          <div className='space-y-3'>
+            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-bold leading-tight'>
+              <span className='block text-foreground'>Liquid Staking.</span>
+              <span className='block'>
+                <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>
+                  Solid Yield.
+                </AuroraText>
+              </span>
+            </h1>
 
-      <div className='relative max-w-3xl mx-auto px-3 sm:px-5 lg:px-6'>
-        <div className='space-y-5'>
-          <h1 className='text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#f48a59] flex items-center justify-center'>
-            <span style={{ display: 'inline-block' }}>
-              <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>Amber</AuroraText>
-            </span>
-            <svg
-              height='60'
-              viewBox='0 0 240 100'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-              style={{
-                marginTop: '10px',
-              }}
-            >
-              <defs>
-                <linearGradient
-                  id='spire-gradient'
-                  x1='0'
-                  y1='0'
-                  x2='400'
-                  y2='0'
-                  gradientUnits='userSpaceOnUse'
-                >
-                  <stop stopColor='#b1241e' />
-                  <stop offset='0.5' stopColor='#FF6B35' />
-                  <stop offset='1' stopColor='#f57136' />
-                </linearGradient>
-              </defs>
-              <text
-                x='0'
-                y='70'
-                fontFamily="'Space Mono', monospace"
-                fontWeight='bold'
-                fontSize='80'
-                fill='none'
-                stroke='url(#spire-gradient)'
-                strokeWidth='2'
-              >
-                Fi
-              </text>
-            </svg>
-          </h1>
-
-          <p className='mx-auto max-w-2xl text-sm text-muted-foreground leading-relaxed'>
-            Bridge your liquid staking tokens and earn maximum yield. Deposit LSTs to earn both
-            underlying staking rewards plus additional lending APY.
-          </p>
-
-          <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-            <div className='flex'>
-              <div className='slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]'>
-                <button className='slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136] text-white font-medium py-2 px-8 w-full h-full text-sm'>
-                  Bridge
-                </button>
-              </div>
-              <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]'>
-                <button className='slanted-btn-2 bg-background text-white font-medium py-2 px-10 w-full h-full text-sm'>
-                  Swap
-                </button>
-              </div>
-            </div>
+            <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
+              Bridge your liquid staking tokens and earn maximum yield. Deposit LSTs to earn both
+              underlying staking rewards plus additional lending APY.
+            </p>
           </div>
 
-          {/* Stats Row */}
-          <div className='pt-5 grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-xl mx-auto'>
-            <div className='text-center space-y-1'>
-              <div className='text-xl font-bold text-primary'>
-                <CountingNumber value={maxApy} decimalPlaces={1} />%
-              </div>
-              <div className='text-xs text-muted-foreground'>Max APY</div>
+          <div className='flex'>
+            <div className='slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136] rounded-l-lg group'>
+              <button className='slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136] text-foreground font-medium py-2 px-8 w-full h-full text-sm rounded-l-lg relative overflow-hidden'>
+                <span className='relative z-10'>Bridge Now</span>
+                <span className='absolute inset-0 bg-gradient-to-r from-[#f57136] to-[#b1241e] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-lg' />
+              </button>
             </div>
-            <div className='text-center space-y-1'>
-              <div className='text-xl font-bold text-primary'>
-                {totalTvl > 0 ? (
-                  <>
-                    $
-                    <CountingNumber
-                      value={parseFloat(formatTvl(totalTvl))}
-                      decimalPlaces={totalTvl >= 10000000 ? 1 : 2}
-                    />
-                    {getTvlUnit(totalTvl)}
-                  </>
-                ) : (
-                  '$0'
-                )}
-              </div>
-              <div className='text-xs text-muted-foreground'>Total TVL</div>
+            <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136] rounded-r-lg group'>
+              <button className='slanted-btn-2 bg-background text-foreground font-medium py-2 px-8 w-full h-full text-sm rounded-r-lg relative overflow-hidden'>
+                <span className='relative z-10'>Learn More</span>
+                <span className='absolute inset-0 bg-gradient-to-r from-[#b1241e] to-[#f57136] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-r-lg' />
+              </button>
             </div>
-            <div className='text-center space-y-1'>
-              <div className='text-xl font-bold text-primary'>
-                <CountingNumber value={totalBtcDerivatives} />
+          </div>
+        </div>
+
+        {/* Right Column - Stats Cards */}
+        <div className='flex-1 max-w-lg w-full h-full'>
+          <div className='flex flex-row gap-2 sm:gap-3'>
+            {/* Max APY Card */}
+            <div className='flex-1 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group'>
+              <div className='space-y-1'>
+                <div className='text-base sm:text-lg lg:text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-300'>
+                  <CountingNumber value={maxApy} decimalPlaces={1} />%
+                </div>
+                <div className='text-[10px] sm:text-sm text-muted-foreground font-medium'>
+                  Max <span className='block sm:inline' />
+                  APY
+                </div>
               </div>
-              <div className='text-xs text-muted-foreground'>BTC Derivatives</div>
+              <div className='mt-1 sm:mt-2 w-full h-1 bg-gradient-to-r from-gradient-start to-gradient-end rounded-full opacity-60' />
+            </div>
+
+            {/* Total TVL Card */}
+            <div className='flex-1 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group'>
+              <div className='space-y-1'>
+                <div className='text-base sm:text-lg lg:text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-300'>
+                  {totalTvl > 0 ? (
+                    <>
+                      $
+                      <CountingNumber
+                        value={parseFloat(formatTvl(totalTvl))}
+                        decimalPlaces={totalTvl >= 10000000 ? 1 : 2}
+                      />
+                      {getTvlUnit(totalTvl)}
+                    </>
+                  ) : (
+                    '$0'
+                  )}
+                </div>
+                <div className='text-[10px] sm:text-sm text-muted-foreground font-medium'>
+                  Total <span className='block sm:inline' />
+                  TVL
+                </div>
+              </div>
+              <div className='mt-1 sm:mt-2 w-full h-1 bg-gradient-to-r from-gradient-start to-gradient-end rounded-full opacity-60' />
+            </div>
+
+            {/* BTC Derivatives Card */}
+            <div className='flex-1 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group'>
+              <div className='space-y-1'>
+                <div className='text-base sm:text-lg lg:text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-300'>
+                  <CountingNumber value={totalBtcDerivatives} />
+                </div>
+                <div className='text-[10px] sm:text-sm text-muted-foreground font-medium'>
+                  BTC <span className='block sm:inline' />
+                  Derivatives
+                </div>
+              </div>
+              <div className='mt-1 sm:mt-2 w-full h-1 bg-gradient-to-r from-gradient-start to-gradient-end rounded-full opacity-60' />
             </div>
           </div>
         </div>

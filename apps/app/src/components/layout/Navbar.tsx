@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import ConnectButton from '@/components/common/ConnectButton'
-import RunningCircle from '@/components/common/RunningCircle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const navigation = [
@@ -45,7 +44,7 @@ export function Navbar() {
           <div className='flex items-center justify-between h-16'>
             {/* Logo */}
             <Link href='/' className='flex items-center space-x-2 group'>
-              <RunningCircle className='scale-[0.7]' />
+              AmberFinance
             </Link>
 
             <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/50 rounded-xl p-1'>

@@ -29,11 +29,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html
-      lang='en'
-      className='overflow-y-scroll no-scrollbar'
-      suppressHydrationWarning
-    >
+    <html lang='en' className='overflow-y-scroll no-scrollbar' suppressHydrationWarning>
       <head />
       <body
         className={`${spaceMono.variable} antialiased overflow-x-hidden font-mono`}
@@ -46,13 +42,13 @@ export default function RootLayout({
                 <Background />
                 <ThemedParticles
                   className='absolute inset-0 z-0'
-                  quantity={150}
+                  quantity={100}
                   ease={70}
                   size={0.6}
                   staticity={30}
                   refresh={false}
                 />
-                <div className='relative z-10 w-full max-w-screen-2xl mx-auto w'>
+                <div className='relative z-10 w-full max-w-screen-2xl mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
                   <Navbar />
                   {children}
                 </div>

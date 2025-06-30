@@ -139,21 +139,17 @@ body {
 .slanted-btn {
   clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
   border: none;
-  border-radius: 0px;
 }
 .slanted-border {
   clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
-  border-radius: 0px;
 }
 
 .slanted-btn-2 {
   clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
   border: none;
-  border-radius: 0px;
 }
 .slanted-border-2 {
   clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
-  border-radius: 0px;
 }
 
 .nav-glow-active {
