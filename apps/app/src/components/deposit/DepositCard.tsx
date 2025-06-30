@@ -185,7 +185,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           <div className='flex gap-2'>
             <ProgressCard
               value={42}
-              label='TVL Growth (7d'
+              label='TVL Growth (7d)'
               brandColor={token.brandColor}
               max={100}
               min={0}

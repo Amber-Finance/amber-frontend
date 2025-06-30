@@ -8,7 +8,6 @@ import { useState, useEffect } from 'react'
 import ConnectButton from '@/components/common/ConnectButton'
 import RunningCircle from '@/components/common/RunningCircle'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { AuroraText } from '@/components/ui/AuroraText'
 
 const navigation = [
   { name: 'Yield', href: '/' },
@@ -41,36 +40,35 @@ export function Navbar() {
 
   return (
     <>
-      {/* Main Navigation */}
-      <header className='fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50'>
+      <header className='fixed top-0 left-0 right-0 z-50 bg-background/50 backdrop-blur-md'>
         <nav className='mx-auto py-2 max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
           <div className='flex items-center justify-between h-16'>
             {/* Logo */}
             <Link href='/' className='flex items-center space-x-2 group'>
               <RunningCircle className='scale-[0.7]' />
-              <span className='text-lg font-bold group-hover:text-primary transition-colors'>
-                Max{' '}
-                <AuroraText colors={['#FF8C00', '#FF6B35', '#F7931E', '#FFA500']}>BTC</AuroraText>
-              </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className='hidden md:flex md:items-center md:space-x-8'>
-              {navigation.map((item) => {
+            <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/50 rounded-xl p-1'>
+              {navigation.map((item, idx) => {
                 const isActive = pathname === item.href
                 return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md',
-                      isActive
-                        ? 'text-primary bg-primary/10'
-                        : 'text-muted-foreground hover:text-foreground',
+                  <>
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        'relative flex items-center px-5 py-2 text-xs rounded-md transition-all duration-300 border border-transparent',
+                        isActive
+                          ? 'text-foreground nav-glow-active'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      {item.name.toUpperCase()}
+                    </Link>
+                    {idx < navigation.length - 1 && (
+                      <div className='h-6 w-px bg-border mx-1 opacity-60' />
                     )}
-                  >
-                    {item.name}
-                  </Link>
+                  </>
                 )
               })}
             </div>
@@ -121,14 +119,14 @@ export function Navbar() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'block px-4 py-3 text-base font-medium rounded-lg transition-colors',
+                      'relative block px-4 py-3 text-base font-medium rounded-md border border-border bg-card transition-all duration-300 group',
                       isActive
-                        ? 'text-primary bg-primary/10'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary',
+                        ? 'text-foreground nav-glow-active'
+                        : 'text-muted-foreground hover:text-foreground',
                     )}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {item.name}
+                    <span className='relative z-10'>{item.name}</span>
                   </Link>
                 )
               })}
