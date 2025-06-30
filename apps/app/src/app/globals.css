@@ -18,7 +18,6 @@
 
   --border: rgba(210, 160, 120, 1);
 
-  /* Gradient colors */
   --gradient-start: rgb(177, 36, 30);
   --gradient-end: rgb(245, 113, 54);
 }
@@ -27,13 +26,14 @@
   --background: rgb(10, 10, 10);
   --foreground: rgb(244, 244, 244);
   --card: rgb(23, 23, 23);
+
   --primary: rgba(255, 120, 0, 1);
   --secondary: rgb(42, 42, 42);
   --muted: rgb(50, 50, 50);
   --muted-foreground: rgb(156, 156, 156);
+
   --border: rgba(255, 255, 255, 0.1);
 
-  /* Gradient colors for dark theme */
   --gradient-start: rgb(177, 36, 30);
   --gradient-end: rgb(245, 113, 54);
 }

@@ -21,8 +21,8 @@ const config = {
         'rotate-border': 'rotate-border 15s linear infinite',
       },
       colors: {
-        'gradient-start': 'rgb(var(--gradient-start))',
-        'gradient-end': 'rgb(var(--gradient-end))',
+        'gradient-start': 'var(--gradient-start)',
+        'gradient-end': 'var(--gradient-end)',
       },
       fontFamily: {
         sans: ['var(--font-space-mono)', 'monospace'],

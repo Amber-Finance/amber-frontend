@@ -24,9 +24,9 @@ export default function StrategiesPage() {
         'Established protocols',
         'Lower volatility',
         'Consistent yields',
-        'High liquidity'
+        'High liquidity',
       ],
-      color: 'emerald'
+      color: 'emerald',
     },
     {
       id: 2,
@@ -39,9 +39,9 @@ export default function StrategiesPage() {
         'Diversified exposure',
         'Balanced risk-reward',
         'Protocol diversification',
-        'Regular rebalancing'
+        'Regular rebalancing',
       ],
-      color: 'blue'
+      color: 'blue',
     },
     {
       id: 3,
@@ -54,22 +54,26 @@ export default function StrategiesPage() {
         'Maximum yield potential',
         'Early protocol access',
         'Higher volatility',
-        'Active management required'
+        'Active management required',
       ],
-      color: 'orange'
-    }
+      color: 'orange',
+    },
   ]
 
   const getMarketInfo = (symbol: string) => {
-    return lstMarkets.find(market => market.token.symbol === symbol)
+    return lstMarkets.find((market) => market.token.symbol === symbol)
   }
 
   const getRiskBadgeColor = (risk: string) => {
     switch (risk) {
-      case 'Low': return 'bg-green-500/10 text-green-500 border-green-500/20'
-      case 'Medium': return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-      case 'High': return 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-      default: return 'bg-gray-500/10 text-gray-500 border-gray-500/20'
+      case 'Low':
+        return 'bg-green-500/10 text-green-500 border-green-500/20'
+      case 'Medium':
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+      case 'High':
+        return 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+      default:
+        return 'bg-gray-500/10 text-gray-500 border-gray-500/20'
     }
   }
 
@@ -82,7 +86,7 @@ export default function StrategiesPage() {
             Yield Farming Strategies
           </h1>
           <p className='text-base text-muted-foreground max-w-2xl mx-auto'>
-            Discover curated strategies to maximize your Bitcoin yields. Each strategy is designed 
+            Discover curated strategies to maximize your Bitcoin yields. Each strategy is designed
             for different risk appetites and helps you enter yield farming with your LSTs.
           </p>
         </div>
@@ -90,7 +94,10 @@ export default function StrategiesPage() {
         {/* Strategy Cards */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {strategies.map((strategy) => (
-            <Card key={strategy.id} className='p-5 space-y-5 border-2 hover:border-primary/20 transition-colors'>
+            <Card
+              key={strategy.id}
+              className='p-5 space-y-5 border-2 hover:border-primary/20 transition-colors'
+            >
               {/* Strategy Header */}
               <div className='space-y-2'>
                 <div className='flex items-center justify-between'>
@@ -114,16 +121,27 @@ export default function StrategiesPage() {
                     if (!marketInfo) return null
 
                     return (
-                      <div key={symbol} className='flex items-center justify-between p-2 rounded-lg bg-muted/20'>
+                      <div
+                        key={symbol}
+                        className='flex items-center justify-between p-2 rounded-lg bg-muted/20'
+                      >
                         <div className='flex items-center gap-2'>
-                          <img src={marketInfo.token.icon} alt={symbol} className='w-6 h-6 rounded-full' />
+                          <img
+                            src={marketInfo.token.icon}
+                            alt={symbol}
+                            className='w-6 h-6 rounded-full'
+                          />
                           <div>
                             <div className='text-sm font-medium'>{symbol}</div>
-                            <div className='text-xs text-muted-foreground'>{marketInfo.token.protocol}</div>
+                            <div className='text-xs text-muted-foreground'>
+                              {marketInfo.token.protocol}
+                            </div>
                           </div>
                         </div>
                         <div className='text-right'>
-                          <div className='text-sm font-semibold text-primary'>{marketInfo.metrics.totalApy}%</div>
+                          <div className='text-sm font-semibold text-primary'>
+                            {marketInfo.metrics.totalApy}%
+                          </div>
                           <div className='text-xs text-muted-foreground'>Total APY</div>
                         </div>
                       </div>
@@ -139,7 +157,10 @@ export default function StrategiesPage() {
                 <h4 className='text-sm font-semibold text-foreground'>Key Features</h4>
                 <ul className='space-y-1'>
                   {strategy.features.map((feature, index) => (
-                    <li key={index} className='flex items-center gap-2 text-xs text-muted-foreground'>
+                    <li
+                      key={index}
+                      className='flex items-center gap-2 text-xs text-muted-foreground'
+                    >
                       <div className='w-1 h-1 rounded-full bg-primary flex-shrink-0' />
                       {feature}
                     </li>
@@ -149,14 +170,14 @@ export default function StrategiesPage() {
 
               {/* CTA Buttons */}
               <div className='flex gap-2'>
-                <Button className='flex-1 py-2 px-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-xs font-medium transition-colors'>
+                <Button className='flex-1 py-2 px-3 bg-primary hover:bg-primary/90 text-foreground rounded-lg text-xs font-medium transition-colors'>
                   <span className='flex items-center gap-1.5'>
                     <Landmark className='w-3 h-3' />
                     Bridge
                   </span>
                 </Button>
                 <Button className='flex-1 py-2 px-3 border border-border/50 hover:border-border hover:bg-muted/50 bg-background rounded-lg text-xs font-medium transition-colors'>
-                  <span className='flex items-center gap-1.5 text-card-foreground'>
+                  <span className='flex items-center gap-1.5 text-foreground'>
                     <Coins className='w-3 h-3' />
                     Deposit
                   </span>
@@ -196,4 +217,4 @@ export default function StrategiesPage() {
       </div>
     </div>
   )
-} 
+}
