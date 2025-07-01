@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { cn } from '@/lib/utils'
 import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
@@ -51,9 +52,8 @@ export function Navbar() {
               {navigation.map((item, idx) => {
                 const isActive = pathname === item.href
                 return (
-                  <>
+                  <React.Fragment key={`nav-${item.name}-${idx}`}>
                     <Link
-                      key={item.name}
                       href={item.href}
                       className={cn(
                         'relative flex items-center px-5 py-2 text-xs rounded-md transition-all duration-300 border border-transparent',
@@ -67,7 +67,7 @@ export function Navbar() {
                     {idx < navigation.length - 1 && (
                       <div className='h-6 w-px bg-border mx-1 opacity-60' />
                     )}
-                  </>
+                  </React.Fragment>
                 )
               })}
             </div>

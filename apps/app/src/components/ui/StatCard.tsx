@@ -1,5 +1,4 @@
 import { CountingNumber } from '@/components/ui/CountingNumber'
-import { parseCompactCurrency } from '@/utils/format'
 import { ReactNode } from 'react'
 
 interface StatCardProps {
@@ -21,12 +20,10 @@ export function StatCard({
 }: StatCardProps) {
   const renderValue = () => {
     if (isCurrency && value > 0) {
-      const parsed = parseCompactCurrency(value)
       return (
         <>
           {prefix}
-          <CountingNumber value={parsed.value} decimalPlaces={value >= 10000000 ? 1 : 2} />
-          {parsed.unit}
+          <CountingNumber value={value} decimalPlaces={value >= 10000000 ? 1 : 2} />
           {suffix}
         </>
       )
