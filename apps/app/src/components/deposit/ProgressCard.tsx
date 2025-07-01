@@ -28,7 +28,7 @@ export default function ProgressCard({
         value={value}
         gaugePrimaryColor={brandColor}
         gaugeSecondaryColor={`${brandColor}20`}
-        className={cn(className, 'text-xs')}
+        className={cn(className, 'text-[8px] sm:text-xs')}
       />
       <div className='text-center'>
         <div className='text-xs font-medium text-foreground'>{label}</div>

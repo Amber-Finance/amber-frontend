@@ -157,7 +157,7 @@ export default function DepositPage() {
   const estimatedApyEarnings = parseFloat(currentAmount || '0') * (metrics.totalApy / 100)
 
   return (
-    <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6 mt-20'>
+    <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
       <button
         onClick={() => router.back()}
         className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer mb-4'

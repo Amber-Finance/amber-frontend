@@ -19,7 +19,7 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Bitcoin Outpost - powered by Mars Protocol',
+  title: 'Amber Finance',
   description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
 }
 
