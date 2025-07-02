@@ -1,8 +1,4 @@
-# Bitcoin Outpost Monorepo
-
-This is a Turborepo monorepo containing the Bitcoin Outpost applications.
-
-## Amber Finance
+# Amber Finance
 
 **Liquid Staking. Solid Yields.**
 
