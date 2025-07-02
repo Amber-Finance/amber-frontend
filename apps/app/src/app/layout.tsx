@@ -11,10 +11,9 @@ import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
-export const metadata: Metadata = {
-  title: 'Amber Finance',
-  description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
-}
+import { metaData } from './metadata'
+
+export const metadata: Metadata = metaData.home
 
 export default function RootLayout({
   children,

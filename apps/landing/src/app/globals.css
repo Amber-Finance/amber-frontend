@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@config "../../tailwind.config.ts";
+
 :root {
   --background: #0a0b10;
   --foreground: 60 9.1% 97.8%;
@@ -50,7 +52,7 @@
   src:
     url('/fonts/BalooTamma2-ExtraBold.woff2') format('woff2'),
     url('/fonts/BalooTamma2-ExtraBold.woff') format('woff');
-  font-weight: 600;
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -81,7 +83,7 @@ body {
   overscroll-behavior: none;
   height: 100%;
   background: #0a0b10;
-  font-family: var(--font-sans), sans-serif;
+  font-family: 'SourceSans', sans-serif;
 }
 
 .slanted-btn {

@@ -52,8 +52,8 @@ export function Navbar() {
               <Image
                 src={resolvedTheme === 'dark' ? '/images/logo-light.svg' : '/images/logo-dark.svg'}
                 alt='Amber Finance'
-                width={200}
-                height={70}
+                width={142}
+                height={50}
               />
             </Link>
 

@@ -46,8 +46,8 @@ export default function Hero({ markets }: HeroProps) {
               </span>
             </h1>
             <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
-              Bridge your liquid staking tokens and earn maximum yield. Deposit LSTs to earn both
-              underlying staking rewards plus additional lending APY.
+              Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to
+              earn real yield.
             </p>
           </div>
 

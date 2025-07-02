@@ -11,7 +11,7 @@ export default function LandingPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-3xl'>
             <div className='text-white'>
-              <h1 className='text-[60px] font-bold mb-6 tracking-wider bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent'>
+              <h1 className='text-[60px] font-baloo mb-6 tracking-wider bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent font-normal'>
                 Stake Your Bitcoin
               </h1>
               <p className='text-xl mb-8 text-muted-foreground'>

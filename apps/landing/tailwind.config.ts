@@ -58,6 +58,10 @@ export default {
       animation: {
         'rotate-border': 'rotate-border 15s linear infinite',
       },
+      fontFamily: {
+        sans: ['SourceSans', 'sans-serif'],
+        baloo: ['Baloo', 'sans-serif'],
+      },
     },
   },
   plugins: [],
