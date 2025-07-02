@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
 
 import { BigNumber } from 'bignumber.js'
 import { IterationCw } from 'lucide-react'
@@ -6,6 +8,7 @@ import { IterationCw } from 'lucide-react'
 import { StrategyCard } from '@/app/strategies/StrategyCard'
 import { StatCard } from '@/components/ui/StatCard'
 import tokens from '@/config/tokens'
+import { useLstMarkets } from '@/hooks/useLstMarkets'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
@@ -14,6 +17,9 @@ export default function StrategiesOverview() {
   // Fetch markets data using the hook
   const { isLoading: marketsLoading, error: marketsError } = useMarkets()
   const { markets } = useStore()
+
+  // Fetch LST markets data for staking APY
+  const { getTokenStakingApy } = useLstMarkets()
 
   const [strategies, setStrategies] = useState<Strategy[]>([])
   const [totalBorrowValue, setTotalBorrowValue] = useState<number>(0)
@@ -55,27 +61,41 @@ export default function StrategiesOverview() {
   }, [markets])
 
   // Find MAXBTC token from tokens.ts (using BTC as placeholder since MAXBTC might not exist yet)
-  const maxBtcToken = tokens.find((token) => token.symbol === 'wBTC') || {
-    chainId: 'neutron-1',
-    denom: 'maxbtc',
-    symbol: 'MAXBTC',
-    icon: '/images/BTC.svg',
-    description: 'Max Bitcoin',
-    decimals: 8,
-    isLST: true,
-    protocol: 'Max Protocol',
-    brandColor: '#F7931A', // Bitcoin orange
-  }
+  const maxBtcToken = useMemo(
+    () =>
+      tokens.find((token) => token.symbol === 'wBTC') || {
+        chainId: 'neutron-1',
+        denom: 'maxbtc',
+        symbol: 'MAXBTC',
+        icon: '/images/BTC.svg',
+        description: 'Max Bitcoin',
+        decimals: 8,
+        isLST: true,
+        protocol: 'Max Protocol',
+        brandColor: '#F7931A', // Bitcoin orange
+      },
+    [],
+  )
 
-  const maxBtcAsset = {
-    denom: maxBtcToken.denom,
-    symbol: maxBtcToken.symbol,
-    name: maxBtcToken.symbol,
-    description: maxBtcToken.description,
-    decimals: maxBtcToken.decimals,
-    icon: maxBtcToken.icon,
-    brandColor: maxBtcToken.brandColor,
-  }
+  const maxBtcAsset = useMemo(
+    () => ({
+      denom: maxBtcToken.denom,
+      symbol: maxBtcToken.symbol,
+      name: maxBtcToken.symbol,
+      description: maxBtcToken.description,
+      decimals: maxBtcToken.decimals,
+      icon: maxBtcToken.icon,
+      brandColor: maxBtcToken.brandColor,
+    }),
+    [
+      maxBtcToken.denom,
+      maxBtcToken.symbol,
+      maxBtcToken.description,
+      maxBtcToken.decimals,
+      maxBtcToken.icon,
+      maxBtcToken.brandColor,
+    ],
+  )
 
   // Generate strategies: MAXBTC as collateral, other BTC LSTs as debt assets
   useEffect(() => {
@@ -106,7 +126,23 @@ export default function StrategiesOverview() {
 
       const debtBorrowRate = parseFloat(market.metrics.borrow_rate || '0')
 
-      const baseNetApy = maxBtcSupplyRate - debtBorrowRate
+      // Get staking APY for the debt asset (BTC LST that we're borrowing)
+      const debtAssetStakingApyRaw = getTokenStakingApy(market.asset.symbol)
+      const debtAssetStakingApy = debtAssetStakingApyRaw > 0 ? debtAssetStakingApyRaw / 100 : 0 // Convert percentage to decimal, hide if zero
+
+      // For MAXBTC collateral, use mock staking APY (since it's not in the API yet)
+      const maxBtcStakingApy = 0.025 // 2.5% mock staking APY for MAXBTC
+
+      // Calculate total supply APY for MAXBTC (lending + staking)
+      const maxBtcTotalSupplyApy = maxBtcSupplyRate + maxBtcStakingApy
+
+      // For looping strategy calculation at max leverage:
+      // At 8x leverage: 9 YBTC supplied, 8 XBTC borrowed
+      // APY = 9 × YBTC(supply + staking) - 8 × XBTC(borrow)
+      // Normalized per 1 unit: (leverage + 1) × collateral_apy - leverage × debt_borrow_rate
+
+      // Calculate base net APY for 1x leverage (no looping)
+      const baseNetApy = maxBtcTotalSupplyApy - debtBorrowRate
 
       // Calculate available borrow capacity for this debt asset
       // Available liquidity = total collateral - total debt
@@ -121,6 +157,27 @@ export default function StrategiesOverview() {
         market.asset.decimals,
       )
 
+      // Calculate max leverage based on LTV parameters
+      // Since all BTC denoms have the same price, we can use the debt market's LTV directly
+      const maxLTV = parseFloat(market.params.max_loan_to_value || '0.8')
+      const liquidationThreshold = parseFloat(market.params.liquidation_threshold || '0.85')
+
+      // Max leverage = 1 / (1 - maxLTV)
+      // This represents the theoretical maximum leverage before liquidation risk
+      const maxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) : 1
+
+      // Cap leverage at reasonable maximum (10x) for safety
+      const cappedMaxLeverage = Math.min(maxLeverage, 10)
+
+      // For BTC strategies, since prices are the same, max borrow = available liquidity
+      // (This is already calculated as availableBorrowCapacity above)
+
+      // Calculate max position size in USD (collateral + max borrowable)
+      // Using a mock $1000 initial collateral for calculation
+      const mockCollateralUsd = new BigNumber(1000)
+      const maxBorrowUsd = mockCollateralUsd.multipliedBy(maxLTV)
+      const maxPositionUsd = mockCollateralUsd.plus(maxBorrowUsd)
+
       return {
         id: `MAXBTC-${market.asset.symbol}`,
         type: 'Leverage Strategy',
@@ -134,11 +191,11 @@ export default function StrategiesOverview() {
           icon: tokenConfig?.icon || market.asset.icon,
           brandColor: tokenConfig?.brandColor || '#6B7280', // Use token config color or fallback to gray
         },
-        maxROE: 0,
+        maxROE: baseNetApy * cappedMaxLeverage, // Max ROE = base APY * max leverage
         isPositive: baseNetApy >= 0,
         hasPoints: false,
         rewards: '-',
-        multiplier: 1, // Will be calculated dynamically in StrategyCard
+        multiplier: cappedMaxLeverage, // Use calculated max leverage
         isCorrelated: true, // All BTC-related assets are correlated
         liquidity: borrowCapacityUsd,
         liquidityDisplay: formatCurrency(new BigNumber(borrowCapacityUsd)),
@@ -146,13 +203,23 @@ export default function StrategiesOverview() {
         supplyApy: maxBtcSupplyRate,
         borrowApy: debtBorrowRate,
         netApy: baseNetApy, // Base APY for 1x leverage
-        ltv: 0.8, // Mock LTV for MAXBTC collateral
-        liquidationThreshold: 0.85, // Mock liquidation threshold for MAXBTC
+        ltv: maxLTV, // Use actual LTV from market params
+        liquidationThreshold: liquidationThreshold, // Use actual liquidation threshold from market params
+        // Additional strategy metadata
+        maxLeverage: cappedMaxLeverage,
+        maxBorrowCapacityUsd: borrowCapacityUsd,
+        maxPositionSizeUsd: maxPositionUsd.toNumber(),
+        // Enhanced APY breakdown
+        collateralStakingApy: maxBtcStakingApy,
+        collateralTotalApy: maxBtcTotalSupplyApy,
+        debtStakingApy: debtAssetStakingApy,
+        debtNetCost: debtBorrowRate, // Just the borrow rate for debt cost
+        hasStakingData: debtAssetStakingApyRaw > 0, // Flag to show/hide staking info
       }
     })
 
     setStrategies(generatedStrategies)
-  }, [markets])
+  }, [markets, getTokenStakingApy, maxBtcAsset])
 
   // Format currency values to match Mars format
   function formatCurrency(value: BigNumber): string {

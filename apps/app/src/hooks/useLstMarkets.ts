@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { BigNumber } from 'bignumber.js'
 import useSWR from 'swr'
@@ -73,11 +73,11 @@ export function useLstMarkets(): {
   })
 
   // Helper function to get staking APY for a specific token
-  const getTokenStakingApy = (symbol: string): number => {
+  const getTokenStakingApy = useCallback((symbol: string): number => {
     if (!stakingData?.btcYield) return 0
     const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
     return tokenData?.apy || 0
-  }
+  }, [stakingData])
 
   const lstMarkets = useMemo(() => {
     if (!markets) return []

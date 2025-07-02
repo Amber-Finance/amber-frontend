@@ -10,7 +10,6 @@ import { Meteors } from '@/components/ui/Meteors'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
-import useHealthComputer from '@/hooks/useHealthComputer'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue, formatApy } from '@/utils/format'
@@ -25,16 +24,22 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { markets } = useStore()
 
-  // Health computer for max borrow calculations
-  const { computeMaxBorrowAmount, isWasmReady } = useHealthComputer()
+  // Note: Health computer no longer needed as we use pre-calculated max leverage
 
   // Calculate Max APY (base APY times leverage)
   const getMaxAPY = () => {
-    const netApy = calculateNetApy()
     const maxLeverage = calculateMaxLeverage()
-
-    // Leveraged APY = Base Net APY × Leverage Multiplier
-    return netApy * maxLeverage
+    
+    // For looping strategy calculation:
+    // At max leverage: (leverage + 1) × collateral_apy - leverage × debt_borrow_rate
+    // Example at 8x: 9 × YBTC(supply + staking) - 8 × XBTC(borrow)
+    
+    const collateralTotalApy = strategy.collateralTotalApy || strategy.supplyApy || 0
+    const debtBorrowRate = strategy.borrowApy || 0
+    
+    const leveragedApy = (maxLeverage + 1) * collateralTotalApy - maxLeverage * debtBorrowRate
+    
+    return leveragedApy
   }
 
   // Get APY color
@@ -66,80 +71,22 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     return new BigNumber('100000000000') // 1000 MAXBTC available capacity
   }
 
-  // Calculate theoretical maximum leverage using computeMaxBorrowAmount
+  // Get maximum leverage from pre-calculated strategy data
   const calculateMaxLeverage = () => {
-    const userBalance = getUserBalance()
-
-    // If not connected or WASM not ready, return 1x (no leverage)
-    if (!isWalletConnected || !isWasmReady || !markets) {
-      return 1
+    // Use pre-calculated max leverage from strategy object
+    // This is calculated in the strategies page based on LTV parameters
+    // and accounts for the fact that all BTC denoms have the same price
+    if (strategy.maxLeverage && strategy.maxLeverage > 1) {
+      return strategy.maxLeverage
     }
 
-    // Find the debt market to get LTV parameters
-    const debtMarket = markets.find((m) => m.asset.denom === strategy.debtAsset.denom)
-
-    if (!debtMarket) {
-      return 1
+    // Fallback to multiplier if maxLeverage is not available
+    if (strategy.multiplier && strategy.multiplier > 1) {
+      return strategy.multiplier
     }
 
-    // If user has no balance, calculate with mock $100 MAXBTC collateral
-    const mockCollateralUsd = userBalance.isZero() ? new BigNumber(100) : getUserBalanceUsd()
-
-    if (mockCollateralUsd.isZero()) {
-      return 1
-    }
-
-    // Try to get max borrow amount from health computer
-    // Use 'deposit' target for looping strategy calculation (borrowing against deposited collateral)
-    let maxBorrowAmount = computeMaxBorrowAmount(strategy.debtAsset.denom, 'deposit')
-
-    // If computeMaxBorrowAmount returns zero (no positions), calculate based on LTV
-    if (maxBorrowAmount.isZero()) {
-      // Use the debt asset's max_loan_to_value to calculate theoretical max borrow
-      const maxLTV = parseFloat(debtMarket.params.max_loan_to_value || '0')
-
-      if (maxLTV === 0) {
-        return 1
-      }
-
-      // Calculate max borrowable in USD based on collateral and LTV
-      const maxBorrowUsd = mockCollateralUsd.multipliedBy(maxLTV)
-
-      // Convert to token amount
-      if (debtMarket.price?.price) {
-        maxBorrowAmount = new BigNumber(maxBorrowUsd)
-          .dividedBy(debtMarket.price.price)
-          .multipliedBy(new BigNumber(10).pow(debtMarket.asset.decimals))
-          .integerValue()
-      } else {
-        return 1
-      }
-    }
-
-    // Debug logging (can be removed later)
-    if (strategy.debtAsset.symbol === 'wBTC') {
-      console.log(`Max Leverage Debug for ${strategy.debtAsset.symbol}:`, {
-        mockCollateralUsd: mockCollateralUsd.toString(),
-        maxLTV: parseFloat(debtMarket.params.max_loan_to_value || '0'),
-        maxBorrowAmount: maxBorrowAmount.toString(),
-        debtPrice: debtMarket.price?.price,
-        computedAmount: computeMaxBorrowAmount(strategy.debtAsset.denom, 'deposit').toString(),
-      })
-    }
-
-    // Convert max borrow amount to USD
-    const maxBorrowUsd = calculateUsdValue(
-      maxBorrowAmount.toString(),
-      debtMarket.price?.price || '0',
-      debtMarket.asset.decimals,
-    )
-
-    // Calculate leverage: (initial collateral + max borrowable) / initial collateral
-    const totalPositionValue = mockCollateralUsd.plus(maxBorrowUsd)
-    const leverage = totalPositionValue.dividedBy(mockCollateralUsd).toNumber()
-
-    // Cap leverage at a reasonable maximum
-    return Math.min(leverage, 10) // Max 10x leverage
+    // Final fallback to 1x leverage
+    return 1
   }
 
   // Get user balance in USD for MAXBTC
@@ -159,28 +106,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     return new BigNumber(usdValue)
   }
 
-  // Calculate the net APY for 1x leverage (base APY)
+  // Get the net APY for 1x leverage from pre-calculated strategy data
   const calculateNetApy = () => {
-    if (!markets) return 0
-
-    const debtMarket = markets.find((m) => m.asset.denom === strategy.debtAsset.denom)
-
-    // Get supply APY from collateral asset (MAXBTC)
-    // MAXBTC mock values - use realistic supply rate (higher than BTC LST borrow rates)
-    const maxBtcSupplyRate = 0.065 // 6.5% APY mock supply rate for MAXBTC
-
-    // Get borrow APY from debt asset (BTC LST)
-    let debtBorrowRate = 0
-    if (debtMarket) {
-      // Use the actual borrow rate from the BTC LST market
-      debtBorrowRate = parseFloat(debtMarket.metrics.borrow_rate || '0')
-    } else {
-      // Default borrow rate if market not found
-      debtBorrowRate = 0.045 // 4.5% APY default borrow rate
-    }
-
-    // Base APY for 1x leverage = MAXBTC Supply APY - BTC LST Borrow APY
-    return maxBtcSupplyRate - debtBorrowRate
+    // Use pre-calculated net APY from strategy object
+    return strategy.netApy || 0
   }
 
   // Format leverage display
@@ -228,32 +157,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     return BigNumber.max(0, totalCollateral.minus(totalDebt))
   }
 
-  // Format available borrow capacity in USD
+  // Format available borrow capacity in USD using pre-calculated values
   const formatBorrowableUsd = () => {
-    const availableBorrowCapacity = getAvailableBorrowCapacity()
-
-    if (!markets) return '$0'
-
-    const debtMarket = markets.find((m) => m.asset.denom === strategy.debtAsset.denom)
-
-    if (!debtMarket || !debtMarket.price?.price) return '$0'
-
-    // Use calculateUsdValue utility for USD formatting
-    const usdValue = calculateUsdValue(
-      availableBorrowCapacity.toString(),
-      debtMarket.price.price,
-      debtMarket.asset.decimals,
-    )
-
-    // Format with K/M notation like the rest of the app
-    if (usdValue >= 1_000_000_000) {
-      return `$${(usdValue / 1_000_000_000).toFixed(2)}B`
-    } else if (usdValue >= 1_000_000) {
-      return `$${(usdValue / 1_000_000).toFixed(2)}M`
-    } else if (usdValue >= 1_000) {
-      return `$${(usdValue / 1_000).toFixed(2)}K`
-    }
-    return `$${usdValue.toFixed(2)}`
+    // Use pre-calculated liquidity display from strategy object
+    return strategy.liquidityDisplay || '$0'
   }
 
   // Get gradient colors
@@ -370,30 +277,52 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           {/* Main APY Display */}
-          <div className='text-right group/apy'>
-            <div className='relative'>
-              {/* Background glow effect */}
-              <div
-                className='absolute inset-0 rounded-lg blur-lg opacity-0 group-hover:opacity-50 transition-all duration-500 scale-110'
-                style={{
-                  background: `linear-gradient(135deg, ${collateralColor}20, ${debtColor}20)`,
-                }}
-              />
-              {/* Main APY text with enhanced styling */}
-              <div
-                className='relative text-2xl font-bold leading-tight mb-1 transform group-hover/apy:scale-110 transition-all duration-300 ease-out bg-gradient-to-r bg-clip-text text-transparent'
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${collateralColor}, ${debtColor})`,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                }}
-              >
-                {formatApy(getMaxAPY())}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className='text-right group/apy cursor-help'>
+                <div className='relative'>
+                  {/* Background glow effect */}
+                  <div
+                    className='absolute inset-0 rounded-lg blur-lg opacity-0 group-hover:opacity-50 transition-all duration-500 scale-110'
+                    style={{
+                      background: `linear-gradient(135deg, ${collateralColor}20, ${debtColor}20)`,
+                    }}
+                  />
+                  {/* Main APY text with enhanced styling */}
+                  <div
+                    className='relative text-2xl font-bold leading-tight mb-1 transform group-hover/apy:scale-110 transition-all duration-300 ease-out bg-gradient-to-r bg-clip-text text-transparent'
+                    style={{
+                      backgroundImage: `linear-gradient(135deg, ${collateralColor}, ${debtColor})`,
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    {formatApy(getMaxAPY())}
+                  </div>
+                </div>
+                <div className='text-sm text-muted-foreground/70 font-semibold leading-tight whitespace-nowrap uppercase tracking-wide group-hover/apy:text-muted-foreground transition-colors duration-300'>
+                  Max APY
+                </div>
               </div>
-            </div>
-            <div className='text-sm text-muted-foreground/70 font-semibold leading-tight whitespace-nowrap uppercase tracking-wide group-hover/apy:text-muted-foreground transition-colors duration-300'>
-              Max APY
-            </div>
-          </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="space-y-2 text-xs">
+                <div className="font-semibold">Looping Strategy at {formatLeverage()} leverage:</div>
+                <div className="space-y-1">
+                  <div>• Position: {(calculateMaxLeverage() + 1).toFixed(1)} {strategy.collateralAsset.symbol} supplied</div>
+                  <div>• Borrowed: {calculateMaxLeverage().toFixed(1)} {strategy.debtAsset.symbol}</div>
+                  <div>• Formula: {(calculateMaxLeverage() + 1).toFixed(1)} × {strategy.collateralAsset.symbol} APY - {calculateMaxLeverage().toFixed(1)} × {strategy.debtAsset.symbol} borrow rate</div>
+                </div>
+                <div className="border-t pt-1">
+                  <div className="font-semibold">Result: {formatApy(getMaxAPY())}</div>
+                </div>
+                {strategy.hasStakingData && (
+                  <div className="border-t pt-1 text-muted-foreground text-xs">
+                    Includes staking rewards where available
+                  </div>
+                )}
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Content sections */}
@@ -413,7 +342,24 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   </div>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>Base APY represents lending/borrowing with one loop</TooltipContent>
+              <TooltipContent>
+                <div className="space-y-2 text-xs">
+                  <div className="font-semibold">Base APY Breakdown (1x leverage):</div>
+                  <div className="space-y-1">
+                    <div>• {strategy.collateralAsset.symbol} Supply: {((strategy.supplyApy || 0) * 100).toFixed(2)}%</div>
+                    {strategy.collateralStakingApy && strategy.collateralStakingApy > 0 && (
+                      <div>• {strategy.collateralAsset.symbol} Staking: {(strategy.collateralStakingApy * 100).toFixed(2)}%</div>
+                    )}
+                    <div>• {strategy.debtAsset.symbol} Borrow: -{((strategy.borrowApy || 0) * 100).toFixed(2)}%</div>
+                    {strategy.hasStakingData && strategy.debtStakingApy && strategy.debtStakingApy > 0 && (
+                      <div>• {strategy.debtAsset.symbol} Staking: +{(strategy.debtStakingApy * 100).toFixed(2)}%</div>
+                    )}
+                  </div>
+                  <div className="border-t pt-1">
+                    <div className="font-semibold">Net APY: {formatApy(calculateNetApy())}</div>
+                  </div>
+                </div>
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -595,23 +541,26 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 background: `linear-gradient(135deg, ${collateralColor}, ${debtColor})`,
               }}
             />
-            <Button
-              variant='outline-gradient'
-              className='relative w-full font-semibold text-white border-0 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out overflow-hidden group/btn'
+            <div className='relative p-[2px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper'
               style={{
                 background: `linear-gradient(135deg, ${collateralColor}, ${debtColor})`,
               }}
             >
-              {/* Button shimmer effect */}
-              <div
-                className='absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700'
-                style={{
-                  background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`,
-                  transform: 'translateX(-100%)',
-                }}
-              />
-              <span className='relative z-10'>Deposit</span>
-            </Button>
+              <Button
+                variant='outline'
+                className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
+              >
+                {/* Button shimmer effect */}
+                <div
+                  className='absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700'
+                  style={{
+                    background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`,
+                    transform: 'translateX(-100%)',
+                  }}
+                />
+                <span className='relative z-10'>Deposit</span>
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

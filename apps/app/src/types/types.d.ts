@@ -9,6 +9,17 @@ interface Asset {
   brandColor?: string
 }
 
+// AssetInfo interface for strategy assets
+interface AssetInfo {
+  denom: string
+  symbol: string
+  name: string
+  description: string
+  decimals: number
+  icon: string
+  brandColor?: string
+}
+
 interface MarketParams {
   denom: string
   credit_manager: {
@@ -497,6 +508,18 @@ interface Strategy {
   netApy: number
   ltv: number
   liquidationThreshold: number
+
+  // Additional strategy metadata
+  maxLeverage?: number
+  maxBorrowCapacityUsd?: number
+  maxPositionSizeUsd?: number
+
+  // Enhanced APY breakdown with staking components
+  collateralStakingApy?: number
+  collateralTotalApy?: number
+  debtStakingApy?: number
+  debtNetCost?: number
+  hasStakingData?: boolean
 
   // Position info
   currentPosition?: {
