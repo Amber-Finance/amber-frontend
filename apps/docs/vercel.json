@@ -6,5 +6,5 @@
   "outputDirectory": ".next",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "rootDirectory": "apps/docs",
-  "domains": ["docs.bitcoin-outpost.com"]
-} 
+  "domains": ["docs.amberfi.io"]
+}

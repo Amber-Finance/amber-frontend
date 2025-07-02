@@ -1,4 +1,4 @@
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js'
 
 /**
  * Handles numeric input changes with decimal validation and max amount enforcement
@@ -12,22 +12,22 @@ import { BigNumber } from "bignumber.js";
 export const handleNumericInputChange = (
   value: string,
   maxAmount: BigNumber,
-  decimals: number
+  decimals: number,
 ): { inputValue: string; amountRaw: string } => {
   // Convert commas to decimal points for international number formats
-  value = value.replace(",", ".");
+  value = value.replace(',', '.')
 
   // Allow empty input
-  if (value === "") {
-    return { inputValue: "", amountRaw: "" };
+  if (value === '') {
+    return { inputValue: '', amountRaw: '' }
   }
 
   // Handle the special case of just a decimal point
-  if (value === ".") {
+  if (value === '.') {
     return {
-      inputValue: "0.",
-      amountRaw: "0",
-    };
+      inputValue: '0.',
+      amountRaw: '0',
+    }
   }
 
   // Allow only numbers and one decimal point
@@ -36,47 +36,43 @@ export const handleNumericInputChange = (
   // - Optional decimal point
   // - Optional digits after decimal (0 or more)
   if (!/^(\d*\.?\d*|\.\d*)$/.test(value)) {
-    return { inputValue: "", amountRaw: "" };
+    return { inputValue: '', amountRaw: '' }
   }
 
   // If the value is just "0" or begins with "0" but isn't a decimal (e.g. "01"),
   // normalize it to just "0" or "0." if it's the beginning of a decimal
-  if (value === "0" || (value.startsWith("0") && !value.startsWith("0."))) {
-    if (value === "0") {
-      return { inputValue: "0", amountRaw: "0" };
+  if (value === '0' || (value.startsWith('0') && !value.startsWith('0.'))) {
+    if (value === '0') {
+      return { inputValue: '0', amountRaw: '0' }
     }
     // If user typed something like "01", normalize to "1"
-    if (value.length > 1 && !value.includes(".")) {
-      value = value.replace(/^0+/, "");
+    if (value.length > 1 && !value.includes('.')) {
+      value = value.replace(/^0+/, '')
     }
   }
 
   // Limit input to maximum number of decimals
-  const decimalPart = value.split(".")[1];
+  const decimalPart = value.split('.')[1]
   if (decimalPart && decimalPart.length > decimals) {
-    value = new BigNumber(value)
-      .decimalPlaces(decimals, BigNumber.ROUND_DOWN)
-      .toString();
+    value = new BigNumber(value).decimalPlaces(decimals, BigNumber.ROUND_DOWN).toString()
   }
 
   // For values like ".1", convert to proper BigNumber format
-  const valueForCalculation = value.startsWith(".") ? `0${value}` : value;
+  const valueForCalculation = value.startsWith('.') ? `0${value}` : value
 
   // Convert to raw amount (with decimals)
-  const rawAmount = new BigNumber(valueForCalculation)
-    .shiftedBy(decimals)
-    .toString();
+  const rawAmount = new BigNumber(valueForCalculation).shiftedBy(decimals).toString()
 
   // If the raw amount exceeds the max amount, set to max
   if (maxAmount.gt(0) && new BigNumber(rawAmount).gt(maxAmount)) {
     const newValue = maxAmount
       .shiftedBy(-decimals)
       .decimalPlaces(decimals, BigNumber.ROUND_DOWN)
-      .toString();
+      .toString()
     return {
       inputValue: newValue,
       amountRaw: maxAmount.toString(),
-    };
+    }
   }
 
   return {
@@ -84,8 +80,8 @@ export const handleNumericInputChange = (
     inputValue: value,
     // For calculations, use the normalized value
     amountRaw: rawAmount,
-  };
-};
+  }
+}
 
 /**
  * Formats a max amount to a displayable value
@@ -94,12 +90,6 @@ export const handleNumericInputChange = (
  * @param decimals The number of decimals for the token
  * @returns The formatted amount as a string
  */
-export const formatMaxAmount = (
-  maxAmount: BigNumber,
-  decimals: number
-): string => {
-  return maxAmount
-    .shiftedBy(-decimals)
-    .decimalPlaces(decimals, BigNumber.ROUND_DOWN)
-    .toString();
-};
+export const formatMaxAmount = (maxAmount: BigNumber, decimals: number): string => {
+  return maxAmount.shiftedBy(-decimals).decimalPlaces(decimals, BigNumber.ROUND_DOWN).toString()
+}

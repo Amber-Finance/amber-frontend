@@ -1,11 +1,9 @@
-"use client";
+'use client'
 
-import { debugSWR } from "@/utils/middleware";
-import { SWRConfig } from "swr";
+import { SWRConfig } from 'swr'
+import { debugSWR } from '@/utils/middleware'
 
-export const SWRProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const SWRProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <SWRConfig
       value={{
@@ -14,5 +12,5 @@ export const SWRProvider: React.FC<{ children: React.ReactNode }> = ({
     >
       {children}
     </SWRConfig>
-  );
-};
+  )
+}

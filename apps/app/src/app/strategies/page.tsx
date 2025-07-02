@@ -1,24 +1,24 @@
 'use client'
 
+import { Landmark, Coins } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/Button'
 import { Separator } from '@/components/ui/separator'
 import { useMarkets, useLstMarkets } from '@/hooks'
-import { Landmark, Coins } from 'lucide-react'
 
 export default function StrategiesPage() {
   // Get market data
   useMarkets()
-  const lstMarkets = useLstMarkets()
+  const { data: lstMarkets } = useLstMarkets()
 
   const strategies = [
     {
       id: 1,
       name: 'Conservative Yield',
-      description: 'Low-risk strategy focusing on stable LSTs with proven track records',
+      description: 'Low-risk strategy focusing on established LST protocols with stable yields',
       riskLevel: 'Low',
-      targetApy: '3-5%',
+      targetApy: '2-5%',
       recommendedTokens: ['LBTC', 'uniBTC'],
       features: [
         'Established protocols',
@@ -140,7 +140,7 @@ export default function StrategiesPage() {
                         </div>
                         <div className='text-right'>
                           <div className='text-sm font-semibold text-primary'>
-                            {marketInfo.metrics.totalApy}%
+                            {marketInfo.metrics.totalApy.toFixed(2)}%
                           </div>
                           <div className='text-xs text-muted-foreground'>Total APY</div>
                         </div>

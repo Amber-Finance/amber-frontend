@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import { cn } from '@/lib/utils'
-import { Menu, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { Menu, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import ConnectButton from '@/components/common/ConnectButton'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 

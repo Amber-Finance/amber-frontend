@@ -1,30 +1,30 @@
-import MillionLint from "@million/lint";
-import type { NextConfig } from "next";
-import TerserPlugin from "terser-webpack-plugin";
+import MillionLint from '@million/lint'
+import type { NextConfig } from 'next'
+import TerserPlugin from 'terser-webpack-plugin'
 
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "raw.githubusercontent.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        pathname: '/**',
       },
       {
-        protocol: "https",
-        hostname: "bitcoin-outpost-fe.vercel.app",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'app.amberfi.io',
+        pathname: '/**',
       },
     ],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
-        crypto: require.resolve("crypto-browserify"),
+        crypto: require.resolve('crypto-browserify'),
         stream: false,
         buffer: false,
-      };
+      }
     }
 
     config.optimization.minimizer = [
@@ -35,13 +35,13 @@ const nextConfig: NextConfig = {
           keep_classnames: true, // Preserve class names (for internal PDFKit use)
         },
       }),
-    ];
+    ]
 
-    return config;
+    return config
   },
-};
+}
 
 export default MillionLint.next({
   enabled: true,
-  rsc: true
-})(nextConfig);
+  rsc: true,
+})(nextConfig)

@@ -55,8 +55,12 @@ body {
   overflow-x: hidden;
   overscroll-behavior: none;
   position: relative;
-  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  font-feature-settings: 'liga' 1, 'calt' 1;
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  font-feature-settings:
+    'liga' 1,
+    'calt' 1;
 }
 
 /* Prevent bounce scrolling on iOS */
@@ -132,7 +136,9 @@ body {
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-space-mono), monospace;
-    font-feature-settings: 'liga' 1, 'calt' 1;
+    font-feature-settings:
+      'liga' 1,
+      'calt' 1;
   }
 }
 
@@ -153,7 +159,9 @@ body {
 }
 
 .nav-glow-active {
-  box-shadow: 0 -2px 6px -2px var(--gradient-end), 0 -0.5px 0 0 var(--gradient-end);
+  box-shadow:
+    0 -2px 6px -2px var(--gradient-end),
+    0 -0.5px 0 0 var(--gradient-end);
   z-index: 2;
   border-color: rgba(245, 113, 54, 0.18) !important;
   background: linear-gradient(180deg, rgba(245, 113, 54, 0.07) 0%, rgba(255, 255, 255, 0) 100%);

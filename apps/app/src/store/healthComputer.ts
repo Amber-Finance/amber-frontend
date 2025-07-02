@@ -1,17 +1,17 @@
 export const healthComputerBarebone: HealthComputer = {
-  kind: "default",
+  kind: 'default',
   asset_params: {},
   oracle_prices: {
-    usd: "1000000",
-    uusd: "1",
+    usd: '1000000',
+    uusd: '1',
   },
   vaults_data: {
     vault_configs: {},
     vault_values: {},
   },
   positions: {
-    account_kind: "default",
-    account_id: "neutron1ev02crc36675xd8s029qh7wg3wjtfk37784aeh",
+    account_kind: 'default',
+    account_id: 'neutron1ev02crc36675xd8s029qh7wg3wjtfk37784aeh',
     debts: [],
     deposits: [],
     lends: [],
@@ -22,4 +22,4 @@ export const healthComputerBarebone: HealthComputer = {
   perps_data: {
     params: {},
   },
-};
+}

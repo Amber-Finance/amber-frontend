@@ -1,9 +1,9 @@
 'use client'
 
+import { useState } from 'react'
+import { useChain } from '@cosmos-kit/react'
 import WalletModal from '@/components/modals/WalletModal'
 import chainConfig from '@/config/chain'
-import { useChain } from '@cosmos-kit/react'
-import { useState } from 'react'
 import { HoverBaseButton } from '@/components/ui/HoverBaseButton'
 
 export default function ConnectButton() {
@@ -37,8 +37,8 @@ export default function ConnectButton() {
       ? 'Connecting...'
       : null
     : isWalletConnecting
-    ? 'Connecting...'
-    : null
+      ? 'Connecting...'
+      : null
 
   return (
     <>

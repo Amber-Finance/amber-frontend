@@ -11,14 +11,12 @@
  */
 export const formatAddress = (
   address: string,
-  displayFormat: "full" | "truncated" | "custom" = "truncated",
-  customDisplay?: string
+  displayFormat: 'full' | 'truncated' | 'custom' = 'truncated',
+  customDisplay?: string,
 ): string => {
-  if (displayFormat === "full") return address;
-  if (displayFormat === "custom" && customDisplay) return customDisplay;
+  if (displayFormat === 'full') return address
+  if (displayFormat === 'custom' && customDisplay) return customDisplay
 
   // Default truncated format: first 7 chars + ... + last 4 chars
-  return `${address.substring(0, 7)}...${address.substring(
-    address.length - 4
-  )}`;
-};
+  return `${address.substring(0, 7)}...${address.substring(address.length - 4)}`
+}

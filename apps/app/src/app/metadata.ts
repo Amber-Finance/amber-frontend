@@ -3,19 +3,19 @@ import { Metadata } from 'next'
 export const metaData: { [key: string]: Metadata } = {
   home: {
     title: 'Bitcoin Outpost - powered by Mars Protocol',
-    metadataBase: new URL('https://bitcoin-outpost-fe.vercel.app'),
+    metadataBase: new URL('https://app.amberfi.io'),
     description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
     keywords: ['ibc', 'neutron', 'lend', 'borrow', 'earn', 'mars protocol'],
     openGraph: {
       type: 'website',
-      url: 'https://bitcoin-outpost-fe.vercel.app',
+      url: 'https://app.amberfi.io',
       title: 'Bitcoin Outpost - powered by Mars Protocol',
       locale: 'en_US',
       description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
       siteName: 'Bitcoin Outpost',
       images: [
         {
-          url: 'https://bitcoin-outpost-fe.vercel.app/banner.jpg',
+          url: 'https://app.amberfi.io/banner.jpg',
           width: 1280,
           height: 720,
           alt: 'Bitcoin Outpost',

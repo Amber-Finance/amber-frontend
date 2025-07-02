@@ -1,10 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CountingNumber } from '@/components/ui/CountingNumber'
-import { Slider } from '@/components/ui/slider'
-import { Button } from '@/components/ui/Button'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Coins,
   Percent,
@@ -15,13 +13,15 @@ import {
   ArrowLeft,
   ArrowUpRight,
 } from 'lucide-react'
-import Image from 'next/image'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { BigNumber } from 'bignumber.js'
+import { CountingNumber } from '@/components/ui/CountingNumber'
+import { Slider } from '@/components/ui/slider'
+import { Button } from '@/components/ui/Button'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
-import { useMarkets } from '@/hooks/useMarkets'
+import { useMarkets, useLstMarkets } from '@/hooks'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
-import { BigNumber } from 'bignumber.js'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { formatCurrency, formatCompactCurrency } from '@/utils/format'
@@ -36,11 +36,11 @@ interface TokenData {
     description: string
     protocol: string
     isLST: boolean
-    stakingApy: number
     brandColor: string
   }
   metrics: {
     protocolApy: number
+    stakingApy: number
     totalApy: number
     balance: number
     deposited: number
@@ -59,6 +59,7 @@ export default function DepositPage() {
 
   useMarkets()
   const { markets } = useStore()
+  const { getTokenStakingApy, isLoading: isYieldLoading } = useLstMarkets()
 
   useEffect(() => {
     const tokenSymbol = searchParams.get('token')
@@ -81,7 +82,12 @@ export default function DepositPage() {
     const protocolApy = parseFloat(
       convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
     )
-    const totalApy = parseFloat((tokenData.stakingApy + protocolApy).toFixed(2))
+
+    // Get real-time staking APY from consolidated hook
+    const stakingApy = getTokenStakingApy(tokenData.symbol)
+
+    // Calculate total APY: protocol APY + staking APY
+    const totalApy = parseFloat((protocolApy + stakingApy).toFixed(2))
 
     setSelectedToken({
       token: {
@@ -90,18 +96,18 @@ export default function DepositPage() {
         description: tokenData.description,
         protocol: tokenData.protocol,
         isLST: tokenData.isLST,
-        stakingApy: tokenData.stakingApy,
         brandColor: tokenData.brandColor,
       },
       metrics: {
         protocolApy,
+        stakingApy,
         totalApy,
         balance: 10.5,
         deposited: 2.3,
         valueUsd: 103000,
       },
     })
-  }, [searchParams, markets, router])
+  }, [searchParams, markets, router, getTokenStakingApy])
 
   if (!selectedToken) {
     return (
@@ -256,9 +262,16 @@ export default function DepositPage() {
               <MetricRow
                 icon={Zap}
                 label='Staking APY'
-                value={token.stakingApy > 0 ? token.stakingApy : 'N/A'}
-                suffix={token.stakingApy > 0 ? '%' : ''}
+                value={
+                  isYieldLoading
+                    ? 'Loading...'
+                    : metrics.stakingApy > 0
+                      ? metrics.stakingApy
+                      : 'N/A'
+                }
+                suffix={!isYieldLoading && metrics.stakingApy > 0 ? '%' : ''}
                 brandColor={token.brandColor}
+                showTooltipForNA={true}
               />
               <MetricRow
                 icon={Percent}

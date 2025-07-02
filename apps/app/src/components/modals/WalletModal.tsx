@@ -1,5 +1,8 @@
 'use client'
 
+import React from 'react'
+import Image from 'next/image'
+import { useChain } from '@cosmos-kit/react'
 import CopyableAddress from '@/components/common/CopyableAddress'
 import TokenBalance from '@/components/common/TokenBalance'
 import { Button } from '@/components/ui/Button'
@@ -8,9 +11,6 @@ import chainConfig from '@/config/chain'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
-import { useChain } from '@cosmos-kit/react'
-import Image from 'next/image'
-import React from 'react'
 
 interface WalletModalProps {
   isOpen: boolean

@@ -1,30 +1,64 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { FlatCompat } from '@eslint/eslintrc'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-});
+})
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    files: [
-      "tailwind.config.js",
-      "tailwind.config.ts",
-      "src/theme/**/*.js",
-      "src/theme/**/*.ts",
-    ],
+    files: ['**/*.{js,jsx,ts,tsx}'],
     rules: {
-      "@typescript-eslint/no-var-requires": "off",
+      // React/JSX rules
+      'react/jsx-uses-react': 'off',
+      'react/react-in-jsx-scope': 'off',
+
+      // TypeScript rules
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+
+      // Import rules
+      'import/order': [
+        'warn',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          'newlines-between': 'ignore',
+          pathGroups: [
+            {
+              pattern: 'react',
+              group: 'external',
+              position: 'before',
+            },
+            {
+              pattern: 'next/**',
+              group: 'external',
+              position: 'before',
+            },
+            {
+              pattern: '@/**',
+              group: 'internal',
+            },
+          ],
+          pathGroupsExcludedImportTypes: ['react'],
+        },
+      ],
     },
   },
   {
-    ignores: ["src/utils/health_computer/*"],
+    ignores: [
+      'node_modules/**',
+      '.next/**',
+      '.turbo/**',
+      'dist/**',
+      'build/**',
+      '**/health_computer/*',
+    ],
   },
-];
+]
 
-export default eslintConfig;
+export default eslintConfig

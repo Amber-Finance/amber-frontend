@@ -1,15 +1,16 @@
+import { useRouter } from 'next/navigation'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { StatCard } from '@/components/ui/StatCard'
 import tokens from '@/config/tokens'
-import { useRouter } from 'next/navigation'
 
 interface HeroProps {
   markets?: Array<{
     token: {
       symbol: string
-      stakingApy: number
     }
     metrics: {
+      lendingApy: number
+      stakingApy: number
       totalApy: number
       collateralTotalUsd: number
     }
@@ -39,11 +40,10 @@ export default function Hero({ markets }: HeroProps) {
               <span className='block text-foreground'>Liquid Staking.</span>
               <span className='block'>
                 <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>
-                  Solid Yield.
+                  Amber Finance
                 </AuroraText>
               </span>
             </h1>
-
             <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
               Bridge your liquid staking tokens and earn maximum yield. Deposit LSTs to earn both
               underlying staking rewards plus additional lending APY.
@@ -79,7 +79,7 @@ export default function Hero({ markets }: HeroProps) {
                   Max <span className='block sm:inline' /> APY
                 </>
               }
-              decimalPlaces={1}
+              decimalPlaces={2}
               suffix='%'
             />
             <StatCard
@@ -96,7 +96,7 @@ export default function Hero({ markets }: HeroProps) {
               value={totalBtcDerivatives}
               label={
                 <>
-                  BTC <span className='block sm:inline' /> Derivatives
+                  BTC <span className='block sm:inline' /> LSTs
                 </>
               }
             />

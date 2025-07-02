@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+.next/
+**/.next/
+dist/
+**/dist/
+build/
+**/build/
+
+# Cache directories
+.turbo/
+**/.turbo/
+.million/
+**/.million/
+
+# Generated files
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Health computer WASM files
+**/health_computer/*
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Environment files
+.env*
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db 

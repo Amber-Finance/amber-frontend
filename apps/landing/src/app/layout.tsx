@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
-import { ReactNode } from "react";
-import "@/app/globals.css";
-import RunningLogo from "@/components/RunningLogo";
+import type { Metadata } from 'next'
+import { ReactNode } from 'react'
 import { Space_Mono } from 'next/font/google'
+import '@/app/globals.css'
+import RunningLogo from '@/components/RunningLogo'
 
 const spaceMono = Space_Mono({
   variable: '--font-space-mono',
@@ -12,17 +12,17 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Bitcoin Outpost - Landing",
-  description: "Bitcoin Outpost Landing Page",
-};
+  title: 'Bitcoin Outpost - Landing',
+  description: 'Bitcoin Outpost Landing Page',
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <body className={`${spaceMono.variable}`}>
         <RunningLogo />
-          {children}
+        {children}
       </body>
     </html>
-  );
+  )
 }

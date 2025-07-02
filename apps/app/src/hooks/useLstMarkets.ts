@@ -1,7 +1,27 @@
 import { useMemo } from 'react'
+import useSWR from 'swr'
+import { BigNumber } from 'bignumber.js'
 import { useStore } from '@/store/useStore'
 import tokens from '@/config/tokens'
 import { convertAprToApy } from '@/utils/finance'
+import useWalletBalances from '@/hooks/useWalletBalances'
+
+interface BtcYieldData {
+  symbol: string
+  apy: number
+}
+
+interface AmberApiResponse {
+  btcYield: BtcYieldData[]
+}
+
+const fetcher = async (url: string): Promise<AmberApiResponse> => {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error('Failed to fetch BTC yields')
+  }
+  return response.json()
+}
 
 export interface LstMarketData {
   token: {
@@ -10,11 +30,13 @@ export interface LstMarketData {
     description: string
     protocol: string
     isLST: boolean
-    stakingApy: number
     brandColor: string
+    protocolIconLight?: string
+    protocolIconDark?: string
   }
   metrics: {
     lendingApy: number
+    stakingApy: number
     totalApy: number
     balance: number
     deposited: number
@@ -27,8 +49,33 @@ export interface LstMarketData {
   }
 }
 
-export function useLstMarkets(): LstMarketData[] {
+export function useLstMarkets(): {
+  data: LstMarketData[]
+  isLoading: boolean
+  error: Error | null
+  getTokenStakingApy: (symbol: string) => number
+} {
   const { markets } = useStore()
+
+  // Fetch wallet balances
+  const { data: walletBalances, isLoading: isWalletLoading } = useWalletBalances()
+
+  // Fetch staking yields from Amber Finance API
+  const {
+    data: stakingData,
+    error: stakingError,
+    isLoading: isStakingLoading,
+  } = useSWR<AmberApiResponse>('https://api.amberfi.io/api/btc', fetcher, {
+    refreshInterval: 60000, // Refresh every minute
+    revalidateOnFocus: false,
+  })
+
+  // Helper function to get staking APY for a specific token
+  const getTokenStakingApy = (symbol: string): number => {
+    if (!stakingData?.btcYield) return 0
+    const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
+    return tokenData?.apy || 0
+  }
 
   const lstMarkets = useMemo(() => {
     if (!markets) return []
@@ -44,12 +91,27 @@ export function useLstMarkets(): LstMarketData[] {
         }
 
         // Calculate protocol APY from the market
-        const protocolApy = parseFloat(
-          convertAprToApy(market.metrics.liquidity_rate || '0'),
-        )
+        const lendingApy = parseFloat(convertAprToApy(market.metrics.liquidity_rate || '0'))
 
-        // Calculate total APY (staking + protocol)
-        const totalApy = parseFloat((tokenData.stakingApy + protocolApy).toFixed(2))
+        // Get staking APY from Amber Finance API
+        const stakingApy = getTokenStakingApy(tokenData.symbol)
+
+        // Calculate total APY
+        const totalApy = parseFloat((lendingApy + stakingApy).toFixed(2))
+
+        // Get wallet balance for this token
+        const walletBalance = walletBalances?.find(
+          (balance) => balance.denom === market.asset.denom,
+        )
+        const rawBalance = walletBalance?.amount || '0'
+
+        // Convert balance to readable format
+        const decimals = market.asset?.decimals || 6
+        const balance = parseFloat(new BigNumber(rawBalance).shiftedBy(-decimals).toString())
+
+        // Calculate USD value of balance
+        const price = parseFloat(market.price?.price || '0')
+        const valueUsd = balance * price
 
         // Calculate utilization rate (already in percentage)
         const utilizationRate = parseFloat(
@@ -63,8 +125,6 @@ export function useLstMarkets(): LstMarketData[] {
           depositCap > 0 ? parseFloat(((collateralTotal / depositCap) * 100).toFixed(2)) : 0
 
         // Calculate USD values for deposit cap display
-        const price = parseFloat(market.price?.price || '0')
-        const decimals = market.asset?.decimals || 6
         const collateralTotalUsd = (collateralTotal / Math.pow(10, decimals)) * price
         const depositCapUsd = (depositCap / Math.pow(10, decimals)) * price
 
@@ -79,15 +139,17 @@ export function useLstMarkets(): LstMarketData[] {
             description: tokenData.description,
             protocol: tokenData.protocol,
             isLST: tokenData.isLST,
-            stakingApy: tokenData.stakingApy,
             brandColor: tokenData.brandColor,
+            protocolIconLight: tokenData.protocolIconLight,
+            protocolIconDark: tokenData.protocolIconDark,
           },
           metrics: {
-            lendingApy: protocolApy,
+            lendingApy,
+            stakingApy,
             totalApy,
-            balance: 0, // TODO: Get from wallet
+            balance,
             deposited: 0, // TODO: Get from user positions
-            valueUsd: 0, // TODO: Calculate USD value
+            valueUsd,
             utilizationRate,
             depositCapUsage,
             optimalUtilizationRate,
@@ -97,7 +159,12 @@ export function useLstMarkets(): LstMarketData[] {
         }
       })
       .filter((item): item is NonNullable<typeof item> => item !== null)
-  }, [markets])
+  }, [markets, stakingData, walletBalances, getTokenStakingApy])
 
-  return lstMarkets
-} 
+  return {
+    data: lstMarkets,
+    isLoading: isStakingLoading || isWalletLoading,
+    error: stakingError,
+    getTokenStakingApy,
+  }
+}

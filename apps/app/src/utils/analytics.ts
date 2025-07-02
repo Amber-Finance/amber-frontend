@@ -1,4 +1,4 @@
-import { track as vercelTrack } from "@vercel/analytics";
+import { track as vercelTrack } from '@vercel/analytics'
 
 /**
  * Track a custom event using Vercel Analytics
@@ -8,12 +8,12 @@ import { track as vercelTrack } from "@vercel/analytics";
  */
 export const track = (
   eventName: string,
-  properties?: Record<string, string | number | boolean>
+  properties?: Record<string, string | number | boolean>,
 ) => {
   try {
-    vercelTrack(eventName, properties);
-    console.log(`[Analytics] Tracked: ${eventName}`, properties ?? "");
+    vercelTrack(eventName, properties)
+    console.log(`[Analytics] Tracked: ${eventName}`, properties ?? '')
   } catch (error) {
-    console.error(`[Analytics] Error tracking ${eventName}:`, error);
+    console.error(`[Analytics] Error tracking ${eventName}:`, error)
   }
-};
+}

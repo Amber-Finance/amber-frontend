@@ -7,11 +7,9 @@
  * @param currentDirection The current sort direction
  * @returns The toggled sort direction
  */
-export const toggleSortDirection = (
-  currentDirection: "asc" | "desc"
-): "asc" | "desc" => {
-  return currentDirection === "asc" ? "desc" : "asc";
-};
+export const toggleSortDirection = (currentDirection: 'asc' | 'desc'): 'asc' | 'desc' => {
+  return currentDirection === 'asc' ? 'desc' : 'asc'
+}
 
 /**
  * Generic function to sort an array of objects by a specified property
@@ -23,22 +21,22 @@ export const toggleSortDirection = (
 export const sortArrayByProperty = <T>(
   array: T[],
   key: keyof T,
-  direction: "asc" | "desc" = "asc"
+  direction: 'asc' | 'desc' = 'asc',
 ): T[] => {
   return [...array].sort((a, b) => {
     // Handle potentially undefined or null values
-    const aValue = a[key] ?? "";
-    const bValue = b[key] ?? "";
+    const aValue = a[key] ?? ''
+    const bValue = b[key] ?? ''
 
     // Compare values based on their type
     const comparison =
-      typeof aValue === "number" && typeof bValue === "number"
+      typeof aValue === 'number' && typeof bValue === 'number'
         ? aValue - bValue
-        : String(aValue).localeCompare(String(bValue));
+        : String(aValue).localeCompare(String(bValue))
 
-    return direction === "asc" ? comparison : -comparison;
-  });
-};
+    return direction === 'asc' ? comparison : -comparison
+  })
+}
 
 /**
  * Determines if sort indicator should be shown for a column
@@ -46,9 +44,6 @@ export const sortArrayByProperty = <T>(
  * @param currentSortColumn The currently sorted column
  * @returns Boolean indicating if this column is being sorted
  */
-export const isColumnSorted = (
-  column: string,
-  currentSortColumn: string
-): boolean => {
-  return column === currentSortColumn;
-};
+export const isColumnSorted = (column: string, currentSortColumn: string): boolean => {
+  return column === currentSortColumn
+}

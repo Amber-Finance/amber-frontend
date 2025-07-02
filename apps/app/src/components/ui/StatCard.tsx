@@ -1,5 +1,5 @@
-import { CountingNumber } from '@/components/ui/CountingNumber'
 import { ReactNode } from 'react'
+import { CountingNumber } from '@/components/ui/CountingNumber'
 
 interface StatCardProps {
   value: number

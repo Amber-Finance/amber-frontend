@@ -1,11 +1,14 @@
 {
-  "name": "bitcoin-outpost-monorepo",
+  "name": "amber-finance-monorepo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,mdx,css,html,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,mdx,css,html,yml,yaml}\"",
     "clean": "turbo clean",
     "type-check": "turbo type-check"
   },
@@ -15,7 +18,13 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@next/eslint-plugin-next": "^15.2.1",
     "@types/node": "^20",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.2.5",
     "turbo": "^2.3.0",
     "typescript": "^5"
   },

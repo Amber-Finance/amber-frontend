@@ -6,7 +6,7 @@ import { useMarkets, useLstMarkets } from '@/hooks'
 
 export default function Home() {
   useMarkets()
-  const lstMarkets = useLstMarkets()
+  const { data: lstMarkets, isLoading } = useLstMarkets()
 
   return (
     <>
@@ -26,10 +26,12 @@ export default function Home() {
                 <div className='w-6 h-6 bg-muted/40 rounded-full animate-pulse' />
               </div>
               <h3 className='text-base font-semibold text-foreground'>
-                Loading Yield Opportunities
+                {isLoading ? 'Loading Yield Opportunities' : 'No Yield Opportunities Available'}
               </h3>
               <p className='text-sm text-muted-foreground'>
-                Fetching the latest Bitcoin yield farming opportunities...
+                {isLoading
+                  ? 'Fetching the latest Bitcoin yield farming opportunities...'
+                  : 'Please check back later for available opportunities.'}
               </p>
             </div>
           </div>

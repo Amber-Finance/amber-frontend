@@ -155,7 +155,7 @@ interface Token {
   description: string
   decimals: number
   isLST: boolean
-  stakingApy: number
+  stakingApy?: number
   protocol: string
   brandColor: string
 }

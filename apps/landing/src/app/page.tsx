@@ -2,33 +2,33 @@ import SplineObject from '@/components/SplineObject'
 
 export default function LandingPage() {
   return (
-    <div className="relative w-full h-screen">
-      <div className="absolute inset-0 w-full h-full">
+    <div className='relative w-full h-screen'>
+      <div className='absolute inset-0 w-full h-full'>
         <SplineObject />
       </div>
 
-      <div className="relative z-10 h-full flex items-center">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl">
-            <div className="text-white">
-              <h1 className="text-[60px] font-semibold mb-6 tracking-wider bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent">
+      <div className='relative z-10 h-full flex items-center'>
+        <div className='container mx-auto px-4'>
+          <div className='max-w-3xl'>
+            <div className='text-white'>
+              <h1 className='text-[60px] font-semibold mb-6 tracking-wider bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent'>
                 Stake Your Bitcoin
               </h1>
-              <p className="text-xl mb-8 text-muted-foreground">
-                Bridge your liquid staking tokens and earn maximum yield. Get both
-                staking rewards plus additional lending APY on your Bitcoin LSTs.
+              <p className='text-xl mb-8 text-muted-foreground'>
+                Bridge your liquid staking tokens and earn maximum yield. Get both staking rewards
+                plus additional lending APY on your Bitcoin LSTs.
               </p>
-              <div className="flex">
-              <div className="slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]">
-                <button className="slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136]  text-white font-medium py-2 px-8 w-full h-full">
-                  Enter App
-                </button>
-              </div>
-              <div className="slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]">
-                <button className="slanted-btn-2 bg-[#0f0f0f] text-white font-medium py-2 px-8 w-full h-full">
-                  Learn More
-                </button>
-              </div>
+              <div className='flex'>
+                <div className='slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]'>
+                  <button className='slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136]  text-white font-medium py-2 px-8 w-full h-full'>
+                    Enter App
+                  </button>
+                </div>
+                <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136]'>
+                  <button className='slanted-btn-2 bg-[#0f0f0f] text-white font-medium py-2 px-8 w-full h-full'>
+                    Learn More
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -36,9 +36,8 @@ export default function LandingPage() {
       </div>
 
       {/* Footer overlay to hide Spline watermark */}
-      <footer className="absolute bottom-0 right-0 w-full h-16 bg-[#0f0f0f] z-10">
-        <div className="h-full flex items-center justify-center text-white text-sm opacity-70">
-        </div>
+      <footer className='absolute bottom-0 right-0 w-full h-16 bg-[#0f0f0f] z-10'>
+        <div className='h-full flex items-center justify-center text-white text-sm opacity-70'></div>
       </footer>
     </div>
     // <div className="relative w-full min-h-screen">
@@ -83,5 +82,5 @@ export default function LandingPage() {
     //     </div>
     //   </footer>
     // </div>
-  );
+  )
 }
