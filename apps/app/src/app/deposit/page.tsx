@@ -121,7 +121,7 @@ export default function DepositPage() {
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
             <h3 className='text-lg font-semibold text-foreground'>Loading Token Data</h3>
-            <p className='text-muted-foreground'>Fetching token information and yield data...</p>
+            <p className='text-muted-foreground'>Fetching token information...</p>
           </div>
         </div>
       </div>
