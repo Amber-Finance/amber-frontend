@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "bitcoin-outpost-landing",
+  "name": "amber-finance-landing",
   "framework": "nextjs",
   "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/landing && pnpm build",
   "outputDirectory": ".next",

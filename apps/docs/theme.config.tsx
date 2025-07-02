@@ -1,16 +1,15 @@
-import React from 'react'
 
 import { DocsThemeConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
-  logo: <span>Bitcoin Outpost Docs</span>,
+  logo: <span>Amber Finance Docs</span>,
   project: {
-    link: 'https://github.com/bitcoin-outpost/bitcoin-outpost-fe',
+    link: 'https://github.com/amber-finance/amber-frontend',
   },
   chat: {
     link: 'https://discord.gg/bitcoin-outpost',
   },
-  docsRepositoryBase: 'https://github.com/bitcoin-outpost/bitcoin-outpost-fe',
+      docsRepositoryBase: 'https://github.com/amber-finance/amber-frontend',
   footer: {
     content: 'Amber Finance Documentation',
   },

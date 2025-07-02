@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Bitcoin Outpost - powered by Mars Protocol',
-    short_name: 'BTC Outpost',
+    name: 'Amber Finance - powered by Mars Protocol',
+          short_name: 'Amber Finance',
     description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
     start_url: '/',
     display: 'standalone',

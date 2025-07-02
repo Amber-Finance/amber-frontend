@@ -15,8 +15,8 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Bitcoin Outpost - Landing',
-  description: 'Bitcoin Outpost Landing Page',
+      title: 'Amber Finance - Landing',
+    description: 'Amber Finance Landing Page',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

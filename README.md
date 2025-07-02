@@ -51,8 +51,8 @@ This Turborepo includes the following apps:
 
 ### Apps
 
-- `app`: The main Bitcoin Outpost application (Next.js) - Bitcoin DeFi lending and borrowing platform
-- `landing`: Landing page for Bitcoin Outpost (Next.js) - Marketing and information site
+- `app`: The main Amber Finance application (Next.js) - Bitcoin DeFi lending and borrowing platform
+- `landing`: Landing page for Amber Finance (Next.js) - Marketing and information site
 - `docs`: Documentation site using Nextra (Next.js + Nextra) - User guides and API documentation
 
 ## Getting Started
@@ -76,9 +76,9 @@ pnpm install
 pnpm dev
 
 # Start a specific app
-pnpm dev --filter=@bitcoin-outpost/app
-pnpm dev --filter=@bitcoin-outpost/landing
-pnpm dev --filter=@bitcoin-outpost/docs
+pnpm dev --filter=@amber-finance/app
+pnpm dev --filter=@amber-finance/landing
+pnpm dev --filter=@amber-finance/docs
 ```
 
 ### Build
@@ -88,7 +88,7 @@ pnpm dev --filter=@bitcoin-outpost/docs
 pnpm build
 
 # Build a specific app
-pnpm build --filter=@bitcoin-outpost/app
+pnpm build --filter=@amber-finance/app
 ```
 
 ### Other Commands

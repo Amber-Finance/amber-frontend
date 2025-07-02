@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "bitcoin-outpost-docs",
+  "name": "amber-finance-docs",
   "framework": "nextjs",
   "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/docs && pnpm build",
   "outputDirectory": ".next",
