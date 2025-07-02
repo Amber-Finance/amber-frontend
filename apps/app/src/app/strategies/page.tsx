@@ -115,7 +115,7 @@ export default function StrategiesPage() {
 
               {/* Recommended Tokens */}
               <div className='space-y-3'>
-                <h4 className='text-sm font-semibold text-foreground'>Recommended Tokens</h4>
+                <h4 className='text-sm font-bold text-foreground'>Recommended Tokens</h4>
                 <div className='space-y-2'>
                   {strategy.recommendedTokens.map((symbol) => {
                     const marketInfo = getMarketInfo(symbol)
@@ -140,7 +140,7 @@ export default function StrategiesPage() {
                           </div>
                         </div>
                         <div className='text-right'>
-                          <div className='text-sm font-semibold text-primary'>
+                          <div className='text-sm font-bold text-primary'>
                             {marketInfo.metrics.totalApy.toFixed(2)}%
                           </div>
                           <div className='text-xs text-muted-foreground'>Total APY</div>
@@ -155,7 +155,7 @@ export default function StrategiesPage() {
 
               {/* Strategy Features */}
               <div className='space-y-3'>
-                <h4 className='text-sm font-semibold text-foreground'>Key Features</h4>
+                <h4 className='text-sm font-bold text-foreground'>Key Features</h4>
                 <ul className='space-y-1'>
                   {strategy.features.map((feature, index) => (
                     <li
@@ -194,21 +194,21 @@ export default function StrategiesPage() {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
             <div className='text-center space-y-2'>
               <div className='text-3xl'>🎯</div>
-              <h3 className='text-sm font-semibold'>Risk Assessment</h3>
+              <h3 className='text-sm font-bold'>Risk Assessment</h3>
               <p className='text-xs text-muted-foreground'>
                 Understand your risk tolerance before choosing a strategy
               </p>
             </div>
             <div className='text-center space-y-2'>
               <div className='text-3xl'>🔄</div>
-              <h3 className='text-sm font-semibold'>Diversification</h3>
+              <h3 className='text-sm font-bold'>Diversification</h3>
               <p className='text-xs text-muted-foreground'>
                 Spread investments across multiple protocols and tokens
               </p>
             </div>
             <div className='text-center space-y-2'>
               <div className='text-3xl'>📈</div>
-              <h3 className='text-sm font-semibold'>Monitor Performance</h3>
+              <h3 className='text-sm font-bold'>Monitor Performance</h3>
               <p className='text-xs text-muted-foreground'>
                 Regularly review and adjust your strategy as needed
               </p>

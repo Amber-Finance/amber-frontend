@@ -53,9 +53,7 @@ export default function MetricRow({
             <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
             <div className='absolute bottom-full right-0 mb-2 w-64 p-2 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
               <p className='text-xs text-muted-foreground'>
-                <span className='font-semibold text-foreground'>
-                  No underlying yield available.
-                </span>
+                <span className='font-bold text-foreground'>No underlying yield available.</span>
                 <br />
                 {tooltipMessage}
               </p>

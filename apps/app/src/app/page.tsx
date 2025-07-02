@@ -25,7 +25,7 @@ export default function Home() {
               <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
                 <div className='w-6 h-6 bg-muted/40 rounded-full animate-pulse' />
               </div>
-              <h3 className='text-base font-semibold text-foreground'>
+              <h3 className='text-base font-bold text-foreground'>
                 {isLoading ? 'Loading Yield Opportunities' : 'No Yield Opportunities Available'}
               </h3>
               <p className='text-sm text-muted-foreground'>

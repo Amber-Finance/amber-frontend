@@ -1,28 +1,19 @@
 import { ReactNode } from 'react'
 
-import { Space_Mono } from 'next/font/google'
-
 import type { Metadata } from 'next'
 
 import '@/app/globals.css'
 import RunningLogo from '@/components/RunningLogo'
 
-const spaceMono = Space_Mono({
-  variable: '--font-space-mono',
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-})
-
 export const metadata: Metadata = {
-      title: 'Amber Finance - Landing',
-    description: 'Amber Finance Landing Page',
+  title: 'Amber Finance - Landing',
+  description: 'Amber Finance Landing Page',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='en'>
-      <body className={`${spaceMono.variable}`}>
+      <body className='font-sans'>
         <RunningLogo />
         {children}
       </body>

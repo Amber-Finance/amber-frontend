@@ -171,7 +171,7 @@ export default function SwapPage() {
           <Card className='p-6 space-y-4'>
             {/* Header with Settings */}
             <div className='flex items-center justify-between'>
-              <h2 className='text-xl font-semibold'>Swap</h2>
+              <h2 className='text-xl font-bold'>Swap</h2>
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className='p-2 hover:bg-muted/50 rounded-lg transition-colors'

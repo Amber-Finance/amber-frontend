@@ -87,7 +87,7 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
           {effectivePrefix || formatData.prefix || ''}
           {formatData.value || '0.0'}
           <span
-            className='inline-block text-[0.7em] font-semibold relative bottom-[-0.1em] mx-[0.5px]'
+            className='inline-block text-[0.7em] font-bold relative bottom-[-0.1em] mx-[0.5px]'
             style={{ lineHeight: '1' }}
           >
             {formatData.zeroCount}

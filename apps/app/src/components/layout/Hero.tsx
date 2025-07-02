@@ -37,11 +37,11 @@ export default function Hero({ markets }: HeroProps) {
         {/* Left Column - Main Content */}
         <div className='flex-1 flex flex-col justify-between gap-6'>
           <div className='space-y-3'>
-            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-bold leading-tight'>
+            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-baloo leading-tight'>
               <span className='block text-foreground'>Liquid Staking.</span>
               <span className='block'>
                 <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>
-                  Amber Finance
+                  Solid Yield.
                 </AuroraText>
               </span>
             </h1>
@@ -73,34 +73,9 @@ export default function Hero({ markets }: HeroProps) {
         {/* Right Column - Stats Cards */}
         <div className='flex-1 max-w-lg w-full h-full'>
           <div className='flex flex-row gap-2 sm:gap-3'>
-            <StatCard
-              value={maxApy}
-              label={
-                <>
-                  Max <span className='block sm:inline' /> APY
-                </>
-              }
-              decimalPlaces={2}
-              suffix='%'
-            />
-            <StatCard
-              value={totalTvl}
-              label={
-                <>
-                  Total <span className='block sm:inline' /> TVL
-                </>
-              }
-              isCurrency={true}
-              prefix='$'
-            />
-            <StatCard
-              value={totalBtcDerivatives}
-              label={
-                <>
-                  BTC <span className='block sm:inline' /> LSTs
-                </>
-              }
-            />
+            <StatCard value={maxApy} label='Max APY' decimalPlaces={2} suffix='%' />
+            <StatCard value={totalTvl} label='Total TVL' isCurrency={true} prefix='$' />
+            <StatCard value={totalBtcDerivatives} label='Assets' />
           </div>
         </div>
       </div>

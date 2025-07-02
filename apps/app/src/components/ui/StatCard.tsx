@@ -42,10 +42,12 @@ export function StatCard({
   return (
     <div className='flex-1 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group'>
       <div className='space-y-1'>
-        <div className='text-base sm:text-lg lg:text-2xl font-bold text-primary group-hover:scale-110 transition-transform duration-300'>
+        <div className='text-base font-baloo sm:text-lg lg:text-2xl text-primary group-hover:scale-110 transition-transform duration-300'>
           {renderValue()}
         </div>
-        <div className='text-[10px] sm:text-sm text-muted-foreground font-medium'>{label}</div>
+        <div className='text-[10px] sm:text-sm text-muted-foreground font-medium uppercase tracking-widest'>
+          {label}
+        </div>
       </div>
       <div className='mt-1 sm:mt-2 w-full h-1 bg-gradient-to-r from-gradient-start to-gradient-end rounded-full opacity-60' />
     </div>

@@ -40,7 +40,7 @@ const CopyableAddress: React.FC<CopyableAddressProps> = ({
     <div className='relative inline-block'>
       <button
         onClick={handleCopyClick}
-        className={`font-mono text-orange-500 hover:text-orange-600 transition-colors cursor-pointer ${className}`}
+        className={`font-sans text-orange-500 hover:text-orange-600 transition-colors cursor-pointer ${className}`}
       >
         {formatAddress(address, displayFormat, displayAddress)}
       </button>

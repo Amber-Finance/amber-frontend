@@ -133,9 +133,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               )}
             </div>
 
-            <div className='flex flex-col gap-1'>
-              <CardTitle className='text-xl font-bold text-foreground'>{token.symbol}</CardTitle>
-              <CardDescription className='text-sm text-muted-foreground/90 font-medium leading-tight'>
+            <div className='flex flex-col'>
+              <CardTitle className='text-xl font-baloo text-foreground'>{token.symbol}</CardTitle>
+              <CardDescription className='text-sm text-muted-foreground/90 font-medium leading-tight tracking-widest'>
                 {token.protocol}
               </CardDescription>
             </div>
@@ -145,7 +145,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='text-2xl font-bold leading-tight' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
-            <div className='text-sm text-muted-foreground/70 font-semibold leading-tight whitespace-nowrap uppercase tracking-wide'>
+            <div className='text-sm text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
               Total APY
             </div>
           </div>
@@ -157,7 +157,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
             <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} />
-            <span className='text-sm font-bold tracking-wide' style={{ color: token.brandColor }}>
+            <span
+              className='text-sm font-bold tracking-wider uppercase'
+              style={{ color: token.brandColor }}
+            >
               Yield Breakdown
             </span>
           </div>
@@ -196,7 +199,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                       <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
                       <div className='absolute bottom-full right-0 mb-2 w-64 p-2 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
                         <p className='text-xs text-muted-foreground'>
-                          <span className='font-semibold text-foreground'>
+                          <span className='font-bold text-foreground'>
                             No underlying yield available.
                           </span>
                           <br />
@@ -231,7 +234,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
             <Wallet className='w-4 h-4' style={{ color: token.brandColor }} />
-            <span className='text-sm font-bold tracking-wide' style={{ color: token.brandColor }}>
+            <span
+              className='text-sm font-bold tracking-wider uppercase'
+              style={{ color: token.brandColor }}
+            >
               Wallet Balance
             </span>
           </div>
@@ -240,8 +246,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='flex justify-between items-center'>
               <span className='text-sm text-muted-foreground/90'>Available</span>
               <div className='text-right'>
-                <div className='text-base font-bold text-foreground'>
-                  {formatBalance(metrics.balance)} {token.symbol}
+                <div className='text-base text-foreground font-baloo'>
+                  {formatBalance(metrics.balance)}{' '}
+                  <span style={{ color: token.brandColor }}>{token.symbol}</span>
                 </div>
                 {metrics.valueUsd > 0 && (
                   <div className='text-xs text-muted-foreground'>{formatUsd(metrics.valueUsd)}</div>
@@ -268,7 +275,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           gradientColor={token.brandColor}
           className='w-full'
         >
-          Deposit {token.symbol}
+          <span className='uppercase'>Deposit</span>&nbsp;{token.symbol}
         </Button>
       </CardFooter>
     </Card>

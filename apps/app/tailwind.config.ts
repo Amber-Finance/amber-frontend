@@ -25,8 +25,9 @@ const config = {
         'gradient-end': 'var(--gradient-end)',
       },
       fontFamily: {
-        sans: ['var(--font-space-mono)', 'monospace'],
-        mono: ['var(--font-space-mono)', 'monospace'],
+        sans: ['SourceSans', 'sans-serif'],
+        baloo: ['Baloo', 'sans-serif'],
+        mono: ['SourceSans', 'monospace'],
       },
     },
   },

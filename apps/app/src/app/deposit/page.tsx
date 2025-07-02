@@ -120,7 +120,7 @@ export default function DepositPage() {
             <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
-            <h3 className='text-lg font-semibold text-foreground'>Loading Token Data</h3>
+            <h3 className='text-lg font-bold text-foreground'>Loading Token Data</h3>
             <p className='text-muted-foreground'>Fetching token information...</p>
           </div>
         </div>
@@ -371,7 +371,7 @@ export default function DepositPage() {
                 <div className='p-3 rounded-lg bg-muted/20 border border-border/40 mb-4'>
                   <div className='flex items-center gap-1.5 mb-2'>
                     <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} />
-                    <span className='text-sm font-semibold text-foreground'>
+                    <span className='text-sm font-bold text-foreground'>
                       Estimated Annual Earnings
                     </span>
                   </div>
