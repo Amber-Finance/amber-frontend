@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+
 import { useChain } from '@cosmos-kit/react'
+
 import WalletModal from '@/components/modals/WalletModal'
-import chainConfig from '@/config/chain'
 import { HoverBaseButton } from '@/components/ui/HoverBaseButton'
+import chainConfig from '@/config/chain'
 
 export default function ConnectButton() {
   const [showWalletModal, setShowWalletModal] = useState(false)

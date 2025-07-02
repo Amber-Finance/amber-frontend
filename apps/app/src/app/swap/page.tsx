@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ArrowUpDown, Settings, ChevronDown, Info } from 'lucide-react'
-import { Card } from '@/components/ui/card'
+import { useEffect, useState } from 'react'
+
+import { ArrowUpDown, ChevronDown, Info, Settings } from 'lucide-react'
+
 import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/card'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
 

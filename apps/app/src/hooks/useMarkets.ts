@@ -2,6 +2,7 @@
 
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
+
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { usePrices } from '@/hooks/usePrices'

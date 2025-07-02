@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+
 import Tooltip from '@/components/ui/Tooltip'
 import { formatAddress } from '@/utils/address'
 import { copyToClipboard } from '@/utils/clipboard'

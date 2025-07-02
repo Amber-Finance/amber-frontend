@@ -1,31 +1,34 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
+
+import { BigNumber } from 'bignumber.js'
 import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
   Coins,
   Percent,
   TrendingUp,
   Wallet,
   Zap,
-  ArrowRight,
-  ArrowLeft,
-  ArrowUpRight,
 } from 'lucide-react'
-import { BigNumber } from 'bignumber.js'
-import { CountingNumber } from '@/components/ui/CountingNumber'
-import { Slider } from '@/components/ui/slider'
+
+import { BalanceRow, InfoCard, MetricRow, ProgressCard } from '@/components/deposit'
+import { AmountInput } from '@/components/ui/AmountInput'
 import { Button } from '@/components/ui/Button'
+import { CountingNumber } from '@/components/ui/CountingNumber'
+import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
-import { useMarkets, useLstMarkets } from '@/hooks'
+import { useLstMarkets, useMarkets } from '@/hooks'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
-import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import { AmountInput } from '@/components/ui/AmountInput'
-import { formatCurrency, formatCompactCurrency } from '@/utils/format'
-import { InfoCard, BalanceRow, MetricRow, ProgressCard } from '@/components/deposit'
+import { formatCompactCurrency, formatCurrency } from '@/utils/format'
 
 type TabType = 'deposit' | 'withdraw'
 

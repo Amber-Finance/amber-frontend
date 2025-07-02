@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+
 import { formatValue } from '@/utils/format'
 
 interface FormattedValueProps {

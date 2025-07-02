@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
 import BigNumber from 'bignumber.js'
+
 import { useStore } from '@/store/useStore'
+import { buildHealthComputer } from '@/utils/healthComputer'
 import {
   BorrowTarget,
   compute_health_js,
@@ -8,7 +11,6 @@ import {
   max_withdraw_estimate_js,
 } from '@/utils/health_computer'
 import { initializeWasm, isWasmInitialized } from '@/utils/health_computer/initWasm'
-import { buildHealthComputer } from '@/utils/healthComputer'
 
 export const VALUE_SCALE_FACTOR = 12
 const BN_ZERO = new BigNumber(0)

@@ -1,7 +1,7 @@
 'use client'
 
-import { Particles } from '@/components/ui/Particles'
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { Particles } from '@/components/ui/Particles'
 
 interface ThemedParticlesProps {
   className?: string

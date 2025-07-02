@@ -1,8 +1,12 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+
 import { Flame, Info, TrendingUp, Wallet, Zap } from 'lucide-react'
+
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
+import { CountingNumber } from '@/components/ui/CountingNumber'
+import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import {
   Card,
   CardContent,
@@ -11,8 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { CountingNumber } from '@/components/ui/CountingNumber'
-import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Separator } from '@/components/ui/separator'
 
 interface DepositCardProps {

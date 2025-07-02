@@ -1,6 +1,7 @@
 'use client'
 
 import React, { Fragment, useEffect } from 'react'
+
 import { createPortal } from 'react-dom'
 
 interface ModalProps {

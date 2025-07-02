@@ -1,7 +1,6 @@
 /**
  * Utilities for modal-related functionality
  */
-
 import { useCallback, useEffect, useState } from 'react'
 
 /**

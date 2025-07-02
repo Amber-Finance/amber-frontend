@@ -1,5 +1,6 @@
 import { useChain } from '@cosmos-kit/react'
 import useSWR from 'swr'
+
 import chainConfig from '@/config/chain'
 import { getUrl } from '@/utils/format'
 

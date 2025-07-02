@@ -2,7 +2,7 @@
 
 import DepositCard from '@/components/deposit/DepositCard'
 import Hero from '@/components/layout/Hero'
-import { useMarkets, useLstMarkets } from '@/hooks'
+import { useLstMarkets, useMarkets } from '@/hooks'
 
 export default function Home() {
   useMarkets()

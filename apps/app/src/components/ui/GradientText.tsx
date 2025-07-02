@@ -1,5 +1,7 @@
 import { ComponentPropsWithoutRef } from 'react'
+
 import { ChevronRight } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 
 export interface AnimatedGradientTextProps extends ComponentPropsWithoutRef<'div'> {

@@ -1,12 +1,15 @@
 'use client'
 
 import React from 'react'
+
 import Image from 'next/image'
+
 import { useChain } from '@cosmos-kit/react'
+
 import CopyableAddress from '@/components/common/CopyableAddress'
 import TokenBalance from '@/components/common/TokenBalance'
-import { Button } from '@/components/ui/Button'
 import Modal from '@/components/modals/Modal'
+import { Button } from '@/components/ui/Button'
 import chainConfig from '@/config/chain'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'

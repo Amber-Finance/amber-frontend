@@ -1,14 +1,16 @@
 import { Space_Mono } from 'next/font/google'
+
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
+import '@/app/globals.css'
+import { Background } from '@/components/layout/Background'
 import { Navbar } from '@/components/layout/Navbar'
 import { CosmosKitProvider } from '@/components/providers/CosmosKitProvider'
 import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
-import 'react-toastify/dist/ReactToastify.css'
-import '@/app/globals.css'
-import { Background } from '@/components/layout/Background'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
 const spaceMono = Space_Mono({

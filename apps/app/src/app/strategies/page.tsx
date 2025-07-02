@@ -1,11 +1,12 @@
 'use client'
 
-import { Landmark, Coins } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Coins, Landmark } from 'lucide-react'
+
 import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { useMarkets, useLstMarkets } from '@/hooks'
+import { useLstMarkets, useMarkets } from '@/hooks'
 
 export default function StrategiesPage() {
   // Get market data

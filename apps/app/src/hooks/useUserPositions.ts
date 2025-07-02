@@ -1,6 +1,8 @@
 import { useRef } from 'react'
+
 import { useChain } from '@cosmos-kit/react'
 import useSWR from 'swr'
+
 import chainConfig from '@/config/chain'
 import { useStore } from '@/store/useStore'
 

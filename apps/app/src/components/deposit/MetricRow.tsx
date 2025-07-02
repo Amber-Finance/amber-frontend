@@ -1,4 +1,5 @@
-import { LucideIcon, Info } from 'lucide-react'
+import { Info, LucideIcon } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 
 interface MetricRowProps {

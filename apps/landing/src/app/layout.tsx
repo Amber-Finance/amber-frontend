@@ -1,6 +1,9 @@
-import type { Metadata } from 'next'
 import { ReactNode } from 'react'
+
 import { Space_Mono } from 'next/font/google'
+
+import type { Metadata } from 'next'
+
 import '@/app/globals.css'
 import RunningLogo from '@/components/RunningLogo'
 

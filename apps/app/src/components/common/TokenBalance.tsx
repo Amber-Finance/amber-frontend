@@ -1,7 +1,9 @@
 'use client'
 
 import React from 'react'
+
 import { BigNumber } from 'bignumber.js'
+
 import FormattedValue from '@/components/common/FormattedValue'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'

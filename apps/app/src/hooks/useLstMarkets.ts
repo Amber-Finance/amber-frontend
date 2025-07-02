@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
-import useSWR from 'swr'
+
 import { BigNumber } from 'bignumber.js'
-import { useStore } from '@/store/useStore'
+import useSWR from 'swr'
+
 import tokens from '@/config/tokens'
-import { convertAprToApy } from '@/utils/finance'
 import useWalletBalances from '@/hooks/useWalletBalances'
+import { useStore } from '@/store/useStore'
+import { convertAprToApy } from '@/utils/finance'
 
 interface BtcYieldData {
   symbol: string

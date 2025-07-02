@@ -1,6 +1,5 @@
 'use client'
 
-import chainConfig from '@/config/chain'
 import { GasPrice } from '@cosmjs/stargate'
 import { wallets as cosmostationWallets } from '@cosmos-kit/cosmostation'
 import { wallets as keplrWallets } from '@cosmos-kit/keplr'
@@ -11,6 +10,8 @@ import { wallets as vectisWallets } from '@cosmos-kit/vectis'
 import { wallets as xdefiWallets } from '@cosmos-kit/xdefi'
 import '@interchain-ui/react/styles'
 import { assets, chains } from 'chain-registry'
+
+import chainConfig from '@/config/chain'
 import { getCosmosKitTheme } from '@/theme/cosmosKitTheme'
 
 const chain = chains.filter(

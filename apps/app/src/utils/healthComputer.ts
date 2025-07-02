@@ -1,6 +1,8 @@
 import { BigNumber } from 'bignumber.js'
+
 import { healthComputerBarebone } from '@/store/healthComputer'
 import { HealthComputer } from '@/utils/health_computer'
+
 /*
  * Builds a HealthComputer object from the markets data
  * This creates a new HealthComputer from scratch each time, ensuring all
