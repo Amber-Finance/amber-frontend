@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 
-import Tooltip from '@/components/ui/Tooltip'
 import { formatAddress } from '@/utils/address'
 import { copyToClipboard } from '@/utils/clipboard'
 
@@ -33,6 +32,9 @@ const CopyableAddress: React.FC<CopyableAddressProps> = ({
     const success = await copyToClipboard(address)
     if (success) {
       setShowTooltip(true)
+      setTimeout(() => {
+        setShowTooltip(false)
+      }, 2000)
     }
   }
 
@@ -44,12 +46,11 @@ const CopyableAddress: React.FC<CopyableAddressProps> = ({
       >
         {formatAddress(address, displayFormat, displayAddress)}
       </button>
-      <Tooltip
-        show={showTooltip}
-        message='Copied to clipboard'
-        onDismiss={() => setShowTooltip(false)}
-        position='top'
-      />
+      {showTooltip && (
+        <div className='absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-black text-white text-sm px-2 py-1 rounded whitespace-nowrap z-10'>
+          Copied to clipboard
+        </div>
+      )}
     </div>
   )
 }

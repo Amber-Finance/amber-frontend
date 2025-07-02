@@ -17,6 +17,11 @@ export const formatNumber = (num: number | string, decimals = 2): string => {
   })
 }
 
+export const formatApy = (value: number) => {
+  if (value === 0 || value === undefined) return '-'
+  return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
+}
+
 // Format a number to display in millions, billions, etc.
 export const formatCompactNumber = (num: number | string): string => {
   const parsedNum = typeof num === 'string' ? parseFloat(num) : num
