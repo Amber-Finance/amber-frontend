@@ -3,10 +3,9 @@ import { Metadata } from 'next'
 // Shared constants to match landing page
 const SHARED_CONFIG = {
   siteName: 'Amber',
-  baseUrl: 'https://amberfi.io',
-  appUrl: 'https://app.amberfi.io',
+  baseUrl: 'https://app.amberfi.io',
   twitterHandle: '@amberfi_io',
-  bannerImage: 'https://amberfi.io/banner.png',
+  bannerImage: 'https://app.amberfi.io/banner.png',
   locale: 'en_US',
 }
 
@@ -21,11 +20,11 @@ const SHARED_IMAGE = {
 export const metaData: { [key: string]: Metadata } = {
   home: {
     title: 'Amber Finance',
-    metadataBase: new URL(SHARED_CONFIG.appUrl),
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description: 'Liquid Staking. Solid Yield.',
     openGraph: {
       type: 'website',
-      url: SHARED_CONFIG.appUrl,
+      url: SHARED_CONFIG.baseUrl,
       title: 'Amber Finance',
       locale: SHARED_CONFIG.locale,
       description: 'Liquid Staking. Solid Yield.',
@@ -43,11 +42,11 @@ export const metaData: { [key: string]: Metadata } = {
 
   deposit: {
     title: 'Amber Finance - Yield',
-    metadataBase: new URL(SHARED_CONFIG.appUrl),
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description: 'Liquid Staking. Solid Yield.',
     openGraph: {
       type: 'website',
-      url: `${SHARED_CONFIG.appUrl}/deposit`,
+      url: `${SHARED_CONFIG.baseUrl}/deposit`,
       title: 'Amber Finance - Yield',
       locale: SHARED_CONFIG.locale,
       description: 'Liquid Staking. Solid Yield.',
@@ -65,11 +64,11 @@ export const metaData: { [key: string]: Metadata } = {
 
   strategies: {
     title: 'Amber Finance - Strategies',
-    metadataBase: new URL(SHARED_CONFIG.appUrl),
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description: 'Preserve Value. Generate Wealth.',
     openGraph: {
       type: 'website',
-      url: `${SHARED_CONFIG.appUrl}/strategies`,
+      url: `${SHARED_CONFIG.baseUrl}/strategies`,
       title: 'Amber Finance - Strategies',
       locale: SHARED_CONFIG.locale,
       description: 'Preserve Value. Generate Wealth.',
@@ -87,12 +86,12 @@ export const metaData: { [key: string]: Metadata } = {
 
   swap: {
     title: 'Amber Finance - Swap',
-    metadataBase: new URL(SHARED_CONFIG.appUrl),
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description:
       'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
     openGraph: {
       type: 'website',
-      url: `${SHARED_CONFIG.appUrl}/swap`,
+      url: `${SHARED_CONFIG.baseUrl}/swap`,
       title: 'Amber Finance - Swap',
       locale: SHARED_CONFIG.locale,
       description:
