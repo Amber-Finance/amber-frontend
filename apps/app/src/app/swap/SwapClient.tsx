@@ -320,7 +320,7 @@ export default function SwapClient() {
             )}
 
             {/* Main Swap Button */}
-            <Button disabled={!isSwapValid} variant='outline-gradient' className='w-full mt-4'>
+            <Button disabled={!isSwapValid} className='w-full mt-4'>
               {!fromToken || !toToken ? 'Select tokens' : !fromAmount ? 'Enter amount' : 'Swap'}
             </Button>
           </CardContent>
