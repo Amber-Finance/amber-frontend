@@ -1,41 +1,235 @@
 # User Guide
 
-This guide will help you get started with Amber Finance.
+Complete guide to using Amber Finance for Bitcoin yield farming, deposits, swaps, and leverage strategies.
 
-## Connecting Your Wallet
+## Getting Started
 
-To start using Amber Finance, you'll need to connect a compatible wallet:
+### Connecting Your Wallet
 
-1. Click the "Connect Wallet" button in the top right corner
-2. Select your preferred wallet from the list
-3. Follow the prompts to connect your wallet
+Amber Finance supports multiple Cosmos-compatible wallets:
 
-### Supported Wallets
+1. **Click "Connect Wallet"** in the top-right corner of the app
+2. **Select your wallet** from the supported options:
+   - **Keplr** - Most popular Cosmos wallet
+   - **Leap** - Feature-rich mobile and browser wallet
+   - **Cosmostation** - Multi-chain wallet with mobile support
+   - **OKX Wallet** - Exchange-integrated wallet
+   - **Station** - Terra ecosystem wallet
+   - **Vectis** - Smart contract wallet
+   - **XDEFI** - Multi-chain DeFi wallet
 
-- Keplr
-- Leap
-- Cosmostation
-- OKX Wallet
-- Station
-- Vectis
-- XDEFI
+3. **Follow the prompts** to connect and authorize the connection
+4. **Switch to Neutron network** if prompted
 
-## Lending Bitcoin
+> **💡 Tip**: Make sure you have some NTRN tokens for gas fees on Neutron network.
 
-To lend your Bitcoin and earn yield:
+## Finding Yield Opportunities
 
-1. Navigate to the Markets page
-2. Find the Bitcoin market
-3. Click "Supply"
-4. Enter the amount you want to lend
-5. Confirm the transaction
+### Dashboard Overview
 
-## Managing Your Health Factor
+The main dashboard displays all available Bitcoin yield opportunities:
 
-Your health factor determines how close you are to liquidation. Keep it above 1.0 to avoid liquidation.
+- **Token cards** showing each supported Bitcoin LST
+- **Total APY** combining protocol lending + staking rewards
+- **Available liquidity** for deposits
+- **Your current positions** and balances
 
-### Tips for maintaining a healthy position:
+### Understanding APY Breakdown
 
-- Supply more collateral
-- Repay some of your borrowed assets
-- Monitor market conditions regularly
+Each token shows multiple yield sources:
+
+- **Protocol APY**: Earnings from lending your assets
+- **Staking APY**: Native staking rewards from the LST protocol
+- **Total APY**: Combined yield from both sources
+
+## Depositing Assets
+
+### Making Your First Deposit
+
+1. **Browse available tokens** on the main dashboard
+2. **Click on a token card** (e.g., LBTC, solvBTC, uniBTC)
+3. **Enter deposit amount** or use the slider for percentage-based deposits
+4. **Review transaction details**:
+   - Current balance
+   - Deposit amount
+   - Estimated earnings
+   - Gas fees
+5. **Confirm transaction** in your wallet
+
+### Deposit Interface Features
+
+- **Balance display**: Shows your current wallet balance
+- **Percentage slider**: Quickly select 25%, 50%, 75%, or 100% of balance
+- **APY calculator**: Real-time earnings estimation
+- **Transaction preview**: See exactly what will happen before confirming
+
+### Supported Deposit Assets
+
+| Asset   | Min Deposit   | Protocol        | Current APY |
+| ------- | ------------- | --------------- | ----------- |
+| LBTC    | 0.001 LBTC    | Lombard Finance | 5.2%        |
+| solvBTC | 0.001 solvBTC | Solv Protocol   | 6.8%        |
+| uniBTC  | 0.001 uniBTC  | Bedrock         | 5.9%        |
+| wBTC    | 0.001 wBTC    | Eureka          | 4.7%        |
+| pumpBTC | 0.001 pumpBTC | Pump Protocol   | 8.1%        |
+| eBTC    | 0.001 eBTC    | Edge Protocol   | 7.3%        |
+
+## Asset Swapping
+
+### Using the Swap Interface
+
+1. **Navigate to Swap** from the main menu
+2. **Select "From" token** - the asset you want to trade
+3. **Select "To" token** - the asset you want to receive
+4. **Enter amount** to swap
+5. **Review exchange rate** and slippage settings
+6. **Adjust slippage tolerance** if needed (0.1%, 0.5%, 1.0%)
+7. **Confirm swap** transaction
+
+### Swap Features
+
+- **Real-time pricing**: Live exchange rates between assets
+- **Slippage protection**: Customizable tolerance levels
+- **Route optimization**: Best execution paths automatically selected
+- **Gas estimation**: Clear fee breakdown before transaction
+
+### Supported Swap Pairs
+
+All Bitcoin LSTs can be swapped between each other:
+
+- LBTC ↔ solvBTC ↔ uniBTC ↔ wBTC ↔ pumpBTC ↔ eBTC
+- Plus maxBTC (when available)
+
+## Leverage Strategies
+
+### Strategy Types
+
+#### Conservative Yield (2-5% APY)
+
+- **Risk Level**: Low
+- **Recommended for**: First-time users, risk-averse investors
+- **Featured tokens**: LBTC, uniBTC
+- **Characteristics**:
+  - Established protocols
+  - Lower volatility
+  - Consistent yields
+  - High liquidity
+
+#### Balanced Growth (4-8% APY)
+
+- **Risk Level**: Medium
+- **Recommended for**: Experienced DeFi users
+- **Featured tokens**: LBTC, solvBTC, uniBTC, wBTC
+- **Characteristics**:
+  - Diversified exposure
+  - Balanced risk-reward
+  - Protocol diversification
+  - Regular rebalancing
+
+#### High Yield Pursuit (6-12% APY)
+
+- **Risk Level**: High
+- **Recommended for**: Advanced users, high risk tolerance
+- **Featured tokens**: FBTC, pumpBTC, eBTC
+- **Characteristics**:
+  - Maximum yield potential
+  - Early protocol access
+  - Higher volatility
+  - Active management required
+
+### Implementing Strategies
+
+1. **Visit the Strategies page**
+2. **Choose your risk level**
+3. **Review recommended tokens** and their current APYs
+4. **Click "Bridge"** to acquire needed assets
+5. **Click "Deposit"** to start earning with the strategy
+
+## Portfolio Management
+
+### Monitoring Your Positions
+
+#### Health Factor
+
+- **Above 1.5**: Healthy position
+- **1.2 - 1.5**: Monitor closely
+- **Below 1.2**: Risk of liquidation
+
+#### Key Metrics to Track
+
+- **Total deposited value** (in USD)
+- **Current earnings** (daily/monthly)
+- **APY performance** over time
+- **Asset allocation** across different protocols
+
+### Managing Risk
+
+#### Best Practices
+
+1. **Diversify across protocols** - Don't put all funds in one LST
+2. **Monitor health factors** - Keep above 1.5 for safety
+3. **Stay informed** - Follow protocol updates and market conditions
+4. **Regular rebalancing** - Adjust positions based on APY changes
+
+#### Warning Signs
+
+- Health factor dropping below 1.3
+- Significant APY decreases
+- Protocol governance changes
+- Market volatility spikes
+
+## Withdrawing Assets
+
+### Standard Withdrawal
+
+1. **Navigate to your deposit** page for the specific token
+2. **Switch to "Withdraw" tab**
+3. **Enter withdrawal amount** or use percentage slider
+4. **Review transaction**:
+   - Current deposited amount
+   - Withdrawal amount
+   - Remaining balance
+   - Accrued rewards
+5. **Confirm transaction**
+
+### Withdrawal Processing
+
+- **Instant withdrawals**: For most positions under normal conditions
+- **Processing time**: Usually 1-2 blocks (5-10 seconds)
+- **Fees**: Minimal network gas fees only
+
+## Troubleshooting
+
+### Common Issues
+
+#### Transaction Failed
+
+1. **Check gas balance** - Ensure sufficient NTRN for fees
+2. **Verify network** - Confirm you're on Neutron
+3. **Refresh page** - Clear any stale data
+4. **Try again** - Network congestion may cause temporary failures
+
+#### Balance Not Showing
+
+1. **Wait for confirmation** - Transactions need 1-2 block confirmations
+2. **Refresh browser** - Force reload the page
+3. **Check wallet connection** - Ensure wallet is still connected
+4. **Verify network** - Confirm you're on the correct chain
+
+#### Low Health Factor
+
+1. **Add more collateral** - Deposit additional assets
+2. **Reduce position size** - Withdraw some assets
+3. **Monitor markets** - Watch for price movements
+4. **Consider rebalancing** - Adjust strategy allocation
+
+### Getting Help
+
+- **Discord Community**: Join our Discord for real-time support
+- **Documentation**: Check FAQ for common questions
+- **GitHub Issues**: Report bugs or feature requests
+- **Twitter**: Follow for updates and announcements
+
+---
+
+_Need more help? Join our community or check the FAQ section._
