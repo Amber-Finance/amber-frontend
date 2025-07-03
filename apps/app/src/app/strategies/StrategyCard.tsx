@@ -421,6 +421,9 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               }}
             >
               <Button
+                onClick={() =>
+                  (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`)
+                }
                 variant='outline'
                 className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
               >
@@ -431,7 +434,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                     transform: 'translateX(-100%)',
                   }}
                 />
-                <span className='relative z-10'>Deposit</span>
+                <span className='relative z-10'>Deploy</span>
               </Button>
             </div>
           </div>
