@@ -60,8 +60,20 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   // Calculate estimated annual earnings properly (convert from decimal to amount)
   const estimatedYearlyEarnings = currentAmount * leveragedApy
 
-  const liquidationPrice = 95000 * (1 - 1 / multiplier + 0.05) // Simplified calculation
+  // For correlated LSTs (same price source), liquidation risk is minimal
+  // Liquidation would only occur due to:
+  // 1. LST depeg events (quality/protocol risk)
+  // 2. Extreme leverage at liquidation threshold
+  // Since LSTs move proportionally with BTC, traditional liquidation price calculation doesn't apply
+  const isCorrelatedStrategy = strategy.isCorrelated
+  const liquidationThreshold = strategy.liquidationThreshold || 0.85
+
+  // For correlated LSTs: liquidation price is theoretical and depends on depeg risk
+  // For uncorrelated assets: use traditional calculation
   const currentPrice = 95000 // Mock current BTC price
+  const liquidationPrice = isCorrelatedStrategy
+    ? null // No meaningful liquidation price for correlated assets
+    : currentPrice * (1 - 1 / multiplier + (1 - liquidationThreshold))
 
   // Mock user balance data
   const userBalance = 10.5
@@ -234,9 +246,26 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                     </div>
                     <div className='flex justify-between items-center text-xs'>
                       <span className='text-muted-foreground'>Liquidation price</span>
-                      <span className='font-medium text-orange-600 dark:text-orange-400'>
-                        ${liquidationPrice.toLocaleString()}
-                      </span>
+                      <div className='flex items-center gap-1'>
+                        <span className='font-medium text-orange-600 dark:text-orange-400'>
+                          {liquidationPrice
+                            ? `$${liquidationPrice.toLocaleString()}`
+                            : 'N/A (Correlated)'}
+                        </span>
+                        {!liquidationPrice && (
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className='text-xs max-w-xs'>
+                                Correlated LSTs move proportionally with BTC price. Liquidation risk
+                                is minimal as both collateral and debt maintain the same ratio.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -374,7 +403,14 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                     leverages your {strategy.collateralAsset.symbol} position by borrowing{' '}
                     {strategy.debtAsset.symbol} and swapping it for more{' '}
                     {strategy.collateralAsset.symbol}. The cycle repeats until you reach your target
-                    leverage multiplier, amplifying both potential gains and risks.
+                    leverage multiplier.
+                    {isCorrelatedStrategy && (
+                      <span className='text-blue-600 dark:text-blue-400'>
+                        {' '}
+                        Since both assets track BTC price, you earn the yield spread with minimal
+                        liquidation risk.
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -499,13 +535,32 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
 
               <Separator />
 
-              <div className='p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 dark:bg-amber-900/20 dark:border-amber-700/30'>
-                <div className='text-amber-700 dark:text-amber-400 font-medium text-xs mb-1'>
-                  Risk Warning
+              <div
+                className={`p-2 rounded-lg border ${
+                  isCorrelatedStrategy
+                    ? 'bg-blue-500/10 border-blue-500/20 dark:bg-blue-900/20 dark:border-blue-700/30'
+                    : 'bg-amber-500/10 border-amber-500/20 dark:bg-amber-900/20 dark:border-amber-700/30'
+                }`}
+              >
+                <div
+                  className={`font-medium text-xs mb-1 ${
+                    isCorrelatedStrategy
+                      ? 'text-blue-700 dark:text-blue-400'
+                      : 'text-amber-700 dark:text-amber-400'
+                  }`}
+                >
+                  {isCorrelatedStrategy ? 'LST Strategy Info' : 'Risk Warning'}
                 </div>
-                <div className='text-amber-700/80 dark:text-amber-400/80 text-xs'>
-                  Leveraged positions amplify both gains and losses. Monitor your position
-                  carefully.
+                <div
+                  className={`text-xs ${
+                    isCorrelatedStrategy
+                      ? 'text-blue-700/80 dark:text-blue-400/80'
+                      : 'text-amber-700/80 dark:text-amber-400/80'
+                  }`}
+                >
+                  {isCorrelatedStrategy
+                    ? 'Correlated LSTs move proportionally with BTC. Primary risks are LST depeg events and borrow rate changes, not liquidation.'
+                    : 'Leveraged positions amplify both gains and losses. Monitor your position carefully.'}
                 </div>
               </div>
             </CardContent>
