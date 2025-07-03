@@ -62,10 +62,15 @@ export default function Hero({ markets }: HeroProps) {
               </button>
             </div>
             <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] rounded-r-lg group'>
-              <button className='slanted-btn-2 bg-background text-foreground font-medium py-2 px-8 w-full h-full text-sm rounded-r-lg relative overflow-hidden'>
+              <a
+                href='https://docs.amberfi.io'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='slanted-btn-2 bg-background text-foreground font-medium py-2 px-8 w-full h-full text-sm rounded-r-lg relative overflow-hidden inline-flex items-center justify-center'
+              >
                 <span className='relative z-10'>Learn More</span>
                 <span className='absolute inset-0 bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-r-lg' />
-              </button>
+              </a>
             </div>
           </div>
         </div>
