@@ -1,14 +1,15 @@
 'use client'
 
-import React from 'react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { Menu, X } from 'lucide-react'
 
 import ConnectButton from '@/components/common/ConnectButton'
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +22,7 @@ const navigation = [
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { resolvedTheme } = useTheme()
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -45,10 +47,14 @@ export function Navbar() {
     <>
       <header className='fixed top-0 left-0 right-0 z-50 bg-background/50 backdrop-blur-md'>
         <nav className='mx-auto py-2 max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center justify-between h-16'>
-            {/* Logo */}
+          <div className='flex items-center justify-between py-1'>
             <Link href='/' className='flex items-center space-x-2 group'>
-              AmberFinance
+              <Image
+                src={resolvedTheme === 'dark' ? '/images/logo-light.svg' : '/images/logo-dark.svg'}
+                alt='Amber Finance'
+                width={142}
+                height={50}
+              />
             </Link>
 
             <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/50 rounded-xl p-1'>
@@ -59,7 +65,7 @@ export function Navbar() {
                     <Link
                       href={item.href}
                       className={cn(
-                        'relative flex items-center px-5 py-2 text-xs rounded-md transition-all duration-300 border border-transparent',
+                        'relative tracking-widest flex items-center px-5 py-2 text-xs rounded-md transition-all duration-300 border border-transparent',
                         isActive
                           ? 'text-foreground nav-glow-active'
                           : 'text-muted-foreground hover:text-foreground',

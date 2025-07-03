@@ -22,7 +22,7 @@ export default function BalanceRow({
         <span className='text-xs sm:text-sm font-medium'>{label}</span>
       </div>
       <div className='text-right'>
-        <div className='text-xs sm:text-sm font-bold text-foreground'>{value}</div>
+        <div className='text-xs sm:text-sm text-foreground font-baloo'>{value}</div>
         {usdValue && <div className='text-xs text-muted-foreground/80'>{usdValue}</div>}
       </div>
     </div>

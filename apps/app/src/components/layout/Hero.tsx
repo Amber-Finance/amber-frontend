@@ -37,17 +37,17 @@ export default function Hero({ markets }: HeroProps) {
         {/* Left Column - Main Content */}
         <div className='flex-1 flex flex-col justify-between gap-6'>
           <div className='space-y-3'>
-            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-bold leading-tight'>
+            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-baloo leading-tight'>
               <span className='block text-foreground'>Liquid Staking.</span>
               <span className='block'>
                 <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>
-                  Amber Finance
+                  Solid Yield.
                 </AuroraText>
               </span>
             </h1>
             <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
-              Bridge your liquid staking tokens and earn maximum yield. Deposit LSTs to earn both
-              underlying staking rewards plus additional lending APY.
+              Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to
+              earn real yield.
             </p>
           </div>
 
@@ -62,10 +62,15 @@ export default function Hero({ markets }: HeroProps) {
               </button>
             </div>
             <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] rounded-r-lg group'>
-              <button className='slanted-btn-2 bg-background text-foreground font-medium py-2 px-8 w-full h-full text-sm rounded-r-lg relative overflow-hidden'>
+              <a
+                href='https://docs.amberfi.io'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='slanted-btn-2 bg-background text-foreground font-medium py-2 px-8 w-full h-full text-sm rounded-r-lg relative overflow-hidden inline-flex items-center justify-center'
+              >
                 <span className='relative z-10'>Learn More</span>
                 <span className='absolute inset-0 bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-r-lg' />
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -73,34 +78,9 @@ export default function Hero({ markets }: HeroProps) {
         {/* Right Column - Stats Cards */}
         <div className='flex-1 max-w-lg w-full h-full'>
           <div className='flex flex-row gap-2 sm:gap-3'>
-            <StatCard
-              value={maxApy}
-              label={
-                <>
-                  Max <span className='block sm:inline' /> APY
-                </>
-              }
-              decimalPlaces={2}
-              suffix='%'
-            />
-            <StatCard
-              value={totalTvl}
-              label={
-                <>
-                  Total <span className='block sm:inline' /> TVL
-                </>
-              }
-              isCurrency={true}
-              prefix='$'
-            />
-            <StatCard
-              value={totalBtcDerivatives}
-              label={
-                <>
-                  BTC <span className='block sm:inline' /> LSTs
-                </>
-              }
-            />
+            <StatCard value={maxApy} label='Max APY' decimalPlaces={2} suffix='%' />
+            <StatCard value={totalTvl} label='Total TVL' isCurrency={true} prefix='$' />
+            <StatCard value={totalBtcDerivatives} label='Assets' />
           </div>
         </div>
       </div>

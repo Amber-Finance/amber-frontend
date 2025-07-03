@@ -16,7 +16,7 @@ export const HoverBaseButton = React.forwardRef<HTMLButtonElement, HoverBaseButt
       <button
         ref={ref}
         className={cn(
-          'group relative w-auto cursor-pointer overflow-hidden rounded-full border bg-background p-2 px-6 text-center font-semibold',
+          'group relative w-auto cursor-pointer overflow-hidden rounded-full border bg-background p-2 px-6 text-center font-bold',
           className,
         )}
         {...props}

@@ -1,29 +1,54 @@
 import { ReactNode } from 'react'
 
-import { Space_Mono } from 'next/font/google'
-
 import type { Metadata } from 'next'
 
 import '@/app/globals.css'
-import RunningLogo from '@/components/RunningLogo'
-
-const spaceMono = Space_Mono({
-  variable: '--font-space-mono',
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-})
+import Logo from '@/components/Logo'
 
 export const metadata: Metadata = {
-  title: 'Bitcoin Outpost - Landing',
-  description: 'Bitcoin Outpost Landing Page',
+  title: 'Amber Finance',
+  metadataBase: new URL('https:/amberfi.io'),
+  description:
+    'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+  openGraph: {
+    type: 'website',
+    url: 'https://amberfi.io',
+    title: 'Amber Finance',
+    locale: 'en_US',
+    description:
+      'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+    siteName: 'Amber',
+    images: [
+      {
+        url: 'https://amberfi.io/banner.png',
+        width: 1280,
+        height: 720,
+        alt: 'Amber Finance',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@amberfi_io',
+    title: 'Amber Finance',
+    description:
+      'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+    images: [
+      {
+        url: 'https://amberfi.io/banner.png',
+        width: 1280,
+        height: 720,
+        alt: 'Amber Finance',
+      },
+    ],
+  },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='en'>
-      <body className={`${spaceMono.variable}`}>
-        <RunningLogo />
+      <body className='font-sans'>
+        <Logo />
         {children}
       </body>
     </html>

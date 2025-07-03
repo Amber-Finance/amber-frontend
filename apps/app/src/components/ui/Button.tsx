@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-gradient-to-r from-gradient-start to-gradient-end text-foreground shadow hover:bg-primary/90 disabled:opacity-50',
+          'bg-gradient-to-r from-gradient-start to-gradient-end text-foreground shadow hover:bg-primary/90 disabled:opacity-50 font-bold',
         outline:
           'bg-card text-foreground border border-border hover:bg-secondary hover:text-foreground disabled:bg-muted/30 disabled:text-muted-foreground disabled:border-muted-foreground/20 disabled:cursor-not-allowed disabled:shadow-none',
         'outline-gradient': 'bg-card text-foreground hover:bg-card/90',

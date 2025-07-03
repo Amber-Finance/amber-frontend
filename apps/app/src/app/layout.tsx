@@ -1,5 +1,3 @@
-import { Space_Mono } from 'next/font/google'
-
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { ToastContainer } from 'react-toastify'
@@ -13,17 +11,9 @@ import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
-const spaceMono = Space_Mono({
-  variable: '--font-space-mono',
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-})
+import { metaData } from './metadata'
 
-export const metadata: Metadata = {
-  title: 'Amber Finance',
-  description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
-}
+export const metadata: Metadata = metaData.home
 
 export default function RootLayout({
   children,
@@ -34,7 +24,7 @@ export default function RootLayout({
     <html lang='en' className='overflow-y-scroll no-scrollbar' suppressHydrationWarning>
       <head />
       <body
-        className={`${spaceMono.variable} antialiased overflow-x-hidden font-mono`}
+        className='antialiased overflow-x-hidden font-sans'
         style={{ overscrollBehavior: 'none' }}
       >
         <ThemeProvider defaultTheme='dark' storageKey='btc-outpost-theme'>

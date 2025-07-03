@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "name": "bitcoin-outpost-docs",
+  "name": "amber-frontend-docs",
   "framework": "nextjs",
   "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/docs && pnpm build",
   "outputDirectory": ".next",
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "rootDirectory": "apps/docs",
-  "domains": ["docs.amberfi.io"]
-}
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
+} 

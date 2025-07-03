@@ -1,76 +1,111 @@
 import { Metadata } from 'next'
 
+// Shared constants to match landing page
+const SHARED_CONFIG = {
+  siteName: 'Amber',
+  baseUrl: 'https://app.amberfi.io',
+  twitterHandle: '@amberfi_io',
+  bannerImage: 'https://app.amberfi.io/banner.png',
+  locale: 'en_US',
+}
+
+// Shared image for social media
+const SHARED_IMAGE = {
+  url: SHARED_CONFIG.bannerImage,
+  width: 1280,
+  height: 720,
+  alt: 'Amber Finance',
+}
+
 export const metaData: { [key: string]: Metadata } = {
   home: {
-    title: 'Bitcoin Outpost - powered by Mars Protocol',
-    metadataBase: new URL('https://app.amberfi.io'),
-    description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
-    keywords: ['ibc', 'neutron', 'lend', 'borrow', 'earn', 'mars protocol'],
+    title: 'Amber Finance',
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
+    description: 'Liquid Staking. Solid Yield.',
     openGraph: {
       type: 'website',
-      url: 'https://app.amberfi.io',
-      title: 'Bitcoin Outpost - powered by Mars Protocol',
-      locale: 'en_US',
-      description: 'Lend and borrow Bitcoin Derivatives on Neutron.',
-      siteName: 'Bitcoin Outpost',
-      images: [
-        {
-          url: 'https://app.amberfi.io/banner.jpg',
-          width: 1280,
-          height: 720,
-          alt: 'Bitcoin Outpost',
-        },
-      ],
+      url: SHARED_CONFIG.baseUrl,
+      title: 'Amber Finance',
+      locale: SHARED_CONFIG.locale,
+      description: 'Liquid Staking. Solid Yield.',
+      siteName: SHARED_CONFIG.siteName,
+      images: [SHARED_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
-      site: '@mars_protocol',
-      title: 'Bitcoin Outpost - powered by Mars Protocol',
-      description: 'Lend and borrow on Neutron with easy. Simple, secure, and fast.',
-      images: [
-        {
-          url: 'https://bitcoin-outpost-fe.vercel.app/banner.jpg',
-          width: 1280,
-          height: 720,
-          alt: 'Bitcoin Outpost',
-        },
-      ],
+      site: SHARED_CONFIG.twitterHandle,
+      title: 'Amber Finance',
+      description: 'Liquid Staking. Solid Yield.',
+      images: [SHARED_IMAGE],
     },
   },
-  markets: {
-    title: 'Bitcoin Outpost - Markets',
-    metadataBase: new URL('https://bitcoin-outpost-fe.vercel.app'),
-    description: 'Explore the markets on Bitcoin Outpost.',
-    keywords: ['ibc', 'neutron', 'lend', 'borrow', 'earn', 'mars protocol'],
+
+  deposit: {
+    title: 'Amber Finance - Yield',
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
+    description: 'Liquid Staking. Solid Yield.',
     openGraph: {
       type: 'website',
-      url: 'https://bitcoin-outpost-fe.vercel.app/markets',
-      title: 'Bitcoin Outpost - Markets',
-      locale: 'en_US',
-      description: 'Explore the markets on Bitcoin Outpost.',
-      siteName: 'Bitcoin Outpost',
-      images: [
-        {
-          url: 'https://bitcoin-outpost-fe.vercel.app/banner.jpg',
-          width: 1280,
-          height: 720,
-          alt: 'Bitcoin Outpost',
-        },
-      ],
+      url: `${SHARED_CONFIG.baseUrl}/deposit`,
+      title: 'Amber Finance - Yield',
+      locale: SHARED_CONFIG.locale,
+      description: 'Liquid Staking. Solid Yield.',
+      siteName: SHARED_CONFIG.siteName,
+      images: [SHARED_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
-      site: '@mars_protocol',
-      title: 'Bitcoin Outpost - Markets',
-      description: 'Explore the markets on Bitcoin Outpost.',
-      images: [
-        {
-          url: 'https://bitcoin-outpost-fe.vercel.app/banner.jpg',
-          width: 1280,
-          height: 720,
-          alt: 'Bitcoin Outpost',
-        },
-      ],
+      site: SHARED_CONFIG.twitterHandle,
+      title: 'Amber Finance - Yield',
+      description: 'Liquid Staking. Solid Yield.',
+      images: [SHARED_IMAGE],
+    },
+  },
+
+  strategies: {
+    title: 'Amber Finance - Strategies',
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
+    description: 'Preserve Value. Generate Wealth.',
+    openGraph: {
+      type: 'website',
+      url: `${SHARED_CONFIG.baseUrl}/strategies`,
+      title: 'Amber Finance - Strategies',
+      locale: SHARED_CONFIG.locale,
+      description: 'Preserve Value. Generate Wealth.',
+      siteName: SHARED_CONFIG.siteName,
+      images: [SHARED_IMAGE],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: SHARED_CONFIG.twitterHandle,
+      title: 'Amber Finance - Strategies',
+      description: 'Preserve Value. Generate Wealth.',
+      images: [SHARED_IMAGE],
+    },
+  },
+
+  swap: {
+    title: 'Amber Finance - Swap',
+    metadataBase: new URL(SHARED_CONFIG.baseUrl),
+    description:
+      'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
+    openGraph: {
+      type: 'website',
+      url: `${SHARED_CONFIG.baseUrl}/swap`,
+      title: 'Amber Finance - Swap',
+      locale: SHARED_CONFIG.locale,
+      description:
+        'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
+      siteName: SHARED_CONFIG.siteName,
+      images: [SHARED_IMAGE],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: SHARED_CONFIG.twitterHandle,
+      title: 'Amber Finance - Swap',
+      description:
+        'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
+      images: [SHARED_IMAGE],
     },
   },
 }
