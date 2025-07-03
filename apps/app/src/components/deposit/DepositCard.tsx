@@ -47,7 +47,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
 
-  const formatBalance = (balance: number) => (balance > 0 ? balance.toFixed(6) : '0.000000')
+  const formatBalance = (balance: number) => (balance > 0 ? balance.toFixed(8) : '0.00000000')
   const formatUsd = (usd: number) => (usd > 0 ? `$${usd.toFixed(2)}` : '$0.00')
 
   // Get protocol icon based on theme
@@ -145,7 +145,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='text-2xl font-bold leading-tight' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
-            <div className='text-sm text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
+            <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
               Total APY
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                     style={{ color: `${token.brandColor}CC` }} // 80% opacity
                   />
                 )}
-                <span className='text-sm text-muted-foreground/90'>{token.protocol}</span>
+                <span className='text-sm'>{token.protocol}</span>
               </div>
               <div className='flex items-center gap-1'>
                 {metrics.stakingApy > 0 ? (
@@ -219,7 +219,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                   className='w-3 h-3 flex-shrink-0'
                   style={{ color: `${token.brandColor}CC` }} // 80% opacity
                 />
-                <span className='text-sm text-muted-foreground/90'>Amber Finance</span>
+                <span className='text-sm'>Amber Finance</span>
               </div>
               <span className='text-base font-bold' style={{ color: token.brandColor }}>
                 <CountingNumber value={metrics.lendingApy} decimalPlaces={2} />%
@@ -244,7 +244,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
           <div className='space-y-2'>
             <div className='flex justify-between items-center'>
-              <span className='text-sm text-muted-foreground/90'>Available</span>
+              <span className='text-sm'>Available</span>
               <div className='text-right'>
                 <div className='text-base text-foreground font-baloo'>
                   {formatBalance(metrics.balance)}{' '}
