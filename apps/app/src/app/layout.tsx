@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import '@/app/globals.css'
 import { Background } from '@/components/layout/Background'
+import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { CosmosKitProvider } from '@/components/providers/CosmosKitProvider'
 import { SWRProvider } from '@/components/providers/SWRProvider'
@@ -44,6 +45,7 @@ export default function RootLayout({
                   <Navbar />
                   {children}
                 </div>
+                <Footer />
 
                 <ToastContainer
                   position='bottom-right'

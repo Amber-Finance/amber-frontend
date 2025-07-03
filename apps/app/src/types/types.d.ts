@@ -6,6 +6,18 @@ interface Asset {
   description: string
   decimals: number
   icon: string
+  brandColor?: string
+}
+
+// AssetInfo interface for strategy assets
+interface AssetInfo {
+  denom: string
+  symbol: string
+  name: string
+  description: string
+  decimals: number
+  icon: string
+  brandColor?: string
 }
 
 interface MarketParams {
@@ -277,7 +289,6 @@ type HlsAssetTypeForAddr =
       }
     }
 type Addr = string
-type Uint128 = string
 type AccountKind =
   | ('default' | 'high_levered_strategy')
   | {
@@ -375,11 +386,7 @@ interface DebtAmount {
   denom: string
   shares: Uint128
 }
-interface Coin {
-  amount: Uint128
-  denom: string
-  [k: string]: unknown
-}
+
 interface PerpPosition {
   base_denom: string
   current_exec_price: Decimal
@@ -478,3 +485,46 @@ interface MarketColumn {
 }
 
 type Theme = 'dark' | 'light' | 'system'
+
+interface Strategy {
+  id: string
+  type: string
+  collateralAsset: AssetInfo
+  debtAsset: AssetInfo
+  maxROE: number
+  isPositive: boolean
+  hasPoints: boolean
+  rewards: string
+  multiplier: number
+  isCorrelated: boolean
+  liquidity: number
+  liquidityDisplay: string
+  subText: string
+  isComingSoon?: boolean
+
+  // Enhanced metrics for Δs
+  supplyApy: number
+  borrowApy: number
+  netApy: number
+  ltv: number
+  liquidationThreshold: number
+
+  // Additional strategy metadata
+  maxLeverage?: number
+  maxBorrowCapacityUsd?: number
+  maxPositionSizeUsd?: number
+
+  // Enhanced APY breakdown with staking components
+  collateralStakingApy?: number
+  collateralTotalApy?: number
+  debtStakingApy?: number
+  debtNetCost?: number
+  hasStakingData?: boolean
+
+  // Position info
+  currentPosition?: {
+    collateralAmount: string
+    debtAmount: string
+    healthFactor: number
+  }
+}

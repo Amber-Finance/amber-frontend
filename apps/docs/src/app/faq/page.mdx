@@ -4,46 +4,254 @@
 
 ### What is Amber Finance?
 
-Amber Finance is a decentralized finance (DeFi) platform specifically designed for Bitcoin and Bitcoin-backed assets. It allows users to lend, borrow, and earn yield on their Bitcoin holdings.
+Amber Finance is a Bitcoin yield farming platform built on the Cosmos ecosystem. It enables Bitcoin holders to earn yields through liquid staking tokens (LSTs), leverage strategies, and protocol lending. Users can deposit Bitcoin LSTs like LBTC, solvBTC, uniBTC, and others to earn combined yields from both protocol lending and native staking rewards.
+
+### How does Amber Finance generate yields?
+
+Amber Finance generates yields through multiple sources:
+
+- **Protocol lending**: Earn interest by lending your Bitcoin LSTs to other users
+- **LST staking rewards**: Native staking yields from the underlying LST protocols (Lombard, Solv, Bedrock, etc.)
+- **Leverage strategies**: Amplify returns by borrowing correlated assets against your collateral
 
 ### Is Amber Finance safe?
 
-Amber Finance is built with security as a top priority. The protocol has been audited and uses battle-tested smart contract patterns. However, as with all DeFi protocols, there are inherent risks involved.
+Amber Finance prioritizes security through:
+
+- **Battle-tested smart contracts** with extensive audits
+- **Health factor monitoring** to prevent liquidations
+- **Diversified protocol exposure** to reduce single-point-of-failure risks
+- **Transparent operations** on the Neutron blockchain
+
+However, like all DeFi protocols, there are inherent risks including smart contract vulnerabilities, liquidation risks, and market volatility.
 
 ### What are the fees?
 
-Amber Finance charges minimal fees for protocol operations. Specific fee structures can be found in the Markets section of the application.
+Amber Finance charges minimal fees:
 
-## Technical Questions
+- **No deposit/withdrawal fees** - only network gas costs
+- **Protocol fees**: Small percentage of earned yields (typically 5-10%)
+- **Gas fees**: Standard Neutron network fees (very low, usually less than $0.01)
+- **No hidden fees** - all costs are transparent and displayed upfront
 
-### Which networks does Amber Finance support?
+## Supported Assets & Protocols
 
-Amber Finance is built on Cosmos-based chains and supports various Bitcoin-backed assets across different networks.
+### Which Bitcoin assets are supported?
 
-### Can I use Amber Finance without connecting a wallet?
+Amber Finance supports multiple Bitcoin LSTs:
 
-While you can browse the application without a wallet, you'll need to connect a compatible wallet to perform any transactions.
+- **LBTC** (Lombard Finance) - ~2.5% staking APY
+- **solvBTC** (Solv Protocol) - ~3.2% staking APY
+- **uniBTC** (Bedrock) - ~2.8% staking APY
+- **wBTC** (Eureka) - ~2.1% staking APY
+- **wBTC.axl** (Axelar) - ~1.9% staking APY
+- **pumpBTC** (Pump Protocol) - ~4.1% staking APY
+- **eBTC** (Edge Protocol) - ~3.8% staking APY
+
+### How do I get these Bitcoin LSTs?
+
+You can acquire Bitcoin LSTs through:
+
+1. **Direct bridging** from Bitcoin to LSTs on their respective protocols
+2. **Swapping** other Bitcoin assets using Amber Finance's swap feature
+3. **Purchasing** on centralized or decentralized exchanges
+4. **Converting** existing wBTC or other Bitcoin representations
+
+### Which blockchain does Amber Finance use?
+
+Amber Finance is built on **Neutron**, a Cosmos-based blockchain that offers:
+
+- **Low transaction fees** (typically less than $0.01)
+- **Fast finality** (5-10 second confirmations)
+- **IBC connectivity** to the broader Cosmos ecosystem
+- **CosmWasm smart contracts** for advanced functionality
+
+## Using the Platform
+
+### How do I connect my wallet?
+
+Amber Finance supports multiple Cosmos wallets:
+
+1. **Click "Connect Wallet"** in the top-right corner
+2. **Choose your wallet**: Keplr, Leap, Cosmostation, OKX Wallet, Station, Vectis, or XDEFI
+3. **Approve the connection** in your wallet
+4. **Switch to Neutron network** if prompted
+
+Make sure you have some NTRN tokens for gas fees.
+
+### How do I start earning yields?
+
+1. **Browse opportunities** on the main dashboard
+2. **Click on a token card** (e.g., LBTC, solvBTC)
+3. **Enter deposit amount** or use the percentage slider
+4. **Review transaction details** including estimated earnings
+5. **Confirm the transaction** in your wallet
+6. **Start earning immediately** - yields are calculated in real-time
+
+### What is a health factor?
+
+Health factor measures how close your position is to liquidation:
+
+- **Above 2.0**: Very safe, can increase leverage
+- **1.5 - 2.0**: Safe operating range
+- **1.3 - 1.5**: Caution zone, monitor closely
+- **1.2 - 1.3**: Danger zone, reduce leverage immediately
+- **Below 1.2**: Liquidation risk, take immediate action
+
+### How do leverage strategies work?
+
+Leverage strategies amplify yields by:
+
+1. **Using your deposits as collateral** to borrow other Bitcoin assets
+2. **Earning yields on both** your collateral and borrowed assets
+3. **Capturing the spread** between lending and borrowing rates
+4. **Managing risk** through health factor monitoring
+
+Example: Deposit LBTC earning 5% APY, borrow solvBTC at 3% cost, net 2% spread amplified by leverage.
+
+## Strategies & Risk Management
+
+### Which strategy should I choose?
+
+Choose based on your experience and risk tolerance:
+
+**Conservative (2-5% APY)** - For beginners:
+
+- Low leverage (1.2x - 2x)
+- Established protocols (LBTC, uniBTC)
+- Health factor target: Above 2.0
+
+**Balanced (4-8% APY)** - For experienced users:
+
+- Medium leverage (2x - 5x)
+- Diversified protocols (LBTC, solvBTC, uniBTC, wBTC)
+- Health factor target: Above 1.5
+
+**High Yield (6-12% APY)** - For advanced users:
+
+- High leverage (5x - 10x)
+- Newer protocols (pumpBTC, eBTC)
+- Health factor target: Above 1.3
+
+### How do I manage liquidation risk?
+
+Prevent liquidations by:
+
+1. **Maintaining healthy ratios** - Keep health factor above 1.5
+2. **Diversifying collateral** - Don't put everything in one asset
+3. **Monitoring regularly** - Check positions daily for high-leverage strategies
+4. **Setting alerts** - Use notifications for health factor warnings
+5. **Having reserves** - Keep extra assets to add as collateral if needed
 
 ### What happens if I get liquidated?
 
-If your health factor falls below 1.0, your position may be liquidated to protect the protocol. A portion of your collateral will be sold to repay your debt, and you'll incur a liquidation penalty.
+If your health factor drops below 1.0:
+
+1. **Partial liquidation** occurs to bring you back to safety
+2. **Liquidation penalty** is applied (typically 5-10%)
+3. **Your debt is reduced** by the amount liquidated
+4. **Remaining position** continues earning yields
+
+To avoid liquidation, monitor your health factor and add collateral or reduce debt when it gets low.
+
+## Swapping & Portfolio Management
+
+### How does the swap feature work?
+
+The swap feature allows trading between Bitcoin assets:
+
+1. **Select "From" and "To" tokens** from supported Bitcoin LSTs
+2. **Enter the amount** you want to swap
+3. **Review exchange rate** and slippage tolerance (0.1%, 0.5%, 1.0%)
+4. **Confirm the transaction** - swaps execute instantly
+5. **Minimal slippage** due to high correlation between Bitcoin assets
+
+### How do I withdraw my assets?
+
+To withdraw your deposited assets:
+
+1. **Navigate to the specific token** page (e.g., LBTC)
+2. **Switch to "Withdraw" tab**
+3. **Enter withdrawal amount** or use percentage slider
+4. **Review transaction** including accrued rewards
+5. **Confirm withdrawal** - usually processes within 1-2 blocks
+
+Withdrawals are typically instant unless you have active debt positions.
+
+### Can I withdraw partially?
+
+Yes, you can withdraw any amount up to your available balance. The platform shows:
+
+- **Total deposited amount**
+- **Available for withdrawal** (considering any debt obligations)
+- **Accrued rewards** that will be included in withdrawal
+
+## Technical Questions
+
+### What are the minimum deposit amounts?
+
+Minimum deposits vary by asset but are generally very low:
+
+- **Most Bitcoin LSTs**: 0.001 tokens (about $100-$200 at current prices)
+- **No maximum limits** - deposit as much as you want
+- **Gas optimization** - larger deposits are more gas-efficient
+
+### How often are yields calculated?
+
+- **Real-time calculation** - APY updates continuously
+- **Rewards accrue** every block (approximately every 5 seconds)
+- **Compound automatically** - no need to claim rewards separately
+- **Dashboard updates** show current earnings and projections
+
+### Can I use Amber Finance on mobile?
+
+Yes, Amber Finance is fully mobile-compatible:
+
+- **Responsive web app** works on all devices
+- **Mobile wallet support** through WalletConnect
+- **Touch-optimized interface** for easy mobile use
+- **Native mobile apps** coming soon
 
 ## Troubleshooting
 
 ### My transaction failed, what should I do?
 
-1. Check that you have sufficient gas fees
-2. Ensure your wallet is properly connected
-3. Verify that you have enough balance for the transaction
-4. Try refreshing the page and attempting the transaction again
+Common solutions for failed transactions:
 
-### I can't see my balance
+1. **Check gas balance** - Ensure you have NTRN for fees
+2. **Verify network** - Confirm you're connected to Neutron
+3. **Refresh the page** - Clear any cached data
+4. **Increase gas limit** - Some complex transactions need more gas
+5. **Try again** - Network congestion can cause temporary failures
 
-1. Make sure your wallet is connected
-2. Check that you're on the correct network
-3. Try refreshing the page
-4. Clear your browser cache if the issue persists
+### I can't see my balance after depositing
+
+If your balance doesn't appear:
+
+1. **Wait for confirmation** - Transactions need 1-2 block confirmations
+2. **Refresh the browser** - Force reload the page (Ctrl+F5)
+3. **Check transaction** - Verify it succeeded on the block explorer
+4. **Reconnect wallet** - Disconnect and reconnect your wallet
+
+### My health factor is getting low
+
+If your health factor is approaching dangerous levels:
+
+1. **Add more collateral** - Deposit additional assets immediately
+2. **Reduce debt** - Repay some borrowed assets
+3. **Partial withdrawal** - Reduce your position size
+4. **Monitor markets** - Watch for price movements affecting your position
 
 ### How do I contact support?
 
-You can reach out to our community on Discord or submit an issue on our GitHub repository.
+Get help through multiple channels:
+
+- **Discord Community**: Real-time chat with users and team
+- **Documentation**: Comprehensive guides and tutorials
+- **GitHub Issues**: Report bugs or request features
+- **Twitter/X**: Follow for updates and announcements
+- **Email Support**: For urgent issues or partnership inquiries
+
+---
+
+_Still have questions? Join our Discord community for real-time support from our team and experienced users._

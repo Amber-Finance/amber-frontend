@@ -1,0 +1,300 @@
+# Strategy Guide
+
+Advanced guide to leverage strategies, risk management, and yield optimization on Amber Finance.
+
+## Understanding Leverage Strategies
+
+Leverage strategies allow you to amplify your Bitcoin yields by borrowing assets against your collateral. Amber Finance offers pre-built strategies designed for different risk appetites.
+
+### How Leverage Works
+
+1. **Deposit collateral** (e.g., MAXBTC)
+2. **Borrow correlated assets** (e.g., other Bitcoin LSTs)
+3. **Earn yields** on both positions
+4. **Net profit** = (Collateral yield × leverage) - (Debt cost × leverage factor)
+
+### Strategy Categories
+
+## Conservative Yield Strategy (2-5% APY)
+
+### Overview
+
+- **Risk Level**: Low
+- **Target Users**: First-time users, risk-averse investors
+- **Leverage Range**: 1.2x - 2x
+- **Health Factor Target**: Above 2.0
+
+### Recommended Assets
+
+- **LBTC** (Lombard Finance) - Established protocol with consistent yields
+- **uniBTC** (Bedrock) - High liquidity and stable performance
+
+### Key Features
+
+- **Established protocols** with proven track records
+- **Lower volatility** compared to newer LSTs
+- **Consistent yields** with minimal fluctuation
+- **High liquidity** for easy entry/exit
+
+### Implementation Steps
+
+1. Start with **LBTC** or **uniBTC** as your primary holding
+2. Deposit into Amber Finance to earn protocol yields
+3. Monitor health factor and maintain above 2.0
+4. Consider gradual diversification as confidence grows
+
+### Risk Management
+
+- **Maximum leverage**: 2x
+- **Stop-loss trigger**: Health factor below 1.8
+- **Rebalancing frequency**: Weekly
+- **Position size limit**: 25% of total portfolio
+
+## Balanced Growth Strategy (4-8% APY)
+
+### Overview
+
+- **Risk Level**: Medium
+- **Target Users**: Experienced DeFi users
+- **Leverage Range**: 2x - 5x
+- **Health Factor Target**: Above 1.5
+
+### Recommended Assets
+
+- **LBTC** (Lombard Finance) - Core holding for stability
+- **solvBTC** (Solv Protocol) - Higher yields with moderate risk
+- **uniBTC** (Bedrock) - Diversification component
+- **wBTC** (Eureka) - Established wrapped Bitcoin
+
+### Portfolio Allocation
+
+- **40%** LBTC (stability anchor)
+- **30%** solvBTC (yield driver)
+- **20%** uniBTC (diversification)
+- **10%** wBTC (liquidity buffer)
+
+### Advanced Features
+
+- **Protocol diversification** across multiple LST providers
+- **Balanced risk-reward** optimization
+- **Regular rebalancing** based on performance
+- **Dynamic leverage** adjustment
+
+### Implementation Steps
+
+1. **Initial allocation** across 3-4 different LSTs
+2. **Monitor relative performance** and adjust weights
+3. **Rebalance monthly** to maintain target allocation
+4. **Scale leverage** based on market conditions
+
+### Risk Management
+
+- **Maximum leverage**: 5x
+- **Stop-loss trigger**: Health factor below 1.3
+- **Rebalancing frequency**: Bi-weekly
+- **Correlation monitoring**: Watch for LST correlation spikes
+
+## High Yield Pursuit Strategy (6-12% APY)
+
+### Overview
+
+- **Risk Level**: High
+- **Target Users**: Advanced users with high risk tolerance
+- **Leverage Range**: 5x - 10x
+- **Health Factor Target**: Above 1.3
+
+### Recommended Assets
+
+- **pumpBTC** (Pump Protocol) - High yield potential
+- **eBTC** (Edge Protocol) - Emerging protocol with strong yields
+- **FBTC** (Future protocols) - Early access opportunities
+
+### High-Risk Features
+
+- **Maximum yield potential** through aggressive leverage
+- **Early protocol access** to capture first-mover advantages
+- **Higher volatility** requiring active management
+- **Active management** with frequent monitoring
+
+### Implementation Steps
+
+1. **Start small** with 5-10% of portfolio
+2. **Focus on newest protocols** with highest yields
+3. **Monitor closely** with daily health factor checks
+4. **Scale up gradually** as comfort level increases
+
+### Risk Management
+
+- **Maximum leverage**: 10x (experienced users only)
+- **Stop-loss trigger**: Health factor below 1.2
+- **Rebalancing frequency**: Daily monitoring, weekly rebalancing
+- **Position limits**: Maximum 15% per protocol
+
+## Risk Management Framework
+
+### Health Factor Monitoring
+
+#### Health Factor Ranges
+
+- **Above 2.0**: Very safe, can increase leverage
+- **1.5 - 2.0**: Safe operating range
+- **1.3 - 1.5**: Caution zone, monitor closely
+- **1.2 - 1.3**: Danger zone, reduce leverage
+- **Below 1.2**: Liquidation risk, immediate action required
+
+#### Monitoring Tools
+
+- **Real-time dashboard** with health factor alerts
+- **Mobile notifications** for threshold breaches
+- **Automated rebalancing** options (coming soon)
+- **Historical tracking** for performance analysis
+
+### Liquidation Protection
+
+#### Prevention Strategies
+
+1. **Maintain buffer**: Keep health factor above 1.5
+2. **Diversify collateral**: Use multiple LST types
+3. **Monitor correlations**: Watch for market-wide moves
+4. **Set alerts**: Get notified before reaching danger zones
+
+#### Emergency Procedures
+
+1. **Immediate assessment**: Check current health factor
+2. **Add collateral**: Deposit more assets if available
+3. **Reduce debt**: Repay borrowed assets
+4. **Partial liquidation**: Close portion of position
+5. **Full exit**: Complete position closure if necessary
+
+### Portfolio Diversification
+
+#### Protocol Diversification
+
+- **Never exceed 40%** in any single protocol
+- **Spread across 3-5 protocols** minimum
+- **Monitor protocol health** and governance changes
+- **Stay updated** on audit reports and security
+
+#### Asset Diversification
+
+- **Core holdings** (50-60%): LBTC, uniBTC
+- **Growth assets** (30-40%): solvBTC, wBTC
+- **Speculative** (10-20%): pumpBTC, eBTC
+
+## Advanced Strategies
+
+### Yield Arbitrage
+
+#### Concept
+
+Exploit yield differences between similar assets by:
+
+1. **Borrowing lower-yield assets**
+2. **Lending higher-yield assets**
+3. **Capturing the spread**
+
+#### Example
+
+- Borrow wBTC at 3% APY
+- Lend solvBTC at 7% APY
+- Net yield: 4% (minus fees and slippage)
+
+### Delta-Neutral Strategies
+
+#### Concept
+
+Maintain price exposure neutral while earning yields:
+
+1. **Long position** in one Bitcoin LST
+2. **Short position** in correlated asset
+3. **Earn yields** on both sides
+
+#### Implementation
+
+- Use Amber Finance for long positions
+- Use external platforms for shorting
+- Monitor basis risk between assets
+
+### Automated Rebalancing
+
+#### Trigger Conditions
+
+- **Health factor** drops below threshold
+- **Yield spreads** change significantly
+- **Time-based** rebalancing (weekly/monthly)
+- **Volatility spikes** require position adjustments
+
+#### Rebalancing Actions
+
+- **Adjust leverage** up or down
+- **Rotate between assets** based on performance
+- **Take profits** when targets are reached
+- **Cut losses** when stop-losses are hit
+
+## Performance Tracking
+
+### Key Metrics
+
+#### Return Metrics
+
+- **Total return** (capital + yield)
+- **APY achieved** vs. target
+- **Sharpe ratio** (return per unit risk)
+- **Maximum drawdown** during adverse periods
+
+#### Risk Metrics
+
+- **Health factor** minimum/average
+- **Liquidation events** (should be zero)
+- **Correlation exposure** to Bitcoin price
+- **Protocol concentration** risk
+
+### Reporting Tools
+
+#### Dashboard Features
+
+- **Real-time P&L** tracking
+- **Performance attribution** by asset/strategy
+- **Risk metrics** visualization
+- **Historical performance** charts
+
+#### Export Options
+
+- **CSV reports** for tax purposes
+- **Performance summaries** for analysis
+- **Risk reports** for compliance
+- **Transaction history** detailed logs
+
+## Strategy Selection Guide
+
+### Beginner (0-6 months DeFi experience)
+
+- **Start with**: Conservative Yield Strategy
+- **Focus on**: Learning and capital preservation
+- **Max allocation**: 25% of crypto portfolio
+- **Recommended assets**: LBTC, uniBTC only
+
+### Intermediate (6-18 months DeFi experience)
+
+- **Progress to**: Balanced Growth Strategy
+- **Focus on**: Diversification and optimization
+- **Max allocation**: 50% of crypto portfolio
+- **Recommended assets**: Add solvBTC, wBTC
+
+### Advanced (18+ months DeFi experience)
+
+- **Consider**: High Yield Pursuit Strategy
+- **Focus on**: Maximum returns with managed risk
+- **Max allocation**: Up to 75% of crypto portfolio
+- **Recommended assets**: Full range including newer protocols
+
+### Expert (Professional/Institutional)
+
+- **Implement**: Custom strategies
+- **Focus on**: Risk-adjusted returns and scale
+- **Max allocation**: Based on risk management framework
+- **Recommended assets**: Dynamic allocation based on market conditions
+
+---
+
+_Remember: All strategies involve risk. Never invest more than you can afford to lose, and always do your own research._

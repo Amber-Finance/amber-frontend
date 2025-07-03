@@ -1,84 +1,59 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import * as React from 'react'
 
-interface TooltipProps {
-  show: boolean
-  message: string
-  onDismiss?: () => void
-  duration?: number
-  position?: 'top' | 'bottom' | 'left' | 'right'
-  className?: string
-}
+import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 
-const Tooltip: React.FC<TooltipProps> = ({
-  show,
-  message,
-  onDismiss,
-  duration = 2000,
-  position = 'top',
-  className = '',
-}) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+import { cn } from '@/lib/utils'
 
-  useEffect(() => {
-    // Clear any existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
-
-    // If the tooltip should be shown
-    if (show) {
-      setIsVisible(true)
-
-      // Set a timeout to hide it after the specified duration
-      timeoutRef.current = setTimeout(() => {
-        setIsVisible(false)
-        if (onDismiss) onDismiss()
-      }, duration)
-    } else {
-      setIsVisible(false)
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [show, duration, onDismiss])
-
-  if (!isVisible) return null
-
-  // Determine position-based classes
-  const positionClasses = {
-    top: 'bottom-full mb-2',
-    bottom: 'top-full mt-2',
-    left: 'right-full mr-2',
-    right: 'left-full ml-2',
-  }
-
+function TooltipProvider({
+  delayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (
-    <div
-      className={`absolute z-50 px-3 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-black-800 rounded-md shadow-sm transition-opacity ${positionClasses[position]} ${className}`}
-      role='tooltip'
-    >
-      {message}
-      <div
-        className={`tooltip-arrow absolute h-2 w-2 bg-gray-900 dark:bg-black-800 transform rotate-45 ${
-          position === 'top'
-            ? 'top-full -translate-y-1/2'
-            : position === 'bottom'
-              ? 'bottom-full translate-y-1/2'
-              : position === 'left'
-                ? 'left-full -translate-x-1/2'
-                : 'right-full translate-x-1/2'
-        }`}
-      />
-    </div>
+    <TooltipPrimitive.Provider
+      data-slot='tooltip-provider'
+      delayDuration={delayDuration}
+      {...props}
+    />
   )
 }
 
-export default Tooltip
+function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  return (
+    <TooltipProvider>
+      <TooltipPrimitive.Root data-slot='tooltip' {...props} />
+    </TooltipProvider>
+  )
+}
+
+function TooltipTrigger({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  return <TooltipPrimitive.Trigger data-slot='tooltip-trigger' {...props} />
+}
+
+function TooltipContent({
+  className,
+  sideOffset = 0,
+  children,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Content
+        data-slot='tooltip-content'
+        sideOffset={sideOffset}
+        className={cn(
+          'bg-background/95 backdrop-blur-sm text-foreground border border-border shadow-lg animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+        <TooltipPrimitive.Arrow className='bg-background fill-background border-border z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]' />
+      </TooltipPrimitive.Content>
+    </TooltipPrimitive.Portal>
+  )
+}
+
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
+

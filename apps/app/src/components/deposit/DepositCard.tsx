@@ -47,7 +47,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
 
-  const formatBalance = (balance: number) => (balance > 0 ? balance.toFixed(6) : '0.000000')
+  const formatBalance = (balance: number) => (balance > 0 ? balance.toFixed(8) : '0.00000000')
   const formatUsd = (usd: number) => (usd > 0 ? `$${usd.toFixed(2)}` : '$0.00')
 
   // Get protocol icon based on theme
@@ -145,7 +145,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='text-2xl font-bold leading-tight' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
-            <div className='text-sm text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
+            <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
               Total APY
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                     style={{ color: `${token.brandColor}CC` }} // 80% opacity
                   />
                 )}
-                <span className='text-sm text-muted-foreground/90'>{token.protocol}</span>
+                <span className='text-sm'>{token.protocol}</span>
               </div>
               <div className='flex items-center gap-1'>
                 {metrics.stakingApy > 0 ? (
@@ -219,7 +219,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                   className='w-3 h-3 flex-shrink-0'
                   style={{ color: `${token.brandColor}CC` }} // 80% opacity
                 />
-                <span className='text-sm text-muted-foreground/90'>Amber Finance</span>
+                <span className='text-sm'>Amber Finance</span>
               </div>
               <span className='text-base font-bold' style={{ color: token.brandColor }}>
                 <CountingNumber value={metrics.lendingApy} decimalPlaces={2} />%
@@ -244,7 +244,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
           <div className='space-y-2'>
             <div className='flex justify-between items-center'>
-              <span className='text-sm text-muted-foreground/90'>Available</span>
+              <span className='text-sm'>Available</span>
               <div className='text-right'>
                 <div className='text-base text-foreground font-baloo'>
                   {formatBalance(metrics.balance)}{' '}
@@ -269,14 +269,35 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
       </CardContent>
 
       <CardFooter className='relative z-20 pt-2'>
-        <Button
-          onClick={handleDepositClick}
-          variant='default'
-          gradientColor={token.brandColor}
-          className='w-full'
-        >
-          <span className='uppercase'>Deposit</span>&nbsp;{token.symbol}
-        </Button>
+        <div className='relative group/button w-full'>
+          <div
+            className='absolute inset-0 rounded-lg blur-md opacity-0 group-hover/button:opacity-50 transition-all duration-500 scale-105'
+            style={{
+              background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
+            }}
+          />
+          <div
+            className='relative p-[2px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
+            style={{
+              background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
+            }}
+          >
+            <Button
+              onClick={handleDepositClick}
+              variant='outline'
+              className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
+            >
+              <div
+                className='absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700'
+                style={{
+                  background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`,
+                  transform: 'translateX(-100%)',
+                }}
+              />
+              <span className='relative z-10'>Deposit</span>
+            </Button>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   )

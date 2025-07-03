@@ -44,8 +44,8 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
           relayUrl: 'wss://relay.walletconnect.org',
           metadata: {
-                  name: 'Amber Finance',
-      description: 'Amber Finance - powered by Mars Protocol',
+            name: 'Amber Finance',
+            description: 'Amber Finance - powered by Mars Protocol',
             url: 'https://app.amberfi.io',
             icons: ['https://app.amberfi.io/favicon-96x96.png'],
           },

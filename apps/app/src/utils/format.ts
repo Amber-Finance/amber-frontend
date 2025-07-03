@@ -17,6 +17,11 @@ export const formatNumber = (num: number | string, decimals = 2): string => {
   })
 }
 
+export const formatApy = (value: number) => {
+  if (value === 0 || value === undefined) return '-'
+  return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
+}
+
 // Format a number to display in millions, billions, etc.
 export const formatCompactNumber = (num: number | string): string => {
   const parsedNum = typeof num === 'string' ? parseFloat(num) : num
@@ -376,4 +381,24 @@ export const getUrl = (baseUrl: string, path: string = ''): string => {
   const url = new URL(baseUrl.split('?')[0])
 
   return url.href + path
+}
+
+/**
+ * Format token amount with appropriate decimal places based on magnitude
+ * @param amount - Token amount as a number
+ * @param symbol - Token symbol to append
+ * @returns Formatted token amount string with symbol
+ */
+export const formatTokenAmount = (amount: number, symbol: string): string => {
+  if (amount >= 1_000_000) {
+    return `${(amount / 1_000_000).toFixed(2)}M ${symbol}`
+  } else if (amount >= 1_000) {
+    return `${amount.toFixed(2)} ${symbol}`
+  } else if (amount >= 100) {
+    return `${amount.toFixed(4)} ${symbol}`
+  } else if (amount >= 1) {
+    return `${amount.toFixed(6)} ${symbol}`
+  } else {
+    return `${amount.toFixed(8)} ${symbol}`
+  }
 }

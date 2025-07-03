@@ -1,6 +1,6 @@
 export default {
   index: 'Introduction',
   'user-guide': 'User Guide',
-  api: 'API Reference',
+  strategies: 'Strategy Guide',
   faq: 'FAQ',
 }
