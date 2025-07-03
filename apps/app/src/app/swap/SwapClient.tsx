@@ -7,6 +7,7 @@ import { ArrowUpDown, ChevronDown, Settings, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
@@ -29,6 +30,8 @@ export default function SwapClient() {
   const [toAmount, setToAmount] = useState('')
   const [showFromTokenList, setShowFromTokenList] = useState(false)
   const [showToTokenList, setShowToTokenList] = useState(false)
+  const [slippage, setSlippage] = useState(0.5)
+  const [customSlippage, setCustomSlippage] = useState('')
 
   // Add maxBTC token to the available tokens
   const swapTokens: SwapToken[] = [
@@ -94,7 +97,7 @@ export default function SwapClient() {
 
   return (
     <>
-      <div className='relative w-full py-8 sm:py-12 overflow-hidden px-4 sm:px-8 max-w-6xl mx-auto mt-10'>
+      <div className='relative w-full py-8 sm:py-12 overflow-hidden px-4 sm:px-8 max-w-6xl mx-auto'>
         <div className='flex flex-col justify-center items-center gap-4 min-w-0'>
           <h2 className='text-xl sm:text-4xl font-bold text-foreground mb-0'>
             Swap Bitcoin Assets
@@ -107,10 +110,53 @@ export default function SwapClient() {
       <div className='w-full max-w-lg mx-auto pt-0 pb-16'>
         <Card className='bg-card/90 rounded-2xl shadow-xl p-0 border-0 gap-0 py-6'>
           <CardContent className='py-2 px-8'>
-            <div className='flex items-center justify-between pb-2 gap-1 text-xs text-muted-foreground mt-4'>
-              <button className='hover:bg-muted/50 rounded-lg transition-colors flex items-center justify-end '>
-                <Settings className='w-5 h-5' />
-              </button>
+            <div className='flex items-center justify-between pb-2 gap-1 text-xs text-muted-foreground relative'>
+              {/* Settings Button and Popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div className='flex items-center'>
+                    <button className='hover:bg-muted/50 p-2 rounded-lg transition-colors flex items-center justify-end'>
+                      <Settings className='w-5 h-5' />
+                    </button>
+                    <span className='ml-2 text-muted-foreground'>{slippage}% Slippage</span>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent
+                  side='right'
+                  align='center'
+                  className='min-w-[180px] p-4 flex flex-col items-start gap-2 bg-card'
+                >
+                  <div className='font-semibold text-sm mb-1'>Slippage</div>
+                  <div className='flex gap-2 mb-2'>
+                    {[0.1, 0.5, 1].map((val) => (
+                      <button
+                        key={val}
+                        className={`px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${slippage === val ? 'bg-primary text-background border-primary' : 'bg-muted/30 border-border hover:bg-muted/50'}`}
+                        onClick={() => setSlippage(val)}
+                      >
+                        {val}%
+                      </button>
+                    ))}
+                    <input
+                      type='number'
+                      min='0'
+                      step='0.01'
+                      placeholder='Custom'
+                      value={customSlippage}
+                      onChange={(e) => setCustomSlippage(e.target.value)}
+                      onBlur={() => {
+                        if (customSlippage) {
+                          setSlippage(Number(customSlippage))
+                        }
+                      }}
+                      className='w-16 px-2 py-1 rounded-lg border border-border bg-muted/20 text-sm outline-none focus:border-primary'
+                    />
+                  </div>
+                  <div className='text-xs text-muted-foreground'>
+                    Your swap will fail if the price changes by more than this %.
+                  </div>
+                </PopoverContent>
+              </Popover>
               <div className='flex items-center gap-1'>
                 <Wallet className='w-4 h-4' />
                 {fromToken?.balance || '0.00'}
@@ -119,24 +165,51 @@ export default function SwapClient() {
             <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4 mb-6'>
               <div className='flex justify-between items-center mb-2'>
                 <span className='text-sm text-muted-foreground font-medium'>Swap From</span>
-                <button
-                  onClick={() => setShowFromTokenList(!showFromTokenList)}
-                  className='flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/20 border border-border font-semibold shadow-sm hover:bg-muted/30 min-w-[110px]'
-                >
-                  {fromToken ? (
-                    <>
-                      <img
-                        src={fromToken.icon}
-                        alt={fromToken.symbol}
-                        className='w-6 h-6 rounded-full'
-                      />
-                      <span className='text-sm'>{fromToken.symbol}</span>
-                    </>
-                  ) : (
-                    <span className='text-muted-foreground'>Select</span>
+                <div className='relative'>
+                  <button
+                    onClick={() => setShowFromTokenList(!showFromTokenList)}
+                    className='flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/20 border border-border font-semibold shadow-sm hover:bg-muted/30 min-w-[110px]'
+                  >
+                    {fromToken ? (
+                      <>
+                        <img
+                          src={fromToken.icon}
+                          alt={fromToken.symbol}
+                          className='w-6 h-6 rounded-full'
+                        />
+                        <span className='text-sm'>{fromToken.symbol}</span>
+                      </>
+                    ) : (
+                      <span className='text-muted-foreground'>Select</span>
+                    )}
+                    <ChevronDown className='w-4 h-4' />
+                  </button>
+                  {showFromTokenList && (
+                    <div className='absolute right-0 top-full mt-2 z-50 bg-background border rounded-lg shadow-lg max-h-80 overflow-y-auto min-w-[360px] w-[420px] py-2'>
+                      {swapTokens.map((token) => (
+                        <button
+                          key={token.symbol}
+                          onClick={() => handleTokenSelect(token, true)}
+                          className='w-full flex items-center gap-3 p-2 hover:bg-muted/50 transition-colors'
+                          disabled={toToken?.symbol === token.symbol}
+                        >
+                          <img
+                            src={token.icon}
+                            alt={token.symbol}
+                            className='w-8 h-8 rounded-full'
+                          />
+                          <div className='text-left'>
+                            <div className='font-medium text-sm'>{token.symbol}</div>
+                            <div className='text-xs text-muted-foreground'>{token.name}</div>
+                          </div>
+                          <div className='ml-auto text-right'>
+                            <div className='text-xs font-medium'>{token.balance}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   )}
-                  <ChevronDown className='w-4 h-4' />
-                </button>
+                </div>
               </div>
               <div className='flex items-center gap-3'>
                 <input
@@ -144,33 +217,11 @@ export default function SwapClient() {
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder='0.00'
-                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
+                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   style={{ minWidth: 0 }}
                 />
               </div>
               <div className='text-xs text-muted-foreground mt-1'>$ 0.00</div>
-              {/* Token List Dropdown */}
-              {showFromTokenList && (
-                <div className='absolute left-0 right-0 top-full mt-2 z-50 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto'>
-                  {swapTokens.map((token) => (
-                    <button
-                      key={token.symbol}
-                      onClick={() => handleTokenSelect(token, true)}
-                      className='w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors'
-                      disabled={toToken?.symbol === token.symbol}
-                    >
-                      <img src={token.icon} alt={token.symbol} className='w-8 h-8 rounded-full' />
-                      <div className='text-left'>
-                        <div className='font-medium'>{token.symbol}</div>
-                        <div className='text-sm text-muted-foreground'>{token.name}</div>
-                      </div>
-                      <div className='ml-auto text-right'>
-                        <div className='text-sm font-medium'>{token.balance}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Switch Button (overlapping separator) */}
@@ -189,24 +240,51 @@ export default function SwapClient() {
             <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4'>
               <div className='flex justify-between items-center mb-2'>
                 <span className='text-sm text-muted-foreground font-medium'>Swap To</span>
-                <button
-                  onClick={() => setShowToTokenList(!showToTokenList)}
-                  className='flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/20 border border-border font-semibold shadow-sm hover:bg-muted/30 min-w-[110px]'
-                >
-                  {toToken ? (
-                    <>
-                      <img
-                        src={toToken.icon}
-                        alt={toToken.symbol}
-                        className='w-6 h-6 rounded-full'
-                      />
-                      <span className='text-sm'>{toToken.symbol}</span>
-                    </>
-                  ) : (
-                    <span className='text-muted-foreground'>Select</span>
+                <div className='relative'>
+                  <button
+                    onClick={() => setShowToTokenList(!showToTokenList)}
+                    className='flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/20 border border-border font-semibold shadow-sm hover:bg-muted/30 min-w-[110px]'
+                  >
+                    {toToken ? (
+                      <>
+                        <img
+                          src={toToken.icon}
+                          alt={toToken.symbol}
+                          className='w-6 h-6 rounded-full'
+                        />
+                        <span className='text-sm'>{toToken.symbol}</span>
+                      </>
+                    ) : (
+                      <span className='text-muted-foreground'>Select</span>
+                    )}
+                    <ChevronDown className='w-4 h-4' />
+                  </button>
+                  {showToTokenList && (
+                    <div className='absolute right-0 top-full mt-2 z-50 bg-background border rounded-lg shadow-lg max-h-80 overflow-y-auto min-w-[360px] w-[420px] py-2'>
+                      {swapTokens.map((token) => (
+                        <button
+                          key={token.symbol}
+                          onClick={() => handleTokenSelect(token, false)}
+                          className='w-full flex items-center gap-3 p-2 hover:bg-muted/50 transition-colors'
+                          disabled={fromToken?.symbol === token.symbol}
+                        >
+                          <img
+                            src={token.icon}
+                            alt={token.symbol}
+                            className='w-8 h-8 rounded-full'
+                          />
+                          <div className='text-left'>
+                            <div className='font-medium text-sm'>{token.symbol}</div>
+                            <div className='text-xs text-muted-foreground'>{token.name}</div>
+                          </div>
+                          <div className='ml-auto text-right'>
+                            <div className='text-xs font-medium'>{token.balance}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   )}
-                  <ChevronDown className='w-4 h-4' />
-                </button>
+                </div>
               </div>
               <div className='flex items-center gap-3'>
                 <input
@@ -214,33 +292,11 @@ export default function SwapClient() {
                   value={toAmount}
                   readOnly
                   placeholder='0.00'
-                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
+                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
                   style={{ minWidth: 0 }}
                 />
               </div>
               <div className='text-xs text-muted-foreground mt-1'>$ 0.00</div>
-              {/* Token List Dropdown */}
-              {showToTokenList && (
-                <div className='absolute left-0 right-0 top-full mt-2 z-50 bg-background border rounded-lg shadow-lg max-h-60 overflow-y-auto'>
-                  {swapTokens.map((token) => (
-                    <button
-                      key={token.symbol}
-                      onClick={() => handleTokenSelect(token, false)}
-                      className='w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors'
-                      disabled={fromToken?.symbol === token.symbol}
-                    >
-                      <img src={token.icon} alt={token.symbol} className='w-8 h-8 rounded-full' />
-                      <div className='text-left'>
-                        <div className='font-medium'>{token.symbol}</div>
-                        <div className='text-sm text-muted-foreground'>{token.name}</div>
-                      </div>
-                      <div className='ml-auto text-right'>
-                        <div className='text-sm font-medium'>{token.balance}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Main Swap Button */}
