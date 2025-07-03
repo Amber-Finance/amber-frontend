@@ -110,7 +110,7 @@ export default function DepositClient() {
         valueUsd: 103000,
       },
     })
-  }, [searchParams, markets, router, getTokenStakingApy])
+  }, [searchParams, markets, router])
 
   if (!selectedToken) {
     return (
