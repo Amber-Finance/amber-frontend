@@ -1,0 +1,320 @@
+@import 'tailwindcss';
+
+@config "../../tailwind.config.ts";
+
+:root {
+  --radius: 0.65rem;
+
+  --background: 33 100% 97%;
+  --foreground: 30 30% 8%;
+  --card: 32 90% 97%;
+
+  --primary: 25 100% 50%;
+  --secondary: 32 80% 90%;
+  --muted: 33 70% 85%;
+  --muted-foreground: 30 40% 35%;
+
+  --border: 30 30% 70%;
+  --ring: 25 100% 50%;
+
+  --gradient-start: rgb(177, 36, 30);
+  --gradient-end: rgb(245, 113, 54);
+
+  /* Nextra specific variables */
+  --nx-font-sans: 'SourceSans', sans-serif;
+  --nx-font-mono: 'SF Mono', monospace;
+}
+
+.dark {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 9%;
+
+  --primary: 28 100% 50%;
+  --secondary: 0 0% 16%;
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 61%;
+
+  --border: 0 0% 100% / 0.1;
+  --ring: 28 100% 50%;
+
+  --gradient-start: rgb(177, 36, 30);
+  --gradient-end: rgb(245, 113, 54);
+}
+
+@font-face {
+  font-family: Baloo;
+  src:
+    url('/fonts/BalooTamma2-ExtraBold.woff2') format('woff2'),
+    url('/fonts/BalooTamma2-ExtraBold.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: SourceSans;
+  src:
+    url('/fonts/SourceSans3-Regular.woff2') format('woff2'),
+    url('/fonts/SourceSans3-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: SourceSans;
+  src:
+    url('/fonts/SourceSans3-Bold.woff2') format('woff2'),
+    url('/fonts/SourceSans3-Bold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+html {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  height: 100%;
+  background: hsl(var(--background));
+  font-family: var(--nx-font-sans);
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--nx-font-sans);
+  min-height: 100vh;
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  position: relative;
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  font-feature-settings:
+    'liga' 1,
+    'calt' 1;
+}
+
+/* Prevent bounce scrolling on iOS */
+html,
+body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* Ensure viewport covers entire screen */
+#__next {
+  min-height: 100vh;
+  background: hsl(var(--background));
+}
+
+@keyframes aurora {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-aurora {
+  animation: aurora 10s ease-in-out infinite;
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari, and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge, and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .gradient-primary {
+    background: linear-gradient(
+      140deg,
+      hsl(25, 70%, 35%) 0%,
+      hsl(15, 60%, 30%) 30%,
+      transparent 70%
+    );
+    filter: blur(120px);
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--nx-font-sans);
+    font-feature-settings:
+      'liga' 1,
+      'calt' 1;
+  }
+}
+
+.slanted-btn {
+  clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
+  border: none;
+}
+.slanted-border {
+  clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
+}
+
+.slanted-btn-2 {
+  clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
+  border: none;
+}
+.slanted-border-2 {
+  clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.nav-glow-active {
+  box-shadow:
+    0 -2px 6px -2px var(--gradient-end),
+    0 -0.5px 0 0 var(--gradient-end);
+  z-index: 2;
+  border-color: rgba(245, 113, 54, 0.18) !important;
+  background: linear-gradient(180deg, rgba(245, 113, 54, 0.07) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Nextra customizations */
+.nx-font-sans {
+  font-family: var(--nx-font-sans);
+}
+
+.nx-font-mono {
+  font-family: var(--nx-font-mono);
+}
+
+/* Use Baloo for headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Baloo', sans-serif;
+  font-weight: 400;
+}
+
+/* Override Nextra's default heading styles */
+.nextra-content h1,
+.nextra-content h2,
+.nextra-content h3,
+.nextra-content h4,
+.nextra-content h5,
+.nextra-content h6 {
+  font-family: 'Baloo', sans-serif;
+  font-weight: 400;
+}
+
+/* Ensure navigation and other elements use SourceSans */
+.nextra-nav-container,
+.nextra-sidebar,
+.nextra-nav-container-blur,
+.nextra-toc {
+  font-family: var(--nx-font-sans);
+}
+
+/* Apply custom color scheme to Nextra components */
+.nextra-nav-container {
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+}
+
+.nextra-sidebar {
+  background: hsl(var(--background));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.nextra-nav-container-blur {
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(12px);
+}
+
+/* Link colors */
+.nextra-content a {
+  color: hsl(var(--primary));
+}
+
+.nextra-content a:hover {
+  color: var(--gradient-end);
+}
+
+/* Sidebar link colors */
+.nextra-sidebar a {
+  color: hsl(var(--foreground));
+}
+
+.nextra-sidebar a:hover {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.1);
+}
+
+.nextra-sidebar a[data-active] {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.15);
+}
+
+/* Code blocks */
+.nextra-code {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Search input */
+.nextra-search input {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.nextra-search input:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+
+/* Theme toggle styling */
+button[aria-label='Toggle theme'] {
+  border-color: hsl(var(--border));
+  transition: all 0.2s ease-in-out;
+}
+
+button[aria-label='Toggle theme']:hover {
+  background-color: hsl(var(--secondary) / 0.8);
+  border-color: hsl(var(--border));
+}
+
+/* Ensure primary color is applied to theme toggle icons */
+button[aria-label='Toggle theme'] .text-primary {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Force the primary color on theme toggle icons */
+.theme-toggle-icon {
+  color: hsl(var(--primary)) !important;
+}

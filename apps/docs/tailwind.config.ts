@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config = {
-  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
+  content: ['./src/**/*.{js,ts,jsx,tsx,mdx}', './content/**/*.{md,mdx}'],
   darkMode: 'class',
   future: {
     hoverOnlyWhenSupported: true,
@@ -23,6 +23,15 @@ const config = {
       colors: {
         'gradient-start': 'var(--gradient-start)',
         'gradient-end': 'var(--gradient-end)',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        card: 'hsl(var(--card))',
+        primary: 'hsl(var(--primary))',
+        secondary: 'hsl(var(--secondary))',
+        muted: 'hsl(var(--muted))',
+        'muted-foreground': 'hsl(var(--muted-foreground))',
+        border: 'hsl(var(--border))',
+        ring: 'hsl(var(--ring))',
       },
       fontFamily: {
         sans: ['SourceSans', 'sans-serif'],
