@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
 
@@ -102,7 +101,7 @@ export default function SwapClient() {
           <h2 className='text-xl sm:text-4xl font-bold text-foreground mb-0'>
             Swap Bitcoin Assets
           </h2>
-          <p className='text-xs sm:text-base text-muted-foreground max-w-md'>
+          <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
             Trade between Bitcoin LSTs, wBTC, and maxBTC with minimal slippage and competitive rates
           </p>
         </div>
@@ -162,7 +161,7 @@ export default function SwapClient() {
                 {fromToken?.balance || '0.00'}
               </div>
             </div>
-            <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4 mb-6'>
+            <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4 mb-2'>
               <div className='flex justify-between items-center mb-2'>
                 <span className='text-sm text-muted-foreground font-medium'>Swap From</span>
                 <div className='relative'>
@@ -224,9 +223,8 @@ export default function SwapClient() {
               <div className='text-xs text-muted-foreground mt-1'>$ 0.00</div>
             </div>
 
-            {/* Switch Button (overlapping separator) */}
-            <div className='relative flex items-center justify-center mb-6'>
-              <Separator className='bg-border/60' />
+            {/* Switch Button */}
+            <div className='relative flex items-center justify-center mb-2'>
               <button
                 onClick={handleSwapTokens}
                 className='absolute left-1/2 -translate-x-1/2 bg-background border border-border rounded-full p-2 shadow-lg hover:bg-muted/40 transition z-10 cursor-pointer transition-transform duration-300 hover:rotate-180'
@@ -298,6 +296,28 @@ export default function SwapClient() {
               </div>
               <div className='text-xs text-muted-foreground mt-1'>$ 0.00</div>
             </div>
+
+            {/* Swap Info */}
+            {fromToken && toToken && fromAmount && (
+              <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>Rate</span>
+                  <span>
+                    1 {fromToken.symbol} ≈ 0.98 {toToken.symbol}
+                  </span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>Price Impact</span>
+                  <span className='text-orange-500'>~2.0%</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>Minimum Received</span>
+                  <span>
+                    {(parseFloat(toAmount) * 0.995).toFixed(8)} {toToken.symbol}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Main Swap Button */}
             <Button disabled={!isSwapValid} variant='outline-gradient' className='w-full mt-4'>
