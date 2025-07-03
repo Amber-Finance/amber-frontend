@@ -269,14 +269,35 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
       </CardContent>
 
       <CardFooter className='relative z-20 pt-2'>
-        <Button
-          onClick={handleDepositClick}
-          variant='default'
-          gradientColor={token.brandColor}
-          className='w-full'
-        >
-          <span className='uppercase'>Deposit</span>&nbsp;{token.symbol}
-        </Button>
+        <div className='relative group/button w-full'>
+          <div
+            className='absolute inset-0 rounded-lg blur-md opacity-0 group-hover/button:opacity-50 transition-all duration-500 scale-105'
+            style={{
+              background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
+            }}
+          />
+          <div
+            className='relative p-[2px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
+            style={{
+              background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
+            }}
+          >
+            <Button
+              onClick={handleDepositClick}
+              variant='outline'
+              className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
+            >
+              <div
+                className='absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700'
+                style={{
+                  background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`,
+                  transform: 'translateX(-100%)',
+                }}
+              />
+              <span className='relative z-10'>Deposit</span>
+            </Button>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   )
