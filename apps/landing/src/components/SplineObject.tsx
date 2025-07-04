@@ -10,8 +10,8 @@ export default function SplineObject() {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '200%',
-          height: '200%',
+          width: '150%',
+          height: '150%',
           objectFit: 'cover',
           objectPosition: 'center',
         }}
