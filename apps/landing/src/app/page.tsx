@@ -1,102 +1,107 @@
-import SplineObject from '@/components/SplineObject'
+import Image from 'next/image'
 
-export default function LandingPage() {
+import { Github, Twitter } from 'lucide-react'
+
+import SplineObject from '@/components/SplineObject'
+import { Button } from '@/components/ui/Button'
+
+export default function Hero() {
   return (
-    <div className='relative w-full h-screen'>
-      <div className='absolute inset-0 w-full h-full'>
+    <section id='hero' className='w-full min-h-screen relative'>
+      {/* Spline Background */}
+      <div className='absolute inset-0 w-full h-full z-0'>
         <SplineObject />
       </div>
 
-      <div className='relative z-10 h-full flex items-center'>
-        <div className='container mx-auto px-4'>
-          <div className='max-w-3xl'>
-            <div className='text-white'>
-              <h1 className='text-5xl font-funnel mb-6 tracking-wider font-normal'>
-                Preserve Value.
-                <br />
-                <span className='bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent'>
-                  Generate Wealth.
-                </span>
-              </h1>
-              <p className='text-xl mb-8 text-muted-foreground'>
+      <div className='pt-20 relative flex h-screen w-full flex-col items-center justify-between overflow-hidden bg-[#0a0b10]/50 z-10 pointer-events-none'>
+        {/* Gradient Circle Overlay */}
+        <div
+          className='absolute z-20 pointer-events-none'
+          style={{
+            left: '50%',
+            top: '0%',
+            transform: 'translateX(-50%) translateY(-50%)',
+            width: '300vh',
+            height: '300vh',
+            borderRadius: '50%',
+            background:
+              'radial-gradient(circle, hsla(19, 90.50%, 58.60%, 0.19) 0%, rgba(223, 71, 0, 0.04) 20%, rgba(245, 113, 54, 0.02) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0) 100%)',
+          }}
+        />
+        <div className='container z-30 flex flex-col relative pointer-events-none'>
+          <div className='mt-20 grid grid-cols-1'>
+            <div className='flex flex-col items-center gap-6 pb-8 text-center'>
+              <div className='relative w-[370px] lg:w-[740px] h-[130px] lg:h-[260px] mb-4'>
+                <Image src='/images/logo-claim-light.svg' alt='logo' fill={true} />
+              </div>
+
+              <p className='text-balance text-lg tracking-tight text-white/60 md:text-xl max-w-4xl'>
                 Put your liquid staking tokens to work. Earn maximum yield on your Bitcoin LSTs.
                 Increase your exposure to maxBTC and leverage loop with smart strategies.
               </p>
-              <div className='flex'>
-                <div className='slanted-border p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136] rounded-l-lg group'>
+
+              <div className='flex flex-col gap-4 lg:flex-row mt-8 pointer-events-auto'>
+                {/* Enter App Button */}
+                <Button
+                  asChild
+                  size='lg'
+                  className='bg-gradient-to-r from-[#b1241e] to-[#f57136] text-white hover:from-[#a11e1a] hover:to-[#e6642f] shadow-lg'
+                >
                   <a
                     href='https://app.amberfi.io'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='slanted-btn bg-gradient-to-r from-[#b1241e] to-[#f57136] text-white font-medium py-2 px-8 w-full h-full text-sm rounded-l-lg relative overflow-hidden inline-flex items-center justify-center'
+                    className='flex items-center space-x-2'
                   >
-                    <span className='relative z-10'>Enter App</span>
-                    <span className='absolute inset-0 bg-gradient-to-r from-[#f57136] to-[#b1241e] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-l-lg' />
+                    <span>Enter App</span>
                   </a>
-                </div>
-                <div className='slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-[#b1241e] to-[#f57136] rounded-r-lg group'>
+                </Button>
+
+                {/* Learn More Button */}
+                <Button
+                  asChild
+                  variant='outline'
+                  size='lg'
+                  className='border-white/20 text-white hover:text-white hover:bg-white/10 backdrop-blur-sm pointer-events-auto'
+                >
                   <a
                     href='https://docs.amberfi.io'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='slanted-btn-2 bg-[#0f0f0f] text-white font-medium py-2 px-8 w-full h-full text-sm rounded-r-lg relative overflow-hidden inline-flex items-center justify-center'
+                    className='flex items-center space-x-2'
                   >
-                    <span className='relative z-10'>Learn More</span>
-                    <span className='absolute inset-0 bg-gradient-to-r from-[#b1241e] to-[#f57136] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-r-lg' />
+                    <span>Learn More</span>
                   </a>
-                </div>
+                </Button>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Social Links */}
+        <div className='pb-8'>
+          <div className='flex items-center gap-6'>
+            <a
+              href='https://x.com/amberfi_io'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-white/80 hover:text-white transition-colors duration-200'
+              aria-label='Follow us on X'
+            >
+              <Twitter className='w-5 h-5' />
+            </a>
+            <a
+              href='https://github.com/amberfi'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-white/80 hover:text-white transition-colors duration-200'
+              aria-label='Visit our GitHub'
+            >
+              <Github className='w-5 h-5' />
+            </a>
+          </div>
+        </div>
       </div>
-
-      {/* Footer overlay to hide Spline watermark */}
-      <footer className='absolute bottom-0 right-0 w-full h-16 bg-[#0f0f0f] z-10'>
-        <div className='h-full flex items-center justify-center text-white text-sm opacity-70'></div>
-      </footer>
-    </div>
-    // <div className="relative w-full min-h-screen">
-    //   {/* Main content */}
-    //   <main className="mx-auto w-full min-h-screen flex items-center">
-    //     <div className="container mx-auto px-4 flex items-center justify-between">
-    //       {/* Left side - Text content */}
-    //       <div className="flex-1 max-w-2xl">
-    //         <div className="text-white">
-    //           <h1 className="text-[70px] font-bold mb-4 tracking-wider bg-gradient-to-b from-[rgb(239,121,87)] to-[rgba(239,117,51,255)] bg-clip-text text-transparent">
-    //           Stake Your Bitcoin
-    //            </h1>
-    //           <p className="text-2xl mb-8 text-muted-foreground">
-    //             Bridge your liquid staking tokens and earn maximum yield. Get both
-    //             staking rewards plus additional lending APY on your Bitcoin LSTs.
-    //           </p>
-    //         <div className="flex">
-    //         <div className="slanted-border p-[2px] inline-block bg-gradient-to-r from-red-700 to-yellow-700">
-    //           <button className="slanted-btn bg-gradient-to-r from-red-700 to-yellow-700 text-white font-medium py-2 px-8 w-full h-full">
-    //             Enter App
-    //           </button>
-    //         </div>
-    //         <div className="slanted-border-2 p-[2px] inline-block bg-gradient-to-r from-red-700 to-yellow-700">
-    //           <button className="slanted-btn-2 bg-[#0f0f0f] text-white font-medium py-2 px-8 w-full h-full">
-    //             Learn More
-    //           </button>
-    //         </div>
-    //         </div>
-    //         </div>
-    //       </div>
-
-    //       {/* Right side - Spline Object */}
-    //       <div className="flex-1 h-screen">
-    //         <SplineObject />
-    //       </div>
-    //     </div>
-    //   </main>
-
-    //   {/* Footer overlay to hide Spline watermark */}
-    //   <footer className="absolute bottom-0 right-0 w-full h-16 bg-[#0A0B10] z-10">
-    //     <div className="h-full flex items-center justify-center text-white text-sm opacity-70">
-    //     </div>
-    //   </footer>
-    // </div>
+    </section>
   )
 }

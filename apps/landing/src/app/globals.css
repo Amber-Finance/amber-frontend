@@ -2,50 +2,114 @@
 
 @config "../../tailwind.config.ts";
 
-:root {
-  --background: #0a0b10;
-  --foreground: 60 9.1% 97.8%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 60 9.1% 97.8%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 60 9.1% 97.8%;
-  --primary: 24 90% 55%;
-  --primary-foreground: 60 9.1% 97.8%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 60 9.1% 97.8%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 60 9.1% 97.8%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 60 9.1% 97.8%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 24 90% 55%;
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 0 0% 3.9%;
+
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 0 0% 3.9%;
+
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 0 0% 3.9%;
+
+  --color-primary: 0 0% 9%;
+  --color-primary-foreground: 0 0% 98%;
+
+  --color-secondary: 0 0% 96.1%;
+  --color-secondary-foreground: 0 0% 9%;
+
+  --color-muted: 0 0% 96.1%;
+  --color-muted-foreground: 0 0% 45.1%;
+
+  --color-accent: 0 0% 96.1%;
+  --color-accent-foreground: 0 0% 9%;
+
+  --color-destructive: 0 84.2% 60.2%;
+  --color-destructive-foreground: 0 0% 98%;
+
+  --color-border: 0 0% 89.8%;
+  --color-input: 0 0% 89.8%;
+  --color-ring: 0 0% 3.9%;
+
   --radius: 0.5rem;
+
+  /* Custom properties */
+  --navigation-height: 3.5rem;
+  --color-one: #a47aff;
+  --color-two: #fe8bbb;
+  --color-three: #9e7aff;
+
+  /* Aurora animation */
+  --animate-aurora: aurora 8s ease-in-out infinite alternate;
+
+  @keyframes aurora {
+    0% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+    25% {
+      background-position: 50% 100%;
+      transform: rotate(5deg) scale(1.1);
+    }
+    50% {
+      background-position: 100% 50%;
+      transform: rotate(-3deg) scale(0.95);
+    }
+    75% {
+      background-position: 50% 0%;
+      transform: rotate(3deg) scale(1.05);
+    }
+    100% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+  }
+
+  @keyframes grid {
+    0% {
+      transform: translateY(-50%);
+    }
+    100% {
+      transform: translateY(-50%) translateX(-50%);
+    }
+  }
+
+  @keyframes border-beam {
+    100% {
+      offset-distance: 100%;
+    }
+  }
 }
 
-/* .light {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 24 90% 55%;
-  --primary-foreground: 60 9.1% 97.8%;
-  --secondary: 60 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 60 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 60 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 60 9.1% 97.8%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 24 90% 55%;
-} */
+@theme dark {
+  --color-background: 0 0% 0%;
+  --color-foreground: 0 0% 98%;
+
+  --color-card: 0 0% 3.9%;
+  --color-card-foreground: 0 0% 98%;
+
+  --color-popover: 0 0% 3.9%;
+  --color-popover-foreground: 0 0% 98%;
+
+  --color-primary: 0 0% 98%;
+  --color-primary-foreground: 0 0% 9%;
+
+  --color-secondary: 0 0% 14.9%;
+  --color-secondary-foreground: 0 0% 98%;
+
+  --color-muted: 0 0% 14.9%;
+  --color-muted-foreground: 0 0% 63.9%;
+
+  --color-accent: 0 0% 14.9%;
+  --color-accent-foreground: 0 0% 98%;
+
+  --color-destructive: 0 62.8% 30.6%;
+  --color-destructive-foreground: 0 0% 98%;
+
+  --color-border: 0 0% 14.9%;
+  --color-input: 0 0% 14.9%;
+  --color-ring: 0 0% 83.1%;
+}
 
 @font-face {
   font-family: Funnel;
@@ -79,20 +143,12 @@
 
 html,
 body {
-  overflow-x: hidden;
-  overscroll-behavior: none;
   height: 100%;
   background: #0a0b10;
+  color: var(--color-foreground);
   font-family: 'SourceSans', sans-serif;
-  /* Hide scrollbar for all browsers */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-/* Hide scrollbar for Chrome, Safari, and Opera */
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
+  overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 .slanted-btn {
@@ -119,4 +175,25 @@ h5,
 h6 {
   font-family: 'Funnel', sans-serif;
   font-weight: 400;
+}
+
+.animate-border-beam {
+  animation: border-beam calc(var(--duration) * 1s) linear infinite;
+}
+
+.animate-aurora {
+  animation: var(--animate-aurora);
+}
+
+@theme inline {
+  --animate-grid: grid 15s linear infinite;
+
+  @keyframes grid {
+    0% {
+      transform: translateY(-50%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
 }
