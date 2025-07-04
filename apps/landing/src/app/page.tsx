@@ -85,7 +85,7 @@ export default function Hero() {
               href='https://x.com/amberfi_io'
               target='_blank'
               rel='noopener noreferrer'
-              className='text-white/80 hover:text-white transition-colors duration-200'
+              className='text-white/80 hover:text-white transition-colors duration-200 pointer-events-auto'
               aria-label='Follow us on X'
             >
               <Twitter className='w-5 h-5' />
@@ -94,7 +94,7 @@ export default function Hero() {
               href='https://github.com/amberfi'
               target='_blank'
               rel='noopener noreferrer'
-              className='text-white/80 hover:text-white transition-colors duration-200'
+              className='text-white/80 hover:text-white transition-colors duration-200 pointer-events-auto'
               aria-label='Visit our GitHub'
             >
               <Github className='w-5 h-5' />
