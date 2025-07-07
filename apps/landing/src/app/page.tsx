@@ -11,7 +11,7 @@ export default function LandingPage() {
         <div className='container mx-auto px-4'>
           <div className='max-w-3xl'>
             <div className='text-white'>
-              <h1 className='text-5xl font-baloo mb-6 tracking-wider font-normal'>
+              <h1 className='text-5xl font-funnel mb-6 tracking-wider font-normal'>
                 Preserve Value.
                 <br />
                 <span className='bg-gradient-to-b from-[#b1241e] to-[#f57136] bg-clip-text text-transparent'>

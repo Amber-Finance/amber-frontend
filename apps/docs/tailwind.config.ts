@@ -35,7 +35,7 @@ const config = {
       },
       fontFamily: {
         sans: ['SourceSans', 'sans-serif'],
-        baloo: ['Baloo', 'sans-serif'],
+        funnel: ['Funnel', 'sans-serif'],
         mono: ['SF Mono', 'monospace'],
       },
     },

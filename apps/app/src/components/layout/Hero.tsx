@@ -33,7 +33,7 @@ export default function Hero({ markets }: HeroProps) {
         {/* Left Column - Main Content */}
         <div className='flex-1 flex flex-col justify-between gap-6'>
           <div className='space-y-3'>
-            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-baloo leading-tight'>
+            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-funnel leading-tight'>
               <span className='block text-foreground'>Liquid Staking.</span>
               <span className='block'>
                 <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>
