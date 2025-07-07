@@ -134,7 +134,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
 
             <div className='flex flex-col'>
-              <CardTitle className='text-xl font-baloo text-foreground'>{token.symbol}</CardTitle>
+              <CardTitle className='text-xl font-funnel text-foreground'>{token.symbol}</CardTitle>
               <CardDescription className='text-sm text-muted-foreground/90 font-medium leading-tight tracking-widest'>
                 {token.protocol}
               </CardDescription>
@@ -246,7 +246,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='flex justify-between items-center'>
               <span className='text-sm'>Available</span>
               <div className='text-right'>
-                <div className='text-base text-foreground font-baloo'>
+                <div className='text-base text-foreground font-funnel'>
                   {formatBalance(metrics.balance)}{' '}
                   <span style={{ color: token.brandColor }}>{token.symbol}</span>
                 </div>
