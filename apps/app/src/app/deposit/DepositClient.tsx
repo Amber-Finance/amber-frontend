@@ -25,7 +25,13 @@ import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
-import { useLstMarkets, useMarkets, useTransactions, useWalletBalances } from '@/hooks'
+import {
+  useLstMarkets,
+  useMarkets,
+  useTransactions,
+  useUserDeposit,
+  useWalletBalances,
+} from '@/hooks'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency } from '@/utils/format'
@@ -67,20 +73,13 @@ export default function DepositClient() {
 
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
 
-  useEffect(() => {
-    const tokenSymbol = searchParams.get('token')
-    if (!tokenSymbol) {
-      router.push('/')
-      return
-    }
+  const tokenSymbol = searchParams.get('token')
+  const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
+  const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
+  const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
 
-    const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
-    if (!tokenData) {
-      router.push('/')
-      return
-    }
-    const market = markets?.find((market) => market.asset.denom === tokenData.denom)
-    if (!market) {
+  useEffect(() => {
+    if (!tokenSymbol || !tokenData || !market) {
       router.push('/')
       return
     }
@@ -98,9 +97,8 @@ export default function DepositClient() {
     const walletBalance =
       walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
 
-    const depositedBalance = market.deposit || '0'
+    const depositedNumber = parseFloat(depositedAmount) / Math.pow(10, market.asset.decimals)
     const balanceNumber = parseFloat(walletBalance) / Math.pow(10, market.asset.decimals)
-    const depositedNumber = parseFloat(depositedBalance) / Math.pow(10, market.asset.decimals)
     const price = parseFloat(market.price?.price || '0')
     const valueUsd = balanceNumber * price
     const depositedValueUsd = depositedNumber * price
