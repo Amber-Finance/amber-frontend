@@ -277,7 +277,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             }}
           />
           <div
-            className='relative p-[2px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
+            className='relative p-[1px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
             style={{
               background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
             }}

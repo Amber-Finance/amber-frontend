@@ -25,7 +25,7 @@ import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
-import { useLstMarkets, useMarkets } from '@/hooks'
+import { useLstMarkets, useMarkets, useWalletBalances } from '@/hooks'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency } from '@/utils/format'
@@ -48,6 +48,7 @@ interface TokenData {
     balance: number
     deposited: number
     valueUsd: number
+    depositedValueUsd: number
   }
 }
 
@@ -57,12 +58,13 @@ export default function DepositClient() {
   const [activeTab, setActiveTab] = useState<TabType>('deposit')
   const [depositAmount, setDepositAmount] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
   const [selectedToken, setSelectedToken] = useState<TokenData | null>(null)
 
   useMarkets()
   const { markets } = useStore()
   const { getTokenStakingApy, isLoading: isYieldLoading } = useLstMarkets()
+
+  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
 
   useEffect(() => {
     const tokenSymbol = searchParams.get('token')
@@ -92,6 +94,16 @@ export default function DepositClient() {
     // Calculate total APY: protocol APY + staking APY
     const totalApy = parseFloat((protocolApy + stakingApy).toFixed(2))
 
+    const walletBalance =
+      walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
+
+    const depositedBalance = market.deposit || '0'
+    const balanceNumber = parseFloat(walletBalance) / Math.pow(10, market.asset.decimals)
+    const depositedNumber = parseFloat(depositedBalance) / Math.pow(10, market.asset.decimals)
+    const price = parseFloat(market.price?.price || '0')
+    const valueUsd = balanceNumber * price
+    const depositedValueUsd = depositedNumber * price
+
     setSelectedToken({
       token: {
         symbol: tokenData.symbol,
@@ -105,14 +117,15 @@ export default function DepositClient() {
         protocolApy,
         stakingApy,
         totalApy,
-        balance: 10.5,
-        deposited: 2.3,
-        valueUsd: 103000,
+        balance: balanceNumber,
+        deposited: depositedNumber,
+        valueUsd,
+        depositedValueUsd,
       },
     })
-  }, [searchParams, markets, router])
+  }, [searchParams, markets, router, getTokenStakingApy])
 
-  if (!selectedToken) {
+  if (!selectedToken || walletBalancesLoading) {
     return (
       <div className='w-full lg:container mx-auto px-4 py-8'>
         <div className='text-center py-16'>
@@ -120,8 +133,12 @@ export default function DepositClient() {
             <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
-            <h3 className='text-lg font-bold text-foreground'>Loading Token Data</h3>
-            <p className='text-muted-foreground'>Fetching token information...</p>
+            <h3 className='text-lg font-bold text-foreground'>
+              {!selectedToken ? 'Loading Token Data' : 'Loading Wallet Balances'}
+            </h3>
+            <p className='text-muted-foreground'>
+              {!selectedToken ? 'Fetching token information...' : 'Fetching wallet balances...'}
+            </p>
           </div>
         </div>
       </div>
@@ -139,14 +156,10 @@ export default function DepositClient() {
 
   const handleDeposit = async () => {
     console.log(`Depositing ${depositAmount} ${token.symbol}`)
-
-    setIsProcessing(true)
   }
 
   const handleWithdraw = async () => {
     console.log(`Withdrawing ${withdrawAmount} ${token.symbol}`)
-
-    setIsProcessing(true)
   }
 
   const handleSliderChange = (value: number[]) => {
@@ -248,14 +261,16 @@ export default function DepositClient() {
                 usdValue={formatUsd(metrics.valueUsd)}
                 brandColor={token.brandColor}
               />
-              {metrics.deposited > 0 && (
-                <BalanceRow
-                  icon={Coins}
-                  label='Deposited'
-                  value={`${formatBalance(metrics.deposited)} ${token.symbol}`}
-                  brandColor={token.brandColor}
-                />
-              )}
+
+              <BalanceRow
+                icon={Coins}
+                label='Deposited'
+                value={`${formatBalance(metrics.deposited)} ${token.symbol}`}
+                usdValue={
+                  metrics.depositedValueUsd > 0 ? formatUsd(metrics.depositedValueUsd) : undefined
+                }
+                brandColor={token.brandColor}
+              />
             </div>
           </InfoCard>
 
@@ -340,7 +355,7 @@ export default function DepositClient() {
                 token={token}
                 usdValue={formatUsd(
                   (parseFloat(currentAmount || '0') || 0) *
-                    (metrics.valueUsd / metrics.balance || 1),
+                    (metrics.valueUsd / metrics.balance || 0),
                 )}
                 balance={
                   activeTab === 'deposit'
@@ -379,7 +394,8 @@ export default function DepositClient() {
                     {estimatedApyEarnings.toFixed(6)} {token.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~{formatUsd(estimatedApyEarnings * (metrics.valueUsd / metrics.balance))} USD
+                    ~{formatUsd(estimatedApyEarnings * (metrics.valueUsd / metrics.balance || 0))}{' '}
+                    USD
                   </div>
                 </div>
               )}
@@ -388,10 +404,10 @@ export default function DepositClient() {
                 variant='outline-gradient'
                 gradientColor={token.brandColor}
                 onClick={activeTab === 'deposit' ? handleDeposit : handleWithdraw}
-                disabled={isProcessing || !currentAmount || parseFloat(currentAmount) <= 0}
+                disabled={isPending || !currentAmount || parseFloat(currentAmount) <= 0}
                 className='w-full'
               >
-                {isProcessing ? (
+                {isPending ? (
                   <>
                     <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
                     {activeTab === 'deposit' ? 'Depositing...' : 'Withdrawing...'}
