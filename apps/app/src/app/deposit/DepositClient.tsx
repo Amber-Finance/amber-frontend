@@ -25,7 +25,7 @@ import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
-import { useLstMarkets, useMarkets, useWalletBalances } from '@/hooks'
+import { useLstMarkets, useMarkets, useTransactions, useWalletBalances } from '@/hooks'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency } from '@/utils/format'
@@ -63,6 +63,7 @@ export default function DepositClient() {
   useMarkets()
   const { markets } = useStore()
   const { getTokenStakingApy, isLoading: isYieldLoading } = useLstMarkets()
+  const { deposit, withdraw, isPending } = useTransactions()
 
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
 
@@ -155,11 +156,37 @@ export default function DepositClient() {
   const formatUsdK = (usd: number) => formatCompactCurrency(usd)
 
   const handleDeposit = async () => {
-    console.log(`Depositing ${depositAmount} ${token.symbol}`)
+    if (!depositAmount || parseFloat(depositAmount) <= 0) return
+
+    const market = markets?.find((m) => m.asset.symbol === token.symbol)
+    if (!market) {
+      console.error('Market not found for token:', token.symbol)
+      return
+    }
+
+    await deposit({
+      amount: depositAmount,
+      denom: market.asset.denom,
+      symbol: token.symbol,
+      decimals: market.asset.decimals,
+    })
   }
 
   const handleWithdraw = async () => {
-    console.log(`Withdrawing ${withdrawAmount} ${token.symbol}`)
+    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return
+
+    const market = markets?.find((m) => m.asset.symbol === token.symbol)
+    if (!market) {
+      console.error('Market not found for token:', token.symbol)
+      return
+    }
+
+    await withdraw({
+      amount: withdrawAmount,
+      denom: market.asset.denom,
+      symbol: token.symbol,
+      decimals: market.asset.decimals,
+    })
   }
 
   const handleSliderChange = (value: number[]) => {
@@ -261,7 +288,6 @@ export default function DepositClient() {
                 usdValue={formatUsd(metrics.valueUsd)}
                 brandColor={token.brandColor}
               />
-
               <BalanceRow
                 icon={Coins}
                 label='Deposited'
