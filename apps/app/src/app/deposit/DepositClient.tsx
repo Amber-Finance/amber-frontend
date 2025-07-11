@@ -166,20 +166,20 @@ export default function DepositClient() {
     })
   }
 
-  const handleSliderChange = (value: number[]) => {
-    const percentage = value[0]
-    const maxAmount = activeTab === 'deposit' ? metrics.balance : metrics.deposited
-    const amount = (maxAmount * percentage) / 100
-    if (activeTab === 'deposit') {
-      setDepositAmount(amount.toFixed(6))
-    } else {
-      setWithdrawAmount(amount.toFixed(6))
-    }
-  }
-
   const currentAmount = activeTab === 'deposit' ? depositAmount : withdrawAmount
   const maxAmount = activeTab === 'deposit' ? metrics.balance : metrics.deposited
-  const percentage = maxAmount > 0 ? (parseFloat(currentAmount || '0') / maxAmount) * 100 : 0
+
+  const handleSliderChange = (value: number[]) => {
+    const percentage = value[0]
+    const amount = new BigNumber(maxAmount).multipliedBy(percentage).dividedBy(100).toString()
+    if (activeTab === 'deposit') {
+      setDepositAmount(amount)
+    } else {
+      setWithdrawAmount(amount)
+    }
+  }
+  const rawPercentage = maxAmount > 0 ? (parseFloat(currentAmount || '0') / maxAmount) * 100 : 0
+  const percentage = Math.min(rawPercentage, 100)
   const estimatedApyEarnings = parseFloat(currentAmount || '0') * (metrics.totalApy / 100)
 
   return (
@@ -261,7 +261,7 @@ export default function DepositClient() {
               <BalanceRow
                 icon={Wallet}
                 label='Available'
-                value={`${formatBalance(metrics.balance)} ${token.symbol}`}
+                value={`${metrics.balance} ${token.symbol}`}
                 usdValue={formatUsd(metrics.valueUsd)}
                 brandColor={token.brandColor}
               />
