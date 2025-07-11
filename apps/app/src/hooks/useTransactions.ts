@@ -79,11 +79,10 @@ export function useTransactions() {
 
       if (markets) {
         const actionType = type === 'deposit' ? 'supply' : 'withdraw'
-        const newPositions = updatePositions(markets, actionType, {
+        updatePositions(markets, actionType, {
           amount: formattedAmount,
           denom: params.denom,
         })
-        console.log('New Positions:', newPositions)
       }
 
       toast.update(pendingToastId, {
@@ -96,6 +95,7 @@ export function useTransactions() {
       await mutate('metricsRefresh')
       await mutate(`${address}/positions`)
       await mutate(`${address}/balances`)
+      await mutate(`${address}/deposit/${params.denom}`)
 
       track(`${type} ${params.amount} ${params.symbol}`)
       setIsPending(false)

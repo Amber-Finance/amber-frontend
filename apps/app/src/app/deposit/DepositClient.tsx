@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -38,33 +38,12 @@ import { formatCompactCurrency, formatCurrency } from '@/utils/format'
 
 type TabType = 'deposit' | 'withdraw'
 
-interface TokenData {
-  token: {
-    symbol: string
-    icon: string
-    description: string
-    protocol: string
-    isLST: boolean
-    brandColor: string
-  }
-  metrics: {
-    protocolApy: number
-    stakingApy: number
-    totalApy: number
-    balance: number
-    deposited: number
-    valueUsd: number
-    depositedValueUsd: number
-  }
-}
-
 export default function DepositClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabType>('deposit')
   const [depositAmount, setDepositAmount] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
-  const [selectedToken, setSelectedToken] = useState<TokenData | null>(null)
 
   useMarkets()
   const { markets } = useStore()
@@ -78,10 +57,10 @@ export default function DepositClient() {
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
 
-  useEffect(() => {
+  const selectedToken = useMemo(() => {
     if (!tokenSymbol || !tokenData || !market) {
       router.push('/')
-      return
+      return null
     }
 
     const protocolApy = parseFloat(
@@ -90,20 +69,20 @@ export default function DepositClient() {
 
     // Get real-time staking APY from consolidated hook
     const stakingApy = getTokenStakingApy(tokenData.symbol)
-
     // Calculate total APY: protocol APY + staking APY
     const totalApy = parseFloat((protocolApy + stakingApy).toFixed(2))
 
     const walletBalance =
       walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
-
-    const depositedNumber = parseFloat(depositedAmount) / Math.pow(10, market.asset.decimals)
-    const balanceNumber = parseFloat(walletBalance) / Math.pow(10, market.asset.decimals)
+    const depositedNumber = new BigNumber(depositedAmount || '0')
+      .shiftedBy(-market.asset.decimals)
+      .toNumber()
+    const balanceNumber = new BigNumber(walletBalance).shiftedBy(-market.asset.decimals).toNumber()
     const price = parseFloat(market.price?.price || '0')
     const valueUsd = balanceNumber * price
     const depositedValueUsd = depositedNumber * price
 
-    setSelectedToken({
+    return {
       token: {
         symbol: tokenData.symbol,
         icon: tokenData.icon,
@@ -121,8 +100,8 @@ export default function DepositClient() {
         valueUsd,
         depositedValueUsd,
       },
-    })
-  }, [searchParams, markets, router, getTokenStakingApy])
+    }
+  }, [tokenSymbol, tokenData, market, router, getTokenStakingApy, walletBalances, depositedAmount])
 
   if (!selectedToken || walletBalancesLoading) {
     return (
