@@ -238,29 +238,31 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               className='text-sm font-bold tracking-wider uppercase'
               style={{ color: token.brandColor }}
             >
-              Wallet Balance
+              {metrics.deposited > 0 ? 'Deposited' : 'Wallet Balance'}
             </span>
           </div>
 
           <div className='space-y-2'>
-            <div className='flex justify-between items-center'>
-              <span className='text-sm'>Available</span>
-              <div className='text-right'>
-                <div className='text-base text-foreground font-funnel'>
-                  {formatBalance(metrics.balance)}{' '}
-                  <span style={{ color: token.brandColor }}>{token.symbol}</span>
-                </div>
-                {metrics.valueUsd > 0 && (
-                  <div className='text-xs text-muted-foreground'>{formatUsd(metrics.valueUsd)}</div>
-                )}
-              </div>
-            </div>
-
-            {metrics.deposited > 0 && (
+            {metrics.deposited > 0 ? (
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-muted-foreground/90'>Deposited</span>
                 <div className='text-base font-bold text-foreground'>
                   {formatBalance(metrics.deposited)} {token.symbol}
+                </div>
+              </div>
+            ) : (
+              <div className='flex justify-between items-center'>
+                <span className='text-sm'>Available</span>
+                <div className='text-right'>
+                  <div className='text-base text-foreground font-funnel'>
+                    {formatBalance(metrics.balance)}{' '}
+                    <span style={{ color: token.brandColor }}>{token.symbol}</span>
+                  </div>
+                  {metrics.valueUsd > 0 && (
+                    <div className='text-xs text-muted-foreground'>
+                      {formatUsd(metrics.valueUsd)}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

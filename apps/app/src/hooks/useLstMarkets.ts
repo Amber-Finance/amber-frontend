@@ -73,11 +73,14 @@ export function useLstMarkets(): {
   })
 
   // Helper function to get staking APY for a specific token
-  const getTokenStakingApy = useCallback((symbol: string): number => {
-    if (!stakingData?.btcYield) return 0
-    const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
-    return tokenData?.apy || 0
-  }, [stakingData])
+  const getTokenStakingApy = useCallback(
+    (symbol: string): number => {
+      if (!stakingData?.btcYield) return 0
+      const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
+      return tokenData?.apy || 0
+    },
+    [stakingData],
+  )
 
   const lstMarkets = useMemo(() => {
     if (!markets) return []
@@ -110,6 +113,10 @@ export function useLstMarkets(): {
         // Convert balance to readable format
         const decimals = market.asset?.decimals || 6
         const balance = parseFloat(new BigNumber(rawBalance).shiftedBy(-decimals).toString())
+
+        // Get user deposit amount for this market
+        const userDeposit = market.deposit || '0'
+        const deposited = parseFloat(new BigNumber(userDeposit).shiftedBy(-decimals).toString())
 
         // Calculate USD value of balance
         const price = parseFloat(market.price?.price || '0')
@@ -150,7 +157,7 @@ export function useLstMarkets(): {
             stakingApy,
             totalApy,
             balance,
-            deposited: 0, // TODO: Get from user positions
+            deposited,
             valueUsd,
             utilizationRate,
             depositCapUsage,
