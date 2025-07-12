@@ -33,7 +33,7 @@ export function useTransactions() {
     setIsPending(true)
 
     const formattedAmount = new BigNumber(params.amount)
-      .multipliedBy(new BigNumber(10).pow(params.decimals))
+      .shiftedBy(params.decimals)
       .integerValue(BigNumber.ROUND_DOWN)
       .toString()
 
@@ -89,7 +89,7 @@ export function useTransactions() {
         render: `Successfully ${type === 'deposit' ? 'deposited' : 'withdrew'} ${params.amount} ${params.symbol}`,
         type: 'success',
         isLoading: false,
-        autoClose: 2000,
+        autoClose: 4000,
       })
 
       await mutate('metricsRefresh')
@@ -108,7 +108,7 @@ export function useTransactions() {
         render: `Transaction failed: ${(error as Error).message || 'Unknown error'}`,
         type: 'error',
         isLoading: false,
-        autoClose: 2000,
+        autoClose: 4000,
       })
       setIsPending(false)
     }

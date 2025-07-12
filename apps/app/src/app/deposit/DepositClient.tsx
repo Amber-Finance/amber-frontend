@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -44,6 +44,11 @@ export default function DepositClient() {
   const [activeTab, setActiveTab] = useState<TabType>('deposit')
   const [depositAmount, setDepositAmount] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
+  const [sliderPercentage, setSliderPercentage] = useState(0)
+  const [previousDepositedAmount, setPreviousDepositedAmount] = useState('')
+  const [depositedValueChange, setDepositedValueChange] = useState<'increase' | 'decrease' | null>(
+    null,
+  )
 
   useMarkets()
   const { markets } = useStore()
@@ -56,6 +61,27 @@ export default function DepositClient() {
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+
+  useEffect(() => {
+    if (depositedAmount && previousDepositedAmount) {
+      const current = parseFloat(depositedAmount)
+      const previous = parseFloat(previousDepositedAmount)
+
+      if (current > previous) {
+        setDepositedValueChange('increase')
+      } else if (current < previous) {
+        setDepositedValueChange('decrease')
+      }
+
+      const timer = setTimeout(() => {
+        setDepositedValueChange(null)
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+
+    setPreviousDepositedAmount(depositedAmount || '')
+  }, [depositedAmount, previousDepositedAmount])
 
   const selectedToken = useMemo(() => {
     if (!tokenSymbol || !tokenData || !market) {
@@ -147,6 +173,8 @@ export default function DepositClient() {
       symbol: token.symbol,
       decimals: market.asset.decimals,
     })
+    setDepositAmount('')
+    setSliderPercentage(0)
   }
 
   const handleWithdraw = async () => {
@@ -164,6 +192,8 @@ export default function DepositClient() {
       symbol: token.symbol,
       decimals: market.asset.decimals,
     })
+    setWithdrawAmount('')
+    setSliderPercentage(0)
   }
 
   const currentAmount = activeTab === 'deposit' ? depositAmount : withdrawAmount
@@ -171,6 +201,7 @@ export default function DepositClient() {
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0]
+    setSliderPercentage(percentage)
     const amount = new BigNumber(maxAmount).multipliedBy(percentage).dividedBy(100).toString()
     if (activeTab === 'deposit') {
       setDepositAmount(amount)
@@ -178,8 +209,7 @@ export default function DepositClient() {
       setWithdrawAmount(amount)
     }
   }
-  const rawPercentage = maxAmount > 0 ? (parseFloat(currentAmount || '0') / maxAmount) * 100 : 0
-  const percentage = Math.min(rawPercentage, 100)
+
   const estimatedApyEarnings = parseFloat(currentAmount || '0') * (metrics.totalApy / 100)
 
   return (
@@ -210,7 +240,12 @@ export default function DepositClient() {
           <div className='flex justify-between p-4'>
             <div className='flex items-center justify-start gap-3'>
               <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
-                <Image src={token.icon} alt={token.symbol} fill className='object-contain' />
+                <Image
+                  src={token.icon}
+                  alt={`${token.symbol} token icon`}
+                  fill
+                  className='object-contain'
+                />
               </div>
               <div>
                 <h2 className='text-lg sm:text-xl font-bold text-foreground'>
@@ -273,6 +308,7 @@ export default function DepositClient() {
                   metrics.depositedValueUsd > 0 ? formatUsd(metrics.depositedValueUsd) : undefined
                 }
                 brandColor={token.brandColor}
+                valueChange={depositedValueChange}
               />
             </div>
           </InfoCard>
@@ -349,11 +385,15 @@ export default function DepositClient() {
               <AmountInput
                 value={currentAmount}
                 onChange={(e) => {
+                  const value = e.target.value
                   if (activeTab === 'deposit') {
-                    setDepositAmount(e.target.value)
+                    setDepositAmount(value)
                   } else {
-                    setWithdrawAmount(e.target.value)
+                    setWithdrawAmount(value)
                   }
+                  const numValue = parseFloat(value || '0')
+                  const newPercentage = maxAmount > 0 ? (numValue / maxAmount) * 100 : 0
+                  setSliderPercentage(Math.min(newPercentage, 100))
                 }}
                 token={token}
                 usdValue={formatUsd(
@@ -371,11 +411,11 @@ export default function DepositClient() {
                 <div className='flex justify-between items-center'>
                   <span className='text-xs text-muted-foreground'>Amount</span>
                   <span className='text-xs font-medium text-foreground'>
-                    {percentage.toFixed(1)}%
+                    {sliderPercentage.toFixed(1)}%
                   </span>
                 </div>
                 <Slider
-                  value={[percentage]}
+                  value={[sliderPercentage]}
                   onValueChange={handleSliderChange}
                   max={100}
                   min={0}
