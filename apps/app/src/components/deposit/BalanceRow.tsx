@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import { LucideIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -8,7 +10,7 @@ interface BalanceRowProps {
   value: string
   usdValue?: string
   brandColor?: string
-  valueChange?: 'increase' | 'decrease' | null
+  actionType?: 'deposit' | 'withdraw' | null
 }
 
 export default function BalanceRow({
@@ -17,13 +19,33 @@ export default function BalanceRow({
   value,
   usdValue,
   brandColor,
-  valueChange,
+  actionType = null,
 }: BalanceRowProps) {
-  const getValueColor = () => {
-    if (valueChange === 'increase') return 'text-green-500'
-    if (valueChange === 'decrease') return 'text-red-500'
-    return 'text-foreground'
-  }
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [color, setColor] = useState<'text-green-500' | 'text-red-500' | 'text-foreground'>(
+    'text-foreground',
+  )
+
+  useEffect(() => {
+    if (actionType === 'deposit') {
+      setColor('text-green-500')
+      setIsAnimating(true)
+    } else if (actionType === 'withdraw') {
+      setColor('text-red-500')
+      setIsAnimating(true)
+    } else {
+      setColor('text-foreground')
+    }
+
+    if (actionType) {
+      const scaleTimer = setTimeout(() => setIsAnimating(false), 300)
+      const colorTimer = setTimeout(() => setColor('text-foreground'), 3000)
+      return () => {
+        clearTimeout(scaleTimer)
+        clearTimeout(colorTimer)
+      }
+    }
+  }, [actionType])
 
   return (
     <div className='flex justify-between items-center p-2 rounded-lg bg-muted/20'>
@@ -32,8 +54,25 @@ export default function BalanceRow({
         <span className='text-xs sm:text-sm font-medium'>{label}</span>
       </div>
       <div className='text-right'>
-        <div className={cn('text-xs sm:text-sm font-funnel', getValueColor())}>{value}</div>
-        {usdValue && <div className='text-xs text-muted-foreground/80'>{usdValue}</div>}
+        <div
+          className={cn(
+            'text-xs sm:text-sm font-funnel transition-all duration-200',
+            color,
+            isAnimating && 'scale-110 transform',
+          )}
+        >
+          {value}
+        </div>
+        {usdValue && (
+          <div
+            className={cn(
+              'text-xs text-muted-foreground/80 transition-all duration-200',
+              isAnimating && 'scale-110 transform',
+            )}
+          >
+            {usdValue}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -45,11 +45,7 @@ export default function DepositClient() {
   const [depositAmount, setDepositAmount] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [sliderPercentage, setSliderPercentage] = useState(0)
-  const [previousDepositedAmount, setPreviousDepositedAmount] = useState('')
-  const [depositedValueChange, setDepositedValueChange] = useState<'increase' | 'decrease' | null>(
-    null,
-  )
-
+  const [lastAction, setLastAction] = useState<'deposit' | 'withdraw' | null>(null)
   useMarkets()
   const { markets } = useStore()
   const { getTokenStakingApy, isLoading: isYieldLoading } = useLstMarkets()
@@ -61,27 +57,6 @@ export default function DepositClient() {
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
-
-  useEffect(() => {
-    if (depositedAmount && previousDepositedAmount) {
-      const current = parseFloat(depositedAmount)
-      const previous = parseFloat(previousDepositedAmount)
-
-      if (current > previous) {
-        setDepositedValueChange('increase')
-      } else if (current < previous) {
-        setDepositedValueChange('decrease')
-      }
-
-      const timer = setTimeout(() => {
-        setDepositedValueChange(null)
-      }, 3000)
-
-      return () => clearTimeout(timer)
-    }
-
-    setPreviousDepositedAmount(depositedAmount || '')
-  }, [depositedAmount, previousDepositedAmount])
 
   const selectedToken = useMemo(() => {
     if (!tokenSymbol || !tokenData || !market) {
@@ -175,6 +150,7 @@ export default function DepositClient() {
     })
     setDepositAmount('')
     setSliderPercentage(0)
+    setLastAction('deposit')
   }
 
   const handleWithdraw = async () => {
@@ -194,6 +170,7 @@ export default function DepositClient() {
     })
     setWithdrawAmount('')
     setSliderPercentage(0)
+    setLastAction('withdraw')
   }
 
   const currentAmount = activeTab === 'deposit' ? depositAmount : withdrawAmount
@@ -299,6 +276,7 @@ export default function DepositClient() {
                 value={`${metrics.balance} ${token.symbol}`}
                 usdValue={formatUsd(metrics.valueUsd)}
                 brandColor={token.brandColor}
+                actionType={null}
               />
               <BalanceRow
                 icon={Coins}
@@ -308,7 +286,7 @@ export default function DepositClient() {
                   metrics.depositedValueUsd > 0 ? formatUsd(metrics.depositedValueUsd) : undefined
                 }
                 brandColor={token.brandColor}
-                valueChange={depositedValueChange}
+                actionType={lastAction}
               />
             </div>
           </InfoCard>
