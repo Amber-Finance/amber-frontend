@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 
+import BigNumber from 'bignumber.js'
 import { ArrowUpDown, Settings, Wallet } from 'lucide-react'
 
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
@@ -13,6 +14,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
+import useWalletBalances from '@/hooks/useWalletBalances'
+import { useStore } from '@/store/useStore'
+import { calculateUsdValue } from '@/utils/format'
 
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
 const MOCK_RATE = 0.98
@@ -31,6 +35,9 @@ interface SwapToken {
 
 export default function SwapClient() {
   useMarkets()
+  const { markets } = useStore()
+  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
+
   const [fromToken, setFromToken] = useState<SwapToken | null>(null)
   const [toToken, setToToken] = useState<SwapToken | null>(null)
   const [fromAmount, setFromAmount] = useState('')
@@ -41,27 +48,49 @@ export default function SwapClient() {
   const [isTokenModalOpen, setTokenModalOpen] = useState(false)
   const [selectingFrom, setSelectingFrom] = useState(true) // true = fromToken, false = toToken
 
-  const swapTokens = useMemo(
-    () => [
+  const swapTokens = useMemo(() => {
+    if (!markets || !walletBalances) return []
+
+    return [
       {
         symbol: 'maxBTC',
         name: 'MaxBTC Protocol Token',
         icon: '/btcGolden.png',
         balance: '0.00',
+        rawBalance: 0,
         price: 0,
         denom: 'maxbtc',
+        usdValue: '0.00',
       },
-      ...tokens.map((token) => ({
-        symbol: token.symbol,
-        name: token.description,
-        icon: token.icon,
-        balance: '0.00',
-        price: 0,
-        denom: token.denom,
-      })),
-    ],
-    [],
-  )
+      ...tokens.map((token) => {
+        const market = markets.find((m) => m.asset.denom === token.denom)
+        const walletBalance = walletBalances.find((b) => b.denom === token.denom)
+        const decimals = market?.asset?.decimals || 6
+        const rawBalance = walletBalance?.amount ? Number(walletBalance.amount) : 0
+        const shiftedBalance = new BigNumber(rawBalance).shiftedBy(-decimals)
+        let usdValueNum = 0
+        if (market?.price?.price && rawBalance > 0) {
+          usdValueNum = calculateUsdValue(
+            walletBalance?.amount || '0',
+            market.price.price,
+            decimals,
+          )
+        }
+        const balance = shiftedBalance.isGreaterThan(0) ? shiftedBalance.toFixed(8) : '0.00000000'
+        const usdValue = usdValueNum > 0 ? `$${usdValueNum.toFixed(2)}` : '$0.00'
+        return {
+          symbol: token.symbol,
+          name: token.description,
+          icon: token.icon,
+          balance,
+          rawBalance,
+          price: market?.price?.price ? parseFloat(market.price.price) : 0,
+          denom: token.denom,
+          usdValue,
+        }
+      }),
+    ]
+  }, [markets, walletBalances])
 
   useEffect(() => {
     if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0) {
@@ -88,6 +117,22 @@ export default function SwapClient() {
   }
 
   const isSwapValid = fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0
+
+  if (walletBalancesLoading) {
+    return (
+      <div className='w-full py-8 sm:py-12 overflow-hidden px-4 sm:px-8 max-w-6xl mx-auto'>
+        <div className='text-center py-16'>
+          <div className='max-w-md mx-auto space-y-4'>
+            <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
+              <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
+            </div>
+            <h3 className='text-lg font-bold text-foreground'>Loading Wallet Balances</h3>
+            <p className='text-muted-foreground'>Fetching your token balances...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -212,7 +257,12 @@ export default function SwapClient() {
                 </button>
               </div>
               <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
-                <span>${fromToken?.usdValue || '0.00'}</span>
+                <span>
+                  $
+                  {fromToken?.usdValue && parseFloat(fromToken.usdValue) > 0
+                    ? fromToken.usdValue
+                    : '0.00'}
+                </span>
                 <span>
                   {fromToken?.balance || '0.00'} {fromToken?.symbol}
                 </span>
@@ -273,7 +323,12 @@ export default function SwapClient() {
                 </button>
               </div>
               <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
-                <span>${toToken?.usdValue || '0.00'}</span>
+                <span>
+                  $
+                  {toToken?.usdValue && parseFloat(toToken.usdValue) > 0
+                    ? toToken.usdValue
+                    : '0.00'}
+                </span>
                 <span>
                   {toToken?.balance || '0.00'} {toToken?.symbol}
                 </span>

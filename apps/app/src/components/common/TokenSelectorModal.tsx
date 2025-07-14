@@ -9,6 +9,7 @@ interface SwapToken {
   name: string
   icon: string
   balance?: string
+  rawBalance?: number
   price?: number
   denom: string
   usdValue?: string
@@ -29,9 +30,9 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
   onSelect,
   selectedToken,
 }) => {
-  // Group tokens
-  const yourTokens = tokens.filter((t) => t.balance && parseFloat(t.balance) > 0)
-  const allTokens = tokens.filter((t) => !yourTokens.includes(t))
+  // Group tokens based on actual rawBalance values
+  const yourTokens = tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) > 0)
+  const allTokens = tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) === 0)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,13 +63,14 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                       height={32}
                       className='rounded-full'
                     />
-                    <div className='ml-3 flex flex-col items-start min-w-0'>
+                    <div className='ml-3 flex flex-col items-start min-w-0 flex-1'>
                       <div className='font-medium text-sm'>{token.symbol}</div>
                       <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                     </div>
                     <div className='ml-auto flex flex-col items-end min-w-0'>
                       <div className='font-semibold text-base'>
-                        ${token.usdValue && token.usdValue !== '0.00' ? token.usdValue : '0.00'}
+                        $
+                        {token.usdValue && parseFloat(token.usdValue) > 0 ? token.usdValue : '0.00'}
                       </div>
                       <div className='text-xs text-muted-foreground truncate'>
                         {token.balance || '0.00'} {token.symbol}
@@ -99,13 +101,13 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                   height={32}
                   className='rounded-full'
                 />
-                <div className='ml-3 flex flex-col items-start min-w-0'>
+                <div className='ml-3 flex flex-col items-start min-w-0 flex-1'>
                   <div className='font-medium text-sm'>{token.symbol}</div>
                   <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                 </div>
                 <div className='ml-auto flex flex-col items-end min-w-0'>
                   <div className='font-semibold text-base'>
-                    ${token.usdValue && token.usdValue !== '0.00' ? token.usdValue : '0.00'}
+                    ${token.usdValue && parseFloat(token.usdValue) > 0 ? token.usdValue : '0.00'}
                   </div>
                   <div className='text-xs text-muted-foreground truncate'>
                     {token.balance || '0.00'} {token.symbol}
