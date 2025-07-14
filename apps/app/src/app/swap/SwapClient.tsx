@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
+import Image from 'next/image'
 
 import { ArrowUpDown, Settings, Wallet } from 'lucide-react'
 
-import { type SwapToken, TokenSelector } from '@/components/common/TokenSelector'
+import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,6 +19,16 @@ const MOCK_RATE = 0.98
 const PRICE_IMPACT = 2.0
 const MIN_RECEIVED_MULTIPLIER = 0.995
 
+interface SwapToken {
+  symbol: string
+  name: string
+  icon: string
+  balance?: string
+  price?: number
+  denom: string
+  usdValue?: string
+}
+
 export default function SwapClient() {
   useMarkets()
   const [fromToken, setFromToken] = useState<SwapToken | null>(null)
@@ -26,25 +38,30 @@ export default function SwapClient() {
   const [slippage, setSlippage] = useState(0.5)
   const [customSlippage, setCustomSlippage] = useState('')
   const [showSlippagePopover, setShowSlippagePopover] = useState(false)
+  const [isTokenModalOpen, setTokenModalOpen] = useState(false)
+  const [selectingFrom, setSelectingFrom] = useState(true) // true = fromToken, false = toToken
 
-  const swapTokens: SwapToken[] = [
-    {
-      symbol: 'maxBTC',
-      name: 'MaxBTC Protocol Token',
-      icon: '/btcGolden.png',
-      balance: '0.00',
-      price: 0,
-      denom: 'maxbtc',
-    },
-    ...tokens.map((token) => ({
-      symbol: token.symbol,
-      name: token.description,
-      icon: token.icon,
-      balance: '0.00',
-      price: 0,
-      denom: token.denom,
-    })),
-  ]
+  const swapTokens = useMemo(
+    () => [
+      {
+        symbol: 'maxBTC',
+        name: 'MaxBTC Protocol Token',
+        icon: '/btcGolden.png',
+        balance: '0.00',
+        price: 0,
+        denom: 'maxbtc',
+      },
+      ...tokens.map((token) => ({
+        symbol: token.symbol,
+        name: token.description,
+        icon: token.icon,
+        balance: '0.00',
+        price: 0,
+        denom: token.denom,
+      })),
+    ],
+    [],
+  )
 
   useEffect(() => {
     if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0) {
@@ -55,6 +72,12 @@ export default function SwapClient() {
     }
   }, [fromToken, toToken, fromAmount])
 
+  useEffect(() => {
+    if (!fromToken && swapTokens.length > 0) {
+      setFromToken(swapTokens.find((token) => token.symbol === 'solvBTC') || swapTokens[0])
+    }
+  }, [swapTokens, fromToken])
+
   const handleSwapTokens = () => {
     const tempToken = fromToken
     const tempAmount = fromAmount
@@ -62,20 +85,6 @@ export default function SwapClient() {
     setToToken(tempToken)
     setFromAmount(toAmount)
     setToAmount(tempAmount)
-  }
-
-  const handleTokenSelect = (token: SwapToken, isFromToken: boolean) => {
-    if (isFromToken) {
-      setFromToken(token)
-      if (toToken?.symbol === token.symbol) {
-        setToToken(null)
-      }
-    } else {
-      setToToken(token)
-      if (fromToken?.symbol === token.symbol) {
-        setFromToken(null)
-      }
-    }
   }
 
   const isSwapValid = fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0
@@ -159,25 +168,55 @@ export default function SwapClient() {
                 {fromToken?.balance || '0.00'}
               </div>
             </div>
+            {/* From Section */}
             <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4 mb-2'>
-              <TokenSelector
-                token={fromToken}
-                onTokenSelect={(token) => handleTokenSelect(token, true)}
-                disabledTokens={toToken?.symbol ? [toToken.symbol] : []}
-                label='Swap From'
-                availableTokens={swapTokens}
-              />
-              <div className='flex items-center gap-3'>
+              <div className='flex items-center gap-2'>
                 <input
                   type='number'
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder='0.00'
-                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
                   style={{ minWidth: 0 }}
                 />
+                <button
+                  onClick={() => {
+                    setSelectingFrom(true)
+                    setTokenModalOpen(true)
+                  }}
+                  className='flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/20'
+                >
+                  {fromToken ? (
+                    <>
+                      <Image
+                        src={fromToken.icon}
+                        alt={fromToken.symbol}
+                        width={24}
+                        height={24}
+                        className='rounded-full'
+                      />
+                      <span className='font-semibold'>{fromToken.symbol}</span>
+                    </>
+                  ) : (
+                    <span>Select token</span>
+                  )}
+                  <svg
+                    className='w-4 h-4 ml-1'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth={2}
+                    viewBox='0 0 24 24'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
+                  </svg>
+                </button>
               </div>
-              <div className='text-xs text-muted-foreground mt-1'>$ 0.00</div>
+              <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
+                <span>${fromToken?.usdValue || '0.00'}</span>
+                <span>
+                  {fromToken?.balance || '0.00'} {fromToken?.symbol}
+                </span>
+              </div>
             </div>
 
             {/* Switch Button */}
@@ -190,26 +229,55 @@ export default function SwapClient() {
               </button>
             </div>
 
-            {/* Buy Section */}
-            <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4'>
-              <TokenSelector
-                token={toToken}
-                onTokenSelect={(token) => handleTokenSelect(token, false)}
-                disabledTokens={fromToken?.symbol ? [fromToken.symbol] : []}
-                label='Swap To'
-                availableTokens={swapTokens}
-              />
-              <div className='flex items-center gap-3'>
+            {/* To Section */}
+            <div className='relative rounded-xl bg-muted/10 border border-border/30 px-3 pt-2 pb-4 mb-2'>
+              <div className='flex items-center gap-2'>
                 <input
                   type='number'
                   value={toAmount}
-                  readOnly
+                  onChange={(e) => setToAmount(e.target.value)}
                   placeholder='0.00'
-                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
                   style={{ minWidth: 0 }}
                 />
+                <button
+                  onClick={() => {
+                    setSelectingFrom(false)
+                    setTokenModalOpen(true)
+                  }}
+                  className='flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/20'
+                >
+                  {toToken ? (
+                    <>
+                      <Image
+                        src={toToken.icon}
+                        alt={toToken.symbol}
+                        width={24}
+                        height={24}
+                        className='rounded-full'
+                      />
+                      <span className='font-semibold'>{toToken.symbol}</span>
+                    </>
+                  ) : (
+                    <span>Select token</span>
+                  )}
+                  <svg
+                    className='w-4 h-4 ml-1'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth={2}
+                    viewBox='0 0 24 24'
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M19 9l-7 7-7-7' />
+                  </svg>
+                </button>
               </div>
-              <div className='text-xs text-muted-foreground mt-1'>$ 0.00</div>
+              <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
+                <span>${toToken?.usdValue || '0.00'}</span>
+                <span>
+                  {toToken?.balance || '0.00'} {toToken?.symbol}
+                </span>
+              </div>
             </div>
 
             {/* Swap Info */}
@@ -262,6 +330,17 @@ export default function SwapClient() {
             />
           </div>
         </div>
+
+        <TokenSelectorModal
+          open={isTokenModalOpen}
+          onOpenChange={setTokenModalOpen}
+          tokens={swapTokens}
+          selectedToken={selectingFrom ? fromToken : toToken}
+          onSelect={(token) => {
+            if (selectingFrom) setFromToken(token)
+            else setToToken(token)
+          }}
+        />
       </div>
     </>
   )
