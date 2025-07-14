@@ -3,6 +3,7 @@ import React from 'react'
 import Image from 'next/image'
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 interface SwapToken {
   symbol: string
@@ -21,6 +22,7 @@ interface TokenSelectorModalProps {
   tokens: SwapToken[]
   onSelect: (token: SwapToken) => void
   selectedToken?: SwapToken | null
+  isWalletConnected?: boolean
 }
 
 export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
@@ -29,10 +31,15 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
   tokens,
   onSelect,
   selectedToken,
+  isWalletConnected = true,
 }) => {
-  // Group tokens based on actual rawBalance values
-  const yourTokens = tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) > 0)
-  const allTokens = tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) === 0)
+  // Group tokens based on actual rawBalance values, but only if wallet is connected
+  const yourTokens = isWalletConnected
+    ? tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) > 0)
+    : []
+  const allTokens = isWalletConnected
+    ? tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) === 0)
+    : tokens
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,7 +57,10 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                 {yourTokens.map((token) => (
                   <button
                     key={token.symbol}
-                    className={`flex items-center w-full px-4 py-3 rounded-xl transition-colors hover:bg-muted/30 ${selectedToken?.symbol === token.symbol ? 'bg-muted/40' : ''}`}
+                    className={cn(
+                      'flex items-center w-full px-4 py-3 rounded-xl transition-colors hover:bg-muted/30',
+                      selectedToken?.symbol === token.symbol ? 'bg-muted/40' : '',
+                    )}
                     onClick={() => {
                       onSelect(token)
                       onOpenChange(false)
@@ -68,10 +78,7 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                       <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                     </div>
                     <div className='ml-auto flex flex-col items-end min-w-0'>
-                      <div className='font-semibold text-base'>
-                        $
-                        {token.usdValue && parseFloat(token.usdValue) > 0 ? token.usdValue : '0.00'}
-                      </div>
+                      <div className='font-semibold text-base'>{token.usdValue}</div>
                       <div className='text-xs text-muted-foreground truncate'>
                         {token.balance || '0.00'} {token.symbol}
                       </div>
@@ -106,9 +113,7 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                   <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                 </div>
                 <div className='ml-auto flex flex-col items-end min-w-0'>
-                  <div className='font-semibold text-base'>
-                    ${token.usdValue && parseFloat(token.usdValue) > 0 ? token.usdValue : '0.00'}
-                  </div>
+                  <div className='font-semibold text-base'>{token.usdValue}</div>
                   <div className='text-xs text-muted-foreground truncate'>
                     {token.balance || '0.00'} {token.symbol}
                   </div>
