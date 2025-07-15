@@ -180,6 +180,7 @@ interface MarketColumn {
 
 interface ChainConfig {
   name: string
+  id: string
   constracts: {
     paramsContract: string
     moneyMarketContract: string
@@ -190,7 +191,7 @@ interface ChainConfig {
     rpcUrl: string
   }
   queries: {
-    allAssetParams: ing
+    allAssetParams: string
     allMarkets: string
   }
 }

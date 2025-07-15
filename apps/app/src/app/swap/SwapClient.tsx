@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
+import { SwapRouteInfo, useSwap } from '@/hooks/useSwap'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
@@ -23,9 +24,6 @@ import { calculateUsdValue } from '@/utils/format'
 import QuickAmountButtons from './QuickAmountButtons'
 
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
-const MOCK_RATE = 0.98
-const PRICE_IMPACT = 2.0
-const MIN_RECEIVED_MULTIPLIER = 0.995
 
 interface SwapToken {
   symbol: string
@@ -42,6 +40,7 @@ export default function SwapClient() {
   const { markets } = useStore()
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { address } = useChain(chainConfig.name)
+  const { fetchSwapRoute, executeSwap, isSwapInProgress, swapError, clearError } = useSwap()
 
   const [fromToken, setFromToken] = useState<SwapToken | null>(null)
   const [toToken, setToToken] = useState<SwapToken | null>(null)
@@ -52,21 +51,24 @@ export default function SwapClient() {
   const [showSlippagePopover, setShowSlippagePopover] = useState(false)
   const [isTokenModalOpen, setTokenModalOpen] = useState(false)
   const [selectingFrom, setSelectingFrom] = useState(true) // true = fromToken, false = toToken
+  const [routeInfo, setRouteInfo] = useState<SwapRouteInfo | null>(null)
+  const [isLoadingRoute, setIsLoadingRoute] = useState(false)
 
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
     const isConnected = !!address
     return [
-      {
-        symbol: 'maxBTC',
-        name: 'MaxBTC Protocol Token',
-        icon: '/btcGolden.png',
-        balance: '0.00000000',
-        rawBalance: 0,
-        price: 0,
-        denom: 'maxbtc',
-        usdValue: '$0.00',
-      },
+      // Temporarily removing maxBTC to test route loading
+      // {
+      //   symbol: 'maxBTC',
+      //   name: 'MaxBTC Protocol Token',
+      //   icon: '/btcGolden.png',
+      //   balance: '0.00000000',
+      //   rawBalance: 0,
+      //   price: 0,
+      //   denom: 'maxbtc',
+      //   usdValue: '$0.00',
+      // },
       ...tokens.map((token) => {
         const market = markets.find((m) => m.asset.denom === token.denom)
         const walletBalance = walletBalances.find((b) => b.denom === token.denom)
@@ -97,14 +99,52 @@ export default function SwapClient() {
     ]
   }, [markets, walletBalances, address])
 
+  // Fetch swap route when tokens or amount changes
   useEffect(() => {
-    if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0) {
-      const calculatedAmount = (parseFloat(fromAmount) * MOCK_RATE).toFixed(8)
-      setToAmount(calculatedAmount)
-    } else {
-      setToAmount('')
+    const fetchRoute = async () => {
+      console.log('🔄 Route fetch triggered:', {
+        fromToken: fromToken?.symbol,
+        toToken: toToken?.symbol,
+        fromAmount,
+        slippage,
+        hasFromToken: !!fromToken,
+        hasToToken: !!toToken,
+        hasAmount: !!fromAmount,
+        amountValid: fromAmount ? parseFloat(fromAmount) > 0 : false,
+      })
+
+      if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0) {
+        console.log('Starting route fetch...')
+        setIsLoadingRoute(true)
+        try {
+          console.log('📞 Calling fetchSwapRoute...')
+          const route = await fetchSwapRoute(fromToken, toToken, fromAmount, slippage)
+          console.log('Route fetch completed:', route)
+          setRouteInfo(route)
+          if (route) {
+            const toAmountCalculated = route.amountOut.shiftedBy(-6).toFixed(8)
+            console.log('💰 Setting to amount:', toAmountCalculated)
+            setToAmount(toAmountCalculated) // Assuming 6 decimals
+          } else {
+            console.log('No route found, clearing to amount')
+            setToAmount('')
+          }
+        } catch (error) {
+          console.error('Failed to fetch route:', error)
+          setToAmount('')
+        } finally {
+          console.log('Route fetch finished, setting loading to false')
+          setIsLoadingRoute(false)
+        }
+      } else {
+        console.log('Route fetch skipped - missing parameters')
+        setRouteInfo(null)
+        setToAmount('')
+      }
     }
-  }, [fromToken, toToken, fromAmount])
+
+    fetchRoute()
+  }, [fromToken, toToken, fromAmount, slippage, fetchSwapRoute])
 
   useEffect(() => {
     if (!fromToken && swapTokens.length > 0) {
@@ -128,7 +168,25 @@ export default function SwapClient() {
     setToAmount(tempAmount)
   }
 
-  const isSwapValid = fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0
+  const isSwapValid =
+    fromToken &&
+    toToken &&
+    fromAmount &&
+    parseFloat(fromAmount) > 0 &&
+    routeInfo &&
+    !isSwapInProgress
+
+  const handleSwap = async () => {
+    if (!fromToken || !toToken || !fromAmount || !routeInfo) return
+
+    const success = await executeSwap(fromToken, toToken, fromAmount, slippage)
+    if (success) {
+      // Reset form after successful swap
+      setFromAmount('')
+      setToAmount('')
+      setRouteInfo(null)
+    }
+  }
 
   if (walletBalancesLoading) {
     return (
@@ -362,27 +420,62 @@ export default function SwapClient() {
             {/* Swap Info */}
             {fromToken && toToken && fromAmount && (
               <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Rate</span>
-                  <span>
-                    1 {fromToken.symbol} ≈ {MOCK_RATE} {toToken.symbol}
-                  </span>
-                </div>
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Price Impact</span>
-                  <span className='text-orange-500'>~{PRICE_IMPACT}%</span>
-                </div>
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Minimum Received</span>
-                  <span>
-                    {(parseFloat(toAmount) * MIN_RECEIVED_MULTIPLIER).toFixed(8)} {toToken.symbol}
-                  </span>
-                </div>
+                {isLoadingRoute ? (
+                  <div className='flex justify-center py-2'>
+                    <div className='w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
+                  </div>
+                ) : routeInfo ? (
+                  <>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Rate</span>
+                      <span>
+                        1 {fromToken.symbol} ≈{' '}
+                        {routeInfo.amountOut
+                          .dividedBy(new BigNumber(fromAmount).shiftedBy(6))
+                          .toFixed(6)}{' '}
+                        {toToken.symbol}
+                      </span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Price Impact</span>
+                      <span className='text-orange-500'>~{routeInfo.priceImpact.toFixed(2)}%</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Minimum Received</span>
+                      <span>
+                        {routeInfo.amountOut
+                          .times(1 - slippage / 100)
+                          .shiftedBy(-6)
+                          .toFixed(8)}{' '}
+                        {toToken.symbol}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className='text-center text-muted-foreground py-2'>No route available</div>
+                )}
               </div>
             )}
 
-            <Button disabled={!isSwapValid} className='w-full mt-4'>
-              {!fromToken || !toToken ? 'Select tokens' : !fromAmount ? 'Enter amount' : 'Swap'}
+            {swapError && (
+              <div className='mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm'>
+                {swapError}
+                <button onClick={clearError} className='ml-2 underline'>
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            <Button disabled={!isSwapValid} className='w-full mt-4' onClick={handleSwap}>
+              {isSwapInProgress
+                ? 'Swapping...'
+                : !fromToken || !toToken
+                  ? 'Select tokens'
+                  : !fromAmount
+                    ? 'Enter amount'
+                    : !routeInfo
+                      ? 'No route available'
+                      : 'Swap'}
             </Button>
           </CardContent>
         </Card>

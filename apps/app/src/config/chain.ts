@@ -1,5 +1,6 @@
 const chainConfig: ChainConfig = {
   name: 'neutron',
+  id: 'neutron-1',
 
   constracts: {
     // Contract Addresses for Neutron
