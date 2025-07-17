@@ -24,8 +24,18 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": []
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/types/global.d.ts",
+    "src/types/app.d.ts",
+    "src/types/tailwind.d.ts"
+  ],
+  "exclude": ["node_modules", "src/types/generated", "src/types/generated/**/*"]
 }

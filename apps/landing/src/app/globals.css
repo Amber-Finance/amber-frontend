@@ -82,9 +82,8 @@
 }
 
 @theme dark {
-  --color-background: 0 0% 0%;
-  --color-foreground: 0 0% 98%;
-
+  --color-background: oklch(21.03% 0.006 285.89); /*rgb(24, 24, 27) */
+  --color-foreground: oklch(0.985 0 0);
   --color-card: 0 0% 3.9%;
   --color-card-foreground: 0 0% 98%;
 
