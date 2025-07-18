@@ -29,7 +29,7 @@ export const usePrices = () => {
       try {
         const denom = market.asset.denom
         const query = btoa(JSON.stringify({ price: { denom } }))
-        const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.constracts.oracleContract}/smart/${query}`
+        const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.oracle}/smart/${query}`
 
         const response = await fetch(url)
         if (!response.ok) {

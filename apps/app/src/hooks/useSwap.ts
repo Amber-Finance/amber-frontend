@@ -174,7 +174,7 @@ export function useSwap() {
           offlineSigner,
         )
 
-        const creditManagerAddress = chainConfig.constracts.creditManager
+        const creditManagerAddress = chainConfig.contracts.creditManager
         if (!creditManagerAddress) {
           setSwapError('Credit Manager address not configured')
           return false

@@ -27,7 +27,7 @@ export default function useUserPositions() {
 
   const { isLoading } = useSWR(
     swrKey,
-    () => getUserPositions(chainConfig.constracts.moneyMarketContract, address!),
+    () => getUserPositions(chainConfig.contracts.redBank, address!),
     {
       fallbackData: { deposits: [], debts: [] },
       revalidateOnMount: true,

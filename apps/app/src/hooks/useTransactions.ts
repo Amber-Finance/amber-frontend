@@ -68,14 +68,7 @@ export function useTransactions() {
         funds = [{ amount: formattedAmount, denom: params.denom }]
       }
 
-      await client.execute(
-        address,
-        chainConfig.constracts.moneyMarketContract,
-        msg,
-        'auto',
-        undefined,
-        funds,
-      )
+      await client.execute(address, chainConfig.contracts.redBank, msg, 'auto', undefined, funds)
 
       if (markets) {
         const actionType = type === 'deposit' ? 'supply' : 'withdraw'

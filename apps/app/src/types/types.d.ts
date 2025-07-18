@@ -181,11 +181,15 @@ interface MarketColumn {
 interface ChainConfig {
   name: string
   id: string
-  constracts: {
-    paramsContract: string
-    moneyMarketContract: string
-    oracleContract: string
+  contracts: {
+    redBank: string
+    incentives: string
+    oracle: string
+    params: string
     creditManager: string
+    accountNft: string
+    perps: string
+    pyth: string
   }
   endpoints: {
     restUrl: string
