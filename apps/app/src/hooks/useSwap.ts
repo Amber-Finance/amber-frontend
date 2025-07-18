@@ -1,17 +1,31 @@
 import { useCallback, useState } from 'react'
 
+import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
 import { useChain } from '@cosmos-kit/react'
 import { route as skipRoute } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
 import chainConfig from '@/config/chain'
+import { useStore } from '@/store/useStore'
+import { getSwapExactInAction } from '@/utils/swap'
 
-export interface SwapRouteInfo {
-  amountOut: BigNumber
-  priceImpact: BigNumber
-  fee: BigNumber
-  description: string
-  route: any
+const DEFAULT_GAS_LIMIT = '1000000'
+const DEFAULT_GAS_AMOUNT = '1500'
+const DEFAULT_GAS_DENOM = 'untrn'
+
+interface SkipRouteResponse {
+  amountOut: string
+  usdAmountIn?: string
+  usdAmountOut?: string
+  operations?: Array<{
+    swap?: {
+      swapIn?: {
+        swapOperations?: Array<{
+          denomOut?: string
+        }>
+      }
+    }
+  }>
 }
 
 export interface SwapToken {
@@ -24,181 +38,100 @@ export interface SwapToken {
   usdValue?: string
 }
 
-// Utility functions from Mars V2
-function analyzeVenues(skipRouteResponse: any): 'duality' | 'unknown' {
-  if (!skipRouteResponse) return 'unknown'
-  if (!skipRouteResponse.swapVenues && !skipRouteResponse.operations) return 'unknown'
-
-  const venuesUsed = new Set<string>()
-
-  skipRouteResponse.swapVenues?.forEach((venue: any) => {
-    if (venue?.name) venuesUsed.add(venue.name)
-  })
-
-  skipRouteResponse.operations?.forEach((operation: any) => {
-    const venueName = operation?.swap?.swapIn?.swapVenue?.name
-    if (venueName) venuesUsed.add(venueName)
-  })
-
-  if (venuesUsed.size === 0) return 'unknown'
-  if (venuesUsed.size > 1) return 'unknown' // Only accept single venue
-
-  const singleVenue = Array.from(venuesUsed)[0]
-  if (singleVenue === 'neutron-duality') return 'duality'
-
-  return 'unknown'
-}
-
-function extractSwapOperations(skipRouteResponse: any): any[] {
-  const firstOperation = (skipRouteResponse.operations?.[0] as any)?.swap?.swapIn?.swapOperations
-  return firstOperation || []
-}
-
-function createDualityRoute(denomIn: string, denomOut: string, swapOperations: any[]): any {
-  const swapDenoms: string[] = [denomIn]
-
-  swapOperations.forEach((op: any) => {
-    if (op.denomOut && !swapDenoms.includes(op.denomOut)) {
-      swapDenoms.push(op.denomOut)
-    }
-  })
-
-  // Ensure denomOut is included if not already present
-  if (!swapDenoms.includes(denomOut)) {
-    swapDenoms.push(denomOut)
-  }
-
-  return {
+export interface SwapRouteInfo {
+  amountOut: BigNumber
+  priceImpact: BigNumber
+  route: {
     duality: {
-      from: denomIn,
-      swap_denoms: swapDenoms,
-      to: denomOut,
-    },
-  }
-}
-
-function createSwapDescription(
-  denomIn: string,
-  denomOut: string,
-  fromToken: SwapToken,
-  toToken: SwapToken,
-): string {
-  return `${fromToken.symbol} → ${toToken.symbol}`
-}
-
-function buildSwapRouteInfo(
-  skipRouteResponse: any,
-  route: any,
-  description: string,
-): SwapRouteInfo {
-  let priceImpact = new BigNumber(0)
-
-  if (skipRouteResponse.swapPriceImpactPercent) {
-    priceImpact = new BigNumber(skipRouteResponse.swapPriceImpactPercent)
-  } else if (skipRouteResponse.usdAmountIn && skipRouteResponse.usdAmountOut) {
-    const usdAmountIn = new BigNumber(skipRouteResponse.usdAmountIn)
-    const usdAmountOut = new BigNumber(skipRouteResponse.usdAmountOut)
-
-    if (usdAmountIn.gt(0)) {
-      // Price impact = ((usdAmountOut - usdAmountIn) / usdAmountIn) * 100
-      priceImpact = usdAmountOut.minus(usdAmountIn).dividedBy(usdAmountIn).multipliedBy(100)
+      from: string
+      swap_denoms: string[]
+      to: string
     }
-  }
-
-  return {
-    amountOut: new BigNumber(skipRouteResponse.amountOut || '0'),
-    priceImpact,
-    fee: new BigNumber(0),
-    description,
-    route,
-  }
-}
-
-async function getNeutronRouteInfo(
-  denomIn: string,
-  denomOut: string,
-  amount: string,
-  fromToken: SwapToken,
-  toToken: SwapToken,
-  _slippage: number,
-): Promise<SwapRouteInfo | null> {
-  try {
-    const skipRouteParams = {
-      amountIn: amount,
-      sourceAssetDenom: denomIn,
-      sourceAssetChainId: chainConfig.id.toString(),
-      destAssetDenom: denomOut,
-      destAssetChainId: chainConfig.id.toString(),
-      allowUnsafe: true,
-      swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }], // Only Duality, no Astroport
-      smartSwapOptions: {
-        splitRoutes: true,
-        evmSwaps: true,
-      },
-    }
-
-    const skipRouteResponse = await skipRoute(skipRouteParams)
-
-    if (!skipRouteResponse) {
-      return null // No fallback
-    }
-
-    const venueType = analyzeVenues(skipRouteResponse)
-
-    if (venueType !== 'duality') {
-      return null // Only accept Duality routes
-    }
-
-    const swapOperations = extractSwapOperations(skipRouteResponse)
-    const route = createDualityRoute(denomIn, denomOut, swapOperations)
-    const description = createSwapDescription(denomIn, denomOut, fromToken, toToken)
-    const routeInfo = buildSwapRouteInfo(skipRouteResponse, route, description)
-
-    return routeInfo
-  } catch (error) {
-    console.error('Failed to fetch swap route:', error)
-    return null // No fallback
   }
 }
 
 export function useSwap() {
-  const { address } = useChain(chainConfig.name)
+  const { address, getOfflineSigner } = useChain(chainConfig.name)
+  const { markets } = useStore()
   const [isSwapInProgress, setIsSwapInProgress] = useState(false)
   const [swapError, setSwapError] = useState<string | null>(null)
+
+  const getTokenDecimals = useCallback(
+    (denom: string): number => {
+      if (!markets) return 6 // fallback
+      const market = markets.find((m) => m.asset.denom === denom)
+      return market?.asset?.decimals || 6
+    },
+    [markets],
+  )
+
+  const clearError = useCallback(() => {
+    setSwapError(null)
+  }, [])
 
   const fetchSwapRoute = useCallback(
     async (
       fromToken: SwapToken,
       toToken: SwapToken,
       amount: string,
-      slippage: number = 0.5,
     ): Promise<SwapRouteInfo | null> => {
-      if (!fromToken || !toToken || !amount || parseFloat(amount) <= 0) {
-        return null
-      }
-
       try {
-        setSwapError(null)
+        const response = (await skipRoute({
+          sourceAssetDenom: fromToken.denom,
+          sourceAssetChainId: chainConfig.id,
+          destAssetDenom: toToken.denom,
+          destAssetChainId: chainConfig.id,
+          amountIn: new BigNumber(amount).shiftedBy(getTokenDecimals(fromToken.denom)).toString(),
+          allowUnsafe: true,
+          swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
+        })) as SkipRouteResponse
 
-        // Convert amount to proper format (assuming 6 decimals for most tokens)
-        const decimals = 6
-        const amountIn = new BigNumber(amount).shiftedBy(decimals).toString()
+        if (!response) return null
 
-        return await getNeutronRouteInfo(
-          fromToken.denom,
-          toToken.denom,
-          amountIn,
-          fromToken,
-          toToken,
-          slippage,
-        )
-      } catch (error: any) {
-        console.error('Failed to fetch swap route:', error)
-        setSwapError(error.message || 'Failed to fetch swap route')
+        const amountOut = new BigNumber(response.amountOut)
+
+        let priceImpact = new BigNumber(0)
+        if (response.usdAmountIn && response.usdAmountOut) {
+          const usdAmountIn = new BigNumber(response.usdAmountIn)
+          const usdAmountOut = new BigNumber(response.usdAmountOut)
+          if (usdAmountIn.gt(0)) {
+            priceImpact = usdAmountOut.minus(usdAmountIn).dividedBy(usdAmountIn).multipliedBy(100)
+          }
+        }
+
+        const firstOperation = response.operations?.[0]
+        const swapOperations = firstOperation?.swap?.swapIn?.swapOperations || []
+        const swapDenoms: string[] = [fromToken.denom]
+
+        swapOperations.forEach((op) => {
+          if (op.denomOut && !swapDenoms.includes(op.denomOut)) {
+            swapDenoms.push(op.denomOut)
+          }
+        })
+
+        if (!swapDenoms.includes(toToken.denom)) {
+          swapDenoms.push(toToken.denom)
+        }
+
+        const dualityRoute = {
+          duality: {
+            from: fromToken.denom,
+            swap_denoms: swapDenoms,
+            to: toToken.denom,
+          },
+        }
+
+        return {
+          amountOut,
+          priceImpact,
+          route: dualityRoute,
+        }
+      } catch (error) {
+        console.error('Duality route fetch failed:', error)
         return null
       }
     },
-    [],
+    [getTokenDecimals],
   )
 
   const executeSwap = useCallback(
@@ -206,52 +139,72 @@ export function useSwap() {
       fromToken: SwapToken,
       toToken: SwapToken,
       amount: string,
-      slippage: number = 0.5,
+      slippage: number,
     ): Promise<boolean> => {
-      if (!address) {
+      if (!address || !getOfflineSigner) {
         setSwapError('Wallet not connected')
         return false
       }
 
-      if (isSwapInProgress) {
-        return false
-      }
+      setIsSwapInProgress(true)
+      setSwapError(null)
 
       try {
-        setIsSwapInProgress(true)
-        setSwapError(null)
-
-        const routeInfo = await fetchSwapRoute(fromToken, toToken, amount, slippage)
-
+        const routeInfo = await fetchSwapRoute(fromToken, toToken, amount)
         if (!routeInfo) {
-          setSwapError('No route available')
+          setSwapError('No Duality route available for this swap')
           return false
         }
 
-        console.log('Swap Route Info:', routeInfo)
-        console.log('Executing swap:', {
-          fromToken: fromToken.symbol,
-          toToken: toToken.symbol,
-          amount,
+        const swapAction = getSwapExactInAction(
+          {
+            denom: fromToken.denom,
+            amount: {
+              exact: new BigNumber(amount).shiftedBy(getTokenDecimals(fromToken.denom)).toString(),
+            },
+          },
+          toToken.denom,
+          routeInfo,
           slippage,
-          amountOut: routeInfo.amountOut.toString(),
-          priceImpact: routeInfo.priceImpact.toString(),
-        })
+        )
 
-        // TODO: Implement actual swap execution
-        // This would involve creating and broadcasting a transaction
-        // using the route information from Skip
+        const offlineSigner = await getOfflineSigner()
+        const client = await SigningCosmWasmClient.connectWithSigner(
+          chainConfig.endpoints.rpcUrl,
+          offlineSigner,
+        )
+
+        const creditManagerAddress = chainConfig.constracts.creditManager
+        if (!creditManagerAddress) {
+          setSwapError('Credit Manager address not configured')
+          return false
+        }
+
+        await client.execute(
+          address,
+          creditManagerAddress,
+          {
+            update_credit_account: {
+              actions: [swapAction],
+            },
+          },
+          {
+            gas: DEFAULT_GAS_LIMIT,
+            amount: [{ denom: DEFAULT_GAS_DENOM, amount: DEFAULT_GAS_AMOUNT }],
+          },
+          'Swap via Duality Router',
+        )
 
         return true
-      } catch (error: any) {
-        console.error('Swap execution failed:', error)
-        setSwapError(error.message || 'Swap execution failed')
+      } catch (error) {
+        console.error('Transaction failed:', error)
+        setSwapError(error instanceof Error ? error.message : 'Transaction failed')
         return false
       } finally {
         setIsSwapInProgress(false)
       }
     },
-    [address, isSwapInProgress, fetchSwapRoute],
+    [address, getOfflineSigner, fetchSwapRoute, getTokenDecimals],
   )
 
   return {
@@ -259,6 +212,6 @@ export function useSwap() {
     executeSwap,
     isSwapInProgress,
     swapError,
-    clearError: () => setSwapError(null),
+    clearError,
   }
 }

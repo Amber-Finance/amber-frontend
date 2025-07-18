@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
-import { SwapRouteInfo, useSwap } from '@/hooks/useSwap'
+import { SwapRouteInfo, SwapToken, useSwap } from '@/hooks/useSwap'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
@@ -24,16 +24,6 @@ import { calculateUsdValue } from '@/utils/format'
 import QuickAmountButtons from './QuickAmountButtons'
 
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
-
-interface SwapToken {
-  symbol: string
-  name: string
-  icon: string
-  balance?: string
-  price?: number
-  denom: string
-  usdValue?: string
-}
 
 export default function SwapClient() {
   useMarkets()
@@ -85,6 +75,7 @@ export default function SwapClient() {
         }
         const balance = shiftedBalance.isGreaterThan(0) ? shiftedBalance.toFixed(8) : '0.00000000'
         const usdValue = usdValueNum > 0 ? `$${usdValueNum.toFixed(2)}` : '$0.00'
+
         return {
           symbol: token.symbol,
           name: token.description,
@@ -99,45 +90,27 @@ export default function SwapClient() {
     ]
   }, [markets, walletBalances, address])
 
-  // Fetch swap route when tokens or amount changes
   useEffect(() => {
     const fetchRoute = async () => {
-      console.log('🔄 Route fetch triggered:', {
-        fromToken: fromToken?.symbol,
-        toToken: toToken?.symbol,
-        fromAmount,
-        slippage,
-        hasFromToken: !!fromToken,
-        hasToToken: !!toToken,
-        hasAmount: !!fromAmount,
-        amountValid: fromAmount ? parseFloat(fromAmount) > 0 : false,
-      })
-
       if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0) {
-        console.log('Starting route fetch...')
         setIsLoadingRoute(true)
         try {
-          console.log('📞 Calling fetchSwapRoute...')
-          const route = await fetchSwapRoute(fromToken, toToken, fromAmount, slippage)
-          console.log('Route fetch completed:', route)
+          const route = await fetchSwapRoute(fromToken, toToken, fromAmount)
           setRouteInfo(route)
           if (route) {
-            const toAmountCalculated = route.amountOut.shiftedBy(-6).toFixed(8)
-            console.log('💰 Setting to amount:', toAmountCalculated)
-            setToAmount(toAmountCalculated) // Assuming 6 decimals
+            const toAmountCalculated = route.amountOut.shiftedBy(-toTokenDecimals).toFixed(8)
+            setToAmount(toAmountCalculated)
           } else {
-            console.log('No route found, clearing to amount')
+            console.log('No route available')
             setToAmount('')
           }
         } catch (error) {
-          console.error('Failed to fetch route:', error)
+          console.error('Route fetch failed:', error)
           setToAmount('')
         } finally {
-          console.log('Route fetch finished, setting loading to false')
           setIsLoadingRoute(false)
         }
       } else {
-        console.log('Route fetch skipped - missing parameters')
         setRouteInfo(null)
         setToAmount('')
       }
@@ -181,7 +154,6 @@ export default function SwapClient() {
 
     const success = await executeSwap(fromToken, toToken, fromAmount, slippage)
     if (success) {
-      // Reset form after successful swap
       setFromAmount('')
       setToAmount('')
       setRouteInfo(null)
@@ -203,6 +175,13 @@ export default function SwapClient() {
       </div>
     )
   }
+
+  const fromTokenDecimals = fromToken
+    ? markets?.find((m) => m.asset.denom === fromToken.denom)?.asset?.decimals || 6
+    : 6
+  const toTokenDecimals = toToken
+    ? markets?.find((m) => m.asset.denom === toToken.denom)?.asset?.decimals || 6
+    : 6
 
   const fromUsdValue =
     fromToken && fromToken.price && fromAmount
@@ -431,7 +410,7 @@ export default function SwapClient() {
                       <span>
                         1 {fromToken.symbol} ≈{' '}
                         {routeInfo.amountOut
-                          .dividedBy(new BigNumber(fromAmount).shiftedBy(6))
+                          .dividedBy(new BigNumber(fromAmount).shiftedBy(fromTokenDecimals))
                           .toFixed(6)}{' '}
                         {toToken.symbol}
                       </span>
@@ -445,7 +424,7 @@ export default function SwapClient() {
                       <span>
                         {routeInfo.amountOut
                           .times(1 - slippage / 100)
-                          .shiftedBy(-6)
+                          .shiftedBy(-toTokenDecimals)
                           .toFixed(8)}{' '}
                         {toToken.symbol}
                       </span>

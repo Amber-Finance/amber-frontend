@@ -185,10 +185,13 @@ interface ChainConfig {
     paramsContract: string
     moneyMarketContract: string
     oracleContract: string
+    creditManager: string
   }
   endpoints: {
     restUrl: string
     rpcUrl: string
+    fallbackRpc?: string
+    routes?: string
   }
   queries: {
     allAssetParams: string
