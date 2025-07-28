@@ -4,6 +4,7 @@ import { useChain } from '@cosmos-kit/react'
 import { executeRoute, route } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
+import { mutate } from 'swr'
 
 import chainConfig from '@/config/chain'
 
@@ -149,6 +150,10 @@ export function useSwap() {
           isLoading: false,
           autoClose: 5000,
         })
+
+        if (address) {
+          await mutate(`${address}/balances`)
+        }
 
         return true
       } catch (error) {

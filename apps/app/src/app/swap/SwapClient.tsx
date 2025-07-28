@@ -30,10 +30,10 @@ export default function SwapClient() {
   const { markets } = useStore()
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { address } = useChain(chainConfig.name)
-  const { fetchSwapRoute, executeSwap, isSwapInProgress, swapError, clearError } = useSwap()
+  const { fetchSwapRoute, executeSwap, isSwapInProgress } = useSwap()
 
-  const [fromToken, setFromToken] = useState<SwapToken | null>(null)
-  const [toToken, setToToken] = useState<SwapToken | null>(null)
+  const [fromTokenDenom, setFromTokenDenom] = useState<string | null>(null)
+  const [toTokenDenom, setToTokenDenom] = useState<string | null>(null)
   const [fromAmount, setFromAmount] = useState('')
   const [toAmount, setToAmount] = useState('')
   const [slippage, setSlippage] = useState(0.5)
@@ -91,6 +91,12 @@ export default function SwapClient() {
     ]
   }, [markets, walletBalances, address])
 
+  // Derived tokens - always up to date with latest balances
+  const fromToken = fromTokenDenom
+    ? swapTokens.find((token) => token.denom === fromTokenDenom)
+    : null
+  const toToken = toTokenDenom ? swapTokens.find((token) => token.denom === toTokenDenom) : null
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedFromAmount(fromAmount)
@@ -132,23 +138,17 @@ export default function SwapClient() {
   }, [fromToken, toToken, debouncedFromAmount, slippage, fetchSwapRoute])
 
   useEffect(() => {
-    if (!fromToken && swapTokens.length > 0) {
-      setFromToken(swapTokens.find((token) => token.symbol === 'solvBTC') || swapTokens[0])
-    }
-  }, [swapTokens, fromToken])
-
-  useEffect(() => {
     if (!address) {
-      setFromToken(null)
-      setToToken(null)
+      setFromTokenDenom(null)
+      setToTokenDenom(null)
     }
   }, [address])
 
   const handleSwapTokens = () => {
-    const tempToken = fromToken
+    const tempDenom = fromTokenDenom
     const tempAmount = fromAmount
-    setFromToken(toToken)
-    setToToken(tempToken)
+    setFromTokenDenom(toTokenDenom)
+    setToTokenDenom(tempDenom)
     setFromAmount(toAmount)
     setToAmount(tempAmount)
   }
@@ -169,6 +169,7 @@ export default function SwapClient() {
     if (success) {
       setFromAmount('')
       setToAmount('')
+      setDebouncedFromAmount('')
       setRouteInfo(null)
     }
   }
@@ -226,7 +227,7 @@ export default function SwapClient() {
                 <PopoverTrigger asChild>
                   <div className='flex items-center'>
                     <span className='text-muted-foreground'>{slippage}% Slippage</span>
-                    <button className='hover:bg-muted/50 p-2 rounded-lg transition-colors flex items-center justify-end ml-1'>
+                    <button className='hover:bg-muted/50 px-2 rounded-lg transition-colors flex items-center justify-end ml-1'>
                       <Settings className='w-4 h-4' />
                     </button>
                   </div>
@@ -289,7 +290,8 @@ export default function SwapClient() {
                 <QuickAmountButtons
                   onSelect={(percent) => {
                     if (fromToken && fromToken.balance) {
-                      setFromAmount((parseFloat(fromToken.balance) * percent).toString())
+                      const calculatedAmount = parseFloat(fromToken.balance) * percent
+                      setFromAmount(calculatedAmount.toFixed(6))
                     }
                   }}
                   disabled={!fromToken || !fromToken.balance || parseFloat(fromToken.balance) === 0}
@@ -463,15 +465,6 @@ export default function SwapClient() {
               </div>
             )}
 
-            {swapError && (
-              <div className='mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm'>
-                {swapError}
-                <button onClick={clearError} className='ml-2 underline'>
-                  Dismiss
-                </button>
-              </div>
-            )}
-
             <Button disabled={!isSwapValid} className='w-full mt-4' onClick={handleSwap}>
               {isSwapInProgress
                 ? 'Swapping...'
@@ -515,8 +508,8 @@ export default function SwapClient() {
           tokens={swapTokens}
           selectedToken={selectingFrom ? fromToken : toToken}
           onSelect={(token) => {
-            if (selectingFrom) setFromToken(token)
-            else setToToken(token)
+            if (selectingFrom) setFromTokenDenom(token.denom)
+            else setToTokenDenom(token.denom)
           }}
           isWalletConnected={!!address}
         />
