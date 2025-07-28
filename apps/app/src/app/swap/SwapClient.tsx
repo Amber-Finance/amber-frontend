@@ -42,7 +42,7 @@ export default function SwapClient() {
   const [isTokenModalOpen, setTokenModalOpen] = useState(false)
   const [selectingFrom, setSelectingFrom] = useState(true) // true = fromToken, false = toToken
   const [routeInfo, setRouteInfo] = useState<SwapRouteInfo | null>(null)
-  const [isLoadingRoute, setIsLoadingRoute] = useState(false)
+  const [debouncedFromAmount, setDebouncedFromAmount] = useState('')
 
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
@@ -92,11 +92,24 @@ export default function SwapClient() {
   }, [markets, walletBalances, address])
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromAmount(fromAmount)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [fromAmount])
+
+  useEffect(() => {
+    if (!fromAmount) {
+      setDebouncedFromAmount('')
+    }
+  }, [fromAmount])
+
+  useEffect(() => {
     const fetchRoute = async () => {
-      if (fromToken && toToken && fromAmount && parseFloat(fromAmount) > 0) {
-        setIsLoadingRoute(true)
+      if (fromToken && toToken && debouncedFromAmount && parseFloat(debouncedFromAmount) > 0) {
         try {
-          const route = await fetchSwapRoute(fromToken, toToken, fromAmount)
+          const route = await fetchSwapRoute(fromToken, toToken, debouncedFromAmount)
           setRouteInfo(route)
           if (route) {
             const toAmountCalculated = route.amountOut.shiftedBy(-toTokenDecimals).toFixed(8)
@@ -108,8 +121,6 @@ export default function SwapClient() {
         } catch (error) {
           console.error('Route fetch failed:', error)
           setToAmount('')
-        } finally {
-          setIsLoadingRoute(false)
         }
       } else {
         setRouteInfo(null)
@@ -118,7 +129,7 @@ export default function SwapClient() {
     }
 
     fetchRoute()
-  }, [fromToken, toToken, fromAmount, slippage, fetchSwapRoute])
+  }, [fromToken, toToken, debouncedFromAmount, slippage, fetchSwapRoute])
 
   useEffect(() => {
     if (!fromToken && swapTokens.length > 0) {
@@ -148,7 +159,8 @@ export default function SwapClient() {
     fromAmount &&
     parseFloat(fromAmount) > 0 &&
     routeInfo &&
-    !isSwapInProgress
+    !isSwapInProgress &&
+    fromAmount === debouncedFromAmount
 
   const handleSwap = async () => {
     if (!fromToken || !toToken || !fromAmount || !routeInfo) return
@@ -293,6 +305,9 @@ export default function SwapClient() {
                   className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
                   style={{ minWidth: 0 }}
                 />
+                {fromAmount && fromAmount !== debouncedFromAmount && (
+                  <div className='w-2 h-2 bg-primary/60 rounded-full animate-pulse' />
+                )}
                 <button
                   onClick={() => {
                     setSelectingFrom(true)
@@ -400,11 +415,7 @@ export default function SwapClient() {
             {/* Swap Info */}
             {fromToken && toToken && fromAmount && (
               <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
-                {isLoadingRoute ? (
-                  <div className='flex justify-center py-2'>
-                    <div className='w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
-                  </div>
-                ) : routeInfo ? (
+                {routeInfo ? (
                   <>
                     <div className='flex justify-between'>
                       <span className='text-muted-foreground'>Rate</span>
@@ -429,6 +440,21 @@ export default function SwapClient() {
                           .toFixed(8)}{' '}
                         {toToken.symbol}
                       </span>
+                    </div>
+                  </>
+                ) : fromAmount ? (
+                  <>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Rate</span>
+                      <div className='h-4 w-24 bg-muted/40 rounded animate-pulse' />
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Price Impact</span>
+                      <div className='h-4 w-16 bg-muted/40 rounded animate-pulse' />
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Minimum Received</span>
+                      <div className='h-4 w-32 bg-muted/40 rounded animate-pulse' />
                     </div>
                   </>
                 ) : (

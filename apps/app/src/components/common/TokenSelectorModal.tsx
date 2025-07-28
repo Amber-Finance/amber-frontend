@@ -36,7 +36,7 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
         <div className='flex items-center justify-between px-6 py-4 border-b border-border'>
           <DialogTitle className='text-lg font-bold'>Select a token</DialogTitle>
         </div>
-        <div className='max-h-[420px] overflow-y-auto px-2 py-2'>
+        <div className='max-h-[420px] overflow-y-auto px-2 py-2 token-selector-scrollbar'>
           {yourTokens.length > 0 && (
             <div className='mb-2'>
               <div className='px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
