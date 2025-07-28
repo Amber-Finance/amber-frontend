@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
-import { SwapRouteInfo, SwapToken, useSwap } from '@/hooks/useSwap'
+import { useSwap } from '@/hooks/useSwap'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
@@ -85,6 +85,7 @@ export default function SwapClient() {
           price: market?.price?.price ? parseFloat(market.price.price) : 0,
           denom: token.denom,
           usdValue,
+          decimals,
         }
       }),
     ]

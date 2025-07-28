@@ -30,8 +30,8 @@ export default function RootLayout({
       >
         <ThemeProvider defaultTheme='dark' storageKey='btc-outpost-theme'>
           <SWRProvider>
-            <SkipProvider>
-              <CosmosKitProvider>
+            <CosmosKitProvider>
+              <SkipProvider>
                 <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
                   <Background />
                   <ThemedParticles
@@ -62,8 +62,8 @@ export default function RootLayout({
                   />
                   <Analytics />
                 </main>
-              </CosmosKitProvider>
-            </SkipProvider>
+              </SkipProvider>
+            </CosmosKitProvider>
           </SWRProvider>
         </ThemeProvider>
       </body>

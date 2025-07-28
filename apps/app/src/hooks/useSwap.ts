@@ -1,73 +1,51 @@
 import { useCallback, useState } from 'react'
 
-import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
 import { useChain } from '@cosmos-kit/react'
-import { route as skipRoute } from '@skip-go/client'
+import { executeRoute, route } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
+import { toast } from 'react-toastify'
 
 import chainConfig from '@/config/chain'
-import { useStore } from '@/store/useStore'
-import { getSwapExactInAction } from '@/utils/swap'
-
-const DEFAULT_GAS_LIMIT = '1000000'
-const DEFAULT_GAS_AMOUNT = '1500'
-const DEFAULT_GAS_DENOM = 'untrn'
-
-interface SkipRouteResponse {
-  amountOut: string
-  usdAmountIn?: string
-  usdAmountOut?: string
-  operations?: Array<{
-    swap?: {
-      swapIn?: {
-        swapOperations?: Array<{
-          denomOut?: string
-        }>
-      }
-    }
-  }>
-}
-
-export interface SwapToken {
-  symbol: string
-  name: string
-  icon: string
-  balance?: string
-  price?: number
-  denom: string
-  usdValue?: string
-}
-
-export interface SwapRouteInfo {
-  amountOut: BigNumber
-  priceImpact: BigNumber
-  route: {
-    duality: {
-      from: string
-      swap_denoms: string[]
-      to: string
-    }
-  }
-}
 
 export function useSwap() {
-  const { address, getOfflineSigner } = useChain(chainConfig.name)
-  const { markets } = useStore()
   const [isSwapInProgress, setIsSwapInProgress] = useState(false)
   const [swapError, setSwapError] = useState<string | null>(null)
-
-  const getTokenDecimals = useCallback(
-    (denom: string): number => {
-      if (!markets) return 6 // fallback
-      const market = markets.find((m) => m.asset.denom === denom)
-      return market?.asset?.decimals || 6
-    },
-    [markets],
-  )
+  const { address, getSigningCosmWasmClient } = useChain(chainConfig.name)
 
   const clearError = useCallback(() => {
     setSwapError(null)
   }, [])
+
+  const getCosmosSigner = useCallback(
+    async (chainId: string) => {
+      if (chainId !== chainConfig.id) {
+        throw new Error(`Unsupported chain: ${chainId}`)
+      }
+
+      const client = await getSigningCosmWasmClient()
+      if (!client) {
+        throw new Error('Failed to get signing client')
+      }
+
+      const signer = (client as any).signer || client
+      return signer
+    },
+    [getSigningCosmWasmClient],
+  )
+
+  const getUserAddresses = useCallback(
+    async (requiredChainAddresses: string[]) => {
+      if (!address) {
+        throw new Error('Wallet not connected')
+      }
+
+      return requiredChainAddresses.map((chainId) => ({
+        chainId,
+        address,
+      }))
+    },
+    [address],
+  )
 
   const fetchSwapRoute = useCallback(
     async (
@@ -76,62 +54,49 @@ export function useSwap() {
       amount: string,
     ): Promise<SwapRouteInfo | null> => {
       try {
-        const response = (await skipRoute({
+        const amountInSmallestUnit = new BigNumber(amount).shiftedBy(fromToken.decimals).toString()
+
+        const routeResponse = await route({
+          amountIn: amountInSmallestUnit,
           sourceAssetDenom: fromToken.denom,
           sourceAssetChainId: chainConfig.id,
           destAssetDenom: toToken.denom,
           destAssetChainId: chainConfig.id,
-          amountIn: new BigNumber(amount).shiftedBy(getTokenDecimals(fromToken.denom)).toString(),
-          allowUnsafe: true,
-          swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
-        })) as SkipRouteResponse
-
-        if (!response) return null
-
-        const amountOut = new BigNumber(response.amountOut)
-
-        let priceImpact = new BigNumber(0)
-        if (response.usdAmountIn && response.usdAmountOut) {
-          const usdAmountIn = new BigNumber(response.usdAmountIn)
-          const usdAmountOut = new BigNumber(response.usdAmountOut)
-          if (usdAmountIn.gt(0)) {
-            priceImpact = usdAmountOut.minus(usdAmountIn).dividedBy(usdAmountIn).multipliedBy(100)
-          }
-        }
-
-        const firstOperation = response.operations?.[0]
-        const swapOperations = firstOperation?.swap?.swapIn?.swapOperations || []
-        const swapDenoms: string[] = [fromToken.denom]
-
-        swapOperations.forEach((op) => {
-          if (op.denomOut && !swapDenoms.includes(op.denomOut)) {
-            swapDenoms.push(op.denomOut)
-          }
+          cumulativeAffiliateFeeBps: '0',
+          goFast: true,
         })
 
-        if (!swapDenoms.includes(toToken.denom)) {
-          swapDenoms.push(toToken.denom)
+        if (!routeResponse) {
+          setSwapError('No route available')
+          return null
         }
 
-        const dualityRoute = {
-          duality: {
-            from: fromToken.denom,
-            swap_denoms: swapDenoms,
-            to: toToken.denom,
-          },
+        const amountOut = new BigNumber(routeResponse.estimatedAmountOut)
+        let priceImpact = 0
+        if (routeResponse.usdAmountIn && routeResponse.usdAmountOut) {
+          const usdAmountIn = new BigNumber(routeResponse.usdAmountIn)
+          const usdAmountOut = new BigNumber(routeResponse.usdAmountOut)
+          if (usdAmountIn.gt(0)) {
+            priceImpact = usdAmountOut
+              .minus(usdAmountIn)
+              .dividedBy(usdAmountIn)
+              .multipliedBy(100)
+              .toNumber()
+          }
         }
 
         return {
           amountOut,
           priceImpact,
-          route: dualityRoute,
+          route: routeResponse,
         }
       } catch (error) {
-        console.error('Duality route fetch failed:', error)
+        console.error('Route fetch failed:', error)
+        setSwapError('Failed to fetch route')
         return null
       }
     },
-    [getTokenDecimals],
+    [],
   )
 
   const executeSwap = useCallback(
@@ -141,7 +106,7 @@ export function useSwap() {
       amount: string,
       slippage: number,
     ): Promise<boolean> => {
-      if (!address || !getOfflineSigner) {
+      if (!address) {
         setSwapError('Wallet not connected')
         return false
       }
@@ -149,62 +114,60 @@ export function useSwap() {
       setIsSwapInProgress(true)
       setSwapError(null)
 
+      const pendingToastId = toast.loading(
+        `Swapping ${amount} ${fromToken.symbol} for ${toToken.symbol}...`,
+        {
+          autoClose: false,
+        },
+      )
+
       try {
         const routeInfo = await fetchSwapRoute(fromToken, toToken, amount)
         if (!routeInfo) {
-          setSwapError('No Duality route available for this swap')
+          toast.update(pendingToastId, {
+            render: 'Failed to find swap route',
+            type: 'error',
+            isLoading: false,
+            autoClose: 5000,
+          })
           return false
         }
 
-        const swapAction = getSwapExactInAction(
-          {
-            denom: fromToken.denom,
-            amount: {
-              exact: new BigNumber(amount).shiftedBy(getTokenDecimals(fromToken.denom)).toString(),
-            },
-          },
-          toToken.denom,
-          routeInfo,
-          slippage,
-        )
+        const userAddresses = await getUserAddresses(routeInfo.route.requiredChainAddresses)
 
-        const offlineSigner = await getOfflineSigner()
-        const client = await SigningCosmWasmClient.connectWithSigner(
-          chainConfig.endpoints.rpcUrl,
-          offlineSigner,
-        )
+        await executeRoute({
+          route: routeInfo.route,
+          userAddresses,
+          getCosmosSigner,
+          slippageTolerancePercent: slippage.toString(),
+        })
 
-        const creditManagerAddress = chainConfig.contracts.creditManager
-        if (!creditManagerAddress) {
-          setSwapError('Credit Manager address not configured')
-          return false
-        }
-
-        await client.execute(
-          address,
-          creditManagerAddress,
-          {
-            update_credit_account: {
-              actions: [swapAction],
-            },
-          },
-          {
-            gas: DEFAULT_GAS_LIMIT,
-            amount: [{ denom: DEFAULT_GAS_DENOM, amount: DEFAULT_GAS_AMOUNT }],
-          },
-          'Swap via Duality Router',
-        )
+        // If we reach here without error, the swap was successful
+        toast.update(pendingToastId, {
+          render: `Swap successful! ${amount} ${fromToken.symbol} → ${toToken.symbol}`,
+          type: 'success',
+          isLoading: false,
+          autoClose: 5000,
+        })
 
         return true
       } catch (error) {
-        console.error('Transaction failed:', error)
-        setSwapError(error instanceof Error ? error.message : 'Transaction failed')
+        console.error('Swap execution failed:', error)
+        setSwapError('Swap execution failed')
+
+        toast.update(pendingToastId, {
+          render: `Swap failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'error',
+          isLoading: false,
+          autoClose: 5000,
+        })
+
         return false
       } finally {
         setIsSwapInProgress(false)
       }
     },
-    [address, getOfflineSigner, fetchSwapRoute, getTokenDecimals],
+    [address, fetchSwapRoute, getUserAddresses, getCosmosSigner],
   )
 
   return {

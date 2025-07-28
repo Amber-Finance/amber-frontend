@@ -5,17 +5,6 @@ import Image from 'next/image'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 
-interface SwapToken {
-  symbol: string
-  name: string
-  icon: string
-  balance?: string
-  rawBalance?: number
-  price?: number
-  denom: string
-  usdValue?: string
-}
-
 interface TokenSelectorModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -35,10 +24,10 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
 }) => {
   // Group tokens based on actual rawBalance values, but only if wallet is connected
   const yourTokens = isWalletConnected
-    ? tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) > 0)
+    ? tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance)) > 0)
     : []
   const allTokens = isWalletConnected
-    ? tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance || '0')) === 0)
+    ? tokens.filter((t) => (t.rawBalance ?? parseFloat(t.balance)) === 0)
     : tokens
 
   return (
@@ -80,7 +69,7 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                     <div className='ml-auto flex flex-col items-end min-w-0'>
                       <div className='font-semibold text-base'>{token.usdValue}</div>
                       <div className='text-xs text-muted-foreground truncate'>
-                        {token.balance || '0.00'} {token.symbol}
+                        {token.balance} {token.symbol}
                       </div>
                     </div>
                   </button>
@@ -115,7 +104,7 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                 <div className='ml-auto flex flex-col items-end min-w-0'>
                   <div className='font-semibold text-base'>{token.usdValue}</div>
                   <div className='text-xs text-muted-foreground truncate'>
-                    {token.balance || '0.00'} {token.symbol}
+                    {token.balance} {token.symbol}
                   </div>
                 </div>
               </button>
