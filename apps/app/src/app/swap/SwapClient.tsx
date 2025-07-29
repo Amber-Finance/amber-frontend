@@ -8,6 +8,7 @@ import { useChain } from '@cosmos-kit/react'
 import BigNumber from 'bignumber.js'
 import { ArrowUpDown, Settings } from 'lucide-react'
 
+import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
@@ -19,16 +20,14 @@ import { useMarkets } from '@/hooks/useMarkets'
 import { useSwap } from '@/hooks/useSwap'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValue } from '@/utils/format'
-
-import QuickAmountButtons from './QuickAmountButtons'
+import { calculateUsdValue, formatCurrency } from '@/utils/format'
 
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
 
 export default function SwapClient() {
   useMarkets()
   const { markets } = useStore()
-  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
+  const { data: walletBalances } = useWalletBalances()
   const { address } = useChain(chainConfig.name)
   const { fetchSwapRoute, executeSwap, isSwapInProgress } = useSwap()
 
@@ -47,48 +46,34 @@ export default function SwapClient() {
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
     const isConnected = !!address
-    return [
-      // Temporarily removing maxBTC to test route loading
-      // {
-      //   symbol: 'maxBTC',
-      //   name: 'MaxBTC Protocol Token',
-      //   icon: '/btcGolden.png',
-      //   balance: '0.00000000',
-      //   rawBalance: 0,
-      //   price: 0,
-      //   denom: 'maxbtc',
-      //   usdValue: '$0.00',
-      // },
-      ...tokens.map((token) => {
-        const market = markets.find((m) => m.asset.denom === token.denom)
-        const walletBalance = walletBalances.find((b) => b.denom === token.denom)
-        const decimals = market?.asset?.decimals || 6
-        let rawBalance = 0
-        let shiftedBalance = new BigNumber(0)
-        let usdValueNum = 0
-        if (isConnected && walletBalance?.amount) {
-          rawBalance = Number(walletBalance.amount)
-          shiftedBalance = new BigNumber(rawBalance).shiftedBy(-decimals)
-          if (market?.price?.price && rawBalance > 0) {
-            usdValueNum = calculateUsdValue(walletBalance.amount, market.price.price, decimals)
-          }
-        }
-        const balance = shiftedBalance.isGreaterThan(0) ? shiftedBalance.toFixed(8) : '0.00000000'
-        const usdValue = usdValueNum > 0 ? `$${usdValueNum.toFixed(2)}` : '$0.00'
 
-        return {
-          symbol: token.symbol,
-          name: token.description,
-          icon: token.icon,
-          balance,
-          rawBalance,
-          price: market?.price?.price ? parseFloat(market.price.price) : 0,
-          denom: token.denom,
-          usdValue,
-          decimals,
-        }
-      }),
-    ]
+    return tokens.map((token) => {
+      const market = markets.find((m) => m.asset.denom === token.denom)
+      const walletBalance = walletBalances.find((b) => b.denom === token.denom)
+      const decimals = market?.asset?.decimals || 6
+
+      const rawBalance = isConnected && walletBalance?.amount ? Number(walletBalance.amount) : 0
+      const shiftedBalance = new BigNumber(rawBalance).shiftedBy(-decimals)
+      const balance = shiftedBalance.isGreaterThan(0) ? shiftedBalance.toFixed(8) : '0.00000000'
+
+      let usdValue = '$0.00'
+      if (isConnected && walletBalance?.amount && market?.price?.price && rawBalance > 0) {
+        const usdValueNum = calculateUsdValue(walletBalance.amount, market.price.price, decimals)
+        usdValue = `$${usdValueNum.toFixed(2)}`
+      }
+
+      return {
+        symbol: token.symbol,
+        name: token.description,
+        icon: token.icon,
+        balance,
+        rawBalance,
+        price: market?.price?.price ? parseFloat(market.price.price) : 0,
+        denom: token.denom,
+        usdValue,
+        decimals,
+      }
+    })
   }, [markets, walletBalances, address])
 
   // Derived tokens - always up to date with latest balances
@@ -106,29 +91,25 @@ export default function SwapClient() {
   }, [fromAmount])
 
   useEffect(() => {
-    if (!fromAmount) {
-      setDebouncedFromAmount('')
-    }
-  }, [fromAmount])
-
-  useEffect(() => {
     const fetchRoute = async () => {
-      if (fromToken && toToken && debouncedFromAmount && parseFloat(debouncedFromAmount) > 0) {
-        try {
-          const route = await fetchSwapRoute(fromToken, toToken, debouncedFromAmount)
-          setRouteInfo(route)
-          if (route) {
-            const toAmountCalculated = route.amountOut.shiftedBy(-toTokenDecimals).toFixed(8)
-            setToAmount(toAmountCalculated)
-          } else {
-            console.log('No route available')
-            setToAmount('')
-          }
-        } catch (error) {
-          console.error('Route fetch failed:', error)
+      if (!fromToken || !toToken || !debouncedFromAmount || parseFloat(debouncedFromAmount) <= 0) {
+        setRouteInfo(null)
+        setToAmount('')
+        return
+      }
+
+      try {
+        const route = await fetchSwapRoute(fromToken, toToken, debouncedFromAmount)
+        setRouteInfo(route)
+
+        if (route) {
+          const toAmountCalculated = route.amountOut.shiftedBy(-toTokenDecimals).toFixed(8)
+          setToAmount(toAmountCalculated)
+        } else {
           setToAmount('')
         }
-      } else {
+      } catch (error) {
+        console.error('Route fetch failed:', error)
         setRouteInfo(null)
         setToAmount('')
       }
@@ -163,48 +144,27 @@ export default function SwapClient() {
     fromAmount === debouncedFromAmount
 
   const handleSwap = async () => {
-    if (!fromToken || !toToken || !fromAmount || !routeInfo) return
-
-    const success = await executeSwap(fromToken, toToken, fromAmount, slippage)
-    if (success) {
-      setFromAmount('')
-      setToAmount('')
-      setDebouncedFromAmount('')
-      setRouteInfo(null)
+    try {
+      const success = await executeSwap(fromToken!, toToken!, fromAmount, slippage)
+      if (success) {
+        setFromAmount('')
+        setToAmount('')
+        setDebouncedFromAmount('')
+        setRouteInfo(null)
+      }
+    } catch (error) {
+      console.error('Swap failed:', error)
     }
   }
 
-  if (walletBalancesLoading) {
-    return (
-      <div className='w-full py-8 sm:py-12 overflow-hidden px-4 sm:px-8 max-w-6xl mx-auto'>
-        <div className='text-center py-16'>
-          <div className='max-w-md mx-auto space-y-4'>
-            <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
-              <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
-            </div>
-            <h3 className='text-lg font-bold text-foreground'>Loading Wallet Balances</h3>
-            <p className='text-muted-foreground'>Fetching your token balances...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const fromTokenDecimals = fromToken?.decimals || 6
+  const toTokenDecimals = toToken?.decimals || 6
 
-  const fromTokenDecimals = fromToken
-    ? markets?.find((m) => m.asset.denom === fromToken.denom)?.asset?.decimals || 6
-    : 6
-  const toTokenDecimals = toToken
-    ? markets?.find((m) => m.asset.denom === toToken.denom)?.asset?.decimals || 6
-    : 6
+  const getUsdValue = (token: any, amount: string) =>
+    token?.price && amount ? formatCurrency(parseFloat(amount) * token.price) : '$0.00'
 
-  const fromUsdValue =
-    fromToken && fromToken.price && fromAmount
-      ? (parseFloat(fromAmount) * fromToken.price).toFixed(2)
-      : '0.00'
-  const toUsdValue =
-    toToken && toToken.price && toAmount
-      ? (parseFloat(toAmount) * toToken.price).toFixed(2)
-      : '0.00'
+  const fromUsdValue = getUsdValue(fromToken, fromAmount)
+  const toUsdValue = getUsdValue(toToken, toAmount)
 
   return (
     <>
@@ -343,7 +303,7 @@ export default function SwapClient() {
                 </button>
               </div>
               <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
-                <span>${fromUsdValue}</span>
+                <span>{fromUsdValue}</span>
                 <span>
                   {fromToken?.balance || '0.00'} {fromToken?.symbol}
                 </span>
@@ -407,7 +367,7 @@ export default function SwapClient() {
                 </button>
               </div>
               <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
-                <span>${toUsdValue}</span>
+                <span>{toUsdValue}</span>
                 <span>
                   {toToken?.balance || '0.00'} {toToken?.symbol}
                 </span>
