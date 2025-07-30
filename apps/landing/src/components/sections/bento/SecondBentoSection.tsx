@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import { OrbitingCircles } from '@/components/ui/OrbitingCircle'
+import { OrbitingCircles } from '@/components/ui/orbiting-circles'
 
 export function SecondBentoAnimation() {
   return (
@@ -13,19 +13,19 @@ export function SecondBentoAnimation() {
       </div>
       <div className='relative flex h-full w-full items-center justify-center overflow-hidden'>
         <div className='relative flex h-full w-full items-center justify-center translate-y-0 md:translate-y-32'>
-          <OrbitingCircles index={0} iconSize={60} radius={100} reverse speed={1}>
+          <OrbitingCircles iconSize={60} radius={100} reverse speed={1}>
             <Image src='/images/WBTC.svg' alt='WBTC' width={32} height={32} />
             <Image src='/images/uniBTC.svg' alt='uniBTC' width={32} height={32} />
             <Image src='/images/solvBTC.svg' alt='solvBTC' width={32} height={32} />
           </OrbitingCircles>
 
-          <OrbitingCircles index={1} iconSize={60} speed={0.5}>
+          <OrbitingCircles iconSize={60} speed={0.5}>
             <Image src='/images/pumpBTC.svg' alt='pumpBTC' width={32} height={32} />
             <Image src='/images/LBTC.svg' alt='LBTC' width={32} height={32} />
             <Image src='/images/BTC.svg' alt='BTC' width={32} height={32} />
           </OrbitingCircles>
 
-          <OrbitingCircles index={2} iconSize={60} radius={230} reverse speed={0.5}>
+          <OrbitingCircles iconSize={60} radius={230} reverse speed={0.5}>
             <Image src='/images/eBTC.png' alt='eBTC' width={32} height={32} />
             <Image src='/images/WBTC.axl.svg' alt='WBTC.axl' width={32} height={32} />
             <Image src='/images/bedrock.svg' alt='Bedrock' width={32} height={32} />
