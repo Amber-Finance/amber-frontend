@@ -19,6 +19,7 @@ import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useSwap } from '@/hooks/useSwap'
 import useWalletBalances from '@/hooks/useWalletBalances'
+import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue, formatCurrency } from '@/utils/format'
 
@@ -168,40 +169,40 @@ export default function SwapClient() {
 
   return (
     <>
-      <div className='relative w-full py-8 sm:py-12 overflow-hidden px-4 max-w-6xl mx-auto'>
-        <div className='flex flex-col justify-center items-center gap-4 min-w-0'>
-          <h2 className='text-xl sm:text-4xl font-bold text-foreground mb-0'>
-            Swap Bitcoin Assets
-          </h2>
+      <div className='relative w-full py-8 sm:py-12 px-4 max-w-6xl mx-auto'>
+        <div className='flex flex-col items-center gap-4'>
+          <h2 className='text-xl sm:text-4xl font-bold text-foreground'>Swap Bitcoin Assets</h2>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
             Trade between Bitcoin LSTs, wBTC, and maxBTC with minimal slippage and competitive rates
           </p>
         </div>
       </div>
-      <div className='w-full max-w-lg mx-auto pt-0 pb-16'>
-        <Card className='bg-card/90 rounded-2xl shadow-xl p-0 border-0 gap-0 py-6'>
+      <div className='w-full max-w-lg mx-auto pb-16'>
+        <Card className='bg-card/90 rounded-2xl shadow-xl border-0 py-6'>
           <CardContent className='sm:py-2 px-2 sm:px-4'>
-            <div className='flex items-center justify-end pb-2 gap-1 text-xs text-muted-foreground relative'>
+            <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
               {/* Settings Button and Popover */}
               <Popover open={showSlippagePopover} onOpenChange={setShowSlippagePopover}>
                 <PopoverTrigger asChild>
-                  <div className='flex items-center'>
+                  <div className='flex items-center gap-1'>
                     <span className='text-muted-foreground'>{slippage}% Slippage</span>
-                    <button className='hover:bg-muted/50 px-2 rounded-lg transition-colors flex items-center justify-end ml-1'>
+                    <button className='hover:bg-muted/50 p-2 rounded-lg transition-colors flex items-center'>
                       <Settings className='w-4 h-4' />
                     </button>
                   </div>
                 </PopoverTrigger>
-                <PopoverContent
-                  align='center'
-                  className='min-w-[180px] p-4 flex flex-col items-start gap-2 bg-card rounded-2xl'
-                >
+                <PopoverContent align='center' className='min-w-[180px] p-4 bg-card rounded-2xl'>
                   <div className='font-semibold text-sm mb-1'>Slippage</div>
                   <div className='flex gap-2 mb-2'>
                     {SLIPPAGE_OPTIONS.map((val) => (
                       <button
                         key={val}
-                        className={`px-3 py-1 rounded-lg border text-sm font-medium transition-colors ${slippage === val ? 'bg-primary text-background border-primary' : 'bg-muted/30 border-border hover:bg-muted/50'}`}
+                        className={cn(
+                          'px-3 py-1 rounded-lg border text-sm font-medium transition-colors',
+                          slippage === val
+                            ? 'bg-primary text-background border-primary'
+                            : 'bg-muted/30 border-border hover:bg-muted/50',
+                        )}
                         onClick={() => {
                           setSlippage(val)
                           setCustomSlippage('')
@@ -214,7 +215,6 @@ export default function SwapClient() {
                     <input
                       type='number'
                       min='0'
-                      step='0.01'
                       placeholder='Custom'
                       value={customSlippage}
                       onChange={(e) => setCustomSlippage(e.target.value)}
@@ -258,14 +258,13 @@ export default function SwapClient() {
                   className='hidden group-hover:flex group-focus-within:flex'
                 />
               </div>
-              <div className='flex items-center gap-2 relative'>
+              <div className='flex items-center gap-2'>
                 <input
                   type='number'
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder='0.00'
                   className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
-                  style={{ minWidth: 0 }}
                 />
                 {fromAmount && fromAmount !== debouncedFromAmount && (
                   <div className='w-2 h-2 bg-primary/60 rounded-full animate-pulse' />
@@ -292,7 +291,7 @@ export default function SwapClient() {
                     <span>Select token</span>
                   )}
                   <svg
-                    className='w-4 h-4 ml-1'
+                    className='w-4 h-4'
                     fill='none'
                     stroke='currentColor'
                     strokeWidth={2}
@@ -332,7 +331,6 @@ export default function SwapClient() {
                   onChange={(e) => setToAmount(e.target.value)}
                   placeholder='0.00'
                   className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
-                  style={{ minWidth: 0 }}
                 />
                 <button
                   onClick={() => {
@@ -356,7 +354,7 @@ export default function SwapClient() {
                     <span>Select token</span>
                   )}
                   <svg
-                    className='w-4 h-4 ml-1'
+                    className='w-4 h-4'
                     fill='none'
                     stroke='currentColor'
                     strokeWidth={2}
@@ -420,7 +418,7 @@ export default function SwapClient() {
                     </div>
                   </>
                 ) : (
-                  <div className='text-center text-muted-foreground py-2'>No route available</div>
+                  <p className='text-center text-muted-foreground py-2'>No route available</p>
                 )}
               </div>
             )}
@@ -439,27 +437,26 @@ export default function SwapClient() {
           </CardContent>
         </Card>
 
-        <div className='max-w-lg w-full mt-4'>
-          <div className='flex flex-row gap-1 sm:gap-2'>
-            <StatCard
-              value={127}
-              label={<span className='text-xs'>Total Liquidity</span>}
-              isCurrency={true}
-              prefix='$'
-            />
-            <StatCard
-              value={975}
-              label={<span className='text-xs'>24h Volume</span>}
-              isCurrency={true}
-              prefix='$'
-            />
-            <StatCard
-              value={0.02}
-              label={<span className='text-xs'>Avg Slippage</span>}
-              decimalPlaces={2}
-              suffix='%'
-            />
-          </div>
+        {/* Stats */}
+        <div className='flex gap-1 sm:gap-2 mt-4'>
+          <StatCard
+            value={127}
+            label={<span className='text-xs'>Total Liquidity</span>}
+            isCurrency={true}
+            prefix='$'
+          />
+          <StatCard
+            value={975}
+            label={<span className='text-xs'>24h Volume</span>}
+            isCurrency={true}
+            prefix='$'
+          />
+          <StatCard
+            value={0.02}
+            label={<span className='text-xs'>Avg Slippage</span>}
+            decimalPlaces={2}
+            suffix='%'
+          />
         </div>
 
         <TokenSelectorModal
