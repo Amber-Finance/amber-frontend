@@ -9,11 +9,25 @@ import { cn } from '@/lib/utils'
 import SplineBgObject from './SplineBgObject'
 import { AnimatedGradientText } from './ui/animated-gradient-text'
 
+const XIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      role='img'
+      fill='white'
+      viewBox='0 0 24 24'
+      xmlns='http://www.w3.org/2000/svg'
+      className={className}
+    >
+      <title>X</title>
+      <path d='M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z' />
+    </svg>
+  )
+}
 export const HeroContent = () => {
   return (
     <div className='flex flex-col items-center gap-6 pb-8 text-center w-full justify-between'>
       <div className='flex flex-col items-center gap-8 pt-20 lg:gap-10 text-center lg:text-left flex-1 z-30 max-w-2xl lg:max-w-none'>
-        <div className='group relative mx-auto flex items-center justify-center rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] cursor-pointer'>
+        <div className='group relative mx-auto flex items-center justify-center bg-black/20 rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] cursor-pointer'>
           <span
             className={cn(
               'absolute inset-0 block w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px] cursor-pointer',
@@ -26,7 +40,8 @@ export const HeroContent = () => {
               WebkitClipPath: 'padding-box',
             }}
           />
-          🎉 <hr className='mx-2 h-4 w-px shrink-0 bg-neutral-500' />
+          <XIcon className='h-4 w-4' />
+          <hr className='mx-2 h-4 w-px shrink-0 bg-neutral-500' />
           <AnimatedGradientText className='text-sm font-medium'>
             Follow us on X
           </AnimatedGradientText>
@@ -89,9 +104,11 @@ export function Hero() {
       <div className='absolute inset-0 w-full h-full z-0'>
         <SplineBgObject />
       </div>
-      <div className='relative h-screen w-full overflow-hidden z-10 flex flex-col items-center justify-between pt-20'>
+      <div className='relative h-screen w-full overflow-hidden z-10 flex flex-col items-center justify-center'>
         <HeroContent />
-        <h3 className='pb-10 text-center text-sm font-semibold text-gray-500'>Our Partners</h3>
+        <h3 className='pb-10 bottom-0 absolute text-center text-sm font-semibold text-gray-500 bg-gradient-to-r from-background to-transparent'>
+          Our Partners
+        </h3>
       </div>
     </section>
   )

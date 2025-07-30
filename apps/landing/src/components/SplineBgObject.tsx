@@ -28,7 +28,7 @@ export default function SplineBgObject() {
           top: 0,
           position: 'absolute',
           width: '100%',
-          height: '120%',
+          height: '150%',
         }}
       />
     </div>

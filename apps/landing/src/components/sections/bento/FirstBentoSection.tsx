@@ -13,7 +13,7 @@ const Circle = forwardRef<HTMLDivElement, { className?: string; children?: React
       <div
         ref={ref}
         className={cn(
-          'z-10 flex size-12 items-center justify-center rounded-full border-2 bg-white p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
+          'z-10 flex size-12 items-center justify-center rounded-full border-2 bg-background p-3 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)]',
           className,
         )}
       >
@@ -38,7 +38,7 @@ export function FirstBentoSection({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'relative flex h-[500px] w-full items-center justify-center overflow-hidden p-10',
+        'absolute opacity-60 flex h-full w-full items-center justify-center overflow-hidden p-10 hover:opacity-100 transition-all duration-300',
         className,
       )}
       ref={containerRef}
@@ -109,7 +109,7 @@ const Icons = {
       height='24'
       viewBox='0 0 24 24'
       fill='none'
-      stroke='#000000'
+      stroke='currentColor'
       strokeWidth='2'
       xmlns='http://www.w3.org/2000/svg'
     >

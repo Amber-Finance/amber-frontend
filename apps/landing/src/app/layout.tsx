@@ -4,6 +4,8 @@ import type { Metadata } from 'next'
 
 import '@/app/globals.css'
 
+import { Background } from '../components/Background'
+
 export const metadata: Metadata = {
   title: 'Amber Finance',
   metadataBase: new URL('https:/amberfi.io'),
@@ -45,8 +47,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang='en'>
-      <body className='font-sans'>{children}</body>
+    <html lang='en' className='dark'>
+      <body className='font-sans'>
+        <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
+          <Background />
+          {children}
+        </main>
+      </body>
     </html>
   )
 }
