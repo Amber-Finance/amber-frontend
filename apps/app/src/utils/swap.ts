@@ -1,7 +1,5 @@
 import BigNumber from 'bignumber.js'
 
-import { SwapRouteInfo } from '@/hooks/useSwap'
-
 interface ActionCoin {
   denom: string
   amount: {

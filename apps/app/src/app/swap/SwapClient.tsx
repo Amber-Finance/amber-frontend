@@ -383,25 +383,39 @@ export default function SwapClient() {
                       <span className='text-muted-foreground'>Rate</span>
                       <span>
                         1 {fromToken.symbol} ≈{' '}
-                        {routeInfo.amountOut
-                          .dividedBy(new BigNumber(fromAmount).shiftedBy(fromTokenDecimals))
-                          .toFixed(6)}{' '}
-                        {toToken.symbol}
+                        <FormattedValue
+                          value={routeInfo.amountOut
+                            .dividedBy(new BigNumber(fromAmount).shiftedBy(fromTokenDecimals))
+                            .toNumber()}
+                          maxDecimals={6}
+                          useCompactNotation={false}
+                          suffix={` ${toToken.symbol}`}
+                        />
                       </span>
                     </div>
                     <div className='flex justify-between'>
                       <span className='text-muted-foreground'>Price Impact</span>
-                      <span className='text-orange-500'>~{routeInfo.priceImpact.toFixed(2)}%</span>
+                      <span className='text-orange-500'>
+                        ~
+                        <FormattedValue
+                          value={routeInfo.priceImpact}
+                          maxDecimals={2}
+                          suffix='%'
+                          useCompactNotation={false}
+                        />
+                      </span>
                     </div>
                     <div className='flex justify-between'>
                       <span className='text-muted-foreground'>Minimum Received</span>
-                      <span>
-                        {routeInfo.amountOut
+                      <FormattedValue
+                        value={routeInfo.amountOut
                           .times(1 - slippage / 100)
                           .shiftedBy(-toTokenDecimals)
-                          .toFixed(8)}{' '}
-                        {toToken.symbol}
-                      </span>
+                          .toNumber()}
+                        maxDecimals={8}
+                        useCompactNotation={false}
+                        suffix={` ${toToken.symbol}`}
+                      />
                     </div>
                   </>
                 ) : fromAmount ? (
