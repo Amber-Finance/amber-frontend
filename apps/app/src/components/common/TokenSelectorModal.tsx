@@ -2,6 +2,7 @@ import React from 'react'
 
 import Image from 'next/image'
 
+import FormattedValue from '@/components/common/FormattedValue'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 
@@ -67,7 +68,13 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                       <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                     </div>
                     <div className='ml-auto flex flex-col items-end min-w-0'>
-                      <div className='font-semibold text-base'>{token.usdValue}</div>
+                      <div className='font-semibold text-base'>
+                        <FormattedValue
+                          value={parseFloat(token.usdValue)}
+                          isCurrency={true}
+                          maxDecimals={2}
+                        />
+                      </div>
                       <div className='text-xs text-muted-foreground truncate'>
                         {token.balance} {token.symbol}
                       </div>
@@ -102,7 +109,13 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                   <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                 </div>
                 <div className='ml-auto flex flex-col items-end min-w-0'>
-                  <div className='font-semibold text-base'>{token.usdValue}</div>
+                  <div className='font-semibold text-base'>
+                    <FormattedValue
+                      value={parseFloat(token.usdValue)}
+                      isCurrency={true}
+                      maxDecimals={2}
+                    />
+                  </div>
                   <div className='text-xs text-muted-foreground truncate'>
                     {token.balance} {token.symbol}
                   </div>

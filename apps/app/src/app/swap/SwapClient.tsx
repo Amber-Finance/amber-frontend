@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js'
 import { ArrowUpDown, Settings } from 'lucide-react'
 
 import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
+import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
@@ -21,7 +22,7 @@ import { useSwap } from '@/hooks/useSwap'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValue, formatCurrency } from '@/utils/format'
+import { calculateUsdValue } from '@/utils/format'
 
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
 
@@ -40,7 +41,7 @@ export default function SwapClient() {
   const [customSlippage, setCustomSlippage] = useState('')
   const [showSlippagePopover, setShowSlippagePopover] = useState(false)
   const [isTokenModalOpen, setTokenModalOpen] = useState(false)
-  const [selectingFrom, setSelectingFrom] = useState(true) // true = fromToken, false = toToken
+  const [selectingFrom, setSelectingFrom] = useState(true)
   const [routeInfo, setRouteInfo] = useState<SwapRouteInfo | null>(null)
   const [debouncedFromAmount, setDebouncedFromAmount] = useState('')
 
@@ -52,22 +53,20 @@ export default function SwapClient() {
       const market = markets.find((m) => m.asset.denom === token.denom)
       const walletBalance = walletBalances.find((b) => b.denom === token.denom)
       const decimals = market?.asset?.decimals || 6
-
       const rawBalance = isConnected && walletBalance?.amount ? Number(walletBalance.amount) : 0
-      const shiftedBalance = new BigNumber(rawBalance).shiftedBy(-decimals)
-      const balance = shiftedBalance.isGreaterThan(0) ? shiftedBalance.toFixed(8) : '0.00000000'
 
-      let usdValue = '$0.00'
-      if (isConnected && walletBalance?.amount && market?.price?.price && rawBalance > 0) {
-        const usdValueNum = calculateUsdValue(walletBalance.amount, market.price.price, decimals)
-        usdValue = `$${usdValueNum.toFixed(2)}`
-      }
+      const adjustedBalance =
+        rawBalance > 0 ? new BigNumber(walletBalance!.amount).shiftedBy(-decimals).toNumber() : 0
+      const usdValue =
+        isConnected && walletBalance?.amount && market?.price?.price && rawBalance > 0
+          ? calculateUsdValue(walletBalance.amount, market.price.price, decimals).toString()
+          : '0'
 
       return {
         symbol: token.symbol,
         name: token.description,
         icon: token.icon,
-        balance,
+        balance: adjustedBalance.toString(),
         rawBalance,
         price: market?.price?.price ? parseFloat(market.price.price) : 0,
         denom: token.denom,
@@ -77,7 +76,7 @@ export default function SwapClient() {
     })
   }, [markets, walletBalances, address])
 
-  // Derived tokens - always up to date with latest balances
+  // Derived tokens
   const fromToken = fromTokenDenom
     ? swapTokens.find((token) => token.denom === fromTokenDenom)
     : null
@@ -87,7 +86,6 @@ export default function SwapClient() {
     const timer = setTimeout(() => {
       setDebouncedFromAmount(fromAmount)
     }, 300)
-
     return () => clearTimeout(timer)
   }, [fromAmount])
 
@@ -104,7 +102,7 @@ export default function SwapClient() {
         setRouteInfo(route)
 
         if (route) {
-          const toAmountCalculated = route.amountOut.shiftedBy(-toTokenDecimals).toFixed(8)
+          const toAmountCalculated = route.amountOut.shiftedBy(-toToken.decimals).toFixed(8)
           setToAmount(toAmountCalculated)
         } else {
           setToAmount('')
@@ -161,11 +159,8 @@ export default function SwapClient() {
   const fromTokenDecimals = fromToken?.decimals || 6
   const toTokenDecimals = toToken?.decimals || 6
 
-  const getUsdValue = (token: any, amount: string) =>
-    token?.price && amount ? formatCurrency(parseFloat(amount) * token.price) : '$0.00'
-
-  const fromUsdValue = getUsdValue(fromToken, fromAmount)
-  const toUsdValue = getUsdValue(toToken, toAmount)
+  const fromUsdValue = fromToken?.price && fromAmount ? fromToken.price * parseFloat(fromAmount) : 0
+  const toUsdValue = toToken?.price && toAmount ? toToken.price * parseFloat(toAmount) : 0
 
   return (
     <>
@@ -241,6 +236,7 @@ export default function SwapClient() {
                 </PopoverContent>
               </Popover>
             </div>
+
             {/* From Section */}
             <div className='relative rounded-xl bg-muted/10 border border-border/30 p-4 mb-2 group'>
               <div className='flex items-center justify-between mb-1'>
@@ -249,12 +245,12 @@ export default function SwapClient() {
                 </div>
                 <QuickAmountButtons
                   onSelect={(percent) => {
-                    if (fromToken && fromToken.balance) {
+                    if (fromToken && parseFloat(fromToken.balance) > 0) {
                       const calculatedAmount = parseFloat(fromToken.balance) * percent
-                      setFromAmount(calculatedAmount.toFixed(6))
+                      setFromAmount(calculatedAmount.toFixed(8))
                     }
                   }}
-                  disabled={!fromToken || !fromToken.balance || parseFloat(fromToken.balance) === 0}
+                  disabled={!fromToken || parseFloat(fromToken.balance) <= 0}
                   className='hidden group-hover:flex group-focus-within:flex'
                 />
               </div>
@@ -302,10 +298,13 @@ export default function SwapClient() {
                 </button>
               </div>
               <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
-                <span>{fromUsdValue}</span>
-                <span>
-                  {fromToken?.balance || '0.00'} {fromToken?.symbol}
-                </span>
+                <FormattedValue value={fromUsdValue} isCurrency={true} useCompactNotation={false} />
+                <FormattedValue
+                  value={fromToken?.balance || '0'}
+                  maxDecimals={8}
+                  suffix={fromToken?.symbol ? ` ${fromToken.symbol}` : ''}
+                  useCompactNotation={false}
+                />
               </div>
             </div>
 
@@ -365,10 +364,13 @@ export default function SwapClient() {
                 </button>
               </div>
               <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
-                <span>{toUsdValue}</span>
-                <span>
-                  {toToken?.balance || '0.00'} {toToken?.symbol}
-                </span>
+                <FormattedValue value={toUsdValue} isCurrency={true} useCompactNotation={false} />
+                <FormattedValue
+                  value={toToken?.balance || '0'}
+                  maxDecimals={8}
+                  suffix={toToken?.symbol ? ` ${toToken.symbol}` : ''}
+                  useCompactNotation={false}
+                />
               </div>
             </div>
 
