@@ -82,6 +82,9 @@ export default function SwapClient() {
     : null
   const toToken = toTokenDenom ? swapTokens.find((token) => token.denom === toTokenDenom) : null
 
+  const hasInsufficientBalance =
+    fromToken && fromAmount && parseFloat(fromAmount) > parseFloat(fromToken.balance)
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedFromAmount(fromAmount)
@@ -138,9 +141,16 @@ export default function SwapClient() {
     toToken &&
     fromAmount &&
     parseFloat(fromAmount) > 0 &&
+    !hasInsufficientBalance &&
     routeInfo &&
     !isSwapInProgress &&
     fromAmount === debouncedFromAmount
+
+  const fromTokenDecimals = fromToken?.decimals || 6
+  const toTokenDecimals = toToken?.decimals || 6
+
+  const fromUsdValue = fromToken?.price && fromAmount ? fromToken.price * parseFloat(fromAmount) : 0
+  const toUsdValue = toToken?.price && toAmount ? toToken.price * parseFloat(toAmount) : 0
 
   const handleSwap = async () => {
     try {
@@ -155,12 +165,6 @@ export default function SwapClient() {
       console.error('Swap failed:', error)
     }
   }
-
-  const fromTokenDecimals = fromToken?.decimals || 6
-  const toTokenDecimals = toToken?.decimals || 6
-
-  const fromUsdValue = fromToken?.price && fromAmount ? fromToken.price * parseFloat(fromAmount) : 0
-  const toUsdValue = toToken?.price && toAmount ? toToken.price * parseFloat(toAmount) : 0
 
   return (
     <>
@@ -260,7 +264,10 @@ export default function SwapClient() {
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder='0.00'
-                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
+                  className={cn(
+                    'flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground',
+                    hasInsufficientBalance && 'text-red-500',
+                  )}
                 />
                 {fromAmount && fromAmount !== debouncedFromAmount && (
                   <div className='w-2 h-2 bg-primary/60 rounded-full animate-pulse' />
@@ -304,6 +311,7 @@ export default function SwapClient() {
                   maxDecimals={8}
                   suffix={fromToken?.symbol ? ` ${fromToken.symbol}` : ''}
                   useCompactNotation={false}
+                  className={cn(hasInsufficientBalance ? 'text-red-500' : 'text-muted-foreground')}
                 />
               </div>
             </div>
@@ -442,13 +450,15 @@ export default function SwapClient() {
             <Button disabled={!isSwapValid} className='w-full mt-4' onClick={handleSwap}>
               {isSwapInProgress
                 ? 'Swapping...'
-                : !fromToken || !toToken
-                  ? 'Select tokens'
-                  : !fromAmount
-                    ? 'Enter amount'
-                    : !routeInfo
-                      ? 'No route available'
-                      : 'Swap'}
+                : hasInsufficientBalance
+                  ? `Insufficient ${fromToken?.symbol}`
+                  : !fromToken || !toToken
+                    ? 'Select tokens'
+                    : !fromAmount
+                      ? 'Enter amount'
+                      : !routeInfo
+                        ? 'No route available'
+                        : 'Swap'}
             </Button>
           </CardContent>
         </Card>
