@@ -2,7 +2,7 @@
   "version": 2,
   "name": "amber-frontend-docs",
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/docs && pnpm build",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@amber-finance/docs",
   "outputDirectory": ".next",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile"
 }
