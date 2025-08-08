@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -34,18 +34,32 @@ import {
 } from '@/hooks'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
-import { formatCompactCurrency, formatCurrency } from '@/utils/format'
+import { formatCompactCurrency, formatCurrency, formatTokenAmount } from '@/utils/format'
 
 type TabType = 'deposit' | 'withdraw'
 
 export default function DepositClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<TabType>('deposit')
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const action = searchParams.get('action')
+    return action === 'withdraw' ? 'withdraw' : 'deposit'
+  })
   const [depositAmount, setDepositAmount] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [sliderPercentage, setSliderPercentage] = useState(0)
   const [lastAction, setLastAction] = useState<'deposit' | 'withdraw' | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (activeTab === 'withdraw') {
+      params.set('action', 'withdraw')
+    } else {
+      params.delete('action')
+    }
+    router.replace(`?${params.toString()}`)
+  }, [activeTab, router, searchParams])
+
   useMarkets()
   const { markets } = useStore()
   const { getTokenStakingApy, isLoading: isYieldLoading } = useLstMarkets()
@@ -125,13 +139,6 @@ export default function DepositClient() {
   }
 
   const { token, metrics } = selectedToken
-
-  const formatBalance = (balance: number) => {
-    if (balance <= 0) return '0.000000'
-    return balance.toFixed(6)
-  }
-  const formatUsd = (usd: number) => formatCurrency(usd, 2)
-  const formatUsdK = (usd: number) => formatCompactCurrency(usd)
 
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) return
@@ -273,17 +280,19 @@ export default function DepositClient() {
               <BalanceRow
                 icon={Wallet}
                 label='Available'
-                value={`${metrics.balance} ${token.symbol}`}
-                usdValue={formatUsd(metrics.valueUsd)}
+                value={formatTokenAmount(metrics.balance, token.symbol)}
+                usdValue={formatCurrency(metrics.valueUsd)}
                 brandColor={token.brandColor}
                 actionType={null}
               />
               <BalanceRow
                 icon={Coins}
                 label='Deposited'
-                value={`${formatBalance(metrics.deposited)} ${token.symbol}`}
+                value={formatTokenAmount(metrics.deposited, token.symbol)}
                 usdValue={
-                  metrics.depositedValueUsd > 0 ? formatUsd(metrics.depositedValueUsd) : undefined
+                  metrics.depositedValueUsd > 0
+                    ? formatCurrency(metrics.depositedValueUsd)
+                    : undefined
                 }
                 brandColor={token.brandColor}
                 actionType={lastAction}
@@ -324,7 +333,7 @@ export default function DepositClient() {
               <ProgressCard
                 value={33}
                 label='TVL Growth (7d)'
-                subtitle={formatUsdK(3095)}
+                subtitle={formatCompactCurrency(3095)}
                 brandColor={token.brandColor}
               />
               <ProgressCard
@@ -339,7 +348,11 @@ export default function DepositClient() {
           {/* Protocol Details Section */}
           <InfoCard title='Protocol Details'>
             <div className='flex flex-wrap gap-2'>
-              <MetricRow label='Total Value Locked' value={formatUsdK(754322)} variant='compact' />
+              <MetricRow
+                label='Total Value Locked'
+                value={formatCompactCurrency(754322)}
+                variant='compact'
+              />
               <MetricRow label='Unique Wallets' value='1104' variant='compact' />
               <MetricRow
                 label='Average APY (30d)'
@@ -374,7 +387,7 @@ export default function DepositClient() {
                   setSliderPercentage(Math.min(newPercentage, 100))
                 }}
                 token={token}
-                usdValue={formatUsd(
+                usdValue={formatCurrency(
                   (parseFloat(currentAmount || '0') || 0) *
                     (metrics.valueUsd / metrics.balance || 0),
                 )}
@@ -412,10 +425,13 @@ export default function DepositClient() {
                     </span>
                   </div>
                   <div className='text-lg font-bold text-foreground'>
-                    {estimatedApyEarnings.toFixed(6)} {token.symbol}
+                    {formatTokenAmount(estimatedApyEarnings, token.symbol)}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~{formatUsd(estimatedApyEarnings * (metrics.valueUsd / metrics.balance || 0))}{' '}
+                    ~
+                    {formatCurrency(
+                      estimatedApyEarnings * (metrics.valueUsd / metrics.balance || 0),
+                    )}{' '}
                     USD
                   </div>
                 </div>

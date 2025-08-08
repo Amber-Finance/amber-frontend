@@ -61,6 +61,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
     router.push(`/deposit?token=${token.symbol}`)
   }
 
+  const handleWithdrawClick = () => {
+    router.push(`/deposit?token=${token.symbol}&action=withdraw`)
+  }
+
   const cardStyle = {
     '--brand-color': token.brandColor,
     '--brand-color-10': `${token.brandColor}1A`,
@@ -300,7 +304,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
           {/* Withdraw Button */}
           <Button
-            onClick={() => {}}
+            onClick={handleWithdrawClick}
             variant='secondary'
             className='font-semibold rounded-md p-3 aspect-square'
             style={{ borderColor: token.brandColor }}
