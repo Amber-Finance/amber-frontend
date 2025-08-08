@@ -42,7 +42,7 @@ export const HeroContent = () => {
           />
           <XIcon className='h-4 w-4' />
           <hr className='mx-2 h-4 w-px shrink-0 bg-neutral-500' />
-          <AnimatedGradientText className='text-sm font-medium'>
+          <AnimatedGradientText className='text-xs font-medium'>
             Follow us on X
           </AnimatedGradientText>
           <ChevronRight
@@ -52,8 +52,8 @@ export const HeroContent = () => {
         </div>
         <Image src='/logo/logo-claim-light.svg' alt='logo' width={500} height={500} />
 
-        <p className='sm:text-sm md:text-lg lg:text-xl xl:text-xl tracking-wide text-white/70 md:text-white/60 max-w-xl lg:max-w-2xl xl:max-w-3xl text-center'>
-          Put your liquid staking tokens to work. Earn maximum yield on your Bitcoin LSTs. Increase
+        <p className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-xl lg:max-w-2xl xl:max-w-3xl text-center'>
+          Put your liquid staking tokens to work. Earn maximum yield on your Bitcoin BRTs. Increase
           your exposure to maxBTC and leverage loop with smart strategies.
         </p>
       </div>
@@ -66,7 +66,7 @@ export const HeroContent = () => {
               'bg-white text-black shadow hover:bg-white/90 dark:bg-white dark:text-black dark:hover:bg-white/90',
 
               // layout
-              'group relative inline-flex h-9 w-full items-center justify-center gap-2 overflow-hidden whitespace-pre rounded-md px-4 py-2 text-base font-semibold tracking-tighter focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 md:flex',
+              'group relative inline-flex h-9 w-full items-center justify-center gap-2 overflow-hidden whitespace-pre rounded-md px-4 py-2 text-sm font-semibold tracking-tighter focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 md:flex',
 
               // animation
               'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2',
@@ -84,7 +84,7 @@ export const HeroContent = () => {
               'bg-black text-white shadow hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90',
 
               // layout
-              'group relative inline-flex h-9 w-full items-center justify-center gap-2 overflow-hidden whitespace-pre rounded-md px-4 py-2 text-base font-semibold tracking-tighter focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 md:flex',
+              'group relative inline-flex h-9 w-full items-center justify-center gap-2 overflow-hidden whitespace-pre rounded-md px-4 py-2 text-sm font-semibold tracking-tighter focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 md:flex',
 
               // animation
               'transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2',
@@ -106,7 +106,7 @@ export function Hero() {
       </div>
       <div className='relative h-screen w-full overflow-hidden z-10 flex flex-col items-center justify-center'>
         <HeroContent />
-        <h3 className='pb-10 bottom-0 absolute text-center text-sm font-semibold text-gray-500 bg-gradient-to-r from-background to-transparent'>
+        <h3 className='pb-10 bottom-0 absolute text-center text-sm font-semibold text-gray-500'>
           Our Partners
         </h3>
       </div>

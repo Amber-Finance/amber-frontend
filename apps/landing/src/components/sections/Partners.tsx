@@ -18,16 +18,19 @@ export function Partners() {
         <div className='relative'>
           <Marquee className='w-full [--duration:40s] gap-10'>
             {companies.map((company, idx) => (
-              <div key={idx} className='flex flex-row items-center justify-center  text-white'>
+              <div
+                key={`${company.name}-${idx}`}
+                className='flex flex-row items-center justify-center  text-white'
+              >
                 <Image
-                  width={60}
-                  height={60}
-                  key={idx}
+                  width={44}
+                  height={44}
+                  key={`${company.name}-${idx}`}
                   src={company.image}
                   className='h-10 w-15'
                   alt={company.name}
                 />
-                <h1 className='text-xl font-bold font-white'>{company.name}</h1>
+                <h1 className='text-base font-bold font-white'>{company.name}</h1>
               </div>
             ))}
           </Marquee>
