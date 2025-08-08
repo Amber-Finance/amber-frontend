@@ -1,6 +1,5 @@
 import { AuroraText } from '@/components/ui/AuroraText'
 import { StatCard } from '@/components/ui/StatCard'
-import tokens from '@/config/tokens'
 
 interface HeroProps {
   markets?: Array<{
@@ -17,15 +16,10 @@ interface HeroProps {
 }
 
 export default function Hero({ markets }: HeroProps) {
-  const maxApy =
-    markets && markets.length > 0 ? Math.max(...markets.map((m) => m.metrics.totalApy)) : 4.5
-
   const totalTvl =
     markets && markets.length > 0
       ? markets.reduce((sum, m) => sum + m.metrics.collateralTotalUsd, 0)
       : 0
-
-  const totalBtcDerivatives = tokens.filter((token) => token.isLST).length
 
   return (
     <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-8'>
@@ -49,12 +43,8 @@ export default function Hero({ markets }: HeroProps) {
         </div>
 
         {/* Right Column - Stats Cards */}
-        <div className='flex-1 max-w-lg w-full h-full'>
-          <div className='flex flex-row gap-2 sm:gap-3'>
-            <StatCard value={maxApy} label='Max APY' decimalPlaces={2} suffix='%' />
-            <StatCard value={totalTvl} label='Total TVL' isCurrency={true} prefix='$' />
-            <StatCard value={totalBtcDerivatives} label='Assets' />
-          </div>
+        <div className='flex flex-row gap-2 sm:gap-3'>
+          <StatCard value={totalTvl} label='Total TVL' isCurrency={true} prefix='$' />
         </div>
       </div>
     </section>

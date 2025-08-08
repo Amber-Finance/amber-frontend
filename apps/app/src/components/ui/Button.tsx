@@ -16,6 +16,8 @@ const buttonVariants = cva(
           'bg-card text-foreground border border-border hover:bg-secondary hover:text-foreground disabled:bg-muted/30 disabled:text-muted-foreground disabled:border-muted-foreground/20 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-300 ease-in-out',
         'outline-gradient':
           'bg-card text-foreground hover:bg-card/90 transition-all duration-300 ease-in-out',
+        secondary:
+          'bg-card text-foreground border border-border hover:bg-muted/50 hover:text-foreground disabled:bg-muted/30 disabled:text-muted-foreground disabled:border-muted-foreground/20 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 ease-in-out',
       },
       size: {
         default: 'h-9 px-4 py-2',
