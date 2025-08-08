@@ -25,7 +25,7 @@ async function fetchUserDeposit(address: string, denom: string): Promise<string>
 
     const url = getUrl(
       chainConfig.endpoints.restUrl,
-      `/cosmwasm/wasm/v1/contract/${chainConfig.constracts.moneyMarketContract}/smart/${query}`,
+      `/cosmwasm/wasm/v1/contract/${chainConfig.contracts.redBank}/smart/${query}`,
     )
 
     const response = await fetch(url)

@@ -227,3 +227,72 @@ body {
   border-color: rgba(245, 113, 54, 0.18) !important;
   background: linear-gradient(180deg, rgba(245, 113, 54, 0.07) 0%, rgba(255, 255, 255, 0) 100%);
 }
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield;
+}
+
+/* Custom scrollbar for token selector modal */
+.token-selector-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.token-selector-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.token-selector-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.token-selector-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dark .token-selector-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .token-selector-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dark .token-selector-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-button {
+  background: linear-gradient(
+    90deg,
+    var(--gradient-start),
+    var(--gradient-end),
+    var(--gradient-start)
+  );
+  background-size: 200% 200%;
+  transition: all 0.5s ease-in-out;
+}
+
+.gradient-button:hover {
+  background-position: 100% 50%;
+  animation: gradient-shift 2s ease-in-out infinite;
+}

@@ -85,37 +85,39 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Link Sections */}
-          {footerSections.map((section, index) => (
-            <div key={index}>
-              <h3 className='text-sm font-semibold text-foreground mb-4 uppercase tracking-wider'>
-                {section.title}
-              </h3>
-              <ul className='space-y-3'>
-                {section.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    {link.url.startsWith('http') ? (
-                      <a
-                        href={link.url}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
-                      >
-                        {link.title}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.url}
-                        className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
-                      >
-                        {link.title}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Link Sections Container */}
+          <div className='grid grid-cols-2 md:grid-cols-2 gap-8 md:col-span-2'>
+            {footerSections.map((section, index) => (
+              <div key={index}>
+                <h3 className='text-sm font-semibold text-foreground mb-4 uppercase tracking-wider'>
+                  {section.title}
+                </h3>
+                <ul className='space-y-3'>
+                  {section.links.map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      {link.url.startsWith('http') ? (
+                        <a
+                          href={link.url}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                        >
+                          {link.title}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.url}
+                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                        >
+                          {link.title}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

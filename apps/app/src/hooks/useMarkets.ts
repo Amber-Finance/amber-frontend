@@ -127,8 +127,8 @@ export const useMarkets = () => {
   usePrices()
 
   // Construct the URLs for fetching data
-  const paramsUrl = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.constracts.paramsContract}/smart/${chainConfig.queries.allAssetParams}`
-  const marketsUrl = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.constracts.moneyMarketContract}/smart/${chainConfig.queries.allMarkets}`
+  const paramsUrl = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.params}/smart/${chainConfig.queries.allAssetParams}`
+  const marketsUrl = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.redBank}/smart/${chainConfig.queries.allMarkets}`
 
   // Fetcher for params data
   const paramsFetcher = async (url: string) => {

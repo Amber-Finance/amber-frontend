@@ -180,17 +180,25 @@ interface MarketColumn {
 
 interface ChainConfig {
   name: string
-  constracts: {
-    paramsContract: string
-    moneyMarketContract: string
-    oracleContract: string
+  id: string
+  contracts: {
+    redBank: string
+    incentives: string
+    oracle: string
+    params: string
+    creditManager: string
+    accountNft: string
+    perps: string
+    pyth: string
   }
   endpoints: {
     restUrl: string
     rpcUrl: string
+    fallbackRpc?: string
+    routes?: string
   }
   queries: {
-    allAssetParams: ing
+    allAssetParams: string
     allMarkets: string
   }
 }
@@ -526,5 +534,97 @@ interface Strategy {
     collateralAmount: string
     debtAmount: string
     healthFactor: number
+  }
+}
+
+// Skip API Types for Swap Functionality
+interface SwapRoute {
+  amountIn: string
+  amountOut: string
+  estimatedAmountOut: string
+  operations: any[] // Using any[] for now to match Skip API response
+  chainIds: string[]
+  requiredChainAddresses: string[]
+  swapVenues?: SwapVenue[]
+  usdAmountIn?: string
+  usdAmountOut?: string
+  estimatedRouteDurationSeconds: number
+  doesSwap?: boolean
+  txsRequired: number
+  estimatedFees?: any[]
+  sourceAssetDenom: string
+  sourceAssetChainId: string
+  destAssetDenom: string
+  destAssetChainId: string
+}
+
+interface SwapOperation {
+  swap?: {
+    swapIn?: {
+      swapVenue?: SwapVenue
+      swapOperations?: any[]
+      swapAmountIn?: string
+      estimatedAmountOut?: string
+      priceImpactPercent?: string
+    }
+    estimatedAffiliateFee?: string
+    fromChainId?: string
+    chainId?: string
+    denomIn?: string
+    denomOut?: string
+    swapVenues?: SwapVenue[]
+  }
+  txIndex: number
+  amountIn: string
+  amountOut: string
+}
+
+interface SwapOperationDetail {
+  pool?: string
+  denomIn?: string
+  denomOut?: string
+  interface?: string
+}
+
+interface SwapVenue {
+  name?: string
+  chainId?: string
+  logoUri?: string
+}
+
+interface SwapRouteInfo {
+  amountOut: BigNumber
+  priceImpact: number
+  route: SwapRoute
+}
+
+interface SwapToken {
+  symbol: string
+  name: string
+  icon: string
+  balance: string
+  rawBalance: number
+  price: number
+  denom: string
+  usdValue: string
+  decimals: number
+}
+
+// Route request parameters
+interface RouteRequest {
+  amountIn: string
+  sourceAssetDenom: string
+  sourceAssetChainId: string
+  destAssetDenom: string
+  destAssetChainId: string
+  cumulativeAffiliateFeeBps: string
+  allowMultiTx?: boolean
+  allowUnsafe?: boolean
+  experimentalFeatures?: string[]
+  goFast?: boolean
+  smartRelay?: boolean
+  smartSwapOptions?: {
+    splitRoutes: boolean
+    evmSwaps: boolean
   }
 }
