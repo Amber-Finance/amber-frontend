@@ -456,6 +456,44 @@ export default function DepositClient() {
                   </>
                 )}
               </Button>
+
+              {/* Asset Actions Section */}
+              {activeTab === 'deposit' && (
+                <div className='mt-6 pt-6 border-t border-border/40'>
+                  <div className='text-center mb-4'>
+                    <h4 className='text-sm font-semibold text-foreground mb-1'>
+                      Need more {token.symbol}?
+                    </h4>
+                    <p className='text-xs text-muted-foreground'>
+                      Bridge from other chains or swap for {token.symbol}
+                    </p>
+                  </div>
+
+                  <div className='flex gap-3'>
+                    <Button
+                      variant='outline'
+                      onClick={() => window.open('https://go.skip.build/', '_blank')}
+                      className='flex-1 h-10 text-xs font-medium hover:bg-muted/30 transition-colors'
+                    >
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500' />
+                        Bridge Assets
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant='outline'
+                      onClick={() => router.push(`/swap?to=${tokenData?.denom}`)}
+                      className='flex-1 h-10 text-xs font-medium hover:bg-muted/30 transition-colors'
+                    >
+                      <div className='flex items-center gap-2'>
+                        <div className='w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-blue-500' />
+                        Swap Assets
+                      </div>
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </InfoCard>
         </div>

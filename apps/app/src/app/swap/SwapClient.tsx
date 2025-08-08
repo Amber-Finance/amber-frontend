@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 import BigNumber from 'bignumber.js'
@@ -27,6 +28,7 @@ import { calculateUsdValue } from '@/utils/format'
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
 
 export default function SwapClient() {
+  const searchParams = useSearchParams()
   useMarkets()
   const { markets } = useStore()
   const { data: walletBalances } = useWalletBalances()
@@ -126,6 +128,17 @@ export default function SwapClient() {
       setToTokenDenom(null)
     }
   }, [address])
+
+  // Pre-select "to" token from URL parameters
+  useEffect(() => {
+    const toTokenParam = searchParams.get('to')
+    if (toTokenParam && swapTokens.length > 0) {
+      const token = swapTokens.find((t) => t.denom === toTokenParam)
+      if (token) {
+        setToTokenDenom(toTokenParam)
+      }
+    }
+  }, [searchParams, swapTokens])
 
   const handleSwapTokens = () => {
     const tempDenom = fromTokenDenom
