@@ -3,7 +3,8 @@ import { ReactNode } from 'react'
 import type { Metadata } from 'next'
 
 import '@/app/globals.css'
-import Logo from '@/components/Logo'
+
+import { Background } from '../components/Background'
 
 export const metadata: Metadata = {
   title: 'Amber Finance',
@@ -46,10 +47,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang='en'>
+    <html lang='en' className='dark'>
       <body className='font-sans'>
-        <Logo />
-        {children}
+        <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
+          <Background />
+          {children}
+        </main>
       </body>
     </html>
   )
