@@ -9,3 +9,6 @@ _stuff
 
 # Turborepo
 .turbo
+
+# Generated public directories (copied from shared-assets)
+apps/*/public/

@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "amber-frontend-app",
-  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && cd apps/app && pnpm build",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@amber-finance/app",
   "outputDirectory": ".next",
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "framework": "nextjs"

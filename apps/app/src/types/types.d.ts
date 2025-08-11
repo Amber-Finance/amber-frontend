@@ -178,6 +178,15 @@ interface MarketColumn {
   align?: 'left' | 'right'
 }
 
+type PnL =
+  | 'break_even'
+  | {
+      profit: Coin
+    }
+  | {
+      loss: Coin
+    }
+
 interface ChainConfig {
   name: string
   id: string

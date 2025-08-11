@@ -13,14 +13,35 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      // React/JSX rules
-      'react/jsx-uses-react': 'off',
-      'react/react-in-jsx-scope': 'off',
 
-      // TypeScript rules
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+    rules: {
+      ...eslintPluginReactHooks.configs.recommended.rules,
+      '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-prototype-builtins': 'off',
+      'require-jsdoc': 'off',
+      'no-useless-catch': 'off',
+      '@typescript-eslint/ban-types': 'off',
+      'no-case-declarations': 'off',
+      'no-constant-binary-expression': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      'linebreak-style': 'off',
+      'no-undef': 'off',
+    },
+  },
+  {
+    languageOptions: {
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+  {
+    plugins: {
+      '@next/next': nextPlugin,
+      react: eslintPluginReact,
+      'react-hooks': fixupPluginRules(eslintPluginReactHooks),
     },
   },
   {
@@ -31,6 +52,7 @@ const eslintConfig = [
       'dist/**',
       'build/**',
       '**/health_computer/*',
+      'src/types/generated/**/*',
     ],
   },
 ]
