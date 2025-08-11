@@ -46,6 +46,7 @@ export default function SwapClient() {
   const [selectingFrom, setSelectingFrom] = useState(true)
   const [routeInfo, setRouteInfo] = useState<SwapRouteInfo | null>(null)
   const [debouncedFromAmount, setDebouncedFromAmount] = useState('')
+  const [isRouteLoading, setIsRouteLoading] = useState(false)
 
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
@@ -104,9 +105,11 @@ export default function SwapClient() {
       if (!fromToken || !toToken || !debouncedFromAmount || parseFloat(debouncedFromAmount) <= 0) {
         setRouteInfo(null)
         setToAmount('')
+        setIsRouteLoading(false)
         return
       }
 
+      setIsRouteLoading(true)
       try {
         const route = await fetchSwapRoute(fromToken, toToken, debouncedFromAmount)
         setRouteInfo(route)
@@ -121,6 +124,8 @@ export default function SwapClient() {
         console.error('Route fetch failed:', error)
         setRouteInfo(null)
         setToAmount('')
+      } finally {
+        setIsRouteLoading(false)
       }
     }
 
@@ -409,7 +414,22 @@ export default function SwapClient() {
             {/* Swap Info */}
             {fromToken && toToken && fromAmount && (
               <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
-                {routeInfo ? (
+                {isRouteLoading ? (
+                  <>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Rate</span>
+                      <div className='h-4 w-24 bg-muted/40 rounded animate-pulse' />
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Price Impact</span>
+                      <div className='h-4 w-16 bg-muted/40 rounded animate-pulse' />
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Minimum Received</span>
+                      <div className='h-4 w-32 bg-muted/40 rounded animate-pulse' />
+                    </div>
+                  </>
+                ) : routeInfo ? (
                   <>
                     <div className='flex justify-between'>
                       <span className='text-muted-foreground'>Rate</span>
@@ -450,23 +470,10 @@ export default function SwapClient() {
                       />
                     </div>
                   </>
-                ) : fromAmount ? (
-                  <>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Rate</span>
-                      <div className='h-4 w-24 bg-muted/40 rounded animate-pulse' />
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Price Impact</span>
-                      <div className='h-4 w-16 bg-muted/40 rounded animate-pulse' />
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Minimum Received</span>
-                      <div className='h-4 w-32 bg-muted/40 rounded animate-pulse' />
-                    </div>
-                  </>
                 ) : (
-                  <p className='text-center text-muted-foreground py-2'>No route available</p>
+                  <div className='flex items-center justify-center h-[72px]'>
+                    <span className='text-muted-foreground text-sm'>No route available</span>
+                  </div>
                 )}
               </div>
             )}
