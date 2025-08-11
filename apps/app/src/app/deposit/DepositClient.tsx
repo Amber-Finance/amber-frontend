@@ -11,7 +11,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Coins,
-  Percent,
+  Info,
   TrendingUp,
   Wallet,
   Zap,
@@ -243,7 +243,24 @@ export default function DepositClient() {
               <div className='text-lg sm:text-2xl font-bold' style={{ color: token.brandColor }}>
                 <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
               </div>
-              <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
+              <div className='flex items-center gap-1'>
+                <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
+                <div className='relative group/tooltip'>
+                  <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                  <div className='absolute bottom-full right-0 mb-2 w-64 p-3 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
+                    <div className='text-left space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <span className='text-sm font-bold text-foreground'>Points Campaign</span>
+                      </div>
+                      <div className='text-xs text-muted-foreground space-y-1'>
+                        <p>• Mars Fragments: ~1% of total APY</p>
+                        <p>• Neutron Quarks: ~2% of total APY</p>
+                        <p>• Base yield: ~0.5% of total APY</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -278,14 +295,6 @@ export default function DepositClient() {
           <InfoCard title='Your Balances'>
             <div className='flex flex-col gap-2'>
               <BalanceRow
-                icon={Wallet}
-                label='Available'
-                value={formatTokenAmount(metrics.balance, token.symbol)}
-                usdValue={formatCurrency(metrics.valueUsd)}
-                brandColor={token.brandColor}
-                actionType={null}
-              />
-              <BalanceRow
                 icon={Coins}
                 label='Deposited'
                 value={formatTokenAmount(metrics.deposited, token.symbol)}
@@ -297,33 +306,56 @@ export default function DepositClient() {
                 brandColor={token.brandColor}
                 actionType={lastAction}
               />
+              <BalanceRow
+                icon={Wallet}
+                label='Available in Wallet'
+                value={formatTokenAmount(metrics.balance, token.symbol)}
+                usdValue={formatCurrency(metrics.valueUsd)}
+                brandColor={token.brandColor}
+                actionType={null}
+              />
             </div>
           </InfoCard>
 
-          {/* Yield Breakdown Section */}
-          <InfoCard title='Yield Breakdown'>
-            <div className='flex flex-col gap-2'>
-              <MetricRow
-                icon={Zap}
-                label='Staking APY'
-                value={
-                  isYieldLoading
-                    ? 'Loading...'
-                    : metrics.stakingApy > 0
-                      ? metrics.stakingApy
-                      : 'N/A'
-                }
-                suffix={!isYieldLoading && metrics.stakingApy > 0 ? '%' : ''}
-                brandColor={token.brandColor}
-                showTooltipForNA={true}
-              />
-              <MetricRow
-                icon={Percent}
-                label={`${token.protocol} Yield APY`}
-                value={metrics.protocolApy}
-                suffix='%'
-                brandColor={token.brandColor}
-              />
+          {/* Incentives Breakdown Section */}
+          <InfoCard title='Incentives Breakdown'>
+            <div className='space-y-4'>
+              {/* Yield Section */}
+              <div className='space-y-3'>
+                <div className='text-sm text-muted-foreground/80 leading-relaxed'>
+                  Get native yield in the form of {token.symbol}.
+                </div>
+                <MetricRow
+                  icon={Zap}
+                  label={`${token.protocol} Yield`}
+                  value={`~${metrics.protocolApy}`}
+                  suffix='%'
+                  brandColor={token.brandColor}
+                />
+              </div>
+
+              {/* Points Section */}
+              <div className='space-y-3'>
+                <div className='text-sm text-muted-foreground/80 leading-relaxed'>
+                  By supplying this asset, you automatically farm points for:
+                </div>
+                <div className='space-y-2'>
+                  <MetricRow
+                    icon={Zap}
+                    label='Mars Fragments'
+                    value='~1'
+                    suffix='%'
+                    brandColor={token.brandColor}
+                  />
+                  <MetricRow
+                    icon={Zap}
+                    label='Neutron Quarks'
+                    value='~2'
+                    suffix='%'
+                    brandColor={token.brandColor}
+                  />
+                </div>
+              </div>
             </div>
           </InfoCard>
 

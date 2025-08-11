@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
-import { Info, LogOut, Zap } from 'lucide-react'
+import { ArrowDownToLine, Info, Zap } from 'lucide-react'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
@@ -74,7 +74,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   return (
     <Card
-      className='group relative w-[340px] transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border overflow-hidden'
+      className='group relative w-[340px] transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -148,8 +148,25 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='text-2xl font-bold leading-tight' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
-            <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
-              Total APY
+            <div className='flex items-center gap-1'>
+              <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
+                Total APY
+              </div>
+              <div className='relative group/tooltip'>
+                <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                <div className='absolute bottom-full right-0 mb-2 w-72 p-3 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
+                  <div className='space-y-2'>
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm font-bold text-foreground'>Points Campaign</span>
+                    </div>
+                    <div className='text-xs text-muted-foreground space-y-1'>
+                      <p>• Mars Fragments: ~1% of total APY</p>
+                      <p>• Neutron Quarks: ~2% of total APY</p>
+                      <p>• Base yield: ~0.5% of total APY</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -302,15 +319,17 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
           </div>
 
-          {/* Withdraw Button */}
-          <Button
-            onClick={handleWithdrawClick}
-            variant='secondary'
-            className='font-semibold rounded-md p-3 aspect-square'
-            style={{ borderColor: token.brandColor }}
-          >
-            <LogOut className='w-4 h-4 text-foreground/70' />
-          </Button>
+          {/* Withdraw Button  */}
+          {metrics.deposited > 0 && (
+            <Button
+              onClick={handleWithdrawClick}
+              variant='secondary'
+              className='font-semibold rounded-md p-3 aspect-square'
+              style={{ borderColor: token.brandColor }}
+            >
+              <ArrowDownToLine className='w-4 h-4 text-foreground/70' />
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>
