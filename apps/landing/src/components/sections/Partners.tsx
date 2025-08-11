@@ -13,8 +13,8 @@ const companies = [
 
 export function Partners() {
   return (
-    <div className='pb-14 '>
-      <div className='container mx-auto px-4 md:px-8'>
+    <section id='partners' className='py-16 md:py-24'>
+      <div className='mx-auto px-8 md:px-16 max-w-6xl'>
         <div className='relative'>
           <Marquee className='w-full [--duration:40s] gap-10'>
             {companies.map((company, idx) => (
@@ -38,6 +38,6 @@ export function Partners() {
           <div className='pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[#0a0b10]'></div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }

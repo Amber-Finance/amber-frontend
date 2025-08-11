@@ -25,8 +25,8 @@ const XIcon = ({ className }: { className?: string }) => {
 }
 export const HeroContent = () => {
   return (
-    <div className='flex flex-col items-center gap-6 pb-8 text-center w-full justify-between'>
-      <div className='flex flex-col items-center gap-8 pt-20 lg:gap-10 text-center lg:text-left flex-1 z-30 max-w-2xl lg:max-w-none'>
+    <div className='flex flex-col items-center gap-6 pb-8 text-center w-full justify-between px-8 md:px-16'>
+      <div className='flex flex-col items-center gap-8 pt-20 lg:gap-10 text-center lg:text-left flex-1 z-30 max-w-3xl lg:max-w-3xl'>
         <div className='group relative mx-auto flex items-center justify-center bg-black/20 rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] cursor-pointer'>
           <span
             className={cn(
@@ -52,7 +52,7 @@ export const HeroContent = () => {
         </div>
         <Image src='/logo/logo-claim-light.svg' alt='logo' width={500} height={500} />
 
-        <p className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-xl lg:max-w-2xl xl:max-w-3xl text-center'>
+        <p className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'>
           Put your liquid staking tokens to work. Earn maximum yield on your Bitcoin BRTs. Increase
           your exposure to maxBTC and leverage loop with smart strategies.
         </p>
@@ -60,7 +60,7 @@ export const HeroContent = () => {
       <div className='flex flex-row gap-4'>
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
-            href='#'
+            href='/app'
             className={cn(
               // colors
               'bg-white text-black shadow hover:bg-white/90 dark:bg-white dark:text-black dark:hover:bg-white/90',
@@ -78,7 +78,7 @@ export const HeroContent = () => {
         </div>
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
-            href='#'
+            href='/docs'
             className={cn(
               // colors
               'bg-black text-white shadow hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90',

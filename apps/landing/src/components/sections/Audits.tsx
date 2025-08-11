@@ -21,19 +21,23 @@ export function Audits() {
       </div>
 
       <div className='relative flex w-full flex-col bg-background'>
-        {/* Title area with grid behind only the header */}
-        <div className='absolute inset-0 flex h-[150px] '>
-          <GridPattern
-            width={30}
-            height={30}
-            x={-1}
-            y={-1}
-            strokeDasharray={'4 2'}
-            className={cn('[mask-image:radial-gradient(300px_circle_at_center,white,transparent)]')}
-          />
-          <div className='pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background via-background/80 to-transparent' />
+        <div className='absolute inset-0'>
+          <div className='relative mx-auto w-full px-8 md:px-16 max-w-3xl h-[300px] md:h-[300px]'>
+            <GridPattern
+              width={30}
+              height={30}
+              x={-1}
+              y={-1}
+              strokeDasharray={'4 2'}
+              className={cn(
+                '[mask-image:radial-gradient(600px_220px_at_center,white,transparent)]',
+              )}
+            />
+            <div className='pointer-events-none absolute inset-x-0 top-0 h-2/3 bg-gradient-to-b from-background via-background/80 to-transparent' />
+            <div className='pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background via-background/80 to-transparent' />
+          </div>
         </div>
-        <div className='relative z-10 mx-auto w-full px-4 max-w-3xl'>
+        <div className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'>
           <SectionHeader>
             <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
               Independent audits

@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import '@/app/globals.css'
 
 import { Background } from '../components/Background'
+import { Footer } from '../components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'Amber Finance',
@@ -49,10 +50,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='en' className='dark'>
       <body className='font-sans'>
-        <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
-          <Background />
-          {children}
-        </main>
+        <div className='relative min-h-screen w-full max-w-full bg-background overflow-x-hidden flex flex-col'>
+          <main className='relative flex-1 h-full w-full no-scrollbar'>
+            <Background />
+            {children}
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   )

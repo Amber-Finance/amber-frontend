@@ -4,7 +4,7 @@ import { Ripple } from '@/components/ui/ripple'
 
 export function MarsFork() {
   return (
-    <section id='mars-fork' className='relative overflow-hidden flex flex-col pt-2'>
+    <section id='mars-fork' className='relative overflow-hidden flex flex-col py-16 md:py-24'>
       <div className='absolute inset-0 -z-10'>
         <Background
           translateY={-280}
@@ -17,15 +17,15 @@ export function MarsFork() {
       </div>
 
       <div className='relative flex flex-col bg-background'>
-        <div className='relative flex items-center justify-center h-[350px] w-full overflow-hidden'>
+        <div className='relative flex items-center justify-center min-h-[420px] md:min-h-[520px] w-full overflow-hidden'>
           <div className='absolute inset-0'>
-            <div className='relative w-full h-full min-h-[350px] max-h-[350px]'>
-              <div className='absolute inset-3 md:inset-4 [mask-image:linear-gradient(to_bottom,white_0%,white_33%,transparent_50%)]'>
-                <Ripple mainCircleSize={15} numCircles={5} />
+            <div className='relative w-full min-h-[420px] md:min-h-[520px]'>
+              <div className='absolute inset-2 md:inset-3 [mask-image:linear-gradient(to_bottom,white_0%,white_48%,transparent_52%)]'>
+                <Ripple mainCircleSize={15} numCircles={8} />
               </div>
             </div>
           </div>
-          <div className='relative z-10 mx-auto w-full px-4 max-w-3xl'>
+          <div className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'>
             <SectionHeader>
               <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 text-[10px] font-medium text-white/80 backdrop-blur'>
                 Mars‑grade security

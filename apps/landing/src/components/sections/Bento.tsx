@@ -53,22 +53,25 @@ const features = [
 
 export function Bento() {
   return (
-    <section id='bento' className='py-14'>
+    <section id='bento' className='py-16 md:py-24'>
       <div className='relative overflow-hidden pb-10'>
         {/* Section Header */}
         <SectionHeader>
-          <h2 className='text-3xl md:text-4xl font-medium tracking-tighter text-center text-balance'>
-            Discver BTC yield opportunities
+          <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
+            Product features
+          </div>
+          <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
+            Discover BTC yield opportunities
           </h2>
-          <p className='text-muted-foreground text-center text-balance font-medium'>
-            The best way to earn BTC with your assets in a safe and easy way
+          <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
+            Bridge assets, deploy automated strategies, and track performance with intuitive tools.
           </p>
         </SectionHeader>
       </div>
-      <div className='container mx-auto px-8 md:px-16'>
+      <div className='mx-auto px-8 md:px-16 max-w-6xl'>
         <BentoGrid>
           {features.map((feature, idx) => (
-            <BentoCard key={idx} {...feature} />
+            <BentoCard key={feature.name} {...feature} />
           ))}
         </BentoGrid>
       </div>
