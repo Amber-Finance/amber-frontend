@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
-import { Flame, Info, TrendingUp, Wallet, Zap } from 'lucide-react'
+import { ArrowDownToLine, Info, Zap } from 'lucide-react'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
@@ -48,7 +48,6 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   const { theme } = useTheme()
 
   const formatBalance = (balance: number) => (balance > 0 ? balance.toFixed(8) : '0.00000000')
-  const formatUsd = (usd: number) => (usd > 0 ? `$${usd.toFixed(2)}` : '$0.00')
 
   // Get protocol icon based on theme
   const getProtocolIcon = () => {
@@ -62,6 +61,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
     router.push(`/deposit?token=${token.symbol}`)
   }
 
+  const handleWithdrawClick = () => {
+    router.push(`/deposit?token=${token.symbol}&action=withdraw`)
+  }
+
   const cardStyle = {
     '--brand-color': token.brandColor,
     '--brand-color-10': `${token.brandColor}1A`,
@@ -71,7 +74,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   return (
     <Card
-      className='group relative w-[340px] transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border overflow-hidden'
+      className='group relative w-[340px] transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -145,8 +148,25 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='text-2xl font-bold leading-tight' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
-            <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
-              Total APY
+            <div className='flex items-center gap-1'>
+              <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
+                Total APY
+              </div>
+              <div className='relative group/tooltip'>
+                <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                <div className='absolute bottom-full right-0 mb-2 w-72 p-3 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
+                  <div className='space-y-2'>
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm font-bold text-foreground'>Points Campaign</span>
+                    </div>
+                    <div className='text-xs text-muted-foreground space-y-1'>
+                      <p>• Mars Fragments: ~1% of total APY</p>
+                      <p>• Neutron Quarks: ~2% of total APY</p>
+                      <p>• Base yield: ~0.5% of total APY</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -156,12 +176,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         {/* Yields Section */}
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
-            <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} />
-            <span
-              className='text-sm font-bold tracking-wider uppercase'
-              style={{ color: token.brandColor }}
-            >
-              Yield Breakdown
+            {/* <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} /> */}
+            <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
+              Yield
             </span>
           </div>
 
@@ -185,7 +202,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                     style={{ color: `${token.brandColor}CC` }} // 80% opacity
                   />
                 )}
-                <span className='text-sm'>{token.protocol}</span>
+                <span className='text-sm'>Yield in {token.symbol}</span>
               </div>
               <div className='flex items-center gap-1'>
                 {metrics.stakingApy > 0 ? (
@@ -212,93 +229,107 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 )}
               </div>
             </div>
+          </div>
+        </div>
 
+        {/* Points Section */}
+        <div className='space-y-3'>
+          <div className='flex items-center gap-2'>
+            {/* <Flame
+              className='w-3 h-3 flex-shrink-0'
+              style={{ color: `${token.brandColor}CC` }} // 80% opacity
+            /> */}
+            <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
+              Points
+            </span>
+          </div>
+
+          <div className='space-y-2'>
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-2'>
-                <Flame
+                <Zap
                   className='w-3 h-3 flex-shrink-0'
                   style={{ color: `${token.brandColor}CC` }} // 80% opacity
                 />
-                <span className='text-sm'>Amber Finance</span>
+                <span className='text-sm'>Mars Fragments</span>
               </div>
-              <span className='text-base font-bold' style={{ color: token.brandColor }}>
-                <CountingNumber value={metrics.lendingApy} decimalPlaces={2} />%
-              </span>
+              <div className='flex items-center gap-2'>
+                <Zap
+                  className='w-3 h-3 flex-shrink-0'
+                  style={{ color: `${token.brandColor}CC` }} // 80% opacity
+                />
+                <span className='text-sm'>Neutron Quarks</span>
+              </div>
             </div>
           </div>
         </div>
 
         <Separator className='bg-border/60' />
 
-        {/* Wallet Balance Section */}
+        {/* Balances Section */}
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
-            <Wallet className='w-4 h-4' style={{ color: token.brandColor }} />
-            <span
-              className='text-sm font-bold tracking-wider uppercase'
-              style={{ color: token.brandColor }}
-            >
-              {metrics.deposited > 0 ? 'Deposited' : 'Wallet Balance'}
+            {/* <Wallet className='w-4 h-4' style={{ color: token.brandColor }} /> */}
+            <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
+              Balances
             </span>
           </div>
 
           <div className='space-y-2'>
-            {metrics.deposited > 0 ? (
-              <div className='flex justify-between items-center'>
-                <span className='text-sm text-muted-foreground/90'>Deposited</span>
-                <div className='text-base font-bold text-foreground'>
-                  {formatBalance(metrics.deposited)} {token.symbol}
-                </div>
+            <div className='flex justify-between items-center'>
+              <span className='text-sm text-muted-foreground/90'>Deposited</span>
+              <div className='text-base text-foreground'>
+                {formatBalance(metrics.deposited)} {token.symbol}
               </div>
-            ) : (
-              <div className='flex justify-between items-center'>
-                <span className='text-sm'>Available</span>
-                <div className='text-right'>
-                  <div className='text-base text-foreground font-funnel'>
-                    {formatBalance(metrics.balance)}{' '}
-                    <span style={{ color: token.brandColor }}>{token.symbol}</span>
-                  </div>
-                  {metrics.valueUsd > 0 && (
-                    <div className='text-xs text-muted-foreground'>
-                      {formatUsd(metrics.valueUsd)}
-                    </div>
-                  )}
-                </div>
+            </div>
+
+            <div className='flex justify-between items-center'>
+              <span className='text-sm text-muted-foreground/90'>Available</span>
+              <div className='text-base text-foreground'>
+                {formatBalance(metrics.balance)} {token.symbol}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </CardContent>
 
       <CardFooter className='relative z-20 pt-2'>
-        <div className='relative group/button w-full'>
-          <div
-            className='absolute inset-0 rounded-lg blur-md opacity-0 group-hover/button:opacity-50 transition-all duration-500 scale-105'
-            style={{
-              background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
-            }}
-          />
-          <div
-            className='relative p-[1px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
-            style={{
-              background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
-            }}
-          >
-            <Button
-              onClick={handleDepositClick}
-              variant='outline'
-              className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
+        <div className='flex gap-2 w-full'>
+          {/* Deposit Button */}
+          <div className='relative group/button flex-1'>
+            <div
+              className='absolute inset-0 rounded-lg blur-md opacity-0 group-hover/button:opacity-50 transition-all duration-500 scale-105'
+              style={{
+                background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
+              }}
+            />
+            <div
+              className='relative p-[1px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
+              style={{
+                background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
+              }}
             >
-              <div
-                className='absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700'
-                style={{
-                  background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`,
-                  transform: 'translateX(-100%)',
-                }}
-              />
-              <span className='relative z-10'>Deposit</span>
-            </Button>
+              <Button
+                onClick={handleDepositClick}
+                variant='secondary'
+                className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
+              >
+                Deposit
+              </Button>
+            </div>
           </div>
+
+          {/* Withdraw Button  */}
+          {metrics.deposited > 0 && (
+            <Button
+              onClick={handleWithdrawClick}
+              variant='secondary'
+              className='font-semibold rounded-md p-3 aspect-square'
+              style={{ borderColor: token.brandColor }}
+            >
+              <ArrowDownToLine className='w-4 h-4 text-foreground/70' />
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>
