@@ -84,17 +84,6 @@ interface MarketItem extends Market {
   isBalanceLoading?: boolean
 }
 
-// Market with calculated values, extends Market
-// interface MarketWithValues extends Market {
-//   calculatedValues: {
-//     suppliedUsd: number
-//     borrowedUsd: number
-//     liquidityUsd: number
-//     supplyApy: string
-//     borrowApy: string
-//   }
-// }
-
 // Detailed metrics calculated from Market data
 interface MarketMetrics {
   reserveSizeUsd: number
@@ -463,15 +452,6 @@ interface CoinValue {
   value: Uint128
 }
 
-// Metric component interfaces
-// interface MetricCardProps {
-//   label: string
-//   value: number | string
-//   isCurrency?: boolean
-//   suffix?: string
-//   useCompactNotation?: boolean
-// }
-
 interface MetricRowProps {
   label: string
   value: number | string
@@ -484,22 +464,6 @@ interface MetricRowProps {
 
 type SortColumn = 'asset' | 'balance' | 'apy'
 type SortDirection = 'asc' | 'desc'
-
-// interface MarketWithValues extends Market {
-//   calculatedValues: {
-//     suppliedUsd: number
-//     borrowedUsd: number
-//     liquidityUsd: number
-//     supplyApy: string
-//     borrowApy: string
-//   }
-// }
-
-// interface MarketColumn {
-//   id: SortColumn
-//   label: string
-//   align?: 'left' | 'right'
-// }
 
 type Theme = 'dark' | 'light' | 'system'
 
@@ -546,7 +510,6 @@ interface Strategy {
   }
 }
 
-// Skip API Types for Swap Functionality
 interface SwapRoute {
   amountIn: string
   amountOut: string
@@ -588,19 +551,6 @@ interface SwapOperation {
   amountOut: string
 }
 
-// interface SwapOperationDetail {
-//   pool?: string
-//   denomIn?: string
-//   denomOut?: string
-//   interface?: string
-// }
-
-// interface SwapVenue {
-//   name?: string
-//   chainId?: string
-//   logoUri?: string
-// }
-
 interface SwapRouteInfo {
   amountOut: BigNumber
   priceImpact: number
@@ -618,25 +568,6 @@ interface SwapToken {
   usdValue: string
   decimals: number
 }
-
-// // Route request parameters
-// interface RouteRequest {
-//   amountIn: string
-//   sourceAssetDenom: string
-//   sourceAssetChainId: string
-//   destAssetDenom: string
-//   destAssetChainId: string
-//   cumulativeAffiliateFeeBps: string
-//   allowMultiTx?: boolean
-//   allowUnsafe?: boolean
-//   experimentalFeatures?: string[]
-//   goFast?: boolean
-//   smartRelay?: boolean
-//   smartSwapOptions?: {
-//     splitRoutes: boolean
-//     evmSwaps: boolean
-//   }
-// }
 
 // RedBank TVL API Response
 interface RedBankTvlResponse {
