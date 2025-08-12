@@ -579,3 +579,15 @@ interface RedBankTvlAsset {
   tvl: string
   tvl_share: number
 }
+
+interface RedBankDenomDataResponse {
+  tvl_historical: TvlHistoricalPoint[]
+  tvl_share: number
+  unique_wallets: number
+  average_lending_apy: number
+}
+
+interface TvlHistoricalPoint {
+  date: string
+  value: string
+}

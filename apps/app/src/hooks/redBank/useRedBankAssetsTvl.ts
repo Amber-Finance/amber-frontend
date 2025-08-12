@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 
-import getRedBankAssetsTvl from '@/api/redBankTvl/getRedBankAssetsTvl'
+import getRedBankAssetsTvl from '@/api/redBank/getRedBankAssetsTvl'
 
 export default function useRedBankAssetsTvl() {
   return useSWR(
@@ -12,7 +12,6 @@ export default function useRedBankAssetsTvl() {
     },
     {
       revalidateOnFocus: false,
-      suspense: false,
     },
   )
 }

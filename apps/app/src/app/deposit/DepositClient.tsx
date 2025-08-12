@@ -32,7 +32,8 @@ import {
   useUserDeposit,
   useWalletBalances,
 } from '@/hooks'
-import useRedBankAssetsTvl from '@/hooks/redBankTvl/useRedBankAssetsTvl'
+import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
+import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency, formatTokenAmount } from '@/utils/format'
@@ -67,12 +68,14 @@ export default function DepositClient() {
   const { deposit, withdraw, isPending } = useTransactions()
 
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
-  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+
+  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
+  const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
 
   const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
     (asset: any) => asset.denom === tokenData?.denom,
@@ -370,9 +373,9 @@ export default function DepositClient() {
           <InfoCard title='Market Status'>
             <div className='flex flex-row gap-4'>
               <ProgressCard
-                value={33}
-                label='TVL Growth (7d)'
-                subtitle={formatCompactCurrency(3095)}
+                value={tvlGrowth30d}
+                label='TVL Growth (30d)'
+                subtitle={`${tvlGrowth30d.toFixed(2)}%`}
                 brandColor={token.brandColor}
               />
               <ProgressCard
@@ -392,10 +395,14 @@ export default function DepositClient() {
                 value={formatCompactCurrency(currentTokenTvlAmount)}
                 variant='compact'
               />
-              <MetricRow label='Unique Wallets' value='1104' variant='compact' />
               <MetricRow
-                label='Average APY (30d)'
-                value={`${metrics.totalApy}%`}
+                label='Unique Wallets'
+                value={redBankDenomData?.unique_wallets}
+                variant='compact'
+              />
+              <MetricRow
+                label='Average Lending APY (30d)'
+                value={`${redBankDenomData?.average_lending_apy.toFixed(2)}%`}
                 variant='compact'
               />
               <MetricRow
