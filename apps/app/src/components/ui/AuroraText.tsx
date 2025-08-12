@@ -2,6 +2,8 @@
 
 import React, { memo } from 'react'
 
+import { cn } from '@/lib/utils'
+
 interface AuroraTextProps {
   children: React.ReactNode
   className?: string
@@ -13,7 +15,7 @@ export const AuroraText = memo(
   ({
     children,
     className = '',
-    colors = ['#FF0080', '#7928CA', '#0070F3', '#38bdf8'],
+    colors = ['#b1241e', '#FF6B35', '#f48a59', '#b1241e'],
     speed = 1,
   }: AuroraTextProps) => {
     const gradientStyle = {
@@ -24,7 +26,7 @@ export const AuroraText = memo(
     }
 
     return (
-      <span className={`relative inline-block ${className}`}>
+      <span className={cn('relative inline-block', className)}>
         <span className='sr-only'>{children}</span>
         <span
           className='relative animate-aurora bg-[length:200%_auto] bg-clip-text text-transparent'

@@ -1,51 +1,59 @@
+import { ReactNode } from 'react'
+
 import { AuroraText } from '@/components/ui/AuroraText'
 import { StatCard } from '@/components/ui/StatCard'
 
 interface HeroProps {
-  markets?: Array<{
-    token: {
-      symbol: string
-    }
-    metrics: {
-      lendingApy: number
-      stakingApy: number
-      totalApy: number
-      collateralTotalUsd: number
-    }
-  }> | null
+  title?: string | ReactNode
+  subtitle?: string | ReactNode
+  description?: string
+  stats?: Array<{
+    value: number
+    label: string | ReactNode
+    isCurrency?: boolean
+    prefix?: string
+  }>
 }
 
-export default function Hero({ markets }: HeroProps) {
-  const totalTvl =
-    markets && markets.length > 0
-      ? markets.reduce((sum, m) => sum + m.metrics.collateralTotalUsd, 0)
-      : 0
-
+export default function Hero({ title, subtitle, description, stats }: HeroProps) {
   return (
     <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-8'>
       <div className='flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-12'>
         {/* Left Column - Main Content */}
         <div className='flex-1 flex flex-col justify-between gap-6'>
           <div className='space-y-3'>
-            <h1 className='text-2xl sm:text-3xl lg:text-5xl font-funnel leading-tight'>
-              <span className='block text-foreground'>Liquid Staking.</span>
-              <span className='block'>
-                <AuroraText colors={['#b1241e', '#FF6B35', '#f48a59', '#b1241e']}>
-                  Solid Yield.
-                </AuroraText>
-              </span>
+            <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
+              {title && (
+                <>
+                  {title}
+                  {subtitle && <span className='block'>{subtitle}</span>}
+                </>
+              )}
             </h1>
-            <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
-              Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to
-              earn real yield.
-            </p>
+            {description && (
+              <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
+                {description}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Right Column - Stats Cards */}
-        <div className='flex flex-row gap-2 sm:gap-3'>
-          <StatCard value={totalTvl} label='Total TVL' isCurrency={true} prefix='$' />
-        </div>
+        {stats && stats.length > 0 && (
+          <div className='flex-1 max-w-sm w-full h-full'>
+            <div className='flex flex-row gap-2 sm:gap-3'>
+              {stats.map((stat, index) => (
+                <StatCard
+                  key={index}
+                  value={stat.value}
+                  label={stat.label}
+                  isCurrency={stat.isCurrency}
+                  prefix={stat.prefix}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )
