@@ -70,7 +70,7 @@ export function Bento() {
       </div>
       <div className='mx-auto px-8 md:px-16 max-w-6xl'>
         <BentoGrid>
-          {features.map((feature, idx) => (
+          {features.map((feature) => (
             <BentoCard key={feature.name} {...feature} />
           ))}
         </BentoGrid>
