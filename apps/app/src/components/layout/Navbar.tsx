@@ -50,7 +50,7 @@ export function Navbar() {
           <div className='flex items-center justify-between py-1'>
             <Link href='/' className='flex items-center space-x-2 group'>
               <Image
-                src={resolvedTheme === 'dark' ? '/images/logo-light.svg' : '/images/logo-dark.svg'}
+                src={resolvedTheme === 'dark' ? '/logo/logo-light.svg' : '/logo/logo-dark.svg'}
                 alt='Amber Finance'
                 width={142}
                 height={50}

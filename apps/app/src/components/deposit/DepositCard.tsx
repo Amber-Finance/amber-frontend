@@ -7,6 +7,7 @@ import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import {
   Card,
   CardContent,
@@ -152,9 +153,11 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <div className='text-sm font-bold text-muted-foreground/70 leading-tight whitespace-nowrap uppercase tracking-wider'>
                 Total APY
               </div>
-              <div className='relative group/tooltip'>
-                <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
-                <div className='absolute bottom-full right-0 mb-2 w-72 p-3 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent>
                   <div className='space-y-2'>
                     <div className='flex items-center gap-2'>
                       <span className='text-sm font-bold text-foreground'>Points Campaign</span>
@@ -165,8 +168,8 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                       <p>• Base yield: ~0.5% of total APY</p>
                     </div>
                   </div>
-                </div>
-              </div>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
         </div>

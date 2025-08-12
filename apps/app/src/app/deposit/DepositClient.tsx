@@ -22,6 +22,7 @@ import { AmountInput } from '@/components/ui/AmountInput'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
@@ -255,9 +256,11 @@ export default function DepositClient() {
               </div>
               <div className='flex items-center gap-1'>
                 <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
-                <div className='relative group/tooltip'>
-                  <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
-                  <div className='absolute bottom-full right-0 mb-2 w-64 p-3 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                  </TooltipTrigger>
+                  <TooltipContent>
                     <div className='text-left space-y-2'>
                       <div className='flex items-center gap-2'>
                         <span className='text-sm font-bold text-foreground'>Points Campaign</span>
@@ -268,8 +271,8 @@ export default function DepositClient() {
                         <p>• Base yield: ~0.5% of total APY</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
