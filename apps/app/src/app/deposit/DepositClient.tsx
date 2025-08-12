@@ -32,6 +32,7 @@ import {
   useUserDeposit,
   useWalletBalances,
 } from '@/hooks'
+import useRedBankAssetsTvl from '@/hooks/redBankTvl/useRedBankAssetsTvl'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency, formatTokenAmount } from '@/utils/format'
@@ -66,11 +67,17 @@ export default function DepositClient() {
   const { deposit, withdraw, isPending } = useTransactions()
 
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
+  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+
+  const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
+    (asset: any) => asset.denom === tokenData?.denom,
+  )
+  const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
   const selectedToken = useMemo(() => {
     if (!tokenSymbol || !tokenData || !market) {
@@ -369,9 +376,9 @@ export default function DepositClient() {
                 brandColor={token.brandColor}
               />
               <ProgressCard
-                value={53}
+                value={currentTokenTvlData?.tvl_share}
                 label='TVL Share'
-                subtitle='53% of platform deposits'
+                subtitle={`${currentTokenTvlData?.tvl_share.toFixed(2)}% of platform deposits`}
                 brandColor={token.brandColor}
               />
             </div>
@@ -382,7 +389,7 @@ export default function DepositClient() {
             <div className='flex flex-wrap gap-2'>
               <MetricRow
                 label='Total Value Locked'
-                value={formatCompactCurrency(754322)}
+                value={formatCompactCurrency(currentTokenTvlAmount)}
                 variant='compact'
               />
               <MetricRow label='Unique Wallets' value='1104' variant='compact' />

@@ -85,15 +85,15 @@ interface MarketItem extends Market {
 }
 
 // Market with calculated values, extends Market
-interface MarketWithValues extends Market {
-  calculatedValues: {
-    suppliedUsd: number
-    borrowedUsd: number
-    liquidityUsd: number
-    supplyApy: string
-    borrowApy: string
-  }
-}
+// interface MarketWithValues extends Market {
+//   calculatedValues: {
+//     suppliedUsd: number
+//     borrowedUsd: number
+//     liquidityUsd: number
+//     supplyApy: string
+//     borrowApy: string
+//   }
+// }
 
 // Detailed metrics calculated from Market data
 interface MarketMetrics {
@@ -464,13 +464,13 @@ interface CoinValue {
 }
 
 // Metric component interfaces
-interface MetricCardProps {
-  label: string
-  value: number | string
-  isCurrency?: boolean
-  suffix?: string
-  useCompactNotation?: boolean
-}
+// interface MetricCardProps {
+//   label: string
+//   value: number | string
+//   isCurrency?: boolean
+//   suffix?: string
+//   useCompactNotation?: boolean
+// }
 
 interface MetricRowProps {
   label: string
@@ -485,21 +485,21 @@ interface MetricRowProps {
 type SortColumn = 'asset' | 'balance' | 'apy'
 type SortDirection = 'asc' | 'desc'
 
-interface MarketWithValues extends Market {
-  calculatedValues: {
-    suppliedUsd: number
-    borrowedUsd: number
-    liquidityUsd: number
-    supplyApy: string
-    borrowApy: string
-  }
-}
+// interface MarketWithValues extends Market {
+//   calculatedValues: {
+//     suppliedUsd: number
+//     borrowedUsd: number
+//     liquidityUsd: number
+//     supplyApy: string
+//     borrowApy: string
+//   }
+// }
 
-interface MarketColumn {
-  id: SortColumn
-  label: string
-  align?: 'left' | 'right'
-}
+// interface MarketColumn {
+//   id: SortColumn
+//   label: string
+//   align?: 'left' | 'right'
+// }
 
 type Theme = 'dark' | 'light' | 'system'
 
@@ -588,18 +588,18 @@ interface SwapOperation {
   amountOut: string
 }
 
-interface SwapOperationDetail {
-  pool?: string
-  denomIn?: string
-  denomOut?: string
-  interface?: string
-}
+// interface SwapOperationDetail {
+//   pool?: string
+//   denomIn?: string
+//   denomOut?: string
+//   interface?: string
+// }
 
-interface SwapVenue {
-  name?: string
-  chainId?: string
-  logoUri?: string
-}
+// interface SwapVenue {
+//   name?: string
+//   chainId?: string
+//   logoUri?: string
+// }
 
 interface SwapRouteInfo {
   amountOut: BigNumber
@@ -619,21 +619,32 @@ interface SwapToken {
   decimals: number
 }
 
-// Route request parameters
-interface RouteRequest {
-  amountIn: string
-  sourceAssetDenom: string
-  sourceAssetChainId: string
-  destAssetDenom: string
-  destAssetChainId: string
-  cumulativeAffiliateFeeBps: string
-  allowMultiTx?: boolean
-  allowUnsafe?: boolean
-  experimentalFeatures?: string[]
-  goFast?: boolean
-  smartRelay?: boolean
-  smartSwapOptions?: {
-    splitRoutes: boolean
-    evmSwaps: boolean
-  }
+// // Route request parameters
+// interface RouteRequest {
+//   amountIn: string
+//   sourceAssetDenom: string
+//   sourceAssetChainId: string
+//   destAssetDenom: string
+//   destAssetChainId: string
+//   cumulativeAffiliateFeeBps: string
+//   allowMultiTx?: boolean
+//   allowUnsafe?: boolean
+//   experimentalFeatures?: string[]
+//   goFast?: boolean
+//   smartRelay?: boolean
+//   smartSwapOptions?: {
+//     splitRoutes: boolean
+//     evmSwaps: boolean
+//   }
+// }
+
+// RedBank TVL API Response
+interface RedBankTvlResponse {
+  assets: RedBankTvlAsset[]
+}
+
+interface RedBankTvlAsset {
+  denom: string
+  tvl: string
+  tvl_share: number
 }
