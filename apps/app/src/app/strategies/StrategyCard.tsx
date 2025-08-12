@@ -110,7 +110,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { collateralColor, debtColor } = getGradientColors()
 
   return (
-    <Card className='group relative w-[400px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 backdrop-blur-sm border border-border/50 overflow-hidden text-card-foreground hover:border-border'>
+    <Card className='group relative w-[340px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 backdrop-blur-sm border border-border/50 overflow-hidden text-card-foreground hover:border-border'>
       <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 overflow-hidden'>
         <Meteors number={15} />
       </div>
@@ -170,7 +170,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           <div className='flex-1'>
-            <h3 className='text-xl font-bold text-foreground mb-1'>
+            <h3 className='text-lg font-bold text-foreground mb-1'>
               {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
             </h3>
             <p className='text-sm text-muted-foreground/90 font-medium leading-tight'>

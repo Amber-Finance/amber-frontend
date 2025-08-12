@@ -290,7 +290,7 @@ export default function SwapClient() {
                   className='hidden group-hover:flex group-focus-within:flex'
                 />
               </div>
-              <div className='relative'>
+              <div className='relative mt-2'>
                 <input
                   type='number'
                   value={fromAmount}

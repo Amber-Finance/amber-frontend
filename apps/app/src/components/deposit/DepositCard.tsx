@@ -149,7 +149,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
             <div className='flex items-center gap-1'>
-              <div className='text-sm font-bold text-muted-foreground/70  leading-tight whitespace-nowrap uppercase tracking-wider'>
+              <div className='text-sm font-bold text-muted-foreground/70 leading-tight whitespace-nowrap uppercase tracking-wider'>
                 Total APY
               </div>
               <div className='relative group/tooltip'>
