@@ -163,7 +163,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                       <span className='text-sm font-bold text-foreground'>Points Campaign</span>
                     </div>
                     <div className='text-xs text-muted-foreground space-y-1'>
-                      <p>• Mars Fragments: ~1% of total APY</p>
+                      <p>• Mars Fragments</p>
                       <p>• Neutron Quarks: ~2% of total APY</p>
                       <p>• Base yield: ~0.5% of total APY</p>
                     </div>

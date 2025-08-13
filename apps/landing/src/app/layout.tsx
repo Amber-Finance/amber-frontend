@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     siteName: 'Amber',
     images: [
       {
-        url: 'https://amberfi.io/banner.png',
+        url: 'https://amberfi.io/twitter-banner/default.png',
         width: 1280,
         height: 720,
         alt: 'Amber Finance',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
     images: [
       {
-        url: 'https://amberfi.io/banner.png',
+        url: 'https://amberfi.io/twitter-banner/default.png',
         width: 1280,
         height: 720,
         alt: 'Amber Finance',

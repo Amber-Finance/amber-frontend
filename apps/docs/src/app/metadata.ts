@@ -5,7 +5,7 @@ const SHARED_CONFIG = {
   siteName: 'Amber Docs',
   baseUrl: 'https://docs.amberfi.io',
   twitterHandle: '@amberfi_io',
-  bannerImage: 'https://docs.amberfi.io/banner.png',
+  bannerImage: 'https://docs.amberfi.io/twitter-banner/default.png',
   locale: 'en_US',
 }
 
