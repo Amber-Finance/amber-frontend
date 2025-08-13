@@ -354,7 +354,7 @@ export default function DepositClient() {
                 </div>
                 <div className='space-y-2'>
                   <MetricRow
-                    icon={Zap}
+                    customIcon='/images/marsFragments/mars-fragments.svg'
                     label='Mars Fragments'
                     value='~1'
                     suffix='%'
