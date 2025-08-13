@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { BigNumber } from 'bignumber.js'
-import { IterationCw } from 'lucide-react'
 
 import { StrategyCard } from '@/app/strategies/StrategyCard'
-import { StatCard } from '@/components/ui/StatCard'
+import Hero from '@/components/layout/Hero'
+import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
 import { useLstMarkets } from '@/hooks/useLstMarkets'
 import { useMarkets } from '@/hooks/useMarkets'
@@ -238,101 +238,73 @@ export default function StrategiesOverview() {
 
   return (
     <>
-      {/* Strategies Header - Custom Hero-like section */}
-      <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-8'>
-        <div className='flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-12'>
-          <div className='flex-1 flex flex-col justify-between gap-6'>
-            <div className='flex items-center gap-4'>
-              <div className='relative'>
-                <div className='absolute inset-0 rounded-full blur-md scale-110 opacity-50 bg-gradient-to-r from-orange-500 to-amber-500' />
-                <div className='relative w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 flex items-center justify-center shadow-lg'>
-                  <IterationCw className='w-6 h-6 text-white' />
+      <Hero
+        title={<AuroraText>Looping</AuroraText>}
+        subtitle='BRT Strategies'
+        description='Effortlessly leverage restaking, farm points, arbitrage rates, and more - all with just a few clicks'
+        stats={[
+          {
+            value: totalBorrowValue,
+            label: 'Total Borrow',
+            isCurrency: true,
+            prefix: '$',
+          },
+          {
+            value: totalSupplyValue,
+            label: 'Total Supply',
+            isCurrency: true,
+            prefix: '$',
+          },
+        ]}
+      />
+
+      {/* Strategies Grid - Match yields page structure exactly */}
+      <div className='w-full pt-6 pb-2 px-4 sm:px-8'>
+        <div className='w-full mx-auto'>
+          {marketsLoading ? (
+            <div className='text-center py-12'>
+              <div className='max-w-md mx-auto space-y-3'>
+                <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
+                  <div className='w-6 h-6 bg-muted/40 rounded-full animate-pulse' />
                 </div>
-              </div>
-              <div>
-                <h1 className='text-2xl sm:text-3xl lg:text-5xl font-bold text-foreground mb-1'>
-                  Looping Strategies
-                </h1>
-                <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
-                  Effortlessly leverage restaking, farm points, arbitrage rates, and more - all with
-                  just a few clicks
+                <h3 className='text-base font-semibold text-foreground'>Loading Strategies...</h3>
+                <p className='text-sm text-muted-foreground'>
+                  Fetching market data to generate looping strategies...
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className='flex-1 max-w-lg w-full h-full'>
-            <div className='flex flex-row gap-2 sm:gap-3'>
-              <StatCard
-                value={totalBorrowValue}
-                label={
-                  <>
-                    Total <span className='block sm:inline' /> Borrow
-                  </>
-                }
-                isCurrency={true}
-                prefix='$'
-              />
-              <StatCard
-                value={totalSupplyValue}
-                label={
-                  <>
-                    Total <span className='block sm:inline' /> Supply
-                  </>
-                }
-                isCurrency={true}
-                prefix='$'
-              />
+          ) : marketsError ? (
+            <div className='text-center py-12'>
+              <div className='max-w-md mx-auto space-y-3'>
+                <div className='w-12 h-12 mx-auto bg-red-500/20 rounded-full flex items-center justify-center'>
+                  <div className='w-6 h-6 bg-red-500/40 rounded-full' />
+                </div>
+                <h3 className='text-base font-semibold text-red-500'>Error Loading Strategies</h3>
+                <p className='text-sm text-muted-foreground'>
+                  Failed to fetch market data: {marketsError.message}
+                </p>
+              </div>
             </div>
-          </div>
+          ) : strategies.length > 0 ? (
+            <div className='flex flex-wrap gap-4 justify-center'>
+              {strategies.map((strategy) => (
+                <StrategyCard key={strategy.id} strategy={strategy} />
+              ))}
+            </div>
+          ) : (
+            <div className='text-center py-12'>
+              <div className='max-w-md mx-auto space-y-3'>
+                <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
+                  <div className='w-6 h-6 bg-muted/40 rounded-full' />
+                </div>
+                <h3 className='text-base font-semibold text-foreground'>No Strategies Available</h3>
+                <p className='text-sm text-muted-foreground'>
+                  No looping strategies available with current market data.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-      </section>
-
-      {/* Strategies Grid - Match yields page structure exactly */}
-      <div className='w-full pt-6 pb-2'>
-        {marketsLoading ? (
-          <div className='text-center py-12'>
-            <div className='max-w-md mx-auto space-y-3'>
-              <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
-                <div className='w-6 h-6 bg-muted/40 rounded-full animate-pulse' />
-              </div>
-              <h3 className='text-base font-semibold text-foreground'>Loading Strategies...</h3>
-              <p className='text-sm text-muted-foreground'>
-                Fetching market data to generate looping strategies...
-              </p>
-            </div>
-          </div>
-        ) : marketsError ? (
-          <div className='text-center py-12'>
-            <div className='max-w-md mx-auto space-y-3'>
-              <div className='w-12 h-12 mx-auto bg-red-500/20 rounded-full flex items-center justify-center'>
-                <div className='w-6 h-6 bg-red-500/40 rounded-full' />
-              </div>
-              <h3 className='text-base font-semibold text-red-500'>Error Loading Strategies</h3>
-              <p className='text-sm text-muted-foreground'>
-                Failed to fetch market data: {marketsError.message}
-              </p>
-            </div>
-          </div>
-        ) : strategies.length > 0 ? (
-          <div className='flex flex-wrap gap-4 justify-center'>
-            {strategies.map((strategy) => (
-              <StrategyCard key={strategy.id} strategy={strategy} />
-            ))}
-          </div>
-        ) : (
-          <div className='text-center py-12'>
-            <div className='max-w-md mx-auto space-y-3'>
-              <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
-                <div className='w-6 h-6 bg-muted/40 rounded-full' />
-              </div>
-              <h3 className='text-base font-semibold text-foreground'>No Strategies Available</h3>
-              <p className='text-sm text-muted-foreground'>
-                No looping strategies available with current market data.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </>
   )

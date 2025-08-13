@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import DepositCard from '@/components/deposit/DepositCard'
 import Hero from '@/components/layout/Hero'
+import { AuroraText } from '@/components/ui/AuroraText'
 import { useLstMarkets, useMarkets } from '@/hooks'
 import type { LstMarketData } from '@/hooks/useLstMarkets'
 import useUserPositions from '@/hooks/useUserPositions'
@@ -31,7 +32,19 @@ export default function Home() {
 
   return (
     <>
-      <Hero markets={sortedMarkets} />
+      <Hero
+        title='Liquid Staking.'
+        subtitle={<AuroraText>Solid Yield.</AuroraText>}
+        description='Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to earn real yield.'
+        stats={[
+          {
+            value: sortedMarkets.reduce((sum, m) => sum + m.metrics.collateralTotalUsd, 0),
+            label: 'Total TVL',
+            isCurrency: true,
+            prefix: '$',
+          },
+        ]}
+      />
 
       <div className='w-full pt-6 pb-2'>
         {sortedMarkets.length > 0 ? (

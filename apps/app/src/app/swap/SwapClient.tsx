@@ -12,6 +12,7 @@ import { ArrowUpDown, Settings } from 'lucide-react'
 import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
 import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
+import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent } from '@/components/ui/card'
@@ -197,9 +198,11 @@ export default function SwapClient() {
 
   return (
     <>
-      <div className='relative w-full py-8 sm:py-12 px-4 max-w-6xl mx-auto'>
+      <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
-          <h2 className='text-xl sm:text-4xl font-bold text-foreground'>Swap Bitcoin Assets</h2>
+          <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
+            Swap <AuroraText>Bitcoin Assets</AuroraText>
+          </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
             Trade between Bitcoin LSTs, wBTC, and maxBTC with minimal slippage and competitive rates
           </p>
@@ -287,26 +290,26 @@ export default function SwapClient() {
                   className='hidden group-hover:flex group-focus-within:flex'
                 />
               </div>
-              <div className='flex items-center gap-2'>
+              <div className='relative mt-2'>
                 <input
                   type='number'
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
                   placeholder='0.00'
                   className={cn(
-                    'flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground',
+                    'w-full pr-32 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground',
                     hasInsufficientBalance && 'text-red-500',
                   )}
                 />
                 {fromAmount && fromAmount !== debouncedFromAmount && (
-                  <div className='w-2 h-2 bg-primary/60 rounded-full animate-pulse' />
+                  <div className='absolute right-28 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary/60 rounded-full animate-pulse' />
                 )}
                 <button
                   onClick={() => {
                     setSelectingFrom(true)
                     setTokenModalOpen(true)
                   }}
-                  className='flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/20'
+                  className='absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-border bg-muted/20 min-w-[100px] sm:min-w-[140px] text-sm sm:text-base'
                 >
                   {fromToken ? (
                     <>
@@ -360,20 +363,20 @@ export default function SwapClient() {
               <div className='mb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
                 To
               </div>
-              <div className='flex items-center gap-2'>
+              <div className='relative'>
                 <input
                   type='number'
                   value={toAmount}
                   onChange={(e) => setToAmount(e.target.value)}
                   placeholder='0.00'
-                  className='flex-1 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
+                  className='w-full pr-32 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
                 />
                 <button
                   onClick={() => {
                     setSelectingFrom(false)
                     setTokenModalOpen(true)
                   }}
-                  className='flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/20'
+                  className='absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 sm:gap-2 px-3 py-2 rounded-lg border border-border bg-muted/20 min-w-[100px] sm:min-w-[140px] text-sm sm:text-base'
                 >
                   {toToken ? (
                     <>
@@ -507,12 +510,6 @@ export default function SwapClient() {
             label={<span className='text-xs'>24h Volume</span>}
             isCurrency={true}
             prefix='$'
-          />
-          <StatCard
-            value={0.02}
-            label={<span className='text-xs'>Avg Slippage</span>}
-            decimalPlaces={2}
-            suffix='%'
           />
         </div>
 

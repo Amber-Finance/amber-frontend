@@ -22,6 +22,7 @@ import { AmountInput } from '@/components/ui/AmountInput'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
@@ -32,6 +33,8 @@ import {
   useUserDeposit,
   useWalletBalances,
 } from '@/hooks'
+import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
+import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency, formatTokenAmount } from '@/utils/format'
@@ -71,6 +74,14 @@ export default function DepositClient() {
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+
+  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
+  const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
+
+  const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
+    (asset: any) => asset.denom === tokenData?.denom,
+  )
+  const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
   const selectedToken = useMemo(() => {
     if (!tokenSymbol || !tokenData || !market) {
@@ -245,9 +256,11 @@ export default function DepositClient() {
               </div>
               <div className='flex items-center gap-1'>
                 <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
-                <div className='relative group/tooltip'>
-                  <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
-                  <div className='absolute bottom-full right-0 mb-2 w-64 p-3 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                  </TooltipTrigger>
+                  <TooltipContent>
                     <div className='text-left space-y-2'>
                       <div className='flex items-center gap-2'>
                         <span className='text-sm font-bold text-foreground'>Points Campaign</span>
@@ -258,8 +271,8 @@ export default function DepositClient() {
                         <p>• Base yield: ~0.5% of total APY</p>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -363,15 +376,15 @@ export default function DepositClient() {
           <InfoCard title='Market Status'>
             <div className='flex flex-row gap-4'>
               <ProgressCard
-                value={33}
-                label='TVL Growth (7d)'
-                subtitle={formatCompactCurrency(3095)}
+                value={tvlGrowth30d}
+                label='TVL Growth (30d)'
+                subtitle={`${tvlGrowth30d.toFixed(2)}%`}
                 brandColor={token.brandColor}
               />
               <ProgressCard
-                value={53}
+                value={currentTokenTvlData?.tvl_share}
                 label='TVL Share'
-                subtitle='53% of platform deposits'
+                subtitle={`${currentTokenTvlData?.tvl_share.toFixed(2)}% of platform deposits`}
                 brandColor={token.brandColor}
               />
             </div>
@@ -382,13 +395,17 @@ export default function DepositClient() {
             <div className='flex flex-wrap gap-2'>
               <MetricRow
                 label='Total Value Locked'
-                value={formatCompactCurrency(754322)}
+                value={formatCompactCurrency(currentTokenTvlAmount)}
                 variant='compact'
               />
-              <MetricRow label='Unique Wallets' value='1104' variant='compact' />
               <MetricRow
-                label='Average APY (30d)'
-                value={`${metrics.totalApy}%`}
+                label='Unique Wallets'
+                value={redBankDenomData?.unique_wallets}
+                variant='compact'
+              />
+              <MetricRow
+                label='Average Lending APY (30d)'
+                value={`${redBankDenomData?.average_lending_apy.toFixed(2)}%`}
                 variant='compact'
               />
               <MetricRow
