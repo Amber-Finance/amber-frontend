@@ -1,0 +1,326 @@
+# Red Bank
+
+The Red Bank contract is at the heart of Amber Finance’s money market functionality, inherited from Mars Protocol. It holds all deposited assets and provides v1-style market interactions directly through the user’s wallet.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1n97wnm7q6d2hrcna3rqlnyqw2we6k0l8uqvmyqq6gsml92epdu7quugyph`
+
+---
+
+### Types
+
+```ts
+type Decimal = string
+type Uint128 = string
+````
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: string
+    owner?: string | null
+    proposed_new_owner?: string | null
+  }
+}
+```
+
+---
+
+#### `market` (outdated)
+
+```ts
+{
+  market: {
+    denom: string
+  }
+}
+```
+
+---
+
+#### `market_v2`
+
+```ts
+{
+  market_v2: {
+    denom: string
+  }
+}
+```
+
+Returns detailed information about the specific market, including interest model and indexes.
+
+---
+
+#### `markets` (outdated)
+
+```ts
+{
+  markets: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+---
+
+#### `markets_v2`
+
+```ts
+{
+  markets_v2: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Returns:**
+
+A list of all markets and their parameters.
+
+---
+
+#### `scaled_debt_amount`
+
+```ts
+{
+  scaled_debt_amount: {
+    amount: Uint128
+    denom: string
+  }
+}
+```
+
+---
+
+#### `scaled_liquidity_amount`
+
+```ts
+{
+  scaled_liquidity_amount: {
+    amount: Uint128
+    denom: string
+  }
+}
+```
+
+---
+
+#### `underlying_debt_amount`
+
+```ts
+{
+  underlying_debt_amount: {
+    amount_scaled: Uint128
+    denom: string
+  }
+}
+```
+
+---
+
+#### `underlying_liquidity_amount`
+
+```ts
+{
+  underlying_liquidity_amount: {
+    amount_scaled: Uint128
+    denom: string
+  }
+}
+```
+
+---
+
+#### `user_collateral`
+
+```ts
+{
+  user_collateral: {
+    account_id?: string | null
+    denom: string
+    user: string
+  }
+}
+```
+
+---
+
+#### `user_collaterals` (outdated)
+
+```ts
+{
+  user_collaterals: {
+    account_id?: string | null
+    limit?: number | null
+    start_after?: string | null
+    user: string
+  }
+}
+```
+
+---
+
+#### `user_collaterals_v2`
+
+```ts
+{
+  user_collaterals_v2: {
+    account_id?: string | null
+    limit?: number | null
+    start_after?: string | null
+    user: string
+  }
+}
+```
+
+---
+
+#### `user_debt`
+
+```ts
+{
+  user_debt: {
+    denom: string
+    user: string
+  }
+}
+```
+
+---
+
+#### `user_debts`
+
+```ts
+{
+  user_debts: {
+    limit?: number | null
+    start_after?: string | null
+    user: string
+  }
+}
+```
+
+---
+
+#### `user_position`
+
+```ts
+{
+  user_position: {
+    account_id?: string | null
+    user: string
+  }
+}
+```
+
+---
+
+#### `user_position_liquidation_pricing`
+
+```ts
+{
+  user_position_liquidation_pricing: {
+    account_id?: string | null
+    user: string
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `borrow`
+
+```ts
+{
+  borrow: {
+    amount: Uint128
+    denom: string
+    recipient?: string | null
+  }
+}
+```
+
+---
+
+#### `deposit`
+
+```ts
+{
+  deposit: {
+    account_id?: string | null
+    on_behalf_of?: string | null
+  }
+}
+```
+
+---
+
+#### `liquidate`
+
+```ts
+{
+  liquidate: {
+    collateral_denom: string
+    recipient?: string | null
+    user: string
+  }
+}
+```
+
+---
+
+#### `repay`
+
+```ts
+{
+  repay: {
+    on_behalf_of?: string | null
+  }
+}
+```
+
+---
+
+#### `withdraw`
+
+```ts
+{
+  withdraw: {
+    account_id?: string | null
+    amount?: Uint128 | null
+    denom: string
+    liquidation_related?: boolean | null
+    recipient?: string | null
+  }
+}
+```
+
+---
+
+*This documentation reflects the Mars Protocol Red Bank contract as deployed by Amber Finance on Neutron.*
+
+```

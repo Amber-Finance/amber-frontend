@@ -1,0 +1,156 @@
+# Swapper
+
+The Swapper contract wraps the underlying decentralized exchange (DEX) to integrate with the Credit Manager. It ensures that minimum receive thresholds are met and reverts any swaps that exceed acceptable slippage.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1udr9fc3kd743dezrj38v2ac74pxxr6qsx4xt4nfpcfczgw52rvyqyjp5au`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+````
+
+#### Coin
+
+```ts
+interface Coin {
+  amount: Uint128
+  denom: string
+  [k: string]: unknown
+}
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    router: string
+    factory: string
+    oracle: string
+  }
+}
+```
+
+---
+
+#### `estimate_exact_in_swap`
+
+Estimates the output of a swap with a given input coin and route.
+
+```ts
+{
+  estimate_exact_in_swap: {
+    coin_in: Coin
+    denom_out: string
+    route?: {
+      astro: {
+        swaps: [
+          {
+            from: string
+            to: string
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+---
+
+#### `route`
+
+Returns route configuration for a given token pair.
+
+```ts
+{
+  route: {
+    denom_in: string
+    denom_out: string
+  }
+}
+```
+
+---
+
+#### `routes`
+
+Returns a list of configured routes.
+
+```ts
+{
+  routes: {
+    limit?: number | null
+    start_after?: [string, string] | null
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `swap_exact_in`
+
+Performs a swap using the exact input amount specified.
+
+```ts
+{
+  swap_exact_in: {
+    coin_in: Coin
+    denom_out: string
+    min_receive: Uint128
+    route?: {
+      astro: {
+        swaps: [
+          {
+            from: string
+            to: string
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+```
+
+---
+
+*This documentation reflects the Mars Protocol Swapper contract as deployed by Amber Finance on Neutron.*
+
+```

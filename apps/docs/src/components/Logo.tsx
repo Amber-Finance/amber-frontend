@@ -30,7 +30,7 @@ export default function Logo() {
     <div className='flex items-center gap-2'>
       <div className='relative flex items-center'>
         <Image
-          src={resolvedTheme === 'dark' ? '/logo/logo-light.svg' : '/logo/logo-dark.svg'}
+          src={resolvedTheme === 'dark' ? '/images/logo-light.svg' : '/images/logo-dark.svg'}
           alt='Amber Finance'
           width={142}
           height={50}
