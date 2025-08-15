@@ -84,7 +84,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
       style={cardStyle}
     >
       <FlickeringGrid
-        className='absolute inset-0 z-0'
+        className='absolute inset-0 z-0 rounded-lg overflow-hidden'
         color={token.brandColor}
         squareSize={8}
         gridGap={2}
@@ -144,7 +144,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
             <div className='flex flex-col'>
               <CardTitle className='text-xl font-funnel text-foreground'>{token.symbol}</CardTitle>
-              <CardDescription className='text-sm text-muted-foreground/90 font-medium leading-tight tracking-widest'>
+              <CardDescription className='text-sm text-muted-foreground/90 font-medium leading-tight tracking-wider'>
                 {token.protocol}
               </CardDescription>
             </div>
@@ -182,9 +182,8 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
       <CardContent className='relative space-y-4 z-20 flex-1 flex flex-col'>
         {/* Yields Section */}
-        <div className='space-y-2'>
+        {/* <div className='space-y-2'>
           <div className='flex items-center gap-2'>
-            {/* <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} /> */}
             <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
               Yield
             </span>
@@ -242,7 +241,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Points Section */}
         <div className='space-y-2'>

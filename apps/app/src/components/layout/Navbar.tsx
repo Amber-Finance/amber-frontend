@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -14,7 +14,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { cn } from '@/lib/utils'
 
 const navigation = [
-  { name: 'Yield', href: '/' },
+  { name: 'Deposit', href: '/' },
   { name: 'Strategies', href: '/strategies' },
   { name: 'Swap', href: '/swap' },
 ]
@@ -49,42 +49,58 @@ export function Navbar() {
         <nav className='mx-auto py-2 max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
           <div className='flex items-center justify-between py-1'>
             <Link href='/' className='flex items-center space-x-2 group'>
-              <Image
-                src={resolvedTheme === 'dark' ? '/logo/logo-light.svg' : '/logo/logo-dark.svg'}
-                alt='Amber Finance'
-                width={142}
-                height={50}
-              />
+              <div className='relative'>
+                <Image
+                  src='/logo/logo-dark.svg'
+                  alt='Amber Finance'
+                  width={142}
+                  height={50}
+                  className={cn(
+                    'transition-opacity duration-700 ease-in-out',
+                    resolvedTheme === 'dark' ? 'opacity-0' : 'opacity-100',
+                  )}
+                />
+                <Image
+                  src='/logo/logo-light.svg'
+                  alt='Amber Finance'
+                  width={142}
+                  height={50}
+                  className={cn(
+                    'absolute inset-0 transition-opacity duration-700 ease-in-out',
+                    resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
+                  )}
+                />
+              </div>
             </Link>
 
-            <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/50 rounded-xl p-1'>
+            <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/80 rounded-full p-1'>
               {navigation.map((item, idx) => {
                 const isActive = pathname === item.href
                 return (
-                  <React.Fragment key={`nav-${item.name}-${idx}`}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        'relative tracking-widest flex items-center px-5 py-2 text-xs rounded-md transition-all duration-300 border border-transparent',
-                        isActive
-                          ? 'text-foreground nav-glow-active'
-                          : 'text-muted-foreground hover:text-foreground',
-                      )}
-                    >
-                      {item.name.toUpperCase()}
-                    </Link>
-                    {idx < navigation.length - 1 && (
-                      <div className='h-6 w-px bg-border mx-1 opacity-60' />
+                  <Link
+                    key={`nav-${item.name}-${idx}`}
+                    href={item.href}
+                    className={cn(
+                      'relative tracking-wide flex items-center px-6 py-2 text-lg rounded-full transition-all duration-300',
+                      isActive
+                        ? 'text-foreground nav-glow-active'
+                        : 'text-muted-foreground hover:text-foreground',
                     )}
-                  </React.Fragment>
+                  >
+                    {item.name}
+                  </Link>
                 )
               })}
             </div>
 
             {/* Desktop Actions */}
             <div className='hidden md:flex md:items-center md:space-x-3'>
-              <ThemeToggle />
-              <ConnectButton />
+              <div className='hidden md:flex md:items-center bg-card/50 border border-border/80 rounded-full p-1'>
+                <ThemeToggle />
+              </div>
+              <div className='hidden md:flex md:items-center md:space-x-3 p-2 text-lg bg-card/50 border border-border/80 rounded-full'>
+                <ConnectButton />
+              </div>
             </div>
 
             {/* Mobile menu button */}
@@ -120,24 +136,26 @@ export function Navbar() {
           {/* Menu Panel */}
           <div className='fixed top-16 left-0 right-0 bg-background border-b border-border shadow-lg'>
             <div className='px-4 py-6 space-y-4'>
-              {navigation.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      'relative block px-4 py-3 text-base font-medium rounded-md border border-border bg-card transition-all duration-300 group',
-                      isActive
-                        ? 'text-foreground nav-glow-active'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className='relative z-10'>{item.name}</span>
-                  </Link>
-                )
-              })}
+              <div className='bg-card/50 border border-border/80 rounded-full p-1'>
+                {navigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        'relative block px-4 py-3 text-lg font-semibold rounded-full transition-all duration-300 group',
+                        isActive
+                          ? 'text-foreground nav-glow-active'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className='relative z-10'>{item.name}</span>
+                    </Link>
+                  )
+                })}
+              </div>
 
               {/* Mobile Connect Button */}
               <div className='pt-4 border-t border-border'>

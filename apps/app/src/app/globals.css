@@ -231,12 +231,12 @@ body {
 }
 
 .nav-glow-active {
-  box-shadow:
-    0 -2px 6px -2px var(--gradient-end),
-    0 -0.5px 0 0 var(--gradient-end);
-  z-index: 2;
-  border-color: rgba(245, 113, 54, 0.18) !important;
-  background: linear-gradient(180deg, rgba(245, 113, 54, 0.07) 0%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    to top,
+    rgba(245, 113, 54, 0.6) 0%,
+    rgba(245, 113, 54, 0.3) 40%,
+    transparent 80%
+  );
 }
 
 input[type='number']::-webkit-inner-spin-button,
@@ -308,7 +308,8 @@ input[type='number'] {
   animation: gradient-shift 2s ease-in-out infinite;
 }
 
-::view-transition-old(root), ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
