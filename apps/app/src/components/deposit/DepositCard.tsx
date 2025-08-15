@@ -252,26 +252,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           <div className='flex flex-wrap gap-1.5'>
-            {/* Neutron Points */}
-            <Badge
-              variant={getBadgeStyle('neutron', token.symbol).variant}
-              className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('neutron', token.symbol).className}`}
-              style={getBadgeStyle('neutron', token.symbol).style}
-            >
-              <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
-                <Image
-                  src={neutronIcon}
-                  alt='Neutron'
-                  width={12}
-                  height={12}
-                  className='object-contain w-full h-full'
-                />
-              </div>
-              <span>Neutron Points</span>
-              <span className='font-bold'>{protocolPoints.multiplier}</span>
-            </Badge>
-
-            {/* Protocol Points */}
+            {/* Protocol Points - Show first if they exist */}
             {protocolPoints.protocolPoint && protocolPointsIcon && (
               <Badge
                 variant={getBadgeStyle('protocol', token.symbol).variant}
@@ -293,6 +274,24 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               </Badge>
             )}
 
+            {/* Neutron Points */}
+            <Badge
+              variant={getBadgeStyle('neutron', token.symbol).variant}
+              className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('neutron', token.symbol).className}`}
+              style={getBadgeStyle('neutron', token.symbol).style}
+            >
+              <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
+                <Image
+                  src={neutronIcon}
+                  alt='Neutron'
+                  width={12}
+                  height={12}
+                  className='object-contain w-full h-full'
+                />
+              </div>
+              <span>Neutron Points</span>
+            </Badge>
+
             {/* Mars Fragments */}
             <Badge
               variant={getBadgeStyle('mars', token.symbol).variant}
@@ -309,7 +308,6 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 />
               </div>
               <span>Mars Fragments</span>
-              <span className='font-bold'>{protocolPoints.multiplier}</span>
             </Badge>
           </div>
         </div>
