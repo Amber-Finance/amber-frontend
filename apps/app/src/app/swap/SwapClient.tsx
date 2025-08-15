@@ -10,6 +10,7 @@ import BigNumber from 'bignumber.js'
 import { ArrowUpDown, Settings } from 'lucide-react'
 
 import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
+import { SwapRouteInfo } from '@/app/swap/SwapRouteInfo'
 import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { AuroraText } from '@/components/ui/AuroraText'
@@ -34,7 +35,7 @@ export default function SwapClient() {
   const { markets } = useStore()
   const { data: walletBalances } = useWalletBalances()
   const { address } = useChain(chainConfig.name)
-  const { fetchSwapRoute, executeSwap, isSwapInProgress } = useSwap()
+  const { fetchSwapRoute, executeSwap } = useSwap()
 
   const [fromTokenDenom, setFromTokenDenom] = useState<string | null>(null)
   const [toTokenDenom, setToTokenDenom] = useState<string | null>(null)
@@ -48,6 +49,7 @@ export default function SwapClient() {
   const [routeInfo, setRouteInfo] = useState<SwapRouteInfo | null>(null)
   const [debouncedFromAmount, setDebouncedFromAmount] = useState('')
   const [isRouteLoading, setIsRouteLoading] = useState(false)
+  const [isSwapInProgress, setIsSwapInProgress] = useState(false)
 
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
@@ -76,6 +78,7 @@ export default function SwapClient() {
         denom: token.denom,
         usdValue,
         decimals,
+        chainId: chainConfig.name,
       }
     })
   }, [markets, walletBalances, address])
@@ -111,12 +114,13 @@ export default function SwapClient() {
       }
 
       setIsRouteLoading(true)
+
       try {
         const route = await fetchSwapRoute(fromToken, toToken, debouncedFromAmount)
         setRouteInfo(route)
 
         if (route) {
-          const toAmountCalculated = route.amountOut.shiftedBy(-toToken.decimals).toFixed(8)
+          const toAmountCalculated = new BigNumber(route.amountOut).toFixed(8)
           setToAmount(toAmountCalculated)
         } else {
           setToAmount('')
@@ -176,15 +180,14 @@ export default function SwapClient() {
     !isSwapInProgress &&
     fromAmount === debouncedFromAmount
 
-  const fromTokenDecimals = fromToken?.decimals || 6
-  const toTokenDecimals = toToken?.decimals || 6
-
   const fromUsdValue = fromToken?.price && fromAmount ? fromToken.price * parseFloat(fromAmount) : 0
   const toUsdValue = toToken?.price && toAmount ? toToken.price * parseFloat(toAmount) : 0
 
   const handleSwap = async () => {
+    if (!routeInfo) return
+    setIsSwapInProgress(true)
     try {
-      const success = await executeSwap(fromToken!, toToken!, fromAmount, slippage)
+      const success = await executeSwap(routeInfo, fromToken, toToken, fromAmount, slippage)
       if (success) {
         setFromAmount('')
         setToAmount('')
@@ -192,7 +195,9 @@ export default function SwapClient() {
         setRouteInfo(null)
       }
     } catch (error) {
-      console.error('Swap failed:', error)
+      // Error toast is already handled in the hook
+    } finally {
+      setIsSwapInProgress(false)
     }
   }
 
@@ -301,9 +306,6 @@ export default function SwapClient() {
                     hasInsufficientBalance && 'text-red-500',
                   )}
                 />
-                {fromAmount && fromAmount !== debouncedFromAmount && (
-                  <div className='absolute right-28 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary/60 rounded-full animate-pulse' />
-                )}
                 <button
                   onClick={() => {
                     setSelectingFrom(true)
@@ -416,83 +418,35 @@ export default function SwapClient() {
 
             {/* Swap Info */}
             {fromToken && toToken && fromAmount && (
-              <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
-                {isRouteLoading ? (
-                  <>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Rate</span>
-                      <div className='h-4 w-24 bg-muted/40 rounded animate-pulse' />
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Price Impact</span>
-                      <div className='h-4 w-16 bg-muted/40 rounded animate-pulse' />
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Minimum Received</span>
-                      <div className='h-4 w-32 bg-muted/40 rounded animate-pulse' />
-                    </div>
-                  </>
-                ) : routeInfo ? (
-                  <>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Rate</span>
-                      <span>
-                        1 {fromToken.symbol} ≈{' '}
-                        <FormattedValue
-                          value={routeInfo.amountOut
-                            .dividedBy(new BigNumber(fromAmount).shiftedBy(fromTokenDecimals))
-                            .toNumber()}
-                          maxDecimals={6}
-                          useCompactNotation={false}
-                          suffix={` ${toToken.symbol}`}
-                        />
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Price Impact</span>
-                      <span className='text-orange-500'>
-                        ~
-                        <FormattedValue
-                          value={routeInfo.priceImpact}
-                          maxDecimals={2}
-                          suffix='%'
-                          useCompactNotation={false}
-                        />
-                      </span>
-                    </div>
-                    <div className='flex justify-between'>
-                      <span className='text-muted-foreground'>Minimum Received</span>
-                      <FormattedValue
-                        value={routeInfo.amountOut
-                          .times(1 - slippage / 100)
-                          .shiftedBy(-toTokenDecimals)
-                          .toNumber()}
-                        maxDecimals={8}
-                        useCompactNotation={false}
-                        suffix={` ${toToken.symbol}`}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className='flex items-center justify-center h-[72px]'>
-                    <span className='text-muted-foreground text-sm'>No route available</span>
-                  </div>
-                )}
-              </div>
+              <SwapRouteInfo
+                amountIn={fromAmount}
+                amountOut={routeInfo?.amountOut || ''}
+                priceImpact={routeInfo?.priceImpact || 0}
+                fromToken={fromToken}
+                toToken={toToken}
+                slippage={slippage}
+                isRouteLoading={isRouteLoading}
+              />
             )}
 
-            <Button disabled={!isSwapValid} className='w-full mt-4' onClick={handleSwap}>
+            <Button
+              disabled={!isSwapValid || isSwapInProgress || isRouteLoading}
+              className='w-full mt-4'
+              onClick={handleSwap}
+            >
               {isSwapInProgress
                 ? 'Swapping...'
-                : hasInsufficientBalance
-                  ? `Insufficient ${fromToken?.symbol} Balance`
-                  : !fromToken || !toToken
-                    ? 'Select tokens'
-                    : !fromAmount
-                      ? 'Enter amount'
-                      : !routeInfo
-                        ? 'No route available'
-                        : 'Swap'}
+                : isRouteLoading
+                  ? 'Loading route...'
+                  : hasInsufficientBalance
+                    ? `Insufficient ${fromToken?.symbol} Balance`
+                    : !fromToken || !toToken
+                      ? 'Select tokens'
+                      : !fromAmount
+                        ? 'Enter amount'
+                        : !routeInfo
+                          ? 'No route available'
+                          : 'Swap'}
             </Button>
           </CardContent>
         </Card>
