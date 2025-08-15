@@ -307,3 +307,8 @@ input[type='number'] {
   background-position: 100% 50%;
   animation: gradient-shift 2s ease-in-out infinite;
 }
+
+::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
