@@ -266,7 +266,7 @@ export default function DepositClient() {
                         <span className='text-sm font-bold text-foreground'>Points Campaign</span>
                       </div>
                       <div className='text-xs text-muted-foreground space-y-1'>
-                        <p>• Mars Fragments: ~1% of total APY</p>
+                        <p>• Mars Fragments</p>
                         <p>• Neutron Quarks: ~2% of total APY</p>
                         <p>• Base yield: ~0.5% of total APY</p>
                       </div>
@@ -354,10 +354,10 @@ export default function DepositClient() {
                 </div>
                 <div className='space-y-2'>
                   <MetricRow
-                    icon={Zap}
+                    customIcon='/images/marsFragments/mars-fragments.svg'
                     label='Mars Fragments'
-                    value='~1'
-                    suffix='%'
+                    value=''
+                    suffix=''
                     brandColor={token.brandColor}
                   />
                   <MetricRow

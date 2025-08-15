@@ -14,7 +14,7 @@ const tokens = [
   },
   {
     chainId: 'neutron-1',
-    denom: 'factory/neutron1dem8ptpme4u5g5yy2lgm059wf4xk3qup2rszhvg3zkdy9300xy5s7852yz/vault_usdc',
+    denom: 'ibc/B559A80D62249C8AA07A380E2A2BEA6E5CA9A6F079C912C3A9E9B494105E4F81',
     symbol: 'USDC',
     icon: '/images/USDC.svg',
     description: 'USD Coin',

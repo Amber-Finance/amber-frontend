@@ -510,53 +510,6 @@ interface Strategy {
   }
 }
 
-interface SwapRoute {
-  amountIn: string
-  amountOut: string
-  estimatedAmountOut: string
-  operations: any[] // Using any[] for now to match Skip API response
-  chainIds: string[]
-  requiredChainAddresses: string[]
-  swapVenues?: SwapVenue[]
-  usdAmountIn?: string
-  usdAmountOut?: string
-  estimatedRouteDurationSeconds: number
-  doesSwap?: boolean
-  txsRequired: number
-  estimatedFees?: any[]
-  sourceAssetDenom: string
-  sourceAssetChainId: string
-  destAssetDenom: string
-  destAssetChainId: string
-}
-
-interface SwapOperation {
-  swap?: {
-    swapIn?: {
-      swapVenue?: SwapVenue
-      swapOperations?: any[]
-      swapAmountIn?: string
-      estimatedAmountOut?: string
-      priceImpactPercent?: string
-    }
-    estimatedAffiliateFee?: string
-    fromChainId?: string
-    chainId?: string
-    denomIn?: string
-    denomOut?: string
-    swapVenues?: SwapVenue[]
-  }
-  txIndex: number
-  amountIn: string
-  amountOut: string
-}
-
-interface SwapRouteInfo {
-  amountOut: BigNumber
-  priceImpact: number
-  route: SwapRoute
-}
-
 interface SwapToken {
   symbol: string
   name: string
@@ -567,6 +520,12 @@ interface SwapToken {
   denom: string
   usdValue: string
   decimals: number
+  chainId: string
+}
+interface SwapRouteInfo {
+  amountOut: string
+  priceImpact: number
+  route: RouteResponse
 }
 
 // RedBank TVL API Response

@@ -163,7 +163,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                       <span className='text-sm font-bold text-foreground'>Points Campaign</span>
                     </div>
                     <div className='text-xs text-muted-foreground space-y-1'>
-                      <p>• Mars Fragments: ~1% of total APY</p>
+                      <p>• Mars Fragments</p>
                       <p>• Neutron Quarks: ~2% of total APY</p>
                       <p>• Base yield: ~0.5% of total APY</p>
                     </div>
@@ -215,19 +215,23 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 ) : (
                   <>
                     <span className='text-base font-bold text-muted-foreground/60'>N/A</span>
-                    <div className='relative group/tooltip'>
-                      <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
-                      <div className='absolute bottom-full right-0 mb-2 w-64 p-2 bg-background border border-border rounded-md shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none z-50'>
-                        <p className='text-xs text-muted-foreground'>
-                          <span className='font-bold text-foreground'>
-                            No underlying yield available.
-                          </span>
-                          <br />
-                          This LST doesn&apos;t generate any yield.
-                        </p>
-                        <div className='absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-border'></div>
-                      </div>
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className='space-y-2'>
+                          <div className='flex items-center gap-2'>
+                            <span className='text-sm font-bold text-foreground'>
+                              No underlying yield available.
+                            </span>
+                          </div>
+                          <div className='text-xs text-muted-foreground'>
+                            <p>This LST doesn&apos;t generate any yield.</p>
+                          </div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </>
                 )}
               </div>
@@ -250,15 +254,18 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           <div className='space-y-2'>
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-2'>
-                <Zap
-                  className='w-3 h-3 flex-shrink-0'
-                  style={{ color: `${token.brandColor}CC` }} // 80% opacity
+                <Image
+                  src='/images/marsFragments/mars-fragments.svg'
+                  alt='Mars Fragments'
+                  width={18}
+                  height={18}
+                  className='w-5 h-5'
                 />
                 <span className='text-sm'>Mars Fragments</span>
               </div>
               <div className='flex items-center gap-2'>
                 <Zap
-                  className='w-3 h-3 flex-shrink-0'
+                  className='w-5 h-5 flex-shrink-0'
                   style={{ color: `${token.brandColor}CC` }} // 80% opacity
                 />
                 <span className='text-sm'>Neutron Quarks</span>

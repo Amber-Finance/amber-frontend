@@ -20,7 +20,7 @@ export function getMinAmountOutFromRouteInfo(
   routeInfo: SwapRouteInfo,
   slippage: number,
 ): BigNumber {
-  return (routeInfo?.amountOut ?? BigNumber(0)).times(1 - slippage / 100)
+  return new BigNumber(routeInfo?.amountOut ?? 0).times(1 - slippage / 100)
 }
 
 export function getSwapExactInAction(
