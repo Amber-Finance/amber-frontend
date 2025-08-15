@@ -143,3 +143,4 @@ export const formatUserTokenAmount = (
 
   return formatTokenAmount(tokenAmount, collateralSymbol)
 }
+

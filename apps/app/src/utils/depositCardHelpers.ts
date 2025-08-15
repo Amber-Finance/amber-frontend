@@ -136,3 +136,4 @@ export const getProtocolIcon = (
   if (protocolIconLight === protocolIconDark) return protocolIconLight
   return theme === 'dark' ? protocolIconDark : protocolIconLight
 }
+
