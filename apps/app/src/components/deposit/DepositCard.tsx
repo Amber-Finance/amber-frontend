@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -17,6 +18,14 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import {
+  formatBalance,
+  getBadgeStyle,
+  getNeutronIcon,
+  getProtocolIcon,
+  getProtocolPoints,
+  getProtocolPointsIcon,
+} from '@/utils/depositCardHelpers'
 
 interface DepositCardProps {
   token: {
@@ -48,15 +57,11 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
 
-  const formatBalance = (balance: number) => (balance > 0 ? balance.toFixed(8) : '0.00000000')
-
-  // Get protocol icon based on theme
-  const getProtocolIcon = () => {
-    if (!token.protocolIconLight || !token.protocolIconDark) return null
-    // For tokens with the same icon for both themes (like pump.svg, eBTC.png), just return the light version
-    if (token.protocolIconLight === token.protocolIconDark) return token.protocolIconLight
-    return theme === 'dark' ? token.protocolIconDark : token.protocolIconLight
-  }
+  // Helper function calls
+  const protocolPoints = getProtocolPoints(token.symbol)
+  const neutronIcon = getNeutronIcon(theme)
+  const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
+  const protocolIcon = getProtocolIcon(token.protocolIconLight, token.protocolIconDark, theme)
 
   const handleDepositClick = () => {
     router.push(`/deposit?token=${token.symbol}`)
@@ -75,7 +80,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   return (
     <Card
-      className='group relative w-[340px] transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
+      className='group relative w-[380px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -86,7 +91,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         flickerChance={0.2}
         maxOpacity={0.5}
         gradientDirection='top-to-bottom'
-        width={340}
+        width={380}
         height={120}
       />
 
@@ -98,7 +103,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         }}
       />
 
-      <CardHeader className='pb-4 z-20 space-y-3'>
+      <CardHeader className='pb-2 z-20 space-y-2'>
         <div className='flex items-start justify-between'>
           <div className='flex items-center gap-2'>
             <div className='relative'>
@@ -123,10 +128,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               </div>
 
               {/* Protocol Icon Badge */}
-              {getProtocolIcon() && (
+              {protocolIcon && (
                 <div className='absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-background border-2 border-border/80 p-1 shadow-md ring-1 ring-black/5'>
                   <Image
-                    src={getProtocolIcon()!}
+                    src={protocolIcon}
                     alt={`${token.protocol} logo`}
                     width={16}
                     height={16}
@@ -175,9 +180,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className='relative space-y-6 z-20'>
+      <CardContent className='relative space-y-4 z-20 flex-1 flex flex-col'>
         {/* Yields Section */}
-        <div className='space-y-3'>
+        <div className='space-y-2'>
           <div className='flex items-center gap-2'>
             {/* <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} /> */}
             <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
@@ -185,7 +190,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </span>
           </div>
 
-          <div className='space-y-2'>
+          <div className='space-y-1'>
             <div className='flex justify-between items-center'>
               <div className='flex items-center gap-2'>
                 {getProtocolIcon() ? (
@@ -240,44 +245,83 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
 
         {/* Points Section */}
-        <div className='space-y-3'>
+        <div className='space-y-2'>
           <div className='flex items-center gap-2'>
-            {/* <Flame
-              className='w-3 h-3 flex-shrink-0'
-              style={{ color: `${token.brandColor}CC` }} // 80% opacity
-            /> */}
             <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
               Points
             </span>
           </div>
 
-          <div className='space-y-2'>
-            <div className='flex justify-between items-center'>
-              <div className='flex items-center gap-2'>
+          <div className='flex flex-wrap gap-1.5'>
+            {/* Neutron Points */}
+            <Badge
+              variant={getBadgeStyle('neutron', token.symbol).variant}
+              className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('neutron', token.symbol).className}`}
+              style={getBadgeStyle('neutron', token.symbol).style}
+            >
+              <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
                 <Image
-                  src='/images/marsFragments/mars-fragments.svg'
+                  src={neutronIcon}
+                  alt='Neutron'
+                  width={12}
+                  height={12}
+                  className='object-contain w-full h-full'
+                />
+              </div>
+              <span>Neutron Points</span>
+              <span className='font-bold'>{protocolPoints.multiplier}</span>
+            </Badge>
+
+            {/* Protocol Points */}
+            {protocolPoints.protocolPoint && protocolPointsIcon && (
+              <Badge
+                variant={getBadgeStyle('protocol', token.symbol).variant}
+                className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('protocol', token.symbol).className}`}
+                style={getBadgeStyle('protocol', token.symbol).style}
+              >
+                <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
+                  <Image
+                    src={protocolPointsIcon}
+                    alt={protocolPoints.protocolPoint}
+                    width={12}
+                    height={12}
+                    className='object-contain w-full h-full'
+                    unoptimized={true}
+                  />
+                </div>
+                <span>{protocolPoints.protocolPoint}</span>
+                <span className='font-bold'>{protocolPoints.multiplier}</span>
+              </Badge>
+            )}
+
+            {/* Mars Fragments */}
+            <Badge
+              variant={getBadgeStyle('mars', token.symbol).variant}
+              className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('mars', token.symbol).className}`}
+              style={getBadgeStyle('mars', token.symbol).style}
+            >
+              <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
+                <Image
+                  src='/points/mars-fragments.svg'
                   alt='Mars Fragments'
-                  width={18}
-                  height={18}
-                  className='w-5 h-5'
+                  width={12}
+                  height={12}
+                  className='object-contain w-full h-full'
                 />
-                <span className='text-sm'>Mars Fragments</span>
               </div>
-              <div className='flex items-center gap-2'>
-                <Zap
-                  className='w-5 h-5 flex-shrink-0'
-                  style={{ color: `${token.brandColor}CC` }} // 80% opacity
-                />
-                <span className='text-sm'>Neutron Quarks</span>
-              </div>
-            </div>
+              <span>Mars Fragments</span>
+              <span className='font-bold'>{protocolPoints.multiplier}</span>
+            </Badge>
           </div>
         </div>
+
+        {/* Flexible spacer to push content to bottom */}
+        <div className='flex-1' />
 
         <Separator className='bg-border/60' />
 
         {/* Balances Section */}
-        <div className='space-y-3'>
+        <div className='space-y-2'>
           <div className='flex items-center gap-2'>
             {/* <Wallet className='w-4 h-4' style={{ color: token.brandColor }} /> */}
             <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
@@ -285,7 +329,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </span>
           </div>
 
-          <div className='space-y-2'>
+          <div className='space-y-1'>
             <div className='flex justify-between items-center'>
               <span className='text-sm text-muted-foreground/90'>Deposited</span>
               <div className='text-base text-foreground'>
@@ -303,41 +347,21 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className='relative z-20 pt-2'>
+      <CardFooter className='relative z-20 pt-1'>
         <div className='flex gap-2 w-full'>
           {/* Deposit Button */}
-          <div className='relative group/button flex-1'>
-            <div
-              className='absolute inset-0 rounded-lg blur-md opacity-0 group-hover/button:opacity-50 transition-all duration-500 scale-105'
-              style={{
-                background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
-              }}
-            />
-            <div
-              className='relative p-[1px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out group/btn-wrapper w-full'
-              style={{
-                background: `linear-gradient(135deg, ${token.brandColor}, ${token.brandColor})`,
-              }}
-            >
-              <Button
-                onClick={handleDepositClick}
-                variant='secondary'
-                className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
-              >
-                Deposit
-              </Button>
-            </div>
-          </div>
+          <Button onClick={handleDepositClick} variant='default' className='flex-1 font-semibold'>
+            Deposit
+          </Button>
 
-          {/* Withdraw Button  */}
+          {/* Withdraw Button */}
           {metrics.deposited > 0 && (
             <Button
               onClick={handleWithdrawClick}
-              variant='secondary'
-              className='font-semibold rounded-md p-3 aspect-square'
-              style={{ borderColor: token.brandColor }}
+              variant='outline'
+              className='font-semibold p-3 aspect-square'
             >
-              <ArrowDownToLine className='w-4 h-4 text-foreground/70' />
+              <ArrowDownToLine className='w-4 h-4' />
             </Button>
           )}
         </div>

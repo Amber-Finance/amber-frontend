@@ -1,9 +1,16 @@
+'use client'
+
+import { motion } from 'framer-motion'
+
 import { FirstBentoSection } from '@/components/sections/bento/FirstBentoSection'
 import { SecondBentoAnimation } from '@/components/sections/bento/SecondBentoSection'
 import { ThirdBentoAnimation } from '@/components/sections/bento/ThirdBentoSection'
 import { BentoCard, BentoGrid } from '@/components/ui/bento-grid'
+import { cn } from '@/lib/utils'
 
+import { Background } from '../Background'
 import { SectionHeader } from '../section-header'
+import { DotPattern } from '../ui/dot-pattern'
 import { FourthBentoSection } from './bento/FourthBentoSection'
 
 const features = [
@@ -53,28 +60,71 @@ const features = [
 
 export function Bento() {
   return (
-    <section id='bento' className='py-16 md:py-24'>
-      <div className='relative overflow-hidden pb-10'>
-        {/* Section Header */}
-        <SectionHeader>
-          <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
-            Product features
+    <section id='bento' className='relative overflow-hidden flex flex-col py-16 md:py-24'>
+      <div className='absolute inset-0 -z-10'>
+        <Background
+          translateY={-260}
+          width={380}
+          height={900}
+          smallWidth={160}
+          duration={10}
+          xOffset={70}
+        />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.8 }}
+        className='relative flex flex-col bg-background'
+      >
+        <div className='relative flex items-center justify-center min-h-[420px] md:min-h-[520px] w-full overflow-hidden'>
+          <div className='absolute inset-0'>
+            <div className='relative w-full min-h-[420px] md:min-h-[520px]'>
+              <div className='absolute inset-2 md:inset-3 [mask-image:radial-gradient(ellipse_600px_400px_at_center,white_20%,transparent_70%)]'>
+                <DotPattern
+                  width={20}
+                  height={20}
+                  cx={1}
+                  cy={1}
+                  cr={1}
+                  className={cn('w-full h-full')}
+                />
+              </div>
+            </div>
           </div>
-          <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
-            Discover BTC yield opportunities
-          </h2>
-          <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-            Bridge assets, deploy automated strategies, and track performance with intuitive tools.
-          </p>
-        </SectionHeader>
-      </div>
-      <div className='mx-auto px-8 md:px-16 max-w-6xl'>
-        <BentoGrid>
-          {features.map((feature) => (
-            <BentoCard key={feature.name} {...feature} />
-          ))}
-        </BentoGrid>
-      </div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'
+          >
+            <SectionHeader>
+              <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
+                Product features
+              </div>
+              <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
+                Discover BTC yield opportunities
+              </h2>
+              <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
+                Bridge assets, deploy automated strategies, and track performance with intuitive
+                tools.
+              </p>
+            </SectionHeader>
+          </motion.div>
+        </div>
+
+        {/* Cards/content area */}
+        <motion.div className='mx-auto w-full px-8 md:px-16 max-w-6xl'>
+          <BentoGrid>
+            {features.map((feature) => (
+              <BentoCard key={feature.name} {...feature} />
+            ))}
+          </BentoGrid>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

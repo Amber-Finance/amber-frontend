@@ -1,41 +1,60 @@
+'use client'
+
 import Image from 'next/image'
 
-import { Marquee } from '@/components/ui/marquee'
+import { motion } from 'framer-motion'
 
-const companies = [
-  { name: 'Axelar', image: '/images/axelar/axelarDark.svg' },
-  { name: 'Eureka', image: '/images/eureka/eurekaDark.svg' },
-  { name: 'Lombard', image: '/images/lombard/lombardIconOnlyDark.svg' },
-  { name: 'Solv', image: '/images/solv/solvDark.png' },
-  { name: 'Bedrock', image: '/images/bedrock.svg' },
-  { name: 'Neutron', image: '/images/neutron/neutron-dark.svg' },
+const partners = [
+  { name: 'Axelar', image: 'axelar/axelarDark.svg' },
+  { name: 'Eureka', image: 'eureka/eurekaDark.svg' },
+  { name: 'Lombard', image: 'lombard/lombardIconOnlyDark.svg' },
+  { name: 'Solv', image: 'solv/solvDark.png' },
+  { name: 'Bedrock', image: 'bedrock.svg' },
+  { name: 'Neutron', image: 'neutron/neutron-dark.svg' },
 ]
 
 export function Partners() {
   return (
-    <section id='partners' className='py-16 md:py-24'>
-      <div className='mx-auto px-8 md:px-16 max-w-6xl'>
-        <div className='relative'>
-          <Marquee className='w-full [--duration:40s] gap-10'>
-            {companies.map((company, idx) => (
-              <div
-                key={`${company.name}-${idx}`}
-                className='flex flex-row items-center justify-center  text-white'
-              >
-                <Image
-                  width={44}
-                  height={44}
-                  key={`${company.name}-${idx}`}
-                  src={company.image}
-                  className='h-10 w-15'
-                  alt={company.name}
-                />
-                <h1 className='text-base font-bold font-white'>{company.name}</h1>
-              </div>
-            ))}
-          </Marquee>
-          <div className='pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0a0b10]'></div>
-          <div className='pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[#0a0b10]'></div>
+    <section id='partners'>
+      <div className='py-6'>
+        <div className='container mx-auto px-4 md:px-8'>
+          <motion.h3
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className='text-center text-sm font-semibold text-gray-500'
+          >
+            OUR PARTNERS
+          </motion.h3>
+          <div className='relative mt-4'>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className='flex flex-wrap items-center justify-center gap-x-6 gap-y-3 md:gap-x-8 lg:gap-x-10'
+            >
+              {partners.map((partner, index) => (
+                <motion.div
+                  key={partner.name}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 1.4 + index * 0.1 }}
+                  className='flex items-center gap-2 text-white'
+                >
+                  <Image
+                    src={`/images/${partner.image}`}
+                    width={24}
+                    height={24}
+                    className='h-6 w-6 dark:brightness-0 dark:invert object-contain'
+                    alt={partner.name}
+                  />
+                  <span className='text-xs font-medium text-gray-400 whitespace-nowrap'>
+                    {partner.name}
+                  </span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>

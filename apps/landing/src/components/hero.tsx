@@ -2,11 +2,13 @@
 
 import Image from 'next/image'
 
+import { motion } from 'framer-motion'
 import { BookOpen, ChevronRight } from 'lucide-react'
 
+import SplineBgObject from '@/components/SplineBgObject'
+import { Partners } from '@/components/sections/Partners'
 import { cn } from '@/lib/utils'
 
-import SplineBgObject from './SplineBgObject'
 import { AnimatedGradientText } from './ui/animated-gradient-text'
 
 const XIcon = ({ className }: { className?: string }) => {
@@ -25,9 +27,19 @@ const XIcon = ({ className }: { className?: string }) => {
 }
 export const HeroContent = () => {
   return (
-    <div className='flex flex-col items-center gap-6 pb-8 text-center w-full justify-between px-8 md:px-16'>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+      className='flex flex-col items-center gap-6 pb-8 text-center w-full justify-between px-8 md:px-16'
+    >
       <div className='flex flex-col items-center gap-8 pt-20 lg:gap-10 text-center lg:text-left flex-1 z-30 max-w-3xl lg:max-w-3xl'>
-        <div className='group relative mx-auto flex items-center justify-center bg-black/20 rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] cursor-pointer'>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+          className='group relative mx-auto flex items-center justify-center bg-black/20 rounded-full px-4 py-1.5 shadow-[inset_0_-8px_10px_#8fdfff1f] transition-shadow duration-500 ease-out hover:shadow-[inset_0_-5px_10px_#8fdfff3f] cursor-pointer'
+        >
           <span
             className={cn(
               'absolute inset-0 block w-full animate-gradient rounded-[inherit] bg-gradient-to-r from-[#ffaa40]/50 via-[#9c40ff]/50 to-[#ffaa40]/50 bg-[length:300%_100%] p-[1px] cursor-pointer',
@@ -49,15 +61,31 @@ export const HeroContent = () => {
             className='ml-1 size-4 stroke-neutral-500 transition-transform
             duration-300 ease-in-out group-hover:translate-x-0.5'
           />
-        </div>
-        <Image src='/logo/logo-claim-light.svg' alt='logo' width={500} height={500} />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
+        >
+          <Image src='/logo/logo-claim-light.svg' alt='logo' width={500} height={500} />
+        </motion.div>
 
-        <p className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
+          className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'
+        >
           Put your liquid staking tokens to work. Earn maximum yield on your Bitcoin BRTs. Increase
           your exposure to maxBTC and leverage loop with smart strategies.
-        </p>
+        </motion.p>
       </div>
-      <div className='flex flex-row gap-4'>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.8, ease: 'easeOut' }}
+        className='flex flex-row gap-4'
+      >
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
             href='/app'
@@ -94,8 +122,8 @@ export const HeroContent = () => {
             <BookOpen className='size-4 translate-x-0 transition-all duration-300 ease-out group-hover:translate-x-1' />
           </a>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 export function Hero() {
@@ -104,11 +132,15 @@ export function Hero() {
       <div className='absolute inset-0 w-full h-full z-0'>
         <SplineBgObject />
       </div>
-      <div className='relative h-screen w-full overflow-hidden z-10 flex flex-col items-center justify-center'>
-        <HeroContent />
-        <h3 className='pb-10 bottom-0 absolute text-center text-sm font-semibold text-gray-500'>
-          Our Partners
-        </h3>
+      {/* Fade overlay for smooth transition at bottom */}
+      <div className='absolute inset-x-0 bottom-0 h-64 z-5 bg-gradient-to-t from-background via-background/90 via-background/60 to-transparent pointer-events-none' />
+      <div className='relative h-screen w-full overflow-hidden z-10 flex flex-col justify-between items-center py-8'>
+        <div className='flex-1 flex items-center justify-center'>
+          <HeroContent />
+        </div>
+        <div className='w-full mt-auto relative z-20'>
+          <Partners />
+        </div>
       </div>
     </section>
   )

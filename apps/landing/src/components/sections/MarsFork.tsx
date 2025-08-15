@@ -1,3 +1,7 @@
+'use client'
+
+import { motion } from 'framer-motion'
+
 import { Background } from '@/components/Background'
 import { SectionHeader } from '@/components/section-header'
 import { Ripple } from '@/components/ui/ripple'
@@ -16,7 +20,13 @@ export function MarsFork() {
         />
       </div>
 
-      <div className='relative flex flex-col bg-background'>
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.8 }}
+        className='relative flex flex-col bg-background'
+      >
         <div className='relative flex items-center justify-center min-h-[420px] md:min-h-[520px] w-full overflow-hidden'>
           <div className='absolute inset-0'>
             <div className='relative w-full min-h-[420px] md:min-h-[520px]'>
@@ -25,7 +35,13 @@ export function MarsFork() {
               </div>
             </div>
           </div>
-          <div className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'
+          >
             <SectionHeader>
               <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 text-[10px] font-medium text-white/80 backdrop-blur'>
                 Mars‑grade security
@@ -40,11 +56,17 @@ export function MarsFork() {
                 design and risk methodology.
               </p>
             </SectionHeader>
-          </div>
+          </motion.div>
         </div>
 
         {/* Cards/content area */}
-        <div className='mx-auto w-full px-8 md:px-16 pb-8 max-w-6xl'>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className='mx-auto w-full px-8 md:px-16 pb-8 max-w-6xl'
+        >
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <div className='group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 backdrop-blur-sm transition-colors duration-300 hover:bg-black/50'>
               <span
@@ -94,12 +116,18 @@ export function MarsFork() {
               </a>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <p className='mx-auto pb-3 max-w-4xl text-center text-xs text-white/50'>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className='mx-auto pb-3 max-w-4xl text-center text-xs text-white/50'
+        >
           References: Mars Protocol documentation and audits.
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </section>
   )
 }
