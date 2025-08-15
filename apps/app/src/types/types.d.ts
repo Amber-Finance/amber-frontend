@@ -511,7 +511,14 @@ interface Strategy {
 }
 
 interface SwapToken {
+  symbol: string
+  name: string
+  icon: string
+  balance: string
+  rawBalance: number
+  price: number
   denom: string
+  usdValue: string
   decimals: number
   chainId: string
 }
