@@ -15,10 +15,9 @@ import { FourthBentoSection } from './bento/FourthBentoSection'
 
 const features = [
   {
-    name: 'Deposit & Bridge',
-    description:
-      'Seamlessly deposit and bridge BTC liquid staking tokens across multiple networks.',
-    href: '#',
+    name: 'Bridge',
+    description: 'Seamlessly bridge BRTs across multiple networks.',
+    href: 'https://app.amberfi.io/swap',
     cta: 'Get Started',
     className: 'col-span-3 lg:col-span-1',
     background: <FourthBentoSection />,
@@ -27,7 +26,7 @@ const features = [
     // Icon: BellIcon,
     name: 'Performance Analytics',
     description: 'Track your yield and returns over time with interactive charts and tooltips.',
-    href: '#',
+    href: 'https://app.amberfi.io/deposit',
     cta: 'Learn More',
     className: 'col-span-3 lg:col-span-2',
     background: (
@@ -40,19 +39,19 @@ const features = [
   },
   {
     // Icon: Share2Icon,
-    name: 'Automated Strategies',
-    description: 'Deploy and manage smart strategies to maximize yield in any market.',
-    href: '#',
+    name: 'Looping Strategies',
+    description: 'Deploy looping strategies to multiply your BRT exposure with up to 10x leverage.',
+    href: 'https://app.amberfi.io/strategies',
     cta: 'Explore',
     className: 'col-span-3 lg:col-span-2',
     background: <FirstBentoSection />,
   },
   {
     // Icon: CalendarIcon,
-    name: 'Portfolio Overview',
-    description: 'Visualize and organize your assets with intuitive, real-time dashboards.',
+    name: 'Deposit',
+    description: 'Seamlessly deposit BRTs on Amber.',
     className: 'col-span-3 lg:col-span-1',
-    href: '#',
+    href: 'https://app.amberfi.io/deposit',
     cta: 'View Dashboard',
     background: <SecondBentoAnimation />,
   },
@@ -106,11 +105,11 @@ export function Bento() {
                 Product features
               </div>
               <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
-                Discover BTC yield opportunities
+                Amplify Your Bitcoin Yield
               </h2>
               <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-                Bridge assets, deploy automated strategies, and track performance with intuitive
-                tools.
+                Deposit BRTs, swap between tokens, deploy leverage strategies up to 10x, and track
+                performance with real-time analytics.
               </p>
             </SectionHeader>
           </motion.div>

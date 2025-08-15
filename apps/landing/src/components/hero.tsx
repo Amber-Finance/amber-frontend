@@ -76,8 +76,8 @@ export const HeroContent = () => {
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
           className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'
         >
-          Put your liquid staking tokens to work. Earn maximum yield on your Bitcoin BRTs. Increase
-          your exposure to maxBTC and leverage loop with smart strategies.
+          Maximize your Bitcoin yield. Deploy BRTs (Bitcoin-Related Tokens) with up to 10x leverage
+          through automated strategies on maxBTC.
         </motion.p>
       </div>
       <motion.div

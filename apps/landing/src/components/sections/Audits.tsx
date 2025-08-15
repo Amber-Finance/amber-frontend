@@ -83,7 +83,7 @@ export function Audits() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.6 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/halborn'
-              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1'
+              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1 flex flex-col'
             >
               <div
                 aria-hidden
@@ -103,7 +103,7 @@ export function Audits() {
                 />
                 <h3 className='sr-only'>Halborn</h3>
               </div>
-              <p className='text-sm text-white/70'>
+              <p className='text-sm text-white/70 flex-1'>
                 Halborn is the industry-leading blockchain solutions firm for enterprise-grade
                 digital assets, trusted by the top financial institutions and blockchain ecosystem
                 leaders. Experience world-class, end-to-end security, from smart contract auditing
@@ -129,7 +129,7 @@ export function Audits() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.8 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/oak'
-              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1'
+              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1 flex flex-col'
             >
               <div
                 aria-hidden
@@ -149,7 +149,7 @@ export function Audits() {
                 />
                 <h3 className='sr-only'>OAK Security</h3>
               </div>
-              <p className='text-sm text-white/70'>
+              <p className='text-sm text-white/70 flex-1'>
                 Oak Security offers security auditing and cyber security advisory services with a
                 special focus on third-generation blockchains such as the Cosmos SDK and CosmWasm,
                 Polkadot and Substrate, Solana, NEAR, and Flow (Cadence) ecosystems.

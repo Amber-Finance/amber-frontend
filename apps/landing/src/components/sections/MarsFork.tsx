@@ -102,7 +102,7 @@ export function MarsFork() {
               <h3 className='text-base font-semibold tracking-tight'>Design principles</h3>
               <ul className='mt-3 space-y-2 text-sm text-white/70'>
                 <li>
-                  Security‑first: adopt Mars defaults, then tighten where BTC LST market structure
+                  Security‑first: adopt Mars defaults, then tighten where BTC BRT market structure
                   warrants it.
                 </li>
                 <li>Minimal surface area: focus on essentials to maximize reliability.</li>
