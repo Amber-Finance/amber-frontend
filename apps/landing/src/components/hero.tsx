@@ -88,7 +88,7 @@ export const HeroContent = () => {
       >
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
-            href='/app'
+            href='https://app.amberfi.io'
             className={cn(
               // colors
               'bg-white text-black shadow hover:bg-white/90 dark:bg-white dark:text-black dark:hover:bg-white/90',
@@ -106,7 +106,7 @@ export const HeroContent = () => {
         </div>
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
-            href='/docs'
+            href='https://docs.amberfi.io'
             className={cn(
               // colors
               'bg-black text-white shadow hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90',
