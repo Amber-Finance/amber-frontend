@@ -46,9 +46,9 @@ export default function Home() {
         ]}
       />
 
-      <div className='w-full pt-6 pb-2'>
+      <div className='w-full pt-6 pb-2 px-4 sm:px-6 lg:px-8'>
         {sortedMarkets.length > 0 ? (
-          <div className='flex flex-wrap gap-4 justify-center'>
+          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 max-w-screen-2xl mx-auto auto-cols-fr justify-items-center'>
             {sortedMarkets.map((item) => (
               <DepositCard key={item.token.symbol} token={item.token} metrics={item.metrics} />
             ))}

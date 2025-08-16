@@ -134,9 +134,9 @@ export function Navbar() {
           />
 
           {/* Menu Panel */}
-          <div className='fixed top-16 left-0 right-0 bg-background border-b border-border shadow-lg'>
-            <div className='px-4 py-6 space-y-4'>
-              <div className='bg-card/50 border border-border/80 rounded-full p-1'>
+          <div className='fixed top-16 left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border shadow-lg'>
+            <div className='px-6 py-8 space-y-6'>
+              <div className='space-y-2'>
                 {navigation.map((item) => {
                   const isActive = pathname === item.href
                   return (
@@ -144,10 +144,10 @@ export function Navbar() {
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        'relative block px-4 py-3 text-lg font-semibold rounded-full transition-all duration-300 group',
+                        'relative block px-6 py-4 text-xl font-semibold rounded-2xl transition-all duration-300',
                         isActive
                           ? 'text-foreground nav-glow-active'
-                          : 'text-muted-foreground hover:text-foreground',
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
                       )}
                       onClick={() => setMobileMenuOpen(false)}
                     >

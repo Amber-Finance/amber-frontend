@@ -80,7 +80,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   return (
     <Card
-      className='group relative w-[380px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
+      className='group relative w-full min-w-[320px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -91,7 +91,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         flickerChance={0.2}
         maxOpacity={0.5}
         gradientDirection='top-to-bottom'
-        width={380}
+        width={400}
         height={120}
       />
 
@@ -155,7 +155,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
             <div className='flex items-center gap-1'>
-              <div className='text-sm font-bold text-muted-foreground/70 leading-tight whitespace-nowrap uppercase tracking-wider'>
+              <div className='text-sm font-bold text-muted-foreground/70 leading-tight whitespace-nowrap tracking-wider'>
                 Total APY
               </div>
               <Tooltip>
@@ -180,7 +180,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className='relative space-y-4 z-20 flex-1 flex flex-col'>
+      <CardContent className='relative space-y-6 z-20 flex-1 flex flex-col'>
         {/* Yields Section */}
         {/* <div className='space-y-2'>
           <div className='flex items-center gap-2'>
@@ -244,14 +244,12 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div> */}
 
         {/* Points Section */}
-        <div className='space-y-2'>
+        <div className='space-y-3'>
           <div className='flex items-center gap-2'>
-            <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
-              Points
-            </span>
+            <span className='text-sm font-bold tracking-wider text-foreground/70'>Points</span>
           </div>
 
-          <div className='flex flex-wrap gap-1.5'>
+          <div className='flex flex-wrap gap-2'>
             {/* Protocol Points - Show first if they exist */}
             {protocolPoints.protocolPoint && protocolPointsIcon && (
               <Badge
@@ -318,15 +316,13 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         <Separator className='bg-border/60' />
 
         {/* Balances Section */}
-        <div className='space-y-2'>
+        <div className='space-y-3'>
           <div className='flex items-center gap-2'>
             {/* <Wallet className='w-4 h-4' style={{ color: token.brandColor }} /> */}
-            <span className='text-sm font-bold tracking-wider uppercase text-foreground/70'>
-              Balances
-            </span>
+            <span className='text-sm font-bold tracking-wider text-foreground/70'>Balances</span>
           </div>
 
-          <div className='space-y-1'>
+          <div className='space-y-2'>
             <div className='flex justify-between items-center'>
               <span className='text-sm text-muted-foreground/90'>Deposited</span>
               <div className='text-base text-foreground'>

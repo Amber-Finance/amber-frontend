@@ -8,7 +8,7 @@ import { Ripple } from '@/components/ui/ripple'
 
 export function MarsFork() {
   return (
-    <section id='mars-fork' className='relative overflow-hidden flex flex-col py-16 md:py-24'>
+    <section id='mars-fork' className='relative overflow-hidden flex flex-col'>
       <div className='absolute inset-0 -z-10'>
         <Background
           translateY={-280}
@@ -27,11 +27,11 @@ export function MarsFork() {
         transition={{ duration: 0.8 }}
         className='relative flex flex-col bg-background'
       >
-        <div className='relative flex items-center justify-center min-h-[420px] md:min-h-[520px] w-full overflow-hidden'>
+        <div className='relative flex items-center justify-center min-h-[60vh] md:min-h-[70vh] w-full overflow-hidden'>
           <div className='absolute inset-0'>
-            <div className='relative w-full min-h-[420px] md:min-h-[520px]'>
-              <div className='absolute inset-2 md:inset-3 [mask-image:linear-gradient(to_bottom,white_0%,white_48%,transparent_52%)]'>
-                <Ripple mainCircleSize={15} numCircles={8} />
+            <div className='relative w-full h-full'>
+              <div className='absolute inset-4 md:inset-6 top-12 md:top-16 [mask-image:linear-gradient(to_bottom,white_0%,white_33%,transparent_50%)]'>
+                <Ripple mainCircleSize={15} numCircles={7} />
               </div>
             </div>
           </div>

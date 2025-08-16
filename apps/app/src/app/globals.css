@@ -233,10 +233,21 @@ body {
 .nav-glow-active {
   background: linear-gradient(
     to top,
-    rgba(245, 113, 54, 0.6) 0%,
-    rgba(245, 113, 54, 0.3) 40%,
+    rgba(255, 115, 0, 0.15) 0%,
+    rgba(255, 115, 0, 0.08) 40%,
     transparent 80%
   );
+  border: 1px solid rgba(255, 115, 0, 0.2);
+}
+
+.dark .nav-glow-active {
+  background: linear-gradient(
+    to top,
+    rgba(255, 120, 0, 0.25) 0%,
+    rgba(255, 120, 0, 0.12) 40%,
+    transparent 80%
+  );
+  border: 1px solid rgba(255, 120, 0, 0.3);
 }
 
 input[type='number']::-webkit-inner-spin-button,
