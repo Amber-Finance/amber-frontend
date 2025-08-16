@@ -86,7 +86,13 @@ export function FirstBentoSection({ className }: { className?: string }) {
 
 const Icons = {
   favicon: () => (
-    <Image src='/favicon.svg' alt='Favicon' width={24} height={24} className='w-6 h-6' />
+    <Image
+      src='/logo/maxBTC_Token_dark.png'
+      alt='Favicon'
+      width={24}
+      height={24}
+      className='w-6 h-6'
+    />
   ),
   wbtc: () => (
     <Image src='/images/WBTC.svg' alt='WBTC' width={24} height={24} className='w-6 h-6' />

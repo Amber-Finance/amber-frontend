@@ -3,7 +3,7 @@
 import { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 
 import NumberFlow from '@number-flow/react'
-import { motion, useInView } from 'motion/react'
+import { motion, useInView } from 'framer-motion'
 
 import { colorWithOpacity, getRGBA } from '@/lib/utils'
 

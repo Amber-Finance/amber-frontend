@@ -32,7 +32,7 @@ export default function RootLayout({
           <SWRProvider>
             <CosmosKitProvider>
               <SkipProvider>
-                <main className='relative min-h-screen h-full w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
+                <div className='relative min-h-screen flex flex-col w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
                   <Background />
                   <ThemedParticles
                     className='absolute inset-0 z-0'
@@ -42,10 +42,10 @@ export default function RootLayout({
                     staticity={30}
                     refresh={false}
                   />
-                  <div className='relative z-10 w-full max-w-screen-2xl mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
+                  <main className='relative z-10 flex-1 w-full max-w-screen-2xl mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
                     <Navbar />
                     {children}
-                  </div>
+                  </main>
                   <Footer />
 
                   <ToastContainer
@@ -61,7 +61,7 @@ export default function RootLayout({
                     theme='dark'
                   />
                   <Analytics />
-                </main>
+                </div>
               </SkipProvider>
             </CosmosKitProvider>
           </SWRProvider>

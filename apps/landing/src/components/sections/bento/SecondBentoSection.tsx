@@ -7,7 +7,7 @@ export function SecondBentoAnimation() {
     <div className='absolute flex w-full flex-col items-center justify-center overflow-hidden h-full opacity-60 hover:opacity-100 transition-all duration-300'>
       {/* Logo in center */}
       <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
-        <h1 className='text-xl font-bold'>maxBTC</h1>
+        <Image src='/web-app-manifest-512x512.png' alt='logo' width={50} height={50} />
       </div>
       <OrbitingCircles iconSize={40}>
         <Image src='/images/WBTC.svg' alt='WBTC' width={32} height={32} />
