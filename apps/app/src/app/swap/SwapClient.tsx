@@ -12,6 +12,7 @@ import { ArrowUpDown, Settings } from 'lucide-react'
 
 import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
 import { SwapRouteInfo } from '@/app/swap/SwapRouteInfo'
+import TokenPathBackground from '@/app/swap/TokenPathBackground'
 import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { AuroraText } from '@/components/ui/AuroraText'
@@ -224,6 +225,7 @@ export default function SwapClient() {
 
   return (
     <>
+      <TokenPathBackground />
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
@@ -235,8 +237,8 @@ export default function SwapClient() {
         </div>
       </div>
       <div className='w-full max-w-lg mx-auto pb-16'>
-        <Card className='bg-card/90 rounded-2xl shadow-xl border-0 py-6'>
-          <CardContent className='sm:py-2 px-2 sm:px-4'>
+        <Card className='bg-card rounded-2xl shadow-xl border border-border/30 py-2'>
+          <CardContent className='sm:py-2 px-2'>
             <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
               {/* Settings Button and Popover */}
               <Popover open={showSlippagePopover} onOpenChange={setShowSlippagePopover}>
@@ -300,7 +302,7 @@ export default function SwapClient() {
             </div>
 
             {/* From Section */}
-            <div className='relative rounded-xl bg-muted/10 border border-border/30 p-4 mb-2 group'>
+            <div className='relative rounded-xl bg-muted/10 border border-border/30 p-4 group'>
               <div className='flex items-center justify-between mb-1'>
                 <div className='text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
                   From
@@ -482,7 +484,7 @@ export default function SwapClient() {
                   showInsufficientFunds
                 )
               }
-              className='w-full mt-4'
+              className='w-full mt-2'
               onClick={() => {
                 if (!isWalletConnected) return
 
@@ -495,7 +497,7 @@ export default function SwapClient() {
         </Card>
 
         {/* Stats */}
-        <div className='flex gap-1 sm:gap-2 mt-4'>
+        {/* <div className='flex gap-1 sm:gap-2 mt-4'>
           <StatCard
             value={127}
             label={<span className='text-xs'>Total Liquidity</span>}
@@ -508,7 +510,7 @@ export default function SwapClient() {
             isCurrency={true}
             prefix='$'
           />
-        </div>
+        </div> */}
 
         <TokenSelectorModal
           open={isTokenModalOpen}

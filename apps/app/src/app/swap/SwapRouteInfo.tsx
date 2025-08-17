@@ -59,7 +59,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
   }
 
   return (
-    <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
+    <div className='p-3 rounded-lg bg-muted/20 border border-border/30 space-y-2 text-sm mt-4'>
       <div className='flex justify-between'>
         <span className='text-muted-foreground'>Rate</span>
         <span>
