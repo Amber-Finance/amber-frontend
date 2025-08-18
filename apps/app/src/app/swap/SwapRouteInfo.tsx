@@ -26,10 +26,10 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
 }) => {
   if (isRouteLoading) {
     return (
-      <div className='p-3 rounded-lg bg-muted/20 space-y-2 text-sm mt-4'>
+      <div className='p-3 rounded-lg bg-muted/20 border border-border/30 space-y-2 text-sm my-2'>
         <div className='flex justify-between'>
           <span className='text-muted-foreground'>Rate</span>
-          <span className='inline-block h-4 w-24 bg-muted/40 rounded animate-pulse align-middle' />
+          <span className='inline-block h-4 w-32 bg-muted/40 rounded animate-pulse align-middle' />
         </div>
         <div className='flex justify-between'>
           <span className='text-muted-foreground'>Price Impact</span>
@@ -45,7 +45,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
 
   if (!amountOut || !fromToken || !toToken || !amountIn) {
     return (
-      <div className='flex items-center justify-center h-[72px]'>
+      <div className='flex items-center justify-center h-[72px] rounded-lg border border-border/30 my-2'>
         <span className='text-muted-foreground text-sm'>No route available</span>
       </div>
     )
@@ -59,7 +59,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
   }
 
   return (
-    <div className='p-3 rounded-lg bg-muted/20 border border-border/30 space-y-2 text-sm mt-4'>
+    <div className='p-3 rounded-lg bg-muted/20 border border-border/30 space-y-2 text-sm my-2'>
       <div className='flex justify-between'>
         <span className='text-muted-foreground'>Rate</span>
         <span>

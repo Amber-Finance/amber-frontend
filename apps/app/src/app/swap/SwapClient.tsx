@@ -318,7 +318,7 @@ export default function SwapClient() {
                   className='hidden group-hover:flex group-focus-within:flex'
                 />
               </div>
-              <div className='relative mt-2'>
+              <div className='relative my-3'>
                 <input
                   ref={fromInputRef}
                   type='text'
@@ -448,7 +448,7 @@ export default function SwapClient() {
                   </svg>
                 </button>
               </div>
-              <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
+              <div className='flex justify-between my-3 text-xs text-muted-foreground'>
                 <FormattedValue value={toUsdValue} isCurrency={true} useCompactNotation={false} />
                 <FormattedValue
                   value={toToken?.balance || '0'}
@@ -484,7 +484,7 @@ export default function SwapClient() {
                   showInsufficientFunds
                 )
               }
-              className='w-full mt-2'
+              className='w-full h-12'
               onClick={() => {
                 if (!isWalletConnected) return
 
