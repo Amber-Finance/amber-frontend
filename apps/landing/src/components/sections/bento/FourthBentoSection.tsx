@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 
 import createGlobe, { COBEOptions } from 'cobe'
-import { useMotionValue, useSpring } from 'motion/react'
+import { useMotionValue, useSpring } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
 

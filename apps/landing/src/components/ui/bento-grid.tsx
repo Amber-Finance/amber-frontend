@@ -76,7 +76,7 @@ const BentoCard = ({
 
     <div
       className={cn(
-        'hidden lg:flex pointer-events-none absolute bottom-0 w-full translate-y-10 transform-gpu flex-row items-center p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100',
+        'hidden lg:flex pointer-events-none absolute bottom-0 w-full translate-y-0 transform-gpu flex-row items-center p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100',
       )}
     >
       <Button variant='link' asChild size='sm' className='pointer-events-auto p-0'>

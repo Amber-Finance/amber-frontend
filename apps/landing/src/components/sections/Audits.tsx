@@ -1,14 +1,18 @@
+'use client'
+
 import Image from 'next/image'
+
+import { motion } from 'framer-motion'
 
 import { Background } from '@/components/Background'
 import { SectionHeader } from '@/components/section-header'
 import { cn } from '@/lib/utils'
 
-import { GridPattern } from '../magicui/grid-pattern'
+import { GridPattern } from '../ui/grid-pattern'
 
 export function Audits() {
   return (
-    <section id='audits' className='relative overflow-hidden flex flex-col py-16 md:py-24'>
+    <section id='audits' className='relative overflow-hidden flex flex-col'>
       <div className='absolute inset-0 -z-10'>
         <Background
           translateY={-260}
@@ -20,44 +24,66 @@ export function Audits() {
         />
       </div>
 
-      <div className='relative flex w-full flex-col bg-background'>
-        <div className='absolute inset-0'>
-          <div className='relative mx-auto w-full px-8 md:px-16 max-w-3xl h-[300px] md:h-[300px]'>
-            <GridPattern
-              width={30}
-              height={30}
-              x={-1}
-              y={-1}
-              strokeDasharray={'4 2'}
-              className={cn(
-                '[mask-image:radial-gradient(600px_220px_at_center,white,transparent)]',
-              )}
-            />
-            <div className='pointer-events-none absolute inset-x-0 top-0 h-2/3 bg-gradient-to-b from-background via-background/80 to-transparent' />
-            <div className='pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background via-background/80 to-transparent' />
-          </div>
-        </div>
-        <div className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'>
-          <SectionHeader>
-            <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
-              Independent audits
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.8 }}
+        className='relative flex flex-col bg-background'
+      >
+        <div className='relative flex items-center justify-center min-h-[420px] md:min-h-[520px] w-full overflow-hidden'>
+          <div className='absolute inset-0'>
+            <div className='relative w-full min-h-[420px] md:min-h-[520px]'>
+              <div className='absolute inset-2 md:inset-3 [mask-image:radial-gradient(ellipse_600px_400px_at_center,white_10%,transparent_50%)]'>
+                <GridPattern
+                  width={30}
+                  height={30}
+                  x={-1}
+                  y={-1}
+                  strokeDasharray={'4 2'}
+                  className={cn('w-full h-full')}
+                />
+              </div>
             </div>
-            <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
-              Audit coverage from Mars Protocol
-            </h2>
-            <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-              As a fork of Mars’s Red Bank, our contracts inherit audit coverage from the Mars
-              Protocol codebase, including Red Bank and core modules.
-            </p>
-          </SectionHeader>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'
+          >
+            <SectionHeader>
+              <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
+                Independent audits
+              </div>
+              <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
+                Audit coverage from Mars Protocol
+              </h2>
+              <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
+                As a fork of Mars&apos;s Red Bank, our contracts inherit audit coverage from the
+                Mars Protocol codebase, including Red Bank and core modules.
+              </p>
+            </SectionHeader>
+          </motion.div>
         </div>
 
         {/* Cards/content area */}
-        <div className='mx-auto w-full px-8 md:px-16 max-w-6xl'>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className='mx-auto w-full px-8 md:px-16 max-w-6xl'
+        >
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            <a
+            <motion.a
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.6 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/halborn'
-              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1'
+              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1 flex flex-col'
             >
               <div
                 aria-hidden
@@ -77,7 +103,7 @@ export function Audits() {
                 />
                 <h3 className='sr-only'>Halborn</h3>
               </div>
-              <p className='text-sm text-white/70'>
+              <p className='text-sm text-white/70 flex-1'>
                 Halborn is the industry-leading blockchain solutions firm for enterprise-grade
                 digital assets, trusted by the top financial institutions and blockchain ecosystem
                 leaders. Experience world-class, end-to-end security, from smart contract auditing
@@ -95,11 +121,15 @@ export function Audits() {
                 </span>
               </div>
               <p className='mt-4 text-sm underline text-white/70'>View Halborn reports</p>
-            </a>
+            </motion.a>
 
-            <a
+            <motion.a
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.8 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/oak'
-              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1'
+              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1 flex flex-col'
             >
               <div
                 aria-hidden
@@ -119,7 +149,7 @@ export function Audits() {
                 />
                 <h3 className='sr-only'>OAK Security</h3>
               </div>
-              <p className='text-sm text-white/70'>
+              <p className='text-sm text-white/70 flex-1'>
                 Oak Security offers security auditing and cyber security advisory services with a
                 special focus on third-generation blockchains such as the Cosmos SDK and CosmWasm,
                 Polkadot and Substrate, Solana, NEAR, and Flow (Cadence) ecosystems.
@@ -136,10 +166,10 @@ export function Audits() {
                 </span>
               </div>
               <p className='mt-4 text-sm underline text-white/70'>View OAK reports</p>
-            </a>
+            </motion.a>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

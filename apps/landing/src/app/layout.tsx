@@ -48,10 +48,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang='en' className='dark'>
-      <body className='font-sans'>
-        <div className='relative min-h-screen w-full max-w-full bg-background overflow-x-hidden flex flex-col'>
-          <main className='relative flex-1 h-full w-full no-scrollbar'>
+    <html lang='en' className='dark h-full prevent-overscroll'>
+      <body className='font-sans h-full overflow-x-hidden prevent-overscroll'>
+        <div className='relative min-h-full h-full w-full max-w-full bg-background overflow-x-hidden flex flex-col prevent-overscroll'>
+          <main className='relative flex-1 w-full no-scrollbar'>
             <Background />
             {children}
           </main>
