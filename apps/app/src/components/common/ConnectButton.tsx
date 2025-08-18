@@ -128,7 +128,7 @@ export default function ConnectButton() {
 
       {/* Dropdown Menu */}
       {isWalletConnected && showDropdown && (
-        <div className='absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-50'>
+        <div className='absolute top-full right-0 mt-3 w-48 bg-card border border-border rounded-md shadow-lg z-50'>
           <div className='py-1'>
             <button
               onClick={handleCopyAddress}

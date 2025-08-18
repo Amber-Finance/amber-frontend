@@ -81,7 +81,7 @@ export function Navbar() {
                     key={`nav-${item.name}-${idx}`}
                     href={item.href}
                     className={cn(
-                      'relative tracking-wide flex items-center px-6 py-2 text-lg rounded-full transition-all duration-300',
+                      'relative tracking-wide flex items-center px-6 py-2 text-base rounded-full transition-all duration-300',
                       isActive
                         ? 'text-foreground nav-glow-active'
                         : 'text-muted-foreground hover:text-foreground',
@@ -98,7 +98,7 @@ export function Navbar() {
               <div className='hidden md:flex md:items-center bg-card/50 border border-border/80 rounded-full p-1'>
                 <ThemeToggle />
               </div>
-              <div className='hidden md:flex md:items-center md:space-x-3 p-2 text-lg bg-card/50 border border-border/80 rounded-full'>
+              <div className='hidden md:flex md:items-center md:space-x-3 p-2 text-base bg-card/50 border border-border/80 rounded-full'>
                 <ConnectButton />
               </div>
             </div>
@@ -144,7 +144,7 @@ export function Navbar() {
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        'relative block px-6 py-4 text-xl font-semibold rounded-2xl transition-all duration-300',
+                        'relative block px-6 py-4 text-base font-semibold rounded-2xl transition-all duration-300',
                         isActive
                           ? 'text-foreground nav-glow-active'
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
