@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import React, { useRef } from 'react'
 
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -11,6 +12,7 @@ import { ArrowUpDown, Settings } from 'lucide-react'
 
 import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
 import { SwapRouteInfo } from '@/app/swap/SwapRouteInfo'
+import TokenPathBackground from '@/app/swap/TokenPathBackground'
 import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { AuroraText } from '@/components/ui/AuroraText'
@@ -28,6 +30,17 @@ import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
 
 const SLIPPAGE_OPTIONS = [0.1, 0.5, 1] as const
+
+function formatWithThousandsSeparator(value: string) {
+  if (!value) return ''
+  const [int, dec] = value.split('.')
+  const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return dec !== undefined ? `${intFormatted}.${dec}` : intFormatted
+}
+
+function stripNonNumericExceptDot(value: string) {
+  return value.replace(/[^\d.]/g, '')
+}
 
 export default function SwapClient() {
   const searchParams = useSearchParams()
@@ -50,6 +63,7 @@ export default function SwapClient() {
   const [debouncedFromAmount, setDebouncedFromAmount] = useState('')
   const [isRouteLoading, setIsRouteLoading] = useState(false)
   const [isSwapInProgress, setIsSwapInProgress] = useState(false)
+  const fromInputRef = useRef<HTMLInputElement>(null)
 
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
@@ -89,10 +103,8 @@ export default function SwapClient() {
     walletBalances,
   )
 
-  const fromToken = fromTokenDenom
-    ? swapTokens.find((token) => token.denom === fromTokenDenom)
-    : null
-  const toToken = toTokenDenom ? swapTokens.find((token) => token.denom === toTokenDenom) : null
+  const fromToken = fromTokenDenom ? swapTokens.find((t) => t.denom === fromTokenDenom) : null
+  const toToken = toTokenDenom ? swapTokens.find((t) => t.denom === toTokenDenom) : null
 
   const hasInsufficientBalance =
     fromToken && fromAmount && parseFloat(fromAmount) > parseFloat(fromToken.balance)
@@ -106,6 +118,9 @@ export default function SwapClient() {
 
   useEffect(() => {
     const fetchRoute = async () => {
+      const fromToken = fromTokenDenom ? swapTokens.find((t) => t.denom === fromTokenDenom) : null
+      const toToken = toTokenDenom ? swapTokens.find((t) => t.denom === toTokenDenom) : null
+
       if (!fromToken || !toToken || !debouncedFromAmount || parseFloat(debouncedFromAmount) <= 0) {
         setRouteInfo(null)
         setToAmount('')
@@ -135,7 +150,7 @@ export default function SwapClient() {
     }
 
     fetchRoute()
-  }, [fromToken, toToken, debouncedFromAmount, slippage, fetchSwapRoute])
+  }, [fromTokenDenom, toTokenDenom, debouncedFromAmount, slippage, fetchSwapRoute])
 
   useEffect(() => {
     if (!address) {
@@ -170,16 +185,6 @@ export default function SwapClient() {
     setToAmount(tempAmount)
   }
 
-  const isSwapValid =
-    fromToken &&
-    toToken &&
-    fromAmount &&
-    parseFloat(fromAmount) > 0 &&
-    !hasInsufficientBalance &&
-    routeInfo &&
-    !isSwapInProgress &&
-    fromAmount === debouncedFromAmount
-
   const fromUsdValue = fromToken?.price && fromAmount ? fromToken.price * parseFloat(fromAmount) : 0
   const toUsdValue = toToken?.price && toAmount ? toToken.price * parseFloat(toAmount) : 0
 
@@ -201,8 +206,26 @@ export default function SwapClient() {
     }
   }
 
+  const isWalletConnected = !!address
+  const showInsufficientFunds = isWalletConnected && hasInsufficientBalance
+
+  const swapButtonLabel = !isWalletConnected
+    ? 'Connect Wallet'
+    : isRouteLoading
+      ? 'Loading route...'
+      : showInsufficientFunds
+        ? `Insufficient ${fromToken?.symbol} Balance`
+        : !fromToken || !toToken
+          ? 'Select tokens'
+          : !fromAmount
+            ? 'Enter amount'
+            : !routeInfo
+              ? 'No route available'
+              : 'Swap'
+
   return (
     <>
+      <TokenPathBackground />
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
@@ -214,8 +237,8 @@ export default function SwapClient() {
         </div>
       </div>
       <div className='w-full max-w-lg mx-auto pb-16'>
-        <Card className='bg-card/90 rounded-2xl shadow-xl border-0 py-6'>
-          <CardContent className='sm:py-2 px-2 sm:px-4'>
+        <Card className='bg-card rounded-2xl shadow-xl border border-border/30 py-2'>
+          <CardContent className='sm:py-2 px-2'>
             <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
               {/* Settings Button and Popover */}
               <Popover open={showSlippagePopover} onOpenChange={setShowSlippagePopover}>
@@ -279,7 +302,7 @@ export default function SwapClient() {
             </div>
 
             {/* From Section */}
-            <div className='relative rounded-xl bg-muted/10 border border-border/30 p-4 mb-2 group'>
+            <div className='relative rounded-xl bg-muted/10 border border-border/30 p-4 group'>
               <div className='flex items-center justify-between mb-1'>
                 <div className='text-xs font-semibold text-muted-foreground uppercase tracking-wide'>
                   From
@@ -295,15 +318,32 @@ export default function SwapClient() {
                   className='hidden group-hover:flex group-focus-within:flex'
                 />
               </div>
-              <div className='relative mt-2'>
+              <div className='relative my-3'>
                 <input
-                  type='number'
-                  value={fromAmount}
-                  onChange={(e) => setFromAmount(e.target.value)}
+                  ref={fromInputRef}
+                  type='text'
+                  value={formatWithThousandsSeparator(fromAmount)}
+                  onChange={(e) => {
+                    // Get raw value without commas
+                    const raw = stripNonNumericExceptDot(e.target.value.replace(/,/g, ''))
+                    // Prevent multiple decimals
+                    const parts = raw.split('.')
+                    let clean = parts[0]
+                    if (parts.length > 1) {
+                      clean += '.' + parts.slice(1).join('')
+                    }
+                    setFromAmount(clean)
+                    setTimeout(() => {
+                      if (fromInputRef.current) {
+                        fromInputRef.current.selectionStart = fromInputRef.current.value.length
+                        fromInputRef.current.selectionEnd = fromInputRef.current.value.length
+                      }
+                    }, 0)
+                  }}
                   placeholder='0.00'
                   className={cn(
                     'w-full pr-32 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground',
-                    hasInsufficientBalance && 'text-red-500',
+                    showInsufficientFunds && 'text-red-500',
                   )}
                 />
                 <button
@@ -367,9 +407,12 @@ export default function SwapClient() {
               </div>
               <div className='relative'>
                 <input
-                  type='number'
-                  value={toAmount}
-                  onChange={(e) => setToAmount(e.target.value)}
+                  type='text'
+                  value={formatWithThousandsSeparator(toAmount)}
+                  onChange={(e) => {
+                    // Remove commas before updating state
+                    setToAmount(e.target.value.replace(/,/g, ''))
+                  }}
                   placeholder='0.00'
                   className='w-full pr-32 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
                 />
@@ -405,7 +448,7 @@ export default function SwapClient() {
                   </svg>
                 </button>
               </div>
-              <div className='flex justify-between mt-2 text-xs text-muted-foreground'>
+              <div className='flex justify-between my-3 text-xs text-muted-foreground'>
                 <FormattedValue value={toUsdValue} isCurrency={true} useCompactNotation={false} />
                 <FormattedValue
                   value={toToken?.balance || '0'}
@@ -430,29 +473,31 @@ export default function SwapClient() {
             )}
 
             <Button
-              disabled={!isSwapValid || isSwapInProgress || isRouteLoading}
-              className='w-full mt-4'
-              onClick={handleSwap}
+              disabled={
+                !!(
+                  !isWalletConnected ||
+                  !fromToken ||
+                  !toToken ||
+                  !fromAmount ||
+                  isSwapInProgress ||
+                  isRouteLoading ||
+                  showInsufficientFunds
+                )
+              }
+              className='w-full h-12'
+              onClick={() => {
+                if (!isWalletConnected) return
+
+                handleSwap()
+              }}
             >
-              {isSwapInProgress
-                ? 'Swapping...'
-                : isRouteLoading
-                  ? 'Loading route...'
-                  : hasInsufficientBalance
-                    ? `Insufficient ${fromToken?.symbol} Balance`
-                    : !fromToken || !toToken
-                      ? 'Select tokens'
-                      : !fromAmount
-                        ? 'Enter amount'
-                        : !routeInfo
-                          ? 'No route available'
-                          : 'Swap'}
+              {swapButtonLabel}
             </Button>
           </CardContent>
         </Card>
 
         {/* Stats */}
-        <div className='flex gap-1 sm:gap-2 mt-4'>
+        {/* <div className='flex gap-1 sm:gap-2 mt-4'>
           <StatCard
             value={127}
             label={<span className='text-xs'>Total Liquidity</span>}
@@ -465,7 +510,7 @@ export default function SwapClient() {
             isCurrency={true}
             prefix='$'
           />
-        </div>
+        </div> */}
 
         <TokenSelectorModal
           open={isTokenModalOpen}

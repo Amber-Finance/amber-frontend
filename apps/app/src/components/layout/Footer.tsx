@@ -86,9 +86,9 @@ export function Footer() {
           </div>
 
           {/* Link Sections Container */}
-          <div className='grid grid-cols-2 md:grid-cols-2 gap-8 md:col-span-2'>
+          <div className='grid grid-cols-2 md:grid-cols-2 gap-8 md:col-span-2 text-right'>
             {footerSections.map((section, index) => (
-              <div key={index}>
+              <div key={index} className='text-right'>
                 <h3 className='text-sm font-semibold text-foreground mb-4 uppercase tracking-wider'>
                   {section.title}
                 </h3>
