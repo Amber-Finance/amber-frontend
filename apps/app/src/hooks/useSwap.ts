@@ -63,8 +63,6 @@ export function useSwap() {
           }
         }
 
-        console.log(toToken.decimals, 'toToken.decimals')
-
         return {
           amountOut: new BigNumber(routeResult.estimatedAmountOut)
             .shiftedBy(-toToken.decimals)
