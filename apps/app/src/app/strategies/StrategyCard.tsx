@@ -3,7 +3,6 @@
 import Image from 'next/image'
 
 import { useChain } from '@cosmos-kit/react'
-import { BigNumber } from 'bignumber.js'
 
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
@@ -82,7 +81,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         flickerChance={0.2}
         maxOpacity={0.3}
         gradientDirection='top-to-bottom'
-        width={400}
         height={120}
       />
 

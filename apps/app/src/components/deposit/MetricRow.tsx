@@ -40,7 +40,7 @@ export default function MetricRow({
     >
       <div className='flex items-center gap-2'>
         {customIcon ? (
-          <Image src={customIcon} alt={label} width={12} height={12} />
+          <Image src={customIcon} alt={label} width={16} height={16} />
         ) : Icon ? (
           <Icon className='w-3 h-3 sm:w-4 sm:h-4' style={{ color: brandColor }} />
         ) : null}

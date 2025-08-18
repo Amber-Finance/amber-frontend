@@ -6,23 +6,15 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import { BigNumber } from 'bignumber.js'
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowUpRight,
-  Coins,
-  Info,
-  TrendingUp,
-  Wallet,
-  Zap,
-} from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Coins, Wallet, Zap } from 'lucide-react'
 
 import { BalanceRow, InfoCard, MetricRow, ProgressCard } from '@/components/deposit'
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
+import PointsCampaignTooltip from '@/components/ui/PointsCampaignTooltip'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import tokens from '@/config/tokens'
@@ -36,6 +28,11 @@ import {
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useStore } from '@/store/useStore'
+import {
+  getNeutronIcon,
+  getProtocolPoints,
+  getProtocolPointsIcon,
+} from '@/utils/depositCardHelpers'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatCurrency, formatTokenAmount } from '@/utils/format'
 
@@ -150,6 +147,10 @@ export default function DepositClient() {
   }
 
   const { token, metrics } = selectedToken
+  const { theme } = useTheme()
+  const protocolPoints = getProtocolPoints(token.symbol)
+  const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
+  const neutronIcon = getNeutronIcon(theme)
 
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) return
@@ -256,23 +257,7 @@ export default function DepositClient() {
               </div>
               <div className='flex items-center gap-1'>
                 <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className='text-left space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-sm font-bold text-foreground'>Points Campaign</span>
-                      </div>
-                      <div className='text-xs text-muted-foreground space-y-1'>
-                        <p>• Mars Fragments</p>
-                        <p>• Neutron Quarks: ~2% of total APY</p>
-                        <p>• Base yield: ~0.5% of total APY</p>
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
+                <PointsCampaignTooltip token={token} />
               </div>
             </div>
           </div>
@@ -353,6 +338,17 @@ export default function DepositClient() {
                   By supplying this asset, you automatically farm points for:
                 </div>
                 <div className='space-y-2'>
+                  {/* Protocol Points, only if available */}
+                  {protocolPoints.protocolPoint && protocolPointsIcon && (
+                    <MetricRow
+                      customIcon={protocolPointsIcon}
+                      label={protocolPoints.protocolPoint}
+                      value={protocolPoints.multiplier}
+                      suffix=' multiplier'
+                      brandColor={token.brandColor}
+                    />
+                  )}
+                  {/* Mars Fragments */}
                   <MetricRow
                     customIcon='/images/marsFragments/mars-fragments.svg'
                     label='Mars Fragments'
@@ -360,11 +356,12 @@ export default function DepositClient() {
                     suffix=''
                     brandColor={token.brandColor}
                   />
+                  {/* Neutron Points */}
                   <MetricRow
-                    icon={Zap}
-                    label='Neutron Quarks'
-                    value='~2'
-                    suffix='%'
+                    customIcon={neutronIcon}
+                    label='Neutron Points'
+                    value=''
+                    suffix=''
                     brandColor={token.brandColor}
                   />
                 </div>
@@ -382,9 +379,9 @@ export default function DepositClient() {
                 brandColor={token.brandColor}
               />
               <ProgressCard
-                value={currentTokenTvlData?.tvl_share}
+                value={currentTokenTvlData?.tvl_share ?? 0}
                 label='TVL Share'
-                subtitle={`${currentTokenTvlData?.tvl_share.toFixed(2)}% of platform deposits`}
+                subtitle={`${(currentTokenTvlData?.tvl_share ?? 0).toFixed(2)}% of platform deposits`}
                 brandColor={token.brandColor}
               />
             </div>
@@ -465,7 +462,7 @@ export default function DepositClient() {
                 />
               </div>
 
-              {activeTab === 'deposit' && parseFloat(currentAmount || '0') > 0 && (
+              {/* {activeTab === 'deposit' && parseFloat(currentAmount || '0') > 0 && (
                 <div className='p-3 rounded-lg bg-muted/20 border border-border/40 mb-4'>
                   <div className='flex items-center gap-1.5 mb-2'>
                     <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} />
@@ -484,7 +481,7 @@ export default function DepositClient() {
                     USD
                   </div>
                 </div>
-              )}
+              )} */}
 
               <Button
                 variant='outline-gradient'

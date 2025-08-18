@@ -1,13 +1,13 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
-import { ArrowDownToLine, Info, Zap } from 'lucide-react'
+import { ArrowDownToLine } from 'lucide-react'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
+import PointsCampaignTooltip from '@/components/ui/PointsCampaignTooltip'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -91,7 +91,6 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         flickerChance={0.2}
         maxOpacity={0.5}
         gradientDirection='top-to-bottom'
-        width={400}
         height={120}
       />
 
@@ -158,23 +157,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <div className='text-sm font-bold text-muted-foreground/70 leading-tight whitespace-nowrap tracking-wider'>
                 Total APY
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className='w-3 h-3 text-muted-foreground/40 hover:text-muted-foreground/60 cursor-help transition-colors' />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className='space-y-2'>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-sm font-bold text-foreground'>Points Campaign</span>
-                    </div>
-                    <div className='text-xs text-muted-foreground space-y-1'>
-                      <p>• Mars Fragments</p>
-                      <p>• Neutron Quarks: ~2% of total APY</p>
-                      <p>• Base yield: ~0.5% of total APY</p>
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+              <PointsCampaignTooltip token={token} />
             </div>
           </div>
         </div>

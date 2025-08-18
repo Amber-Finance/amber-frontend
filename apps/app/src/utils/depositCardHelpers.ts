@@ -23,36 +23,36 @@ export const getProtocolPoints = (symbol: string) => {
     }
   > = {
     solvbtc: {
-      multiplier: '4X',
+      multiplier: '4x',
       protocolPoint: 'Solv Points',
       protocolIconLight: '/images/solv/solvLight.png',
       protocolIconDark: '/images/solv/solvDark.png',
     },
     lbtc: {
-      multiplier: '4X',
+      multiplier: '4x',
       protocolPoint: 'Lombard Lux',
       protocolIconLight: '/images/lombard/lombardIconOnly.svg',
       protocolIconDark: '/images/lombard/lombardIconOnlyDark.svg',
     },
     ebtc: {
-      multiplier: '3X',
+      multiplier: '3x',
       protocolPoint: 'Etherfi Points',
       protocolIconLight: '/images/eBTC.png',
       protocolIconDark: '/images/eBTC.png', // Same icon for both themes
     },
     unibtc: {
-      multiplier: '3X',
+      multiplier: '3x',
       protocolPoint: 'Bedrock Points',
       protocolIconLight: '/images/bedrock.svg',
       protocolIconDark: '/images/bedrock.svg', // Same icon for both themes
     },
     pumpbtc: {
-      multiplier: '2X',
+      multiplier: '2x',
       protocolPoint: 'Pump Points',
       protocolIconLight: '/images/pump.svg',
       protocolIconDark: '/images/pump.svg', // Same icon for both themes
     },
-    maxbtc: { multiplier: '1X', protocolPoint: 'Structured Points (TBC)' },
+    maxbtc: { multiplier: '1x', protocolPoint: 'Structured Points (TBC)' },
   }
 
   return pointsMap[symbolLower] || { multiplier: '1X' }
@@ -136,4 +136,3 @@ export const getProtocolIcon = (
   if (protocolIconLight === protocolIconDark) return protocolIconLight
   return theme === 'dark' ? protocolIconDark : protocolIconLight
 }
-
