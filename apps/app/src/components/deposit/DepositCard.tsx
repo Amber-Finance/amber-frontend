@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
+import BigNumber from 'bignumber.js'
 import { ArrowDownToLine } from 'lucide-react'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
@@ -18,6 +19,8 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
+import { cn } from '@/lib/utils'
 import {
   formatBalance,
   getBadgeStyle,
@@ -26,6 +29,7 @@ import {
   getProtocolPoints,
   getProtocolPointsIcon,
 } from '@/utils/depositCardHelpers'
+import { formatCompactCurrency } from '@/utils/format'
 
 interface DepositCardProps {
   token: {
@@ -37,6 +41,7 @@ interface DepositCardProps {
     brandColor: string
     protocolIconLight?: string
     protocolIconDark?: string
+    denom: string
   }
   metrics: {
     lendingApy: number
@@ -56,6 +61,13 @@ interface DepositCardProps {
 export default function DepositCard({ token, metrics }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
+
+  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
+
+  const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
+    (asset: any) => asset.denom === token.denom,
+  )
+  const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
   // Helper function calls
   const protocolPoints = getProtocolPoints(token.symbol)
@@ -80,7 +92,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   return (
     <Card
-      className='group relative w-full min-w-[320px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
+      className='group relative w-full min-w-[360px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -226,18 +238,52 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
         </div> */}
 
+        <div className='space-y-2'>
+          <div className='flex items-center gap-2'>
+            <span className='text-sm font-bold tracking-wider text-foreground/70'>Deposited</span>
+          </div>
+
+          <div className='space-y-1'>
+            <div className='flex justify-between items-center'>
+              <div className='flex items-center gap-2'>
+                {protocolIcon && (
+                  <div className='w-4 h-4 flex-shrink-0 flex items-center justify-center'>
+                    <Image
+                      src={protocolIcon}
+                      alt={`${token.protocol} logo`}
+                      width={16}
+                      height={16}
+                      className='object-contain w-full h-full'
+                      unoptimized={true}
+                    />
+                  </div>
+                )}
+                <span className='text-sm'>Total Value Locked</span>
+              </div>
+              <div className='flex items-center gap-1'>
+                <span className='text-base font-bold'>
+                  {formatCompactCurrency(currentTokenTvlAmount)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Points Section */}
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
             <span className='text-sm font-bold tracking-wider text-foreground/70'>Points</span>
           </div>
 
-          <div className='flex flex-wrap gap-2'>
+          <div className='flex flex-wrap gap-1'>
             {/* Protocol Points - Show first if they exist */}
             {protocolPoints.protocolPoint && protocolPointsIcon && (
               <Badge
                 variant={getBadgeStyle('protocol', token.symbol).variant}
-                className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('protocol', token.symbol).className}`}
+                className={cn(
+                  'text-xs font-medium px-2 py-1 gap-1.5',
+                  getBadgeStyle('protocol', token.symbol).className,
+                )}
                 style={getBadgeStyle('protocol', token.symbol).style}
               >
                 <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
@@ -258,7 +304,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             {/* Neutron Points */}
             <Badge
               variant={getBadgeStyle('neutron', token.symbol).variant}
-              className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('neutron', token.symbol).className}`}
+              className={cn(
+                'text-xs font-medium p-1.5 gap-1.5',
+                getBadgeStyle('neutron', token.symbol).className,
+              )}
               style={getBadgeStyle('neutron', token.symbol).style}
             >
               <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
@@ -270,13 +319,16 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                   className='object-contain w-full h-full'
                 />
               </div>
-              <span>Neutron Points</span>
+              <span>Neutron</span>
             </Badge>
 
             {/* Mars Fragments */}
             <Badge
               variant={getBadgeStyle('mars', token.symbol).variant}
-              className={`text-xs font-medium px-2 py-1 gap-1.5 ${getBadgeStyle('mars', token.symbol).className}`}
+              className={cn(
+                'text-xs font-medium p-1.5 gap-1.5',
+                getBadgeStyle('mars', token.symbol).className,
+              )}
               style={getBadgeStyle('mars', token.symbol).style}
             >
               <div className='w-3 h-3 flex-shrink-0 flex items-center justify-center'>
