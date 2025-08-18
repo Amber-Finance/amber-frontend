@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 
+import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 import { ArrowLeft, ArrowRight, ArrowUpRight, Coins, Wallet, Zap } from 'lucide-react'
 
@@ -17,6 +18,7 @@ import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import PointsCampaignTooltip from '@/components/ui/PointsCampaignTooltip'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import {
   useLstMarkets,
@@ -66,6 +68,7 @@ export default function DepositClient() {
   const { deposit, withdraw, isPending } = useTransactions()
 
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
+  const { isWalletConnected, connect } = useChain(chainConfig.name)
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
@@ -486,11 +489,24 @@ export default function DepositClient() {
               <Button
                 variant='outline-gradient'
                 gradientColor={token.brandColor}
-                onClick={activeTab === 'deposit' ? handleDeposit : handleWithdraw}
-                disabled={isPending || !currentAmount || parseFloat(currentAmount) <= 0}
+                onClick={
+                  !isWalletConnected
+                    ? connect
+                    : activeTab === 'deposit'
+                      ? handleDeposit
+                      : handleWithdraw
+                }
+                disabled={
+                  !isWalletConnected ||
+                  isPending ||
+                  !currentAmount ||
+                  parseFloat(currentAmount) <= 0
+                }
                 className='w-full'
               >
-                {isPending ? (
+                {!isWalletConnected ? (
+                  'Connect Wallet'
+                ) : isPending ? (
                   <>
                     <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
                     {activeTab === 'deposit' ? 'Depositing...' : 'Withdrawing...'}
