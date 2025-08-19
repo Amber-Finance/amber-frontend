@@ -72,14 +72,14 @@ const tokens = [
     description: 'Edge Bitcoin',
     protocolIconLight: '/images/eBTC.png',
     protocolIconDark: '/images/eBTC.png',
-    decimals: 8,
+    decimals: 18,
     isLST: true,
     protocol: 'Edge Protocol',
     brandColor: '#EC4899', // Edge pink
   },
   {
     chainId: 'neutron-1',
-    denom: 'ibc/6F8F0E9D472BF053261F2DEBE521801B703372777F3923B48DAE55D4F1212B5F',
+    denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
     symbol: 'pumpBTC',
     icon: '/images/pumpBTC.svg',
     description: 'Pump Bitcoin',

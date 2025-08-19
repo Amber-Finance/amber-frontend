@@ -35,6 +35,7 @@ export interface LstMarketData {
     brandColor: string
     protocolIconLight?: string
     protocolIconDark?: string
+    denom: string
   }
   metrics: {
     lendingApy: number
@@ -154,6 +155,7 @@ export function useLstMarkets(): {
             brandColor: tokenData.brandColor,
             protocolIconLight: tokenData.protocolIconLight,
             protocolIconDark: tokenData.protocolIconDark,
+            denom: tokenData.denom,
           },
           metrics: {
             lendingApy,

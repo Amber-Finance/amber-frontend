@@ -72,7 +72,8 @@ export default function SwapClient() {
     return tokens.map((token) => {
       const market = markets.find((m) => m.asset.denom === token.denom)
       const walletBalance = walletBalances.find((b) => b.denom === token.denom)
-      const decimals = market?.asset?.decimals || 6
+      const decimals = market?.asset?.decimals ?? token.decimals ?? 8
+
       const rawBalance = isConnected && walletBalance?.amount ? Number(walletBalance.amount) : 0
 
       const adjustedBalance =
@@ -175,6 +176,19 @@ export default function SwapClient() {
       markInitialized()
     }
   }, [searchParams, swapTokens.length, shouldInitialize, bestToken, markInitialized])
+
+  useEffect(() => {
+    if (swapTokens.length > 0) {
+      console.log(
+        'Tokens and their decimals:',
+        swapTokens.map((token) => ({
+          symbol: token.symbol,
+          denom: token.denom,
+          decimals: token.decimals,
+        })),
+      )
+    }
+  }, [swapTokens])
 
   const handleSwapTokens = () => {
     const tempDenom = fromTokenDenom

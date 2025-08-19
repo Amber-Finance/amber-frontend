@@ -45,7 +45,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
 
   if (!amountOut || !fromToken || !toToken || !amountIn) {
     return (
-      <div className='flex items-center justify-center h-[72px] rounded-lg border border-border/30 my-2'>
+      <div className='flex items-center justify-center h-[100px] rounded-lg border border-border/30 my-2'>
         <span className='text-muted-foreground text-sm'>No route available</span>
       </div>
     )
