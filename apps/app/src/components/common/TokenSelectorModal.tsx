@@ -13,6 +13,7 @@ interface TokenSelectorModalProps {
   onSelect: (token: SwapToken) => void
   selectedToken?: SwapToken | null
   isWalletConnected?: boolean
+  disabledTokens?: string[]
 }
 
 export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
@@ -22,6 +23,7 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
   onSelect,
   selectedToken,
   isWalletConnected = true,
+  disabledTokens = [],
 }) => {
   // Group tokens based on actual rawBalance values, but only if wallet is connected
   const yourTokens = isWalletConnected
@@ -44,43 +46,49 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
                 Your tokens
               </div>
               <div className='flex flex-col gap-1'>
-                {yourTokens.map((token) => (
-                  <button
-                    key={token.symbol}
-                    className={cn(
-                      'flex items-center w-full px-4 py-3 rounded-xl transition-colors hover:bg-muted/30',
-                      selectedToken?.symbol === token.symbol ? 'bg-muted/40' : '',
-                    )}
-                    onClick={() => {
-                      onSelect(token)
-                      onOpenChange(false)
-                    }}
-                  >
-                    <Image
-                      src={token.icon}
-                      alt={token.symbol}
-                      width={32}
-                      height={32}
-                      className='rounded-full'
-                    />
-                    <div className='ml-3 flex flex-col items-start min-w-0 flex-1'>
-                      <div className='font-medium text-sm'>{token.symbol}</div>
-                      <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
-                    </div>
-                    <div className='ml-auto flex flex-col items-end min-w-0'>
-                      <div className='font-semibold text-base'>
-                        <FormattedValue
-                          value={parseFloat(token.usdValue)}
-                          isCurrency={true}
-                          maxDecimals={2}
-                        />
+                {yourTokens.map((token) => {
+                  const isDisabled = disabledTokens.includes(token.denom)
+                  return (
+                    <button
+                      key={token.symbol}
+                      className={cn(
+                        'flex items-center w-full px-4 py-3 rounded-xl transition-colors',
+                        selectedToken?.symbol === token.symbol ? 'bg-muted/40' : '',
+                        isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted/30',
+                      )}
+                      onClick={() => {
+                        if (isDisabled) return
+                        onSelect(token)
+                        onOpenChange(false)
+                      }}
+                      disabled={isDisabled}
+                    >
+                      <Image
+                        src={token.icon}
+                        alt={token.symbol}
+                        width={32}
+                        height={32}
+                        className='rounded-full'
+                      />
+                      <div className='ml-3 flex flex-col items-start min-w-0 flex-1'>
+                        <div className='font-medium text-sm'>{token.symbol}</div>
+                        <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                       </div>
-                      <div className='text-xs text-muted-foreground truncate'>
-                        {token.balance} {token.symbol}
+                      <div className='ml-auto flex flex-col items-end min-w-0'>
+                        <div className='font-semibold text-base'>
+                          <FormattedValue
+                            value={parseFloat(token.usdValue)}
+                            isCurrency={true}
+                            maxDecimals={2}
+                          />
+                        </div>
+                        <div className='text-xs text-muted-foreground truncate'>
+                          {token.balance} {token.symbol}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -88,40 +96,49 @@ export const TokenSelectorModal: React.FC<TokenSelectorModalProps> = ({
             All tokens
           </div>
           <div className='flex flex-col gap-1'>
-            {allTokens.map((token) => (
-              <button
-                key={token.symbol}
-                className={`flex items-center w-full px-4 py-3 rounded-xl transition-colors hover:bg-muted/30 ${selectedToken?.symbol === token.symbol ? 'bg-muted/40' : ''}`}
-                onClick={() => {
-                  onSelect(token)
-                  onOpenChange(false)
-                }}
-              >
-                <Image
-                  src={token.icon}
-                  alt={token.symbol}
-                  width={32}
-                  height={32}
-                  className='rounded-full'
-                />
-                <div className='ml-3 flex flex-col items-start min-w-0 flex-1'>
-                  <div className='font-medium text-sm'>{token.symbol}</div>
-                  <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
-                </div>
-                <div className='ml-auto flex flex-col items-end min-w-0'>
-                  <div className='font-semibold text-base'>
-                    <FormattedValue
-                      value={parseFloat(token.usdValue)}
-                      isCurrency={true}
-                      maxDecimals={2}
-                    />
+            {allTokens.map((token) => {
+              const isDisabled = disabledTokens.includes(token.denom)
+              return (
+                <button
+                  key={token.symbol}
+                  className={cn(
+                    'flex items-center w-full px-4 py-3 rounded-xl transition-colors',
+                    selectedToken?.symbol === token.symbol ? 'bg-muted/40' : '',
+                    isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted/30',
+                  )}
+                  onClick={() => {
+                    if (isDisabled) return
+                    onSelect(token)
+                    onOpenChange(false)
+                  }}
+                  disabled={isDisabled}
+                >
+                  <Image
+                    src={token.icon}
+                    alt={token.symbol}
+                    width={32}
+                    height={32}
+                    className='rounded-full'
+                  />
+                  <div className='ml-3 flex flex-col items-start min-w-0 flex-1'>
+                    <div className='font-medium text-sm'>{token.symbol}</div>
+                    <div className='text-xs text-muted-foreground truncate'>{token.name}</div>
                   </div>
-                  <div className='text-xs text-muted-foreground truncate'>
-                    {token.balance} {token.symbol}
+                  <div className='ml-auto flex flex-col items-end min-w-0'>
+                    <div className='font-semibold text-base'>
+                      <FormattedValue
+                        value={parseFloat(token.usdValue)}
+                        isCurrency={true}
+                        maxDecimals={2}
+                      />
+                    </div>
+                    <div className='text-xs text-muted-foreground truncate'>
+                      {token.balance} {token.symbol}
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              )
+            })}
           </div>
         </div>
       </DialogContent>

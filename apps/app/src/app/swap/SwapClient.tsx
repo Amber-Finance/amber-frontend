@@ -525,6 +525,15 @@ export default function SwapClient() {
             }
           }}
           isWalletConnected={!!address}
+          disabledTokens={
+            selectingFrom
+              ? toTokenDenom
+                ? [toTokenDenom]
+                : []
+              : fromTokenDenom
+                ? [fromTokenDenom]
+                : []
+          }
         />
       </div>
     </>
