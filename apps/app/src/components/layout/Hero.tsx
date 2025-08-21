@@ -40,7 +40,7 @@ export default function Hero({ title, subtitle, description, stats }: HeroProps)
 
         {/* Right Column - Stats Cards */}
         {stats && stats.length > 0 && (
-          <div className='flex-1 max-w-sm w-full h-full'>
+          <div className='flex-1 max-w-md w-full h-full'>
             <div className='flex flex-row gap-2 sm:gap-3'>
               {stats.map((stat, index) => (
                 <StatCard

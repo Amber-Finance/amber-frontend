@@ -195,7 +195,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             {/* TVL Share */}
             <div className='flex flex-col items-center space-y-2'>
               <AnimatedCircularProgressBar
-                value={tvlPercentage}
+                value={tvlPercentage > 0 ? tvlPercentage : 0}
                 max={100}
                 min={0}
                 gaugePrimaryColor={token.brandColor}

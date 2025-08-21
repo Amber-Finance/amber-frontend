@@ -45,8 +45,10 @@ export default function RootLayout({
                   <main className='relative z-10 flex-1 w-full max-w-screen-2xl mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
                     <Navbar />
                     {children}
-                    <Footer />
                   </main>
+                  <div className='mt-auto'>
+                    <Footer />
+                  </div>
 
                   <ToastContainer
                     position='bottom-right'

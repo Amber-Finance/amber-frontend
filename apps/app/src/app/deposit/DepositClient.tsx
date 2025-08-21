@@ -255,12 +255,8 @@ export default function DepositClient() {
             </div>
 
             <div className='text-right'>
-              <div className='text-lg sm:text-2xl font-bold' style={{ color: token.brandColor }}>
+              <div className='text-4xl font-bold text-primary'>
                 <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
-              </div>
-              <div className='flex items-center gap-1'>
-                <div className='text-xs text-muted-foreground/80 font-medium'>Total APY</div>
-                <PointsCampaignTooltip token={token} />
               </div>
             </div>
           </div>
@@ -508,7 +504,7 @@ export default function DepositClient() {
                   'Connect Wallet'
                 ) : isPending ? (
                   <>
-                    <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
+                    <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2' />
                     {activeTab === 'deposit' ? 'Depositing...' : 'Withdrawing...'}
                   </>
                 ) : (

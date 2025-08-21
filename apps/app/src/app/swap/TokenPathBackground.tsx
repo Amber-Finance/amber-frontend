@@ -35,7 +35,7 @@ export default function TokenPathBackground() {
   return (
     <div
       className='select-none absolute left-1/2 z-0 w-full'
-      style={{ top: '60%', transform: 'translateX(-50%)', zIndex: -10 }}
+      style={{ top: '50%', transform: 'translateX(-50%)', zIndex: -10 }}
     >
       <svg
         width={svgWidth}

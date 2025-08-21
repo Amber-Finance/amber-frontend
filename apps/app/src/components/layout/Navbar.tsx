@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -82,8 +82,9 @@ export function Navbar() {
                     href={item.href}
                     className={cn(
                       'relative tracking-wide flex items-center px-6 py-2 text-base rounded-full transition-all duration-300',
+                      'border border-transparent',
                       isActive
-                        ? 'text-foreground nav-glow-active'
+                        ? 'text-foreground nav-glow-active border-border'
                         : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
@@ -145,8 +146,9 @@ export function Navbar() {
                       href={item.href}
                       className={cn(
                         'relative block px-6 py-4 text-base font-semibold rounded-2xl transition-all duration-300',
+                        'border-2 border-transparent',
                         isActive
-                          ? 'text-foreground nav-glow-active'
+                          ? 'text-foreground nav-glow-active border-border'
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
                       )}
                       onClick={() => setMobileMenuOpen(false)}
