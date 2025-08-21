@@ -48,7 +48,10 @@ export default function Home() {
 
       <div className='w-full pt-6 pb-2 px-4 sm:px-6 lg:px-8'>
         {sortedMarkets.length > 0 ? (
-          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 max-w-screen-2xl mx-auto auto-cols-fr justify-items-center'>
+          <div
+            className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-screen-2xl mx-auto justify-items-center'
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}
+          >
             {sortedMarkets.map((item) => (
               <DepositCard key={item.token.symbol} token={item.token} metrics={item.metrics} />
             ))}

@@ -286,7 +286,10 @@ export default function StrategiesOverview() {
               </div>
             </div>
           ) : strategies.length > 0 ? (
-            <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 max-w-screen-2xl mx-auto auto-cols-fr justify-items-center'>
+            <div
+              className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-screen-2xl mx-auto justify-items-center'
+              style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}
+            >
               {strategies.map((strategy) => (
                 <StrategyCard key={strategy.id} strategy={strategy} />
               ))}

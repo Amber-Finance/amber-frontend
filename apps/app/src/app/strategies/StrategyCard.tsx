@@ -70,7 +70,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
   return (
     <Card
-      className='group relative w-full min-w-[320px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
+      className='group relative w-full h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
