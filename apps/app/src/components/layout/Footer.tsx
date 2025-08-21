@@ -47,7 +47,6 @@ const footerSections = [
   {
     title: 'Platform',
     links: [
-      { title: 'Bridge', url: '/bridge' },
       { title: 'Deposit', url: '/deposit' },
       { title: 'Strategies (Looping)', url: '/strategies' },
       { title: 'Swap', url: '/swap' },

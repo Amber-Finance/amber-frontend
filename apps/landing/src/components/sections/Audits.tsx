@@ -12,7 +12,7 @@ import { GridPattern } from '../ui/grid-pattern'
 
 export function Audits() {
   return (
-    <section id='audits' className='relative overflow-hidden flex flex-col'>
+    <section id='audits' className='relative overflow-hidden flex flex-col py-2'>
       <div className='absolute inset-0 -z-10'>
         <Background
           translateY={-260}

@@ -4,39 +4,40 @@ import { motion } from 'framer-motion'
 
 import { FirstBentoSection } from '@/components/sections/bento/FirstBentoSection'
 import { SecondBentoAnimation } from '@/components/sections/bento/SecondBentoSection'
-import { ThirdBentoAnimation } from '@/components/sections/bento/ThirdBentoSection'
+// import { ThirdBentoAnimation } from '@/components/sections/bento/ThirdBentoSection'
 import { BentoCard, BentoGrid } from '@/components/ui/bento-grid'
 import { cn } from '@/lib/utils'
 
 import { Background } from '../Background'
 import { SectionHeader } from '../section-header'
 import { DotPattern } from '../ui/dot-pattern'
-import { FourthBentoSection } from './bento/FourthBentoSection'
+
+// import { FourthBentoSection } from './bento/FourthBentoSection'
 
 const features = [
-  {
-    name: 'Bridge',
-    description: 'Seamlessly bridge BRTs across multiple networks.',
-    href: 'https://app.amberfi.io/swap',
-    cta: 'Get Started',
-    className: 'col-span-3 lg:col-span-1',
-    background: <FourthBentoSection />,
-  },
-  {
-    // Icon: BellIcon,
-    name: 'Performance Analytics',
-    description: 'Track your yield and returns over time with interactive charts and tooltips.',
-    href: 'https://app.amberfi.io/deposit',
-    cta: 'Learn More',
-    className: 'col-span-3 lg:col-span-2',
-    background: (
-      <ThirdBentoAnimation
-        data={[20, 30, 25, 45, 40, 55, 75]}
-        color='rgba(255, 115, 0, 1)'
-        toolTipValues={[2.9, 3.5, 4.21, 6.85, 9.3, 8.78, 12.6, 15.7]}
-      />
-    ),
-  },
+  // {
+  //   name: 'Bridge',
+  //   description: 'Seamlessly bridge BRTs across multiple networks.',
+  //   href: 'https://app.amberfi.io/swap',
+  //   cta: 'Get Started',
+  //   className: 'col-span-3 lg:col-span-1',
+  //   background: <FourthBentoSection />,
+  // },
+  // {
+  //   // Icon: BellIcon,
+  //   name: 'Performance Analytics',
+  //   description: 'Track your yield and returns over time with interactive charts and tooltips.',
+  //   href: 'https://app.amberfi.io/deposit',
+  //   cta: 'Learn More',
+  //   className: 'col-span-3 lg:col-span-2',
+  //   background: (
+  //     <ThirdBentoAnimation
+  //       data={[20, 30, 25, 45, 40, 55, 75]}
+  //       color='rgba(255, 115, 0, 1)'
+  //       toolTipValues={[2.9, 3.5, 4.21, 6.85, 9.3, 8.78, 12.6, 15.7]}
+  //     />
+  //   ),
+  // },
   {
     // Icon: Share2Icon,
     name: 'Looping Strategies',
@@ -48,8 +49,8 @@ const features = [
   },
   {
     // Icon: CalendarIcon,
-    name: 'Deposit',
-    description: 'Seamlessly deposit BRTs on Amber.',
+    name: 'Earn Yield',
+    description: 'Seamlessly deposit BRTs on Amber to earn yield and farm points.',
     className: 'col-span-3 lg:col-span-1',
     href: 'https://app.amberfi.io/deposit',
     cta: 'View Dashboard',
@@ -59,7 +60,7 @@ const features = [
 
 export function Bento() {
   return (
-    <section id='bento' className='relative overflow-hidden flex flex-col '>
+    <section id='bento' className='relative overflow-hidden flex flex-col py-2'>
       <div className='absolute inset-0 -z-10'>
         <Background
           translateY={-260}

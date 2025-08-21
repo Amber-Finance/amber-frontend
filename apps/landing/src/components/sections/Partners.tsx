@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 const partners = [
-  { name: 'Axelar', image: 'axelar/axelarDark.svg' },
+  { name: 'EtherFi', image: 'etherfi_icon-white-outline.svg' },
+  { name: 'Babylon', image: 'Baby-Symbol-Mint.png' },
   { name: 'Eureka', image: 'eureka/eurekaDark.svg' },
   { name: 'Lombard', image: 'lombard/lombardIconOnlyDark.svg' },
   { name: 'Solv', image: 'solv/solvDark.png' },
