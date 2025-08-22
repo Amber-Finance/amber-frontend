@@ -52,6 +52,7 @@ export default {
       fontFamily: {
         sans: ['SourceSans', 'sans-serif'],
         funnel: ['Funnel', 'sans-serif'],
+        funnelDisplay: ['FunnelDisplay', 'sans-serif'],
       },
       animation: {
         'rotate-border': 'rotate-border 15s linear infinite',

@@ -107,7 +107,7 @@ export function Bento() {
               <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-medium text-white/80 backdrop-blur'>
                 Product features
               </div>
-              <h2 className='text-3xl md:text-4xl font-funnel font-medium tracking-tighter text-center text-balance'>
+              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium tracking-tighter text-center text-balance'>
                 Amplify Your Bitcoin Yield
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
@@ -119,7 +119,7 @@ export function Bento() {
         </div>
 
         {/* Cards/content area */}
-        <motion.div className='mx-auto w-full px-8 md:px-16'>
+        <motion.div className='mx-auto w-full px-8 md:px-16 max-w-6xl'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
             <BentoCard key={features[0].name} {...features[0]} />
             <BentoCard key={features[1].name} {...features[1]} />

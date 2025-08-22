@@ -58,7 +58,7 @@ export function Audits() {
               <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-medium text-white/80 backdrop-blur'>
                 Independent audits
               </div>
-              <h2 className='text-3xl md:text-4xl font-funnel font-medium tracking-tighter text-center text-balance'>
+              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium tracking-tighter text-center text-balance'>
                 Audit coverage from Mars Protocol
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
@@ -116,7 +116,7 @@ export function Audits() {
                 </div>
               </div>
               <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md opacity-0 transition-all duration-300 group-hover:opacity-100'>
-                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 hover:underline flex items-center'>
+                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
                   View Halborn reports
                   <ArrowRightIcon className='ms-2 h-5 w-5 rtl:rotate-180' />
                 </div>
@@ -160,7 +160,7 @@ export function Audits() {
                 </div>
               </div>
               <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md opacity-0 transition-all duration-300 group-hover:opacity-100'>
-                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 hover:underline flex items-center'>
+                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
                   View OAK reports
                   <ArrowRightIcon className='ms-2 h-5 w-5 rtl:rotate-180' />
                 </div>

@@ -48,7 +48,7 @@ export function MarsFork() {
                 Mars‑grade security
               </div>
 
-              <h2 className='text-3xl md:text-4xl font-funnel font-medium tracking-tighter text-center text-balance'>
+              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium tracking-tighter text-center text-balance'>
                 High Leverage with maximum security
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
@@ -109,7 +109,7 @@ export function MarsFork() {
                 </div>
               </div>
               <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md opacity-0 transition-all duration-300 group-hover:opacity-100'>
-                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 hover:underline flex items-center'>
+                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
                   Read Mars Protocol documentation
                   <ArrowRightIcon className='ms-2 h-5 w-5 rtl:rotate-180' />
                 </div>
@@ -117,16 +117,6 @@ export function MarsFork() {
             </motion.a>
           </div>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className='mx-auto pb-3 max-w-4xl text-center text-xs text-white/50'
-        >
-          References: Mars Protocol documentation and audits.
-        </motion.p>
       </motion.div>
     </section>
   )

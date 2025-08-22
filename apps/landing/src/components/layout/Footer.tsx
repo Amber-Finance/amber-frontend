@@ -126,14 +126,14 @@ export function Footer() {
                           href={link.url}
                           target='_blank'
                           rel='noopener noreferrer'
-                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground'
                         >
                           {link.title}
                         </a>
                       ) : (
                         <Link
                           href={link.url}
-                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground '
                         >
                           {link.title}
                         </Link>

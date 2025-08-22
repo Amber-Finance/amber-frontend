@@ -65,7 +65,7 @@ const BentoCard = ({
           'lg:hidden pointer-events-none flex w-full translate-y-0 transform-gpu flex-row items-center transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100',
         )}
       >
-        <div className='pointer-events-auto p-0 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:underline flex items-center'>
+        <div className='pointer-events-auto p-0 text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
           {cta}
           <ArrowRightIcon className='ms-2 h-4 w-4 rtl:rotate-180' />
         </div>
@@ -73,7 +73,7 @@ const BentoCard = ({
     </div>
 
     <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md opacity-0 transition-all duration-300 group-hover:opacity-100'>
-      <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 hover:underline flex items-center'>
+      <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
         {cta}
         <ArrowRightIcon className='ms-2 h-5 w-5 rtl:rotate-180' />
       </div>

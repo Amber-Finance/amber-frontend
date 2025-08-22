@@ -19,12 +19,7 @@ export function SecondBentoAnimation() {
         <Image src='/images/pumpBTC.svg' alt='pumpBTC' width={32} height={32} />
         <Image src='/images/LBTC.svg' alt='LBTC' width={32} height={32} />
         <Image src='/images/BTC.svg' alt='BTC' width={32} height={32} />
-      </OrbitingCircles>
-
-      <OrbitingCircles iconSize={40} radius={230} reverse>
         <Image src='/images/eBTC.png' alt='eBTC' width={32} height={32} />
-        <Image src='/images/WBTC.axl.svg' alt='WBTC.axl' width={32} height={32} />
-        <Image src='/images/bedrock.svg' alt='Bedrock' width={32} height={32} />
       </OrbitingCircles>
     </div>
   )
