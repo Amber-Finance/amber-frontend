@@ -14,7 +14,7 @@ The Swapper contract wraps the underlying decentralized exchange (DEX) to integr
 
 ```ts
 type Uint128 = string
-````
+```
 
 #### Coin
 
@@ -36,7 +36,8 @@ Returns the contract configuration.
 
 ```ts
 {
-  config: {}
+  config: {
+  }
 }
 ```
 
@@ -51,8 +52,6 @@ Returns the contract configuration.
   }
 }
 ```
-
----
 
 #### `estimate_exact_in_swap`
 
@@ -78,19 +77,16 @@ Estimates the output of a swap with a given input coin and route.
 }
 ```
 
----
-
 #### `owner`
 
 Returns contract ownership details.
 
 ```ts
 {
-  owner: {}
+  owner: {
+  }
 }
 ```
-
----
 
 #### `route`
 
@@ -104,8 +100,6 @@ Returns route configuration for a given token pair.
   }
 }
 ```
-
----
 
 #### `routes`
 
@@ -151,6 +145,4 @@ Performs a swap using the exact input amount specified.
 
 ---
 
-*This documentation reflects the Mars Protocol Swapper contract as deployed by Amber Finance on Neutron.*
-
-```
+_This documentation reflects the Mars Protocol Swapper contract as deployed by Amber Finance on Neutron._

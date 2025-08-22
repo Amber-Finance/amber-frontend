@@ -23,10 +23,7 @@ type AccountKind =
 
 type ActionKind = 'default' | 'liquidation'
 
-type Expiration =
-  | { at_height: number }
-  | { at_time: Timestamp }
-  | { never: {} }
+type Expiration = { at_height: number } | { at_time: Timestamp } | { never: {} }
 
 type HealthState =
   | 'healthy'
@@ -36,9 +33,9 @@ type HealthState =
       }
     }
 
-type Int128 = string    
+type Int128 = string
 type Uint128 = string
-````
+```
 
 ---
 
@@ -339,7 +336,7 @@ Supported execution methods for managing Credit Accounts.
 {
   update_balance_after_deleverage: {
     account_id: string
-    pnl:  'break_even' | { 
+    pnl:  'break_even' | {
       profit: Coin
     } | {
       loss: Coin
@@ -358,6 +355,4 @@ Supported execution methods for managing Credit Accounts.
 
 ---
 
-*This documentation reflects the Mars Protocol Credit Manager contract as deployed by Amber Finance on Neutron.*
-
-```
+_This documentation reflects the Mars Protocol Credit Manager contract as deployed by Amber Finance on Neutron._
