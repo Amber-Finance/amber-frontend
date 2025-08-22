@@ -52,9 +52,9 @@ export function MarsFork() {
                 High Leverage with maximum security
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-                A hardened fork of Mars Protocol's Red Bank - Cosmos's battle‑tested lending
-                primitive adapted for Bitcoin Related Tokens. Trusted architecture, optimized for
-                native Bitcoin yield.
+                A hardened fork of Mars Protocol&apos;s Red Bank - Cosmos&apos;s battle‑tested
+                lending primitive adapted for Bitcoin Related Tokens. Trusted architecture,
+                optimized for native Bitcoin yield.
               </p>
             </SectionHeader>
           </motion.div>
