@@ -23,11 +23,11 @@ export function Partners() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.0 }}
-            className='text-center text-sm font-semibold text-gray-500'
+            className='text-center text-lg md:text-xl font-semibold text-gray-500 mb-6'
           >
             PARTNERS
           </motion.h3>
-          <div className='relative mt-4'>
+          <div className='relative mt-6'>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -40,16 +40,16 @@ export function Partners() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.4 + index * 0.1 }}
-                  className='flex items-center gap-2 text-white'
+                  className='flex items-center gap-3 text-white'
                 >
                   <Image
                     src={`/images/${partner.image}`}
-                    width={24}
-                    height={24}
-                    className='h-6 w-6 dark:brightness-0 dark:invert object-contain'
+                    width={32}
+                    height={32}
+                    className='h-8 w-8 dark:brightness-0 dark:invert object-contain'
                     alt={partner.name}
                   />
-                  <span className='text-xs font-medium text-gray-400 whitespace-nowrap'>
+                  <span className='text-sm md:text-base font-medium text-gray-400 whitespace-nowrap'>
                     {partner.name}
                   </span>
                 </motion.div>
