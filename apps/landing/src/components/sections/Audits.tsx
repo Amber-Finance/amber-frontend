@@ -62,8 +62,8 @@ export function Audits() {
                 Audit coverage from Mars Protocol
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-                As a fork of Mars's Red Bank, our contracts inherit audit coverage from the Mars
-                Protocol codebase, including the Red Bank and its core modules.
+                As a fork of Mars&apos;s Red Bank, our contracts inherit audit coverage from the
+                Mars Protocol codebase, including the Red Bank and its core modules.
               </p>
             </SectionHeader>
           </motion.div>
