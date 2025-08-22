@@ -1,11 +1,12 @@
 export default {
   index: 'Introduction',
   'user-guide': { title: 'User Guides' },
+  strategies: 'Strategy Guide',
+  smart_contracts: { title: 'Smart Contracts' },
+  risk_management: 'Risk Management',
   faq: 'FAQ',
-  'smart_contracts': { title: 'Smart Contracts' },
-  'risk_management': 'Risk Management',
   governance: 'Governance',
   legal: { title: 'Legal' },
-  'brand-kit': { title: 'Brand Kit' },
   team: 'Amber Finance Team',
+  'brand-kit': { title: 'Brand Kit' },
 }
