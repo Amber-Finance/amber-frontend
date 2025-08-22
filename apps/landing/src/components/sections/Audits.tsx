@@ -105,13 +105,22 @@ export function Audits() {
                 </p>
                 <div className='flex flex-wrap gap-2'>
                   <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                    Red Bank
+                    Address Provider
                   </span>
                   <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                    Core
+                    Incentives
                   </span>
                   <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                    Periphery
+                    Oracle
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Rewards Collector
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Financial Security
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Smart Contract Security
                   </span>
                 </div>
               </div>
@@ -147,15 +156,12 @@ export function Audits() {
                   special focus on third-generation blockchains such as the Cosmos SDK and CosmWasm,
                   Polkadot and Substrate, Solana, NEAR, and Flow (Cadence) ecosystems.
                 </p>
-                <div className='flex flex-wrap gap-2'>
+                <div className='flex flex-wrap  gap-2'>
                   <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
                     Red Bank
                   </span>
                   <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                    Hub
-                  </span>
-                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                    Periphery
+                    Core Modules
                   </span>
                 </div>
               </div>
