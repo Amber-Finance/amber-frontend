@@ -77,7 +77,7 @@ export const HeroContent = () => {
           className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'
         >
           Maximize your Bitcoin yield. Deploy BRTs (Bitcoin-Related Tokens) with up to 10x leverage
-          through automated strategies on maxBTC.
+          through automated strategies.
         </motion.p>
       </div>
       <motion.div

@@ -61,16 +61,16 @@ const footerSections = [
   {
     title: 'Platform',
     links: [
-      { title: 'Deposit', url: '/deposit' },
-      { title: 'Strategies (Looping)', url: '/strategies' },
-      { title: 'Swap', url: '/swap' },
+      { title: 'Deposit', url: 'https://app.amberfi.io/deposit' },
+      { title: 'Strategies (Looping)', url: 'https://app.amberfi.io/strategies' },
+      { title: 'Swap', url: 'https://app.amberfi.io/swap' },
     ],
   },
   {
     title: 'Resources',
     links: [
       { title: 'Documentation', url: 'https://docs.amberfi.io' },
-      { title: 'Amber GitHub', url: 'https://github.com/amber-finance' },
+      { title: 'Amber GitHub', url: 'https://github.amberfi.io' },
     ],
   },
 ]

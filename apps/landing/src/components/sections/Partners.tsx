@@ -25,7 +25,7 @@ export function Partners() {
             transition={{ duration: 0.6, delay: 1.0 }}
             className='text-center text-sm font-semibold text-gray-500'
           >
-            OUR PARTNERS
+            PARTNERS
           </motion.h3>
           <div className='relative mt-4'>
             <motion.div
