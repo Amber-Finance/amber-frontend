@@ -53,11 +53,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yield.'
         />
         <meta name='twitter:card' content='summary_large_image' />
-        <meta name='twitter:image' content='https://docs.amberfi.io/banner.png' />
+        <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/default.png' />
         <meta name='twitter:site:domain' content='docs.amberfi.io' />
         <meta name='twitter:url' content='https://docs.amberfi.io' />
         <meta name='og:title' content='Amber Finance Documentation' />
-        <meta name='og:image' content='https://docs.amberfi.io/banner.png' />
+        <meta name='og:image' content='https://docs.amberfi.io/twitter-banner/default.png' />
         <meta name='apple-mobile-web-app-title' content='Amber Docs' />
         <link rel='icon' href='/favicon.ico' type='image/x-icon' />
         <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
