@@ -46,9 +46,7 @@ export default function RootLayout({
                     <Navbar />
                     {children}
                   </main>
-                  <div className='mt-auto'>
-                    <Footer />
-                  </div>
+                  <Footer />
 
                   <ToastContainer
                     position='bottom-right'
@@ -61,6 +59,7 @@ export default function RootLayout({
                     draggable
                     pauseOnHover
                     theme='dark'
+                    toastClassName='!bg-gray-800 !text-white !border !border-gray-600 !shadow-lg'
                   />
                   <Analytics />
                 </div>
