@@ -1,6 +1,19 @@
 const tokens = [
   {
     chainId: 'neutron-1',
+    denom: 'factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS',
+    symbol: 'MARS',
+    icon: '/images/MARS.svg',
+    description: 'Mars Token',
+    protocolIconLight: '/images/MARS.svg',
+    protocolIconDark: '/images/MARS.svg',
+    decimals: 6,
+    isLST: false,
+    protocol: 'Cosmos Hub',
+    brandColor: '#2E3148',
+  },
+  {
+    chainId: 'neutron-1',
     denom: 'untrn',
     symbol: 'NTRN',
     icon: '/images/NTRN.svg',
@@ -25,22 +38,18 @@ const tokens = [
     protocol: 'Circle',
     brandColor: '#2775CA',
   },
+  // {
+  //   chainId: "neutron-1",
+  //   denom:
+  //     "ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B",
+  //   symbol: "FBTC",
+  //   icon: "/images/FBTC.svg",
+  //   description: "FBTC Ignition",
+  //   decimals: 8,
+  // },
   {
     chainId: 'neutron-1',
-    denom: 'factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS',
-    symbol: 'MARS',
-    icon: '/images/MARS.svg',
-    description: 'Mars Token',
-    protocolIconLight: '/images/MARS.svg',
-    protocolIconDark: '/images/MARS.svg',
-    decimals: 6,
-    isLST: false,
-    protocol: 'Cosmos Hub',
-    brandColor: '#2E3148',
-  },
-  {
-    chainId: 'neutron-1',
-    denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',
+    denom: 'ibc/B7BF60BB54433071B49D586F54BD4DED5E20BEFBBA91958E87488A761115106B',
     symbol: 'LBTC',
     icon: '/images/LBTC.svg',
     description: 'Lombard Bitcoin',
@@ -53,26 +62,26 @@ const tokens = [
   },
   {
     chainId: 'neutron-1',
-    denom: 'ibc/B7BF60BB54433071B49D586F54BD4DED5E20BEFBBA91958E87488A761115106B',
+    denom: 'ibc/C0F284F165E6152F6DDDA900537C1BC8DA1EA00F03B9C9EC1841FA7E004EF7A3',
     symbol: 'solvBTC',
     icon: '/images/solvBTC.svg',
     description: 'Solv Bitcoin',
     protocolIconLight: '/images/solv/solvLight.png',
     protocolIconDark: '/images/solv/solvDark.png',
-    decimals: 8,
+    decimals: 18,
     isLST: true,
     protocol: 'Solv Protocol',
     brandColor: '#EAB308', // Solv yellow
   },
   {
     chainId: 'neutron-1',
-    denom: 'ibc/C0F284F165E6152F6DDDA900537C1BC8DA1EA00F03B9C9EC1841FA7E004EF7A3',
+    denom: 'ibc/E2A000FD3EDD91C9429B473995CE2C7C555BCC8CFC1D0A3D02F514392B7A80E8',
     symbol: 'eBTC',
     icon: '/images/eBTC.png',
     description: 'Edge Bitcoin',
     protocolIconLight: '/images/eBTC.png',
     protocolIconDark: '/images/eBTC.png',
-    decimals: 18,
+    decimals: 8,
     isLST: true,
     protocol: 'Edge Protocol',
     brandColor: '#EC4899', // Edge pink
@@ -130,5 +139,4 @@ const tokens = [
     brandColor: '#6B7280', // Axelar grey
   },
 ]
-
 export default tokens
