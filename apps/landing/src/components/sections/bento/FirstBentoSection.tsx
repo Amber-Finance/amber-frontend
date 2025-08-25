@@ -38,12 +38,12 @@ export function FirstBentoSection({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'absolute opacity-60 flex h-full w-full items-center justify-center overflow-hidden p-10 hover:opacity-100 transition-all duration-300',
+        'absolute opacity-60 flex h-full w-full items-center justify-center overflow-hidden p-4 hover:opacity-100 transition-all duration-300',
         className,
       )}
       ref={containerRef}
     >
-      <div className='flex size-full max-w-lg flex-row items-stretch justify-between gap-10'>
+      <div className='flex size-full w-full flex-row items-stretch justify-between'>
         <div className='flex flex-col justify-center'>
           <Circle ref={div7Ref}>
             <Icons.user />

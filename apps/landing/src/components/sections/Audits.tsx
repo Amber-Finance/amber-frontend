@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 
+import { ArrowRightIcon } from '@radix-ui/react-icons'
 import { motion } from 'framer-motion'
 
 import { Background } from '@/components/Background'
@@ -12,7 +13,7 @@ import { GridPattern } from '../ui/grid-pattern'
 
 export function Audits() {
   return (
-    <section id='audits' className='relative overflow-hidden flex flex-col'>
+    <section id='audits' className='relative overflow-hidden flex flex-col py-2'>
       <div className='absolute inset-0 -z-10'>
         <Background
           translateY={-260}
@@ -54,15 +55,15 @@ export function Audits() {
             className='relative z-10 mx-auto w-full px-8 md:px-16 max-w-3xl'
           >
             <SectionHeader>
-              <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium text-white/80 backdrop-blur'>
+              <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-medium text-white/80 backdrop-blur'>
                 Independent audits
               </div>
-              <h2 className='text-2xl md:text-3xl font-medium tracking-tighter text-center text-balance'>
+              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium tracking-tighter text-center text-balance'>
                 Audit coverage from Mars Protocol
               </h2>
-              <p className='text-sm text-muted-foreground text-center text-balance font-medium max-w-2xl'>
+              <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
                 As a fork of Mars&apos;s Red Bank, our contracts inherit audit coverage from the
-                Mars Protocol codebase, including Red Bank and core modules.
+                Mars Protocol codebase, including the Red Bank and its core modules.
               </p>
             </SectionHeader>
           </motion.div>
@@ -83,44 +84,52 @@ export function Audits() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.6 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/halborn'
-              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1 flex flex-col'
+              className='group relative overflow-hidden rounded-xl bg-background [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:bg-background dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-10px_30px_-10px_#ffffff1f_inset] p-6 flex flex-col transform-gpu transition-all duration-300'
             >
-              <div
-                aria-hidden
-                className='absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-emerald-400/70 via-emerald-400/20 to-transparent'
-              />
-              <div
-                aria-hidden
-                className='absolute right-[-40px] top-[-40px] h-32 w-32 rounded-full bg-emerald-400/10 blur-2xl'
-              />
-              <div className='relative mb-4 w-full h-10 aspect-[16/9] flex items-center justify-center'>
-                <Image
-                  src='/audits/halborn.svg'
-                  alt='Halborn'
-                  fill
-                  sizes='200px'
-                  className='object-contain invert'
-                />
-                <h3 className='sr-only'>Halborn</h3>
+              <div className='flex flex-col gap-3'>
+                <div className='relative w-full h-10 aspect-[16/9] flex items-center justify-center'>
+                  <Image
+                    src='/audits/halborn.svg'
+                    alt='Halborn'
+                    fill
+                    sizes='200px'
+                    className='object-contain invert'
+                  />
+                  <h3 className='sr-only'>Halborn</h3>
+                </div>
+                <p className='text-neutral-400 dark:text-neutral-400 flex-1'>
+                  Halborn is the industry-leading blockchain solutions firm for enterprise-grade
+                  digital assets, trusted by the top financial institutions and blockchain ecosystem
+                  leaders. Experience world-class, end-to-end security, from smart contract auditing
+                  and pen testing to advisory services and beyond.
+                </p>
+                <div className='flex flex-wrap gap-2'>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Address Provider
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Incentives
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Oracle
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Rewards Collector
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Financial Security
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Smart Contract Security
+                  </span>
+                </div>
               </div>
-              <p className='text-sm text-white/70 flex-1'>
-                Halborn is the industry-leading blockchain solutions firm for enterprise-grade
-                digital assets, trusted by the top financial institutions and blockchain ecosystem
-                leaders. Experience world-class, end-to-end security, from smart contract auditing
-                and pen testing to advisory services and beyond.
-              </p>
-              <div className='mt-4 flex flex-wrap gap-2'>
-                <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                  Red Bank
-                </span>
-                <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                  Core
-                </span>
-                <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                  Periphery
-                </span>
+              <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md opacity-0 transition-all duration-300 group-hover:opacity-100'>
+                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
+                  View Halborn reports
+                  <ArrowRightIcon className='ms-2 h-5 w-5 rtl:rotate-180' />
+                </div>
               </div>
-              <p className='mt-4 text-sm underline text-white/70'>View Halborn reports</p>
             </motion.a>
 
             <motion.a
@@ -129,43 +138,39 @@ export function Audits() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.8 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/oak'
-              className='relative isolate overflow-hidden rounded-xl ring-1 ring-white/10 bg-black/30 p-6 transition-transform duration-300 hover:-translate-y-1 flex flex-col'
+              className='group relative overflow-hidden rounded-xl bg-background [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:bg-background dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-10px_30px_-10px_#ffffff1f_inset] p-6 flex flex-col transform-gpu transition-all duration-300'
             >
-              <div
-                aria-hidden
-                className='absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-yellow-400/70 via-yellow-400/20 to-transparent'
-              />
-              <div
-                aria-hidden
-                className='absolute right-[-40px] top-[-40px] h-32 w-32 rounded-full bg-yellow-400/10 blur-2xl'
-              />
-              <div className='relative mb-4 w-full h-10 aspect-[16/9] flex items-center justify-center'>
-                <Image
-                  src='/audits/oak.svg'
-                  alt='OAK Security'
-                  fill
-                  sizes='200px'
-                  className='object-contain'
-                />
-                <h3 className='sr-only'>OAK Security</h3>
+              <div className='flex flex-col gap-3'>
+                <div className='relative w-full h-10 aspect-[16/9] flex items-center justify-center'>
+                  <Image
+                    src='/audits/oak.svg'
+                    alt='OAK Security'
+                    fill
+                    sizes='200px'
+                    className='object-contain'
+                  />
+                  <h3 className='sr-only'>OAK Security</h3>
+                </div>
+                <p className='text-neutral-400 dark:text-neutral-400 flex-1'>
+                  Oak Security offers security auditing and cyber security advisory services with a
+                  special focus on third-generation blockchains such as the Cosmos SDK and CosmWasm,
+                  Polkadot and Substrate, Solana, NEAR, and Flow (Cadence) ecosystems.
+                </p>
+                <div className='flex flex-wrap  gap-2'>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Red Bank
+                  </span>
+                  <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
+                    Core Modules
+                  </span>
+                </div>
               </div>
-              <p className='text-sm text-white/70 flex-1'>
-                Oak Security offers security auditing and cyber security advisory services with a
-                special focus on third-generation blockchains such as the Cosmos SDK and CosmWasm,
-                Polkadot and Substrate, Solana, NEAR, and Flow (Cadence) ecosystems.
-              </p>
-              <div className='mt-4 flex flex-wrap gap-2'>
-                <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                  Red Bank
-                </span>
-                <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                  Hub
-                </span>
-                <span className='rounded-full bg-white/5 px-2 py-1 text-[11px] ring-1 ring-white/10 text-white/70'>
-                  Periphery
-                </span>
+              <div className='absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md opacity-0 transition-all duration-300 group-hover:opacity-100'>
+                <div className='pointer-events-auto text-lg font-medium text-neutral-700 dark:text-neutral-300 flex items-center'>
+                  View OAK reports
+                  <ArrowRightIcon className='ms-2 h-5 w-5 rtl:rotate-180' />
+                </div>
               </div>
-              <p className='mt-4 text-sm underline text-white/70'>View OAK reports</p>
             </motion.a>
           </div>
         </motion.div>

@@ -1,0 +1,358 @@
+# Credit Manager
+
+The Credit Manager contract is the core of Amber Finance’s architecture, inherited from Mars Protocol v2. It acts as a proxy between the user, the Red Bank, the liquidation engine, and the Perps contracts — enabling seamless margin management and composable DeFi strategies.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1qdzn3l4kn7gsjna2tfpg3g3mwd6kunx4p50lfya59k02846xas6qslgs3r`
+
+---
+
+### Types
+
+```ts
+type AccountKind =
+  | ('default' | 'high_levered_strategy')
+  | {
+      fund_manager: {
+        vault_addr: string
+      }
+    }
+
+type ActionKind = 'default' | 'liquidation'
+
+type Expiration = { at_height: number } | { at_time: Timestamp } | { never: {} }
+
+type HealthState =
+  | 'healthy'
+  | {
+      unhealthy: {
+        max_ltv_health_factor: Decimal
+      }
+    }
+
+type Int128 = string
+type Uint128 = string
+```
+
+---
+
+### Coin Types
+
+```ts
+interface Coin {
+  amount: Uint128
+  denom: string
+  [k: string]: unknown
+}
+
+interface ActionCoin {
+  amount: 'account_balance' | { exact: Uint128 }
+  denom: string
+}
+```
+
+---
+
+### Conditions
+
+Conditions define the logic for trigger-based orders.
+
+#### `health_factor`
+
+```ts
+{
+  health_factor: {
+    comparison: 'greater_than' | 'less_than'
+    threshold: Decimal
+  }
+}
+```
+
+#### `oracle_price`
+
+```ts
+{
+  oracle_price: {
+    comparison: 'greater_than' | 'less_than'
+    denom: string
+    price: Decimal
+  }
+}
+```
+
+#### `relative_price`
+
+```ts
+{
+  relative_price: {
+    base_price_denom: string
+    comparison: 'greater_than' | 'less_than'
+    price: Decimal
+    quote_price_denom: string
+  }
+}
+```
+
+---
+
+### Actions
+
+Actions are the building blocks of custom account behavior. They can be sequenced for multi-step execution.
+
+<details>
+<summary>Click to expand supported Actions</summary>
+
+```ts
+{
+  borrow: Coin
+}
+
+{
+  claim_astro_lp_rewards: {
+    lp_denom: string
+  }
+}
+
+{
+  claim_rewards: {}
+}
+
+{
+  create_trigger_order: {
+    actions: Action[]
+    conditions: Condition[]
+    keeper_fee: Coin
+  }
+}
+
+{
+  delete_trigger_order: {
+    trigger_order_id: string
+  }
+}
+
+{
+  deposit: Coin
+}
+
+{
+  deposit_to_perp_vault: {
+    coin: ActionCoin
+    max_receivable_shares?: Uint128 | null
+  }
+}
+
+{
+  enter_vault: {
+    coin: ActionCoin
+    vault: string
+  }
+}
+
+{
+  execute_perp_order: {
+    denom: string
+    order_size: Int128
+    reduce_only?: boolean | null
+  }
+}
+
+{
+  exit_vault: {
+    amount: Uint128
+    vault: string
+  }
+}
+
+{
+  exit_vault_unlocked: {
+    id: number
+    vault: VaultBaseForString
+  }
+}
+
+{
+  lend: ActionCoin
+}
+
+{
+  liquidate: {
+    debt_coin: Coin
+    liquidatee_account_id: string
+    request: {
+      deposit: string
+    } | {
+      lend: string
+    } | {
+      vault: {
+        position_type: 'u_n_l_o_c_k_e_d' | 'l_o_c_k_e_d' | 'u_n_l_o_c_k_i_n_g'
+        request_vault: string
+      }
+    } | {
+      staked_astro_lp: string
+    }
+  }
+}
+
+{
+  provide_liquidity: {
+    coins_in: ActionCoin[]
+    lp_token_out: string
+    slippage: Decimal
+  }
+}
+
+{
+  reclaim: ActionCoin
+}
+
+{
+  refund_all_coin_balances: {}
+}
+
+{
+  repay: {
+    coin: ActionCoin
+    recipient_account_id?: string | null
+  }
+}
+
+{
+  request_vault_unlock: {
+    amount: Uint128
+    vault: string
+  }
+}
+
+{
+  stake_astro_lp: {
+    lp_token: ActionCoin
+  }
+}
+
+{
+  swap_exact_in: {
+    coin_in: ActionCoin
+    denom_out: string
+    min_receive: Uint128
+    route?: {
+      astro: {
+        swaps: [
+          {
+            from: string
+            to: string
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+
+{
+  unlock_from_perp_vault: {
+    shares: Uint128
+  }
+}
+
+{
+  unstake_astro_lp: {
+    lp_token: ActionCoin
+  }
+}
+
+{
+  withdraw: ActionCoin
+}
+
+{
+  withdraw_from_perp_vault: {
+    min_receive?: Uint128 | null
+  }
+}
+
+{
+  withdraw_liquidity: {
+    lp_token: ActionCoin
+    slippage: Decimal
+  }
+}
+
+{
+  withdraw_to_wallet: {
+    coin: ActionCoin
+    recipient: string
+  }
+}
+```
+
+</details>
+
+---
+
+### Queries
+
+Useful for querying state of accounts, positions, trigger orders, vaults, and balances.
+
+Example:
+
+#### `account_kind`
+
+```ts
+{
+  account_kind: {
+    account_id: string
+  }
+}
+```
+
+---
+
+### Methods
+
+Supported execution methods for managing Credit Accounts.
+
+```ts
+{
+  create_credit_account: AccountKind
+}
+
+{
+  execute_trigger_order: {
+    account_id: string
+    trigger_order_id: string
+  }
+}
+
+{
+  repay_from_wallet: {
+    account_id: string
+  }
+}
+
+{
+  update_balance_after_deleverage: {
+    account_id: string
+    pnl:  'break_even' | {
+      profit: Coin
+    } | {
+      loss: Coin
+    }
+  }
+}
+
+{
+  update_credit_account: {
+    account_id?: string | null
+    account_kind?: AccountKind | null
+    actions: Action[]
+  }
+}
+```
+
+---
+
+_This documentation reflects the Mars Protocol Credit Manager contract as deployed by Amber Finance on Neutron._

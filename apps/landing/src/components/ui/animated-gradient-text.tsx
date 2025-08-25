@@ -31,9 +31,7 @@ export function AnimatedGradientText({
       )}
       {...props}
     >
-      <a href='https://x.com/amberfi_io' target='_blank' rel='noopener noreferrer'>
-        {children}
-      </a>
+      {children}
     </span>
   )
 }
