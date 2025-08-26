@@ -1,8 +1,10 @@
-# Frequently Asked Questions
+# Frequently Asked Questions (FAQ)
+
+Find quick answers to the most common questions about Amber Finance. Can't find what you're looking for? Join our [Discord community](https://discord.gg/amberfinance) for real-time support.
 
 ---
 
-## General Questions
+## Getting Started
 
 ### How do I get started with Amber Finance?
 
@@ -15,51 +17,64 @@ Start with our **[Getting Started guide](/user-guide/getting_started)** which co
 
 ### What is Amber Finance?
 
-Amber Finance is a Bitcoin yield farming platform built on the Cosmos ecosystem. It enables Bitcoin holders to earn yields through liquid staking tokens (LSTs), leverage strategies, and protocol lending. Users can deposit Bitcoin Related Tokens (BRTs) like LBTC, solvBTC, uniBTC, and others to earn combined yields from both protocol lending and native staking rewards.
+Amber Finance is a Bitcoin yield farming platform built on the Cosmos ecosystem. It enables Bitcoin holders to earn yields through Bitcoin-Related Tokens (BRTs), leverage strategies, and protocol lending. Users can deposit Bitcoin BRTs like LBTC, solvBTC, uniBTC, and others to earn combined yields from both protocol lending and native staking rewards.
 
 ### How do I generate yield on Amber Finance?
 
 You can generate yield through multiple strategies:
 
-- **Depositing BRTs**: Earn Mars Fragments and Neutron Points while maintaining Bitcoin exposure
-- **Looping strategies**: Amplify returns using leverage (see our [Looping BRTs guide](/user-guide/looping))
-- **Protocol rewards**: Earn underlying staking rewards from BRT protocols
-
-For detailed steps, see our **[Depositing BRTs guide](/user-guide/depositing)**.
+- **Protocol lending**: Earn interest by lending your Bitcoin BRTs to other users
+- **BRT staking rewards**: Native staking yields from the underlying BRT protocols (Lombard, Solv, Bedrock, etc.)
+- **Points campaigns**: Additional rewards in Mars Fragments and Neutron Points
+- **Leverage strategies**: Amplify returns by borrowing correlated assets against your collateral
 
 ### Is Amber Finance safe?
 
 Amber Finance prioritizes security through:
 
-- **Battle-tested smart contracts** with extensive audits
+- **Battle-tested smart contracts** with extensive audits by Oak Security and Halborn
 - **Health factor monitoring** to prevent liquidations
 - **Diversified protocol exposure** to reduce single-point-of-failure risks
 - **Transparent operations** on the Neutron blockchain
+- **Isolated market architecture** to reduce contagion risk
 
 However, like all DeFi protocols, there are inherent risks including smart contract vulnerabilities, liquidation risks, and market volatility.
 
+### What are the fees?
+
+Amber Finance charges minimal fees:
+
+- **No deposit/withdrawal fees** - only network gas costs
+- **Protocol fees**: Small percentage of earned yields (typically 5-10%)
+- **Gas fees**: Standard Neutron network fees (very low, usually less than $0.01)
+- **Swap fees**: 5 basis points (0.05%) for BRT swaps
+- **No hidden fees** - all costs are transparent and displayed upfront
+
 ---
 
-## Supported Assets & Protocols
+## Supported Assets & Yields
 
 ### Which Bitcoin assets are supported?
 
-Amber Finance supports multiple BRTs:
+Amber Finance supports multiple Bitcoin BRTs with current yields:
 
-- **LBTC** (Lombard Finance)
-- **solvBTC** (Solv Protocol)
-- **uniBTC** (Bedrock)
-- **wBTC** (Eureka)
-- **pumpBTC** (Pump Protocol)
-- **eBTC** (Edge Protocol)
+| BRT | Protocol | Staking APY | Points Multiplier | Total APY* |
+|-----|----------|-------------|-------------------|------------|
+| **LBTC** | Lombard Finance | ~2.5% | 4× | ~10.0% |
+| **solvBTC** | Solv Protocol | ~3.2% | 4× | ~12.8% |
+| **uniBTC** | Bedrock | ~2.8% | 3× | ~8.4% |
+| **wBTC** | Eureka | ~2.1% | TBC | TBC |
+| **wBTC.axl** | Axelar | ~1.9% | TBC | TBC |
+| **pumpBTC** | Pump Protocol | ~4.1% | 2× | ~8.2% |
+| **eBTC** | Ether.fi | ~3.8% | 3× | ~11.4% |
 
-APY rates vary by protocol and market conditions. Check the dashboard for current rates.
+*Total APY includes staking rewards + points campaigns. Rates are approximate and subject to change.
 
-### How do I get these BRTs?
+### How do I get these Bitcoin BRTs?
 
-You can acquire Bitcoin Related Tokens through:
+You can acquire Bitcoin BRTs through:
 
-1. **Direct bridging** from Bitcoin to LSTs on their respective protocols
+1. **Direct bridging** from Bitcoin to BRTs on their respective protocols
 2. **Swapping** other Bitcoin assets using Amber Finance's swap feature
 3. **Purchasing** on centralized or decentralized exchanges
 4. **Converting** existing wBTC or other Bitcoin representations
@@ -81,15 +96,23 @@ Amber Finance is built on **Neutron**, a Cosmos-based blockchain that offers:
 
 Amber Finance supports multiple Cosmos wallets including Keplr, Leap, Cosmostation, OKX Wallet, Vectis, and XDEFI.
 
-For detailed connection steps, see our **[Getting Started guide](/user-guide/getting_started)**.
+1. **Click "Connect Wallet"** in the top-right corner
+2. **Choose your wallet**: Keplr, Leap, Cosmostation, OKX Wallet, Vectis, or XDEFI
+3. **Approve the connection** in your wallet
+4. **Switch to Neutron network** if prompted
 
-> **Tip:** Make sure you have some NTRN tokens for gas fees.
+Make sure you have some NTRN tokens for gas fees. For detailed instructions, see our [Getting Started guide](/user-guide/getting_started#connecting-your-wallet).
 
 ### How do I start earning yields?
 
-1. **Browse the dashboard** and select a BRT token card
-2. **Enter deposit amount** and confirm the transaction
-3. **Start earning immediately** - yields are calculated in real-time
+1. **Browse opportunities** on the main dashboard
+2. **Deposit your BRTs** using our [depositing guide](/user-guide/depositing)
+3. **Start earning** from [points campaigns](/user-guide/points-campaigns) and staking rewards
+2. **Click on a token card** (e.g., LBTC, solvBTC)
+3. **Enter deposit amount** or use the percentage slider
+4. **Review transaction details** including estimated earnings
+5. **Confirm the transaction** in your wallet
+6. **Start earning immediately** - yields are calculated in real-time
 
 For detailed steps, see our **[Depositing BRTs guide](/user-guide/depositing)**.
 
@@ -103,31 +126,28 @@ For detailed information, see our **[Strategy Guide](/strategies)**.
 
 ---
 
+---
+
 ## Strategies & Risk Management
 
 ### Which strategy should I choose?
 
 Choose based on your experience and risk tolerance:
 
-**Conservative** - For beginners:
+**Conservative (2-5% APY)** - For beginners:
+- Low leverage (1.2x - 2x)
+- Established protocols (LBTC, uniBTC)
+- Health factor target: Above 2.0
 
-- Start with simple deposits to understand the platform
-- Focus on established protocols (LBTC, uniBTC)
-- Learn about health factors and monitoring
+**Balanced (4-8% APY)** - For experienced users:
+- Medium leverage (2x - 5x)
+- Diversified protocols (LBTC, solvBTC, uniBTC, wBTC)
+- Health factor target: Above 1.5
 
-**Balanced** - For experienced users:
-
-- Explore looping strategies with moderate leverage
-- Diversify across multiple BRTs
-- Monitor health factors regularly
-
-**Advanced** - For DeFi experts:
-
-- Use looping strategies with higher leverage
-- Implement complex yield optimization
-- Maintain strict risk management
-
-See our **[Strategy Guide](/strategies)** for detailed strategy information.
+**High Yield (6-12% APY)** - For advanced users:
+- High leverage (5x - 10x)
+- Newer protocols (pumpBTC, eBTC)
+- Health factor target: Above 1.3
 
 ### How do I manage liquidation risk?
 
@@ -158,7 +178,11 @@ To avoid liquidation, monitor your health factor and add collateral or reduce de
 
 The swap feature allows you to trade between different BRTs directly from your wallet.
 
-For detailed steps and features, see our **[Swapping BRTs guide](/user-guide/swaps)**.
+1. **Select "From" and "To" tokens** from supported Bitcoin BRTs
+2. **Enter the amount** you want to swap
+3. **Review exchange rate** and slippage tolerance (0.1%, 0.5%, 1.0%)
+4. **Confirm the transaction** - swaps execute instantly
+5. **Minimal slippage** due to high correlation between Bitcoin assets
 
 ### How do I withdraw my assets?
 
@@ -179,6 +203,34 @@ Yes, you can withdraw any amount up to your available balance. The platform show
 - **Total deposited amount**
 - **Available for withdrawal**
 - **Accrued rewards** that will be included in withdrawal
+
+---
+
+## Technical Questions
+
+### What are the minimum deposit amounts?
+
+Minimum deposits vary by asset but are generally very low:
+
+- **Most Bitcoin BRTs**: 0.001 tokens (about $100-$200 at current prices)
+- **No maximum limits** - deposit as much as you want
+- **Gas optimization** - larger deposits are more gas-efficient
+
+### How often are yields calculated?
+
+- **Real-time calculation** - APY updates continuously
+- **Rewards accrue** every block (approximately every 5 seconds)
+- **Compound automatically** - no need to claim rewards separately
+- **Dashboard updates** show current earnings and projections
+
+### Can I use Amber Finance on mobile?
+
+Yes, Amber Finance is fully mobile-compatible:
+
+- **Responsive web app** works on all devices
+- **Mobile wallet support** through WalletConnect
+- **Touch-optimized interface** for easy mobile use
+- **Native mobile apps** coming soon
 
 ---
 
@@ -203,6 +255,37 @@ If your balance doesn't appear:
 3. **Check transaction** - Verify it succeeded on the block explorer
 4. **Reconnect wallet** - Disconnect and reconnect your wallet
 
+### My health factor is getting low
+
+If your health factor is approaching dangerous levels:
+
+1. **Add more collateral** - Deposit additional assets immediately
+2. **Reduce debt** - Repay some borrowed assets
+3. **Partial withdrawal** - Reduce your position size
+4. **Monitor markets** - Watch for price movements affecting your position
+
+### I'm getting "Insufficient funds" errors
+
+This usually means:
+
+1. **Not enough NTRN** for gas fees - add some NTRN to your wallet
+2. **Insufficient BRT balance** - check your wallet balance
+3. **Network issues** - try switching networks and back
+4. **Wallet sync issues** - refresh your wallet connection
+
+### The app is loading slowly
+
+Try these solutions:
+
+1. **Clear browser cache** and refresh the page
+2. **Check your internet connection**
+3. **Try a different browser** (Chrome recommended)
+4. **Disable browser extensions** that might interfere
+
+---
+
+## Support & Community
+
 ### How do I contact support?
 
 Get help through multiple channels:
@@ -212,6 +295,50 @@ Get help through multiple channels:
 - **GitHub Issues**: Report bugs or request features
 - **X**: Follow for updates and announcements
 
+### Where can I learn more?
+
+- **Documentation**: Complete guides and tutorials
+- **Discord**: Community discussions and support
+- **Blog**: Latest updates and announcements
+- **GitHub**: Technical documentation and code
+
+### How can I contribute?
+
+- **Report bugs** on GitHub
+- **Suggest features** through Discord
+- **Contribute to documentation** via pull requests
+- **Join the community** discussions
+
 ---
 
-_Still have questions? Join our Discord community for real-time support from our team and experienced users._
+## Advanced Topics
+
+### What are the liquidation parameters?
+
+Liquidation parameters vary by asset but generally:
+
+- **Liquidation threshold**: 85-90% of collateral value
+- **Liquidation penalty**: 5-10% of liquidated amount
+- **Health factor trigger**: Below 1.0
+- **Partial liquidation**: Brings health factor back to 1.1
+
+### How do points campaigns work?
+
+Points campaigns provide additional rewards:
+
+- **Mars Fragments**: Convertible to MARS tokens
+- **Neutron Points**: Convertible to NTRN tokens
+- **Multipliers**: Boost point accumulation rates
+- **Claiming**: Available at campaign end
+
+### What's the difference between supply and borrow APY?
+
+- **Supply APY**: What you earn by depositing assets
+- **Borrow APY**: What you pay to borrow assets
+- **Net APY**: Supply APY minus Borrow APY (for leverage strategies)
+
+---
+
+*Still have questions? Join our [Discord community](https://discord.gg/amberfinance) for real-time support from our team and experienced users.*
+
+*Last updated: December 2024*

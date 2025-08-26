@@ -13,6 +13,15 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@cosmos-kit/react": "^2.0.0",
+    "@cosmos-kit/keplr": "^2.0.0",
+    "@cosmos-kit/leap": "^2.0.0",
+    "@cosmos-kit/cosmostation": "^2.0.0",
+    "@cosmos-kit/okxwallet": "^2.0.0",
+    "@cosmos-kit/vectis": "^2.0.0",
+    "@cosmos-kit/xdefi": "^2.0.0",
+    "@cosmjs/stargate": "^0.32.0",
+    "@interchain-ui/react": "^1.0.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.517.0",
     "motion": "^12.19.1",

@@ -1,0 +1,449 @@
+# Incentives
+
+The Incentives contract manages rewards distribution, points calculation, and campaign management for Amber Finance. It handles the distribution of protocol rewards, Mars Fragments, and Neutron Points to users based on their participation and activity.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1u9eg2njpcvdprtes8s78hwddayrxzgw9akkjpxx0umr0awvapxrshmjlsd`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+type Decimal = string
+type Timestamp = number
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: Addr
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `user_claimable_rewards`
+
+Returns the claimable rewards for a specific user.
+
+```ts
+{
+  user_claimable_rewards: {
+    user: Addr
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    rewards: [
+      {
+        denom: string
+        amount: Uint128
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `user_claimable_rewards_v2`
+
+Returns detailed claimable rewards information for a user.
+
+```ts
+{
+  user_claimable_rewards_v2: {
+    user: Addr
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    rewards: [
+      {
+        denom: string
+        amount: Uint128
+        user_balance: Uint128
+        user_balance_index: Decimal
+        global_balance_index: Decimal
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `user_unclaimed_rewards`
+
+Returns unclaimed rewards for a specific user.
+
+```ts
+{
+  user_unclaimed_rewards: {
+    user: Addr
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    rewards: [
+      {
+        denom: string
+        amount: Uint128
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `user_unclaimed_rewards_v2`
+
+Returns detailed unclaimed rewards information for a user.
+
+```ts
+{
+  user_unclaimed_rewards_v2: {
+    user: Addr
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    rewards: [
+      {
+        denom: string
+        amount: Uint128
+        user_balance: Uint128
+        user_balance_index: Decimal
+        global_balance_index: Decimal
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `user_balance`
+
+Returns the balance for a specific user and asset.
+
+```ts
+{
+  user_balance: {
+    user: Addr
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    balance: Uint128
+    balance_index: Decimal
+  }
+}
+```
+
+---
+
+#### `user_balances`
+
+Returns all balances for a specific user.
+
+```ts
+{
+  user_balances: {
+    user: Addr
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    balances: [
+      {
+        denom: string
+        balance: Uint128
+        balance_index: Decimal
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `global_balance_index`
+
+Returns the global balance index for a specific asset.
+
+```ts
+{
+  global_balance_index: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    balance_index: Decimal
+  }
+}
+```
+
+---
+
+#### `global_balance_indexes`
+
+Returns all global balance indexes.
+
+```ts
+{
+  global_balance_indexes: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    balance_indexes: [
+      {
+        denom: string
+        balance_index: Decimal
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `claim_rewards`
+
+Claims all available rewards for the sender.
+
+```ts
+{
+  claim_rewards: {}
+}
+```
+
+---
+
+#### `claim_rewards_for`
+
+Claims rewards for a specific user (authorized callers only).
+
+```ts
+{
+  claim_rewards_for: {
+    user: Addr
+  }
+}
+```
+
+---
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {}
+}
+```
+
+---
+
+#### `update_global_index`
+
+Updates the global balance index for an asset (authorized callers only).
+
+```ts
+{
+  update_global_index: {
+    denom: string
+    balance_index: Decimal
+  }
+}
+```
+
+---
+
+#### `update_user_balance`
+
+Updates a user's balance for an asset (authorized callers only).
+
+```ts
+{
+  update_user_balance: {
+    user: Addr
+    denom: string
+    balance: Uint128
+    balance_index: Decimal
+  }
+}
+```
+
+---
+
+### Reward Types
+
+The Incentives contract supports various reward types:
+
+- **Mars Fragments** - Protocol governance tokens
+- **Neutron Points** - Network incentive tokens
+- **Protocol Fees** - Revenue sharing rewards
+- **Campaign Rewards** - Special event bonuses
+
+---
+
+### Usage Examples
+
+#### Claim User Rewards
+
+```bash
+curl -X POST "https://api.neutron.org/incentives/claim_rewards" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+#### Get User Claimable Rewards
+
+```bash
+curl -X GET "https://api.neutron.org/incentives/user_claimable_rewards" \
+  -H "Content-Type: application/json" \
+  -d '{"user": "neutron1..."}'
+```
+
+#### Get User Balances
+
+```bash
+curl -X GET "https://api.neutron.org/incentives/user_balances" \
+  -H "Content-Type: application/json" \
+  -d '{"user": "neutron1..."}'
+```
+
+---
+
+### Integration
+
+The Incentives contract integrates with:
+
+1. **Credit Manager** - Tracks user positions for reward calculation
+2. **Red Bank** - Monitors lending/borrowing activity
+3. **Frontend Applications** - Displays reward information
+4. **Governance** - Manages reward distribution parameters
+
+---
+
+*This documentation reflects the Mars Protocol Incentives contract as deployed by Amber Finance on Neutron.*

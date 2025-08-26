@@ -1,0 +1,590 @@
+# Account NFT
+
+The Account NFT contract provides NFT representation of user accounts in Amber Finance. It enables account ownership verification, transferable positions, and enhanced user experience through visual representation of DeFi positions.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1nl8d943u3k8lext62c2vplsmpr257zmfdd2mwvegc77xfjy5w0qq5zqc6e`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+type Decimal = string
+type TokenId = string
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: Addr
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+    credit_manager: Addr
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `token_info`
+
+Returns information about a specific NFT token.
+
+```ts
+{
+  token_info: {
+    token_id: TokenId
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    token_id: TokenId
+    owner: Addr
+    account_id: string
+    metadata: {
+      name: string
+      symbol: string
+      uri?: string | null
+    }
+  }
+}
+```
+
+---
+
+#### `all_token_info`
+
+Returns information about all NFT tokens.
+
+```ts
+{
+  all_token_info: {
+    limit?: number | null
+    start_after?: TokenId | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    tokens: [
+      {
+        token_id: TokenId
+        owner: Addr
+        account_id: string
+        metadata: {
+          name: string
+          symbol: string
+          uri?: string | null
+        }
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `tokens`
+
+Returns tokens owned by a specific address.
+
+```ts
+{
+  tokens: {
+    owner: Addr
+    limit?: number | null
+    start_after?: TokenId | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    tokens: [
+      {
+        token_id: TokenId
+        owner: Addr
+        account_id: string
+        metadata: {
+          name: string
+          symbol: string
+          uri?: string | null
+        }
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `account_info`
+
+Returns account information for a specific NFT.
+
+```ts
+{
+  account_info: {
+    token_id: TokenId
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    account_id: string
+    owner: Addr
+    health_factor: Decimal
+    total_collateral_value: Uint128
+    total_debt_value: Uint128
+    created_at: number
+    last_updated: number
+  }
+}
+```
+
+---
+
+#### `approval`
+
+Returns approval information for a specific token.
+
+```ts
+{
+  approval: {
+    token_id: TokenId
+    spender: Addr
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    approval: {
+      spender: Addr
+      expires: number
+    }
+  }
+}
+
+```
+
+---
+
+#### `approvals`
+
+Returns all approvals for a specific token.
+
+```ts
+{
+  approvals: {
+    token_id: TokenId
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    approvals: [
+      {
+        spender: Addr
+        expires: number
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `contract_info`
+
+Returns contract information.
+
+```ts
+{
+  contract_info: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    name: string
+    symbol: string
+    decimals: number
+  }
+}
+```
+
+---
+
+#### `num_tokens`
+
+Returns the total number of tokens.
+
+```ts
+{
+  num_tokens: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    count: Uint128
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `mint`
+
+Mints a new NFT for an account (authorized callers only).
+
+```ts
+{
+  mint: {
+    owner: Addr
+    account_id: string
+    metadata: {
+      name: string
+      symbol: string
+      uri?: string | null
+    }
+  }
+}
+```
+
+---
+
+#### `burn`
+
+Burns an NFT token (owner or authorized callers only).
+
+```ts
+{
+  burn: {
+    token_id: TokenId
+  }
+}
+```
+
+---
+
+#### `transfer_nft`
+
+Transfers an NFT to a new owner.
+
+```ts
+{
+  transfer_nft: {
+    recipient: Addr
+    token_id: TokenId
+  }
+}
+```
+
+---
+
+#### `send_nft`
+
+Sends an NFT to a contract with a message.
+
+```ts
+{
+  send_nft: {
+    contract: Addr
+    token_id: TokenId
+    msg: string
+  }
+}
+```
+
+---
+
+#### `approve`
+
+Approves a spender for a specific token.
+
+```ts
+{
+  approve: {
+    spender: Addr
+    token_id: TokenId
+    expires?: number | null
+  }
+}
+```
+
+---
+
+#### `revoke`
+
+Revokes approval for a specific token.
+
+```ts
+{
+  revoke: {
+    spender: Addr
+    token_id: TokenId
+  }
+}
+```
+
+---
+
+#### `approve_all`
+
+Approves a spender for all tokens.
+
+```ts
+{
+  approve_all: {
+    operator: Addr
+    expires?: number | null
+  }
+}
+```
+
+---
+
+#### `revoke_all`
+
+Revokes all approvals.
+
+```ts
+{
+  revoke_all: {
+    operator: Addr
+  }
+}
+```
+
+---
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {}
+}
+```
+
+---
+
+### NFT Features
+
+#### Account Representation
+- **Visual Identity**: Each account has a unique NFT representation
+- **Metadata**: Rich metadata including account information and visual assets
+- **Transferability**: Accounts can be transferred through NFT transfers
+
+#### Ownership Verification
+- **Clear Ownership**: NFT ownership directly represents account ownership
+- **Transfer History**: Complete transfer history through blockchain
+- **Approval System**: Delegated account management through approvals
+
+#### Enhanced UX
+- **Visual Interface**: NFT marketplaces can display account information
+- **Portfolio Management**: Easy account tracking and management
+- **Social Features**: Share and showcase DeFi positions
+
+---
+
+### Metadata Structure
+
+Each NFT contains metadata with:
+
+```ts
+{
+  name: string,        // Account name (e.g., "Amber Account #123")
+  symbol: string,      // Account symbol (e.g., "AMBER-ACC")
+  uri?: string | null  // Optional URI to additional metadata
+}
+```
+
+#### Extended Metadata (via URI)
+```ts
+{
+  description: string,           // Account description
+  image: string,                // Account visual representation
+  attributes: [
+    {
+      trait_type: string,       // Attribute name
+      value: string | number    // Attribute value
+    }
+  ],
+  account_data: {
+    health_factor: Decimal,
+    total_value: Uint128,
+    created_at: number
+  }
+}
+```
+
+---
+
+### Usage Examples
+
+#### Get Token Information
+
+```bash
+curl -X GET "https://api.neutron.org/account_nft/token_info" \
+  -H "Content-Type: application/json" \
+  -d '{"token_id": "1"}'
+```
+
+#### Get User's Tokens
+
+```bash
+curl -X GET "https://api.neutron.org/account_nft/tokens" \
+  -H "Content-Type: application/json" \
+  -d '{"owner": "neutron1..."}'
+```
+
+#### Get Account Information
+
+```bash
+curl -X GET "https://api.neutron.org/account_nft/account_info" \
+  -H "Content-Type: application/json" \
+  -d '{"token_id": "1"}'
+```
+
+#### Transfer NFT
+
+```bash
+curl -X POST "https://api.neutron.org/account_nft/transfer_nft" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "recipient": "neutron1...",
+    "token_id": "1"
+  }'
+```
+
+---
+
+### Integration
+
+The Account NFT integrates with:
+
+1. **Credit Manager** - Creates NFTs for new accounts
+2. **Health Computer** - Provides account health data for metadata
+3. **Frontend Applications** - Displays NFT information
+4. **NFT Marketplaces** - Enables account trading
+5. **Wallet Applications** - Shows account NFTs in user wallets
+
+---
+
+### Benefits
+
+- **Visual Representation** - Accounts have visual identity through NFTs
+- **Transferable Positions** - Easy account transfer through NFT transfers
+- **Enhanced UX** - Rich metadata and visual interfaces
+- **Portfolio Tracking** - Easy account management and tracking
+- **Social Features** - Share and showcase DeFi positions
+
+---
+
+### Security Features
+
+- **Ownership Verification** - Clear account ownership through NFT ownership
+- **Approval System** - Delegated account management
+- **Transfer Controls** - Controlled account transfers
+- **Metadata Validation** - Ensures accurate account representation
+
+---
+
+*This documentation reflects the Mars Protocol Account NFT contract as deployed by Amber Finance on Neutron.*

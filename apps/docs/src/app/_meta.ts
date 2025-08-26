@@ -6,6 +6,8 @@ export default {
   faq: 'FAQ',
   governance: 'Governance',
   legal: { title: 'Legal' },
+  'brand-kit': 'Brand Kit',
   team: 'Amber Finance Team',
-  'brand-kit': { title: 'Brand Kit' },
+  strategies: { display: 'hidden' },
+  'collaborative-editing': 'Collaborative Editing Guide',
 }

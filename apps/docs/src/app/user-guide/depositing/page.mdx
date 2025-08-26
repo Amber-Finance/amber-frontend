@@ -1,57 +1,178 @@
-# Depositing BRTs
+# Depositing BRTs on Amber Finance
 
-Depositing Bitcoin-Related Tokens (BRTs) into Amber Finance allows you to put your assets to work immediately and start earning additional rewards.
+Depositing Bitcoin-Related Tokens (BRTs) into Amber Finance allows you to put your assets to work immediately and start earning yields from day one.
 
 ---
 
 ## What Happens When You Deposit
 
-When you deposit BRTs into Amber Finance:
+When you deposit BRTs into Amber Finance, your assets:
 
-- Your BRTs **remain in your control** and continue earning their underlying staking rewards
-- **Additionally**, your BRTs **start earning** Mars Fragments and Neutron Points
-- You **maintain exposure** to Bitcoin while earning additional rewards
-
----
-
-## Steps to Deposit
-
-1. **Connect your wallet** - Use Keplr, Leap, Cosmostation, OKX, Vectis, or XDEFI
-2. **Switch to Neutron network** - Ensure you're connected to the correct network
-3. **Select your BRT** - Choose from the dashboard cards (solvBTC, LBTC, uniBTC, etc.)
-4. **Enter deposit amount** - Type the amount or use the slider for percentage-based input
-5. **Review transaction** - Check the amount, fees, and transaction details
-6. **Confirm deposit** - Approve the transaction in your wallet
-
-Your deposit will start earning its underlying yield and points immediately, though it may take a few blocks to appear in the UI.
+- **Remain in your control** as collateral  
+- **Continue earning** their underlying staking rewards
+- **Start earning** [Mars Fragments and Neutron Points (Points Campaigns)](/user-guide/points-campaigns) 
+- **Become available** for borrowing other BRTs for looping strategies
+- **Can be swapped** to another BRT instantly
+- **Accrue rewards** in real-time (every block)
 
 ---
 
-## Understanding the Dashboard
+## Prerequisites
 
-The main dashboard displays all available Bitcoin yield opportunities as individual cards, each showing:
+Before depositing, ensure you have:
 
-- **Asset information** - BRT symbol (like solvBTC) and protocol name
-- **Current APY** - Prominently displayed yield rate (e.g., 1.53%)
-- **Utilization metrics** - Protocol utilization rate and TVL share
-- **Points campaigns** - Available rewards (Solv Points, Neutron Points, Mars Fragments)
-- **Your balances** - Deposited and available amounts for each BRT
-- **Action buttons** - Deposit and withdraw options
+- **[Connected wallet](/user-guide/getting_started#connecting-your-wallet)** (Keplr, Leap, Cosmostation, etc.)
+- **[NTRN tokens](/user-guide/getting_started#prerequisites)** for gas fees (recommended: 0.1 NTRN)
+- **BRT tokens** to deposit (eBTC, LBTC, solvBTC, etc.)
+- **Neutron network** selected in your wallet
 
-### Understanding the Cards
+---
 
-Each BRT card displays key information to help you make informed decisions:
+## Step-by-Step Deposit Guide
 
-- **Current APY** – The total yield rate prominently shown (combines all reward sources)
-- **Utilization Rate** – How much of the protocol's capacity is currently in use
-- **TVL Share** – The protocol's share of total platform deposits
-- **Points Rewards** – Additional rewards from campaigns (shown as tags like "Solv Points 4x")
-- **Balance Overview** – Clear view of your deposited vs. available amounts
+### Step 1: Connect Your Wallet
+1. Click **"Connect Wallet"** in the top-right corner
+2. Select your preferred wallet from the list
+3. Approve the connection in your wallet
+4. Ensure you're connected to the **Neutron network**
+
+### Step 2: Browse Available BRTs
+The dashboard shows all supported BRTs with their current yields:
+
+| BRT | Staking APY | Points Multiplier | Total APY* |
+|-----|-------------|-------------------|------------|
+| **eBTC** | ~3.8% | 3× | ~11.4% |
+| **LBTC** | ~2.5% | 4× | ~10.0% |
+| **solvBTC** | ~3.2% | 4× | ~12.8% |
+| **uniBTC** | ~2.8% | 3× | ~8.4% |
+| **pumpBTC** | ~4.1% | 2× | ~8.2% |
+| **wBTC** | ~2.1% | TBC | TBC |
+
+*Total APY includes staking rewards + points campaigns
+
+### Step 3: Select Your BRT
+1. **Click on a token card** (e.g., LBTC, solvBTC)
+2. **Review the details**:
+   - Current APY rates
+   - Available liquidity
+   - Points multiplier
+   - Health factor impact
+
+### Step 4: Enter Deposit Amount
+1. **Switch to "Deposit" tab**
+2. **Enter amount** manually or use the percentage slider
+3. **Review the transaction details**:
+   - Estimated APY earnings
+   - Initial health factor
+   - Gas fee estimate
+
+### Step 5: Confirm Transaction
+1. **Review all details** carefully
+2. **Click "Confirm Deposit"**
+3. **Approve in your wallet**
+4. **Wait for confirmation** (1-2 blocks)
+
+---
+
+## Understanding Your Earnings
+
+### Real-Time Yield Calculation
+
+Your earnings are calculated and updated every block (~5 seconds):
+
+**Base Yield** = Staking rewards from the underlying BRT protocol  
+**Points Yield** = Mars Fragments + Neutron Points from campaigns  
+**Total Yield** = Base Yield + Points Yield
+
+### Example: LBTC Deposit
+
+If you deposit 1 LBTC worth $95,000:
+
+- **Staking APY**: 2.5% = ~$2,375/year
+- **Points Multiplier**: 4× = Additional rewards
+- **Total Potential**: ~$10,000/year in combined yields
 
 ---
 
 ## Withdrawals
 
-You can withdraw your deposited assets anytime, as long as the utilization rate is below 100%. Withdrawals are processed within 1–2 Neutron blocks.
+### How to Withdraw
 
-> **Tip:** There are no deposit caps on Amber Finance to ensure you can put all your BRTs to work.
+1. **Navigate to the specific token** page (e.g., LBTC)
+2. **Switch to "Withdraw" tab**
+3. **Enter withdrawal amount** or use percentage slider
+4. **Review transaction** including accrued rewards
+5. **Confirm withdrawal** - processes within 1-2 blocks
+
+### Withdrawal Rules
+
+- **No lockup periods** - withdraw anytime
+- **No withdrawal fees** - only gas costs
+- **Partial withdrawals** supported
+- **Accrued rewards included** in withdrawal
+
+### Important Notes
+
+- **Utilization rate** must be below 100% to withdraw
+- **Active debt positions** may affect withdrawal amounts
+- **Health factor** considerations for leveraged positions
+
+---
+
+## Monitoring Your Deposits
+
+### Dashboard Metrics
+
+**Total Value Locked (TVL)**
+- Shows your total deposited value
+- Updates in real-time with price changes
+- Includes accrued rewards
+
+**Health Factor (HF)**
+- **Above 2.0**: Very safe, can increase leverage
+- **1.5 - 2.0**: Safe operating range
+- **1.3 - 1.5**: Caution zone, monitor closely
+- **Below 1.3**: Danger zone, take action
+
+**Points Balance**
+- Track Mars Fragments accumulation
+- Monitor Neutron Points earnings
+- View multiplier effects
+
+---
+
+## Important Considerations
+
+### Gas Fees
+- **Deposit**: ~$0.01 in NTRN
+- **Withdrawal**: ~$0.01 in NTRN
+- **Points claiming**: ~$0.01 in NTRN
+
+### Risk Management
+- **Diversify** across multiple BRTs
+- **Monitor** health factor regularly
+- **Keep reserves** for emergency withdrawals
+- **Understand** liquidation risks for leveraged positions
+
+### Best Practices
+- **Start small** and scale up gradually
+- **Monitor** your positions regularly
+- **Reinvest** rewards for compound growth
+- **Stay informed** about protocol updates
+
+---
+
+## Related Guides
+
+- **[Points Campaigns](/user-guide/points-campaigns)** - Maximize your rewards
+- **[Swapping BRTs](/user-guide/swaps)** - Trade between assets
+- **[Looping Strategies](/user-guide/looping)** - Amplify your yields
+- **[Risk Management](/risk_management)** - Understand safety measures
+
+---
+
+
+
+---
+
+*Last updated: December 2024*

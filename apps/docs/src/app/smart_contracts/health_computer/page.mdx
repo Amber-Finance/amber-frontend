@@ -1,0 +1,500 @@
+# Health Computer
+
+The Health Computer contract provides real-time health factor calculations and risk assessment for Amber Finance. It monitors user positions, calculates liquidation risks, and ensures the safety of the lending protocol through sophisticated risk management algorithms.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron17dy4j4rt9pw497mfpkd5gghw8q63kjyrd26h9yc2ugfwqke8x33stfmwrz`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+type Decimal = string
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: Addr
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `health_factor`
+
+Returns the health factor for a specific account.
+
+```ts
+{
+  health_factor: {
+    account_id: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    health_factor: Decimal
+    total_collateral_value: Uint128
+    total_debt_value: Uint128
+    liquidation_threshold: Decimal
+    max_ltv: Decimal
+  }
+}
+```
+
+---
+
+#### `account_health`
+
+Returns detailed health information for an account.
+
+```ts
+{
+  account_health: {
+    account_id: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    health_factor: Decimal
+    total_collateral_value: Uint128
+    total_debt_value: Uint128
+    liquidation_threshold: Decimal
+    max_ltv: Decimal
+    collateral_assets: [
+      {
+        denom: string
+        amount: Uint128
+        value: Uint128
+        ltv: Decimal
+      },
+      ...
+    ]
+    debt_assets: [
+      {
+        denom: string
+        amount: Uint128
+        value: Uint128
+        borrow_rate: Decimal
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `liquidation_threshold`
+
+Returns the liquidation threshold for a specific asset.
+
+```ts
+{
+  liquidation_threshold: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    threshold: Decimal
+  }
+}
+```
+
+---
+
+#### `max_ltv`
+
+Returns the maximum loan-to-value ratio for a specific asset.
+
+```ts
+{
+  max_ltv: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    max_ltv: Decimal
+  }
+}
+```
+
+---
+
+#### `asset_parameters`
+
+Returns all parameters for a specific asset.
+
+```ts
+{
+  asset_parameters: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    denom: string
+    max_ltv: Decimal
+    liquidation_threshold: Decimal
+    liquidation_penalty: Decimal
+    borrow_rate: Decimal
+    supply_rate: Decimal
+  }
+}
+```
+
+---
+
+#### `all_asset_parameters`
+
+Returns parameters for all assets.
+
+```ts
+{
+  all_asset_parameters: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    assets: [
+      {
+        denom: string
+        max_ltv: Decimal
+        liquidation_threshold: Decimal
+        liquidation_penalty: Decimal
+        borrow_rate: Decimal
+        supply_rate: Decimal
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `liquidation_candidates`
+
+Returns accounts that are eligible for liquidation.
+
+```ts
+{
+  liquidation_candidates: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    candidates: [
+      {
+        account_id: string
+        health_factor: Decimal
+        total_collateral_value: Uint128
+        total_debt_value: Uint128
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {}
+}
+```
+
+---
+
+#### `set_asset_parameters`
+
+Sets parameters for a specific asset (owner only).
+
+```ts
+{
+  set_asset_parameters: {
+    denom: string
+    max_ltv: Decimal
+    liquidation_threshold: Decimal
+    liquidation_penalty: Decimal
+  }
+}
+```
+
+---
+
+#### `remove_asset_parameters`
+
+Removes parameters for a specific asset (owner only).
+
+```ts
+{
+  remove_asset_parameters: {
+    denom: string
+  }
+}
+```
+
+---
+
+### Health Factor Calculation
+
+The Health Computer uses the following formula to calculate health factors:
+
+```
+Health Factor = Total Collateral Value / Total Debt Value
+
+Where:
+- Total Collateral Value = Σ(Collateral Amount × Price × Liquidation Threshold)
+- Total Debt Value = Σ(Debt Amount × Price)
+```
+
+#### Health Factor States
+
+| Health Factor | State | Description |
+|---------------|-------|-------------|
+| > 1.0 | Healthy | Account is safe from liquidation |
+| 1.0 | At Risk | Account is at liquidation threshold |
+| < 1.0 | Unhealthy | Account is eligible for liquidation |
+
+---
+
+### Risk Parameters
+
+#### Liquidation Threshold
+- **Description**: Percentage of collateral value that can be borrowed against
+- **Range**: 0.0 - 1.0
+- **Example**: 0.8 means 80% of collateral value can be borrowed
+
+#### Maximum LTV (Loan-to-Value)
+- **Description**: Maximum borrowing ratio before liquidation
+- **Range**: 0.0 - 1.0
+- **Example**: 0.75 means 75% LTV triggers liquidation
+
+#### Liquidation Penalty
+- **Description**: Penalty applied to liquidated positions
+- **Range**: 0.0 - 1.0
+- **Example**: 0.1 means 10% penalty on liquidated collateral
+
+### Leverage Calculation
+
+The maximum leverage available is calculated using the formula:
+
+```
+Max Leverage = 1 / (1 - LTV)
+```
+
+**Examples:**
+- **LTV of 0.9 (90%)**: Max Leverage = 1 / (1 - 0.9) = 1 / 0.1 = **10x**
+- **LTV of 0.92 (92%)**: Max Leverage = 1 / (1 - 0.92) = 1 / 0.08 = **12.5x**
+- **LTV of 0.8 (80%)**: Max Leverage = 1 / (1 - 0.8) = 1 / 0.2 = **5x**
+
+*Note: Actual leverage may be lower due to safety buffers and swap fees.*
+
+---
+
+### Supported Assets
+
+The Health Computer monitors risk parameters for:
+
+- **eBTC** - Ether.fi Bitcoin
+- **LBTC** - Lombard Finance Bitcoin
+- **solvBTC** - Solv Protocol Bitcoin
+- **pumpBTC** - Pump Protocol Bitcoin
+- **uniBTC** - Bedrock Bitcoin
+- **wBTC** - Wrapped Bitcoin (Eureka)
+- **wBTC.axl** - Wrapped Bitcoin (Axelar)
+- **NTRN** - Neutron tokens
+- **USDC** - USD Coin
+- **USDT** - Tether USD
+
+---
+
+### Usage Examples
+
+#### Get Account Health Factor
+
+```bash
+curl -X GET "https://api.neutron.org/health_computer/health_factor" \
+  -H "Content-Type: application/json" \
+  -d '{"account_id": "account_123"}'
+```
+
+#### Get Detailed Account Health
+
+```bash
+curl -X GET "https://api.neutron.org/health_computer/account_health" \
+  -H "Content-Type: application/json" \
+  -d '{"account_id": "account_123"}'
+```
+
+#### Get Asset Parameters
+
+```bash
+curl -X GET "https://api.neutron.org/health_computer/asset_parameters" \
+  -H "Content-Type: application/json" \
+  -d '{"denom": "eBTC"}'
+```
+
+#### Get Liquidation Candidates
+
+```bash
+curl -X GET "https://api.neutron.org/health_computer/liquidation_candidates"
+```
+
+---
+
+### Integration
+
+The Health Computer integrates with:
+
+1. **Credit Manager** - Provides real-time health factor data
+2. **Red Bank** - Monitors lending and borrowing positions
+3. **Oracle** - Gets current asset prices for calculations
+4. **Liquidation Engine** - Identifies accounts for liquidation
+5. **Frontend Applications** - Displays risk information to users
+
+---
+
+### Security Features
+
+- **Real-time Monitoring** - Continuous health factor updates
+- **Price Validation** - Ensures accurate price data usage
+- **Risk Alerts** - Notifies when accounts approach liquidation
+- **Parameter Validation** - Ensures risk parameters remain safe
+- **Emergency Controls** - Ability to pause health calculations if needed
+
+---
+
+### Risk Management
+
+The Health Computer implements several risk management features:
+
+#### Automatic Monitoring
+- Continuous health factor calculation
+- Real-time risk assessment
+- Automated liquidation detection
+
+#### Risk Alerts
+- Health factor threshold warnings
+- Liquidation risk notifications
+- Parameter change alerts
+
+#### Safety Mechanisms
+- Minimum health factor requirements
+- Maximum LTV limits
+- Liquidation penalty enforcement
+
+---
+
+*This documentation reflects the Mars Protocol Health Computer contract as deployed by Amber Finance on Neutron.*

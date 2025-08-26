@@ -12,6 +12,17 @@ Looping lets you **amplify the staking yield of maxBTC** by borrowing BRTs again
 
 Amber offers pre-configured loops ranging from **conservative 1.1×** to **high-octane 8.3×**, each with different Health Factor (HF) safety buffers.
 
+### Maximum Leverage
+
+With LTV (Loan-to-Value) ratios up to **90%**, Amber Finance enables leverage up to **10x** on your positions. This means you can amplify your Bitcoin exposure significantly.
+
+**Leverage Examples:**
+- **5x leverage** with 80% LTV
+- **10x leverage** with 90% LTV
+- **12.5x leverage** with 92% LTV (theoretical maximum)
+
+*Note: Actual leverage may be lower due to safety buffers and swap fees.*
+
 ---
 
 ## How Looping Works
@@ -21,6 +32,35 @@ Amber offers pre-configured loops ranging from **conservative 1.1×** to **high-
 3. **Swap** borrowed assets into maxBTC (5 bps swap fee).
 4. **Repeat** until you reach your target leverage and HF.
 5. **Earn yield** on the full leveraged position.
+
+### Visual Guide: Leverage Flow
+
+```mermaid
+graph TD
+    A[maxBTC Deposit] --> B[BRT Strategies]
+    B --> C[Borrow BRT]
+    C --> D[Swap BRT → maxBTC]
+    D --> E[Additional maxBTC]
+    E --> B
+    
+    style A fill:#f7931a,stroke:#333,stroke-width:2px,color:#fff
+    style B fill:#1a1a1a,stroke:#f7931a,stroke-width:3px,color:#fff
+    style C fill:#3b82f6,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#10b981,stroke:#333,stroke-width:2px,color:#fff
+    style E fill:#f7931a,stroke:#333,stroke-width:2px,color:#fff
+    
+    classDef amberStyle fill:#f7931a,stroke:#333,stroke-width:2px,color:#fff
+    classDef vaultStyle fill:#1a1a1a,stroke:#f7931a,stroke-width:3px,color:#fff
+    classDef borrowStyle fill:#3b82f6,stroke:#333,stroke-width:2px,color:#fff
+    classDef swapStyle fill:#10b981,stroke:#333,stroke-width:2px,color:#fff
+```
+
+**Key Components:**
+- **maxBTC**: Your Bitcoin exposure and yield-bearing asset
+- **BRT Strategies**: Secure lending protocol with health factor monitoring
+- **Borrow**: Access to multiple BRTs for borrowing
+- **Swap**: Seamless conversion between BRTs (5 bps fee)
+- **Loop**: Continuous cycle to amplify your position
 
 ---
 

@@ -12,6 +12,9 @@ import Logo from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Background } from '@/components/ui/Background'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
+import { CosmosKitProvider } from '@/components/providers/CosmosKitProvider'
+import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingContext'
+import ConnectButton from '@/components/common/ConnectButton'
 
 import './globals.css'
 import { metaData } from './metadata'
@@ -23,6 +26,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <Navbar logo={<Logo />} projectLink='https://github.com/amber-finance'>
       <div className='flex items-center gap-3'>
         <ThemeToggle />
+        <ConnectButton />
         <LaunchAppButton />
       </div>
     </Navbar>
@@ -66,33 +70,37 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </Head>
       <body>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>
-          <div className='relative min-h-screen w-full'>
-            <Background />
-            <ThemedParticles
-              className='absolute inset-0 z-0'
-              quantity={100}
-              ease={70}
-              size={0.6}
-              staticity={30}
-              refresh={false}
-            />
-            <div className='relative z-10'>
-              <Layout
-                navbar={navbar}
-                pageMap={await getPageMap()}
-                docsRepositoryBase='https://github.com/amber-finance/amber-frontend'
-                editLink='Edit this page on GitHub'
-                feedback={{ content: 'Question? Give us feedback →' }}
-                darkMode={false}
-                sidebar={{
-                  defaultMenuCollapseLevel: 1,
-                  toggleButton: false,
-                }}
-              >
-                {children}
-              </Layout>
-            </div>
-          </div>
+          <CosmosKitProvider>
+            <CollaborativeEditingProvider>
+              <div className='relative min-h-screen w-full'>
+                <Background />
+                <ThemedParticles
+                  className='absolute inset-0 z-0'
+                  quantity={100}
+                  ease={70}
+                  size={0.6}
+                  staticity={30}
+                  refresh={false}
+                />
+                <div className='relative z-10'>
+                  <Layout
+                    navbar={navbar}
+                    pageMap={await getPageMap()}
+                    docsRepositoryBase='https://github.com/amber-finance/amber-frontend'
+                    editLink='Edit this page on GitHub'
+                    feedback={{ content: 'Question? Give us feedback →' }}
+                    darkMode={false}
+                    sidebar={{
+                      defaultMenuCollapseLevel: 1,
+                      toggleButton: false,
+                    }}
+                  >
+                    {children}
+                  </Layout>
+                </div>
+              </div>
+            </CollaborativeEditingProvider>
+          </CosmosKitProvider>
         </ThemeProvider>
       </body>
     </html>

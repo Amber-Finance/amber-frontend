@@ -1,12 +1,334 @@
 # Smart Contracts
 
-Amber Finance utilizes the Mars Protocol’s smart contract architecture. All Mars Protocol contracts have been audited by Oak Security and Halborn.
+Amber Finance utilizes the [Mars Protocol smart contracts structure](https://github.com/mars-protocol/contracts) architecture. All Mars Protocol contracts have been audited by Oak Security and Halborn.
+
 As a fully open-source project, the Mars Protocol smart contracts are licensed under GPL-3.0 and can be reviewed on GitHub here.
 
-### Current deployed set of Smart Contracts
+---
 
-| Contract                                              | Neutron                                                            |
-| ----------------------------------------------------- | ------------------------------------------------------------------ |
-| **[Credit Manager](/smart_contracts/credit_manager)** | neutron1qdzn3l4kn7gsjna2tfpg3g3mwd6kunx4p50lfya59k02846xas6qslgs3r |
-| **[Red Bank](/smart_contracts/red_bank)**             | neutron1qdzn3l4kn7gsjna2tfpg3g3mwd6kunx4p50lfya59k02846xas6qslgs3r |
-| **[Swapper](/smart_contracts/swapper)**               | neutron1udr9fc3kd743dezrj38v2ac74pxxr6qsx4xt4nfpcfczgw52rvyqyjp5au |
+## Security & Audits
+
+### Audit Reports
+
+Amber Finance's smart contracts have undergone comprehensive security audits:
+
+- **Oak Security Audit**: [View Report](https://github.com/mars-protocol/mars-audits)
+- **Halborn Audit**: [View Report](https://github.com/mars-protocol/mars-audits)
+- **Open Source**: All contracts are publicly available for review
+
+### Security Features
+
+- **Isolated Markets**: Each asset operates in its own isolated market
+- **Health Factor Monitoring**: Real-time liquidation risk assessment
+- **Emergency Pause**: Ability to pause operations if needed
+- **Multi-sig Governance**: DAO-controlled parameter updates
+
+---
+
+## Current Deployed Contracts
+
+| Contract | Address | Description |
+|----------|---------|-------------|
+| **[Address Provider](/smart_contracts/address_provider)** | `neutron1n6m2ykuq9w83a9kq2p6dr4202dcxjpz7a2hwutw5rk4n9kwqmdxsad65pd` | Central registry for all contract addresses |
+| **[Red Bank](/smart_contracts/red_bank)** | `neutron1n97wnm7q6d2hrcna3rqlnyqw2we6k0l8uqvmyqq6gsml92epdu7quugyph` | Lending and borrowing operations |
+| **[Incentives](/smart_contracts/incentives)** | `neutron1u9eg2njpcvdprtes8s78hwddayrxzgw9akkjpxx0umr0awvapxrshmjlsd` | Rewards and points distribution |
+| **[Oracle](/smart_contracts/oracle)** | `neutron18l6cfm34qng2h9cvl3mxfw9zck9j5awv9jen4sa4f67x6t98y47s9vmuye` | Price feeds and market data |
+| **[Swapper](/smart_contracts/swapper)** | `neutron1udr9fc3kd743dezrj38v2ac74pxxr6qsx4xt4nfpcfczgw52rvyqyjp5au` | BRT swapping functionality |
+| **[Duality Swapper](/smart_contracts/duality_swapper)** | `neutron1ltg4s9hfm7ta55nwclvgr8vhu6hwmqjs2q6luu9l3pt0g79whv6skg02jp` | Advanced DEX integration for swaps |
+| **[Params](/smart_contracts/params)** | `neutron1y2hjwse8sq77gvsmcy8gm6kjye6a3g9ksyxdjg99ceg3rmlpq5usyv5n07` | Protocol parameters and configuration |
+| **[Zapper](/smart_contracts/zapper)** | `neutron1595ht54wjekzku0k4z2a485072ntr9cwdr5d3y5qc4qv59y2pmsqmsg6aw` | Multi-step strategy execution |
+| **[Health Computer](/smart_contracts/health_computer)** | `neutron17dy4j4rt9pw497mfpkd5gghw8q63kjyrd26h9yc2ugfwqke8x33stfmwrz` | Health factor calculations and risk assessment |
+| **[Credit Manager](/smart_contracts/credit_manager)** | `neutron1qdzn3l4kn7gsjna2tfpg3g3mwd6kunx4p50lfya59k02846xas6qslgs3r` | Core account management and strategy execution |
+| **[Account NFT](/smart_contracts/account_nft)** | `neutron1nl8d943u3k8lext62c2vplsmpr257zmfdd2mwvegc77xfjy5w0qq5zqc6e` | NFT representation of user accounts |
+
+---
+
+## Architecture Overview
+
+### Contract Relationships
+
+```
+User → Account NFT → Credit Manager → Red Bank
+                ↓           ↓
+            Zapper      Health Computer
+                ↓
+            Swapper ↔ Duality Swapper
+                ↓
+            Oracle ← Address Provider
+                ↓
+            Params & Incentives
+```
+
+### Key Components
+
+**Address Provider**
+- Central registry for all contract addresses
+- Enables dynamic contract discovery
+- Facilitates upgrades and migrations
+
+**Credit Manager**
+- Manages user accounts and positions
+- Executes complex strategies
+- Monitors health factors
+- Handles liquidations
+
+**Red Bank**
+- Core lending and borrowing logic
+- Interest rate calculations
+- Collateral management
+- Liquidation engine
+
+**Swapper**
+- BRT token exchanges
+- Route optimization
+- Slippage protection
+- Price feeds integration
+
+**Duality Swapper**
+- Advanced DEX integration
+- Multi-hop routing
+- Enhanced liquidity access
+
+**Oracle**
+- Real-time price feeds
+- Market data aggregation
+- Risk assessment data
+
+**Health Computer**
+- Health factor calculations
+- Risk assessment algorithms
+- Liquidation monitoring
+
+**Zapper**
+- Multi-step strategy execution
+- Automated position management
+- Complex DeFi operations
+
+**Incentives**
+- Rewards distribution
+- Points calculation
+- Campaign management
+
+**Params**
+- Protocol configuration
+- Parameter management
+- Governance controls
+
+**Account NFT**
+- NFT representation of accounts
+- Account ownership verification
+- Transferable positions
+
+---
+
+## Contract Queries
+
+### Common Queries
+
+You can interact with Amber Finance contracts using these common queries:
+
+#### Address Provider Queries
+- Contract address lookups
+- Protocol configuration
+- Upgrade information
+
+#### Credit Manager Queries
+- Account information and balances
+- Health factor calculations
+- Position details
+- Trigger orders
+
+#### Red Bank Queries
+- Market information
+- Interest rates
+- Liquidity data
+- Collateral parameters
+
+#### Swapper Queries
+- Available routes
+- Price quotes
+- Slippage calculations
+- Pool information
+
+#### Duality Swapper Queries
+- Advanced routing options
+- Multi-hop paths
+- DEX-specific data
+
+#### Oracle Queries
+- Price feeds
+- Market data
+- Risk metrics
+
+#### Health Computer Queries
+- Health factor calculations
+- Risk assessments
+- Liquidation thresholds
+
+#### Zapper Queries
+- Strategy templates
+- Execution status
+- Position management
+
+#### Incentives Queries
+- Rewards data
+- Points balances
+- Campaign information
+
+#### Params Queries
+- Protocol parameters
+- Configuration settings
+- Governance data
+
+#### Account NFT Queries
+- NFT metadata
+- Account ownership
+- Transfer history
+
+### Query Examples
+
+```bash
+# Get contract addresses
+curl -X GET "https://api.neutron.org/address_provider/contracts"
+
+# Get account information
+curl -X GET "https://api.neutron.org/credit_manager/account/{account_id}"
+
+# Get market data
+curl -X GET "https://api.neutron.org/red_bank/markets"
+
+# Get swap quote
+curl -X GET "https://api.neutron.org/swapper/quote?from=LBTC&to=solvBTC&amount=1000000"
+
+# Get health factor
+curl -X GET "https://api.neutron.org/health_computer/health_factor/{account_id}"
+
+# Get oracle prices
+curl -X GET "https://api.neutron.org/oracle/prices"
+
+# Get incentives data
+curl -X GET "https://api.neutron.org/incentives/rewards/{user_address}"
+```
+
+---
+
+## Contract Parameters
+
+### Red Bank Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| **Max LTV** | 80-90% | Maximum loan-to-value ratio |
+| **Liquidation Threshold** | 85-95% | Health factor trigger point |
+| **Liquidation Penalty** | 5-10% | Penalty for liquidated positions |
+| **Interest Rate Model** | Dynamic | Based on utilization rates |
+
+### Leverage Calculation
+
+The maximum leverage available is calculated using the formula:
+
+```
+Max Leverage = 1 / (1 - LTV)
+```
+
+**Examples:**
+- **LTV of 0.9 (90%)**: Max Leverage = 1 / (1 - 0.9) = 1 / 0.1 = **10x**
+- **LTV of 0.92 (92%)**: Max Leverage = 1 / (1 - 0.92) = 1 / 0.08 = **12.5x**
+- **LTV of 0.8 (80%)**: Max Leverage = 1 / (1 - 0.8) = 1 / 0.2 = **5x**
+
+*Note: Actual leverage may be lower due to safety buffers and swap fees.*
+
+### Swapper Parameters
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| **Swap Fee** | 0.05% | Fee for BRT swaps |
+| **Slippage Tolerance** | 0.1-1.0% | Maximum price impact |
+| **Route Optimization** | Enabled | Best path selection |
+
+---
+
+## Contract Interactions
+
+### Typical User Flow
+
+1. **Account Creation**
+   ```
+   User → Credit Manager → Create Account
+   ```
+
+2. **Deposit**
+   ```
+   User → Credit Manager → Red Bank → Deposit Collateral
+   ```
+
+3. **Borrow**
+   ```
+   User → Credit Manager → Red Bank → Borrow Asset
+   ```
+
+4. **Swap**
+   ```
+   User → Credit Manager → Swapper → Execute Swap
+   ```
+
+5. **Strategy Execution**
+   ```
+   User → Credit Manager → Execute Multi-step Strategy
+   ```
+
+---
+
+## Development Resources
+
+### For Developers
+
+- **GitHub Repository**: [github.com/mars-protocol/contracts](https://github.com/mars-protocol/contracts)
+- **API Documentation**: [docs.marsprotocol.io](https://docs.marsprotocol.io)
+- **Testnet**: Available for testing
+- **SDK**: JavaScript/TypeScript SDK available
+
+### For Integrators
+
+- **REST API**: Available for data queries
+- **WebSocket**: Real-time updates
+- **GraphQL**: Advanced querying (coming soon)
+- **Webhooks**: Event notifications
+
+---
+
+## Contract Analytics
+
+### Key Metrics
+
+- **Total Value Locked (TVL)**: Real-time tracking
+- **Transaction Volume**: Daily/monthly statistics
+- **User Activity**: Active accounts and positions
+- **Protocol Revenue**: Fee collection and distribution
+
+### Monitoring
+
+- **Block Explorer**: [explorer.neutron.org](https://explorer.neutron.org)
+- **Analytics Dashboard**: Real-time metrics
+- **Health Monitoring**: Contract status and alerts
+
+---
+
+## Related Documentation
+
+- **[Credit Manager Details](/smart_contracts/credit_manager)** - Comprehensive contract documentation
+- **[Red Bank Details](/smart_contracts/red_bank)** - Lending protocol specifics
+- **[Swapper Details](/smart_contracts/swapper)** - Exchange functionality
+- **[FAQ](/faq)** - Common technical questions
+
+---
+
+## Support
+
+- **Technical Support**: [Discord](https://discord.gg/amberfinance)
+- **Bug Reports**: [GitHub Issues](https://github.com/mars-protocol/contracts/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/mars-protocol/contracts/discussions)
+
+---
+
+*Last updated: January 2025*

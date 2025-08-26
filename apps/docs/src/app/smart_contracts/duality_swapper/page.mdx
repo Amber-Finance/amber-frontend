@@ -1,0 +1,411 @@
+# Duality Swapper
+
+The Duality Swapper contract provides advanced DEX integration for Amber Finance, enabling multi-hop routing and enhanced liquidity access through Duality Protocol. It extends the basic swapping functionality with sophisticated routing algorithms and cross-DEX operations.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1ltg4s9hfm7ta55nwclvgr8vhu6hwmqjs2q6luu9l3pt0g79whv6skg02jp`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+type Decimal = string
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: Addr
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+    duality_router: Addr
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `estimate_exact_in_swap`
+
+Estimates the output of a swap with given input parameters.
+
+```ts
+{
+  estimate_exact_in_swap: {
+    coin_in: {
+      amount: Uint128
+      denom: string
+    }
+    denom_out: string
+    route?: {
+      duality: {
+        swaps: [
+          {
+            from: string
+            to: string
+            pool_id: number
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    amount_out: Uint128
+    fee_amount: Uint128
+    price_impact: Decimal
+  }
+}
+```
+
+---
+
+#### `route`
+
+Returns the optimal route for a token pair.
+
+```ts
+{
+  route: {
+    denom_in: string
+    denom_out: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    route: {
+      duality: {
+        swaps: [
+          {
+            from: string
+            to: string
+            pool_id: number
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+```
+
+---
+
+#### `routes`
+
+Returns all configured routes.
+
+```ts
+{
+  routes: {
+    limit?: number | null
+    start_after?: [string, string] | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    routes: [
+      {
+        denom_in: string
+        denom_out: string
+        route: {
+          duality: {
+            swaps: [
+              {
+                from: string
+                to: string
+                pool_id: number
+              },
+              ...
+            ]
+          }
+        } | null
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `pool_info`
+
+Returns information about a specific Duality pool.
+
+```ts
+{
+  pool_info: {
+    pool_id: number
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    pool_id: number
+    token_a: string
+    token_b: string
+    liquidity: Uint128
+    fee_rate: Decimal
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `swap_exact_in`
+
+Performs a swap using the exact input amount specified.
+
+```ts
+{
+  swap_exact_in: {
+    coin_in: {
+      amount: Uint128
+      denom: string
+    }
+    denom_out: string
+    min_receive: Uint128
+    route?: {
+      duality: {
+        swaps: [
+          {
+            from: string
+            to: string
+            pool_id: number
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+```
+
+---
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {}
+}
+```
+
+---
+
+#### `set_route`
+
+Sets the route for a token pair (owner only).
+
+```ts
+{
+  set_route: {
+    denom_in: string
+    denom_out: string
+    route?: {
+      duality: {
+        swaps: [
+          {
+            from: string
+            to: string
+            pool_id: number
+          },
+          ...
+        ]
+      }
+    } | null
+  }
+}
+```
+
+---
+
+#### `remove_route`
+
+Removes the route for a token pair (owner only).
+
+```ts
+{
+  remove_route: {
+    denom_in: string
+    denom_out: string
+  }
+}
+```
+
+---
+
+### Routing Features
+
+The Duality Swapper provides advanced routing capabilities:
+
+#### Multi-Hop Routing
+- **Description**: Routes swaps through multiple pools for optimal pricing
+- **Use Case**: Complex token pairs with no direct liquidity
+
+#### Cross-DEX Integration
+- **Description**: Integrates with Duality Protocol pools
+- **Use Case**: Access to specialized liquidity sources
+
+#### Slippage Protection
+- **Description**: Built-in slippage tolerance and protection
+- **Use Case**: Prevents unfavorable price movements
+
+#### Gas Optimization
+- **Description**: Optimized routing to minimize gas costs
+- **Use Case**: Cost-effective swap execution
+
+---
+
+### Supported Token Pairs
+
+The Duality Swapper supports routing for:
+
+- **BRT ↔ BRT** - Bitcoin-related token swaps
+- **BRT ↔ Stablecoins** - BRT to stablecoin conversions
+- **BRT ↔ NTRN** - BRT to Neutron token swaps
+- **Cross-Chain Assets** - Multi-chain token routing
+
+---
+
+### Usage Examples
+
+#### Estimate Swap
+
+```bash
+curl -X GET "https://api.neutron.org/duality_swapper/estimate_exact_in_swap" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "coin_in": {"amount": "1000000", "denom": "eBTC"},
+    "denom_out": "LBTC"
+  }'
+```
+
+#### Get Optimal Route
+
+```bash
+curl -X GET "https://api.neutron.org/duality_swapper/route" \
+  -H "Content-Type: application/json" \
+  -d '{"denom_in": "eBTC", "denom_out": "LBTC"}'
+```
+
+#### Execute Swap
+
+```bash
+curl -X POST "https://api.neutron.org/duality_swapper/swap_exact_in" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "coin_in": {"amount": "1000000", "denom": "eBTC"},
+    "denom_out": "LBTC",
+    "min_receive": "990000"
+  }'
+```
+
+---
+
+### Integration
+
+The Duality Swapper integrates with:
+
+1. **Credit Manager** - Provides advanced swapping capabilities
+2. **Zapper** - Enables complex multi-step strategies
+3. **Duality Protocol** - Accesses specialized liquidity pools
+4. **Frontend Applications** - Offers enhanced swap interfaces
+
+---
+
+### Advantages
+
+- **Enhanced Liquidity** - Access to Duality Protocol pools
+- **Better Pricing** - Multi-hop routing for optimal rates
+- **Reduced Slippage** - Advanced routing algorithms
+- **Gas Efficiency** - Optimized transaction paths
+
+---
+
+*This documentation reflects the Mars Protocol Duality Swapper contract as deployed by Amber Finance on Neutron.*
