@@ -11,6 +11,8 @@ const chainConfig: ChainConfig = {
     accountNft: 'neutron15xh5qf4hs9zassj04mql5xxqgh4xr8ssmmqht5zmsw9l770qy8fs5u3dht',
     perps: 'neutron1eqwkxu3nxdx707at8r952eahjyealrky6vc0x57fmqry4t68qkpqw886cv',
     pyth: 'neutron1m2emc93m9gpwgsrsf2vylv9xvgqh654630v7dfrhrkmr5slly53spg85wv',
+    swapper: 'neutron1ratz633muu96er3wn7kx5hzty8zdg5d8maqduykesun30ddcseeqceyhfl',
+    dualitySwapper: 'neutron1sunrkm9482mn4dvtekk53ns6vvntkrhzh2n36qngyfphjn32t63qy7hp6s',
   },
   endpoints: {
     // Base URL for REST API
@@ -19,6 +21,7 @@ const chainConfig: ChainConfig = {
     rpcUrl: process.env.NEXT_PUBLIC_RPC || 'https://rpc-lb.neutron.org',
     // Fallback RPC for Skip API
     fallbackRpc: 'https://neutron-rpc.cosmos-apis.com',
+    routes: 'https://api.astroport.fi/api/v1/quote',
   },
 
   // Base64 encoded queries

@@ -188,6 +188,8 @@ interface ChainConfig {
     accountNft: string
     perps: string
     pyth: string
+    swapper: string
+    dualitySwapper: string
   }
   endpoints: {
     restUrl: string
@@ -204,6 +206,39 @@ interface ChainConfig {
 type Coin = {
   denom: string
   amount: string
+}
+
+type SwapRouteInfo = {
+  amountOut: BigNumber
+  priceImpact: BigNumber
+  fee: BigNumber
+  route: import('types/generated/mars-swapper-base/MarsSwapperBase.types').SwapperRoute
+  description: string
+}
+
+type AstroportRouteResponse = {
+  id: string
+  swaps: AstroportRoute[]
+  denom_in: string
+  decimals_in: number
+  price_in: number
+  value_in: string
+  amount_in: string
+  denom_out: string
+  decimals_out: number
+  price_out: number
+  value_out: string
+  amount_out: string
+  price_difference: number
+  price_impact: number
+}
+
+type AstroportRoute = {
+  contract_addr: string
+  from: string
+  to: string
+  type: string
+  illiquid: boolean
 }
 
 /**
@@ -525,9 +560,33 @@ interface SwapToken {
 interface SwapRouteInfo {
   amountOut: string
   priceImpact: number
-  route: RouteResponse
+  route: SwapperRoute
 }
 
+// Import the SwapperRoute type from the generated types
+type SwapperRoute =
+  | {
+      astro: AstroRoute
+    }
+  | {
+      duality: DualityRoute
+    }
+
+
+interface AstroRoute {
+  swaps: AstroSwap[]
+}
+
+interface AstroSwap {
+  from: string
+  to: string
+}
+
+interface DualityRoute {
+  from: string
+  swap_denoms: string[]
+  to: string
+}
 // RedBank TVL API Response
 interface RedBankTvlResponse {
   assets: RedBankTvlAsset[]

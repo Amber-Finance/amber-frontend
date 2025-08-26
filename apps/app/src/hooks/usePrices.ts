@@ -38,7 +38,13 @@ export const usePrices = () => {
         }
 
         const data: PriceResponse = await response.json()
-        const decimalDifferenceToOracle = market.asset.decimals - 6
+
+        // Special handling for eBTC (18 decimals)
+        let decimalDifferenceToOracle = market.asset.decimals - 6
+        if (market.asset.symbol === 'eBTC') {
+          decimalDifferenceToOracle = 2
+        }
+
         if (data?.data?.price) {
           const priceData: PriceData = {
             denom,
