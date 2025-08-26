@@ -14,19 +14,28 @@ const ZIP_FILENAME = 'amber-brand-kit.zip'
 
 // Asset categories and their paths
 const ASSET_CATEGORIES = {
-  logos: [
+  'logos-svg': [
     'logo/logo-light.svg',
     'logo/logo-dark.svg',
     'logo/logo-claim-light.svg',
     'logo/logo-claim-dark.svg',
     'logo/favicon.svg',
-    'logo/maxBTC_Token_dark.png',
-  ],
-  'logos-grids': [
     'logo/logo-grid-dark.svg',
     'logo/logo-grid-light.svg',
     'logo/icon-grid-dark.svg',
     'logo/icon-grid-light.svg',
+  ],
+  'logos-png': [
+    'logo/png/logo-light.png',
+    'logo/png/logo-dark.png',
+    'logo/png/logo-claim-light.png',
+    'logo/png/logo-claim-dark.png',
+    'logo/png/favicon.png',
+    'logo/png/logo-grid-dark.png',
+    'logo/png/logo-grid-light.png',
+    'logo/png/icon-grid-dark.png',
+    'logo/png/icon-grid-light.png',
+    'logo/maxBTC_Token_dark.png',
   ],
   'bitcoin-variants': [
     'images/BTC.svg',
