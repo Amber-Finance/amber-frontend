@@ -74,7 +74,12 @@ export const HeroContent = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
         >
-          <Image src='/logo/logo-claim-light.svg' alt='logo' width={500} height={500} />
+          <Image
+            src='/logo/logo-claim/logo-claim-light-512x180.svg'
+            alt='logo'
+            width={500}
+            height={500}
+          />
         </motion.div>
 
         <motion.p
