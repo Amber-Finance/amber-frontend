@@ -8,6 +8,6 @@ export default {
   legal: { title: 'Legal' },
   'brand-kit': 'Brand Kit',
   team: 'Amber Finance Team',
-  strategies: { display: 'hidden' },
+  // strategies: { display: 'hidden' },
   'collaborative-editing': 'Collaborative Editing Guide',
 }
