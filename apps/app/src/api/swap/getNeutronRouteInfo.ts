@@ -98,7 +98,6 @@ function buildSwapRouteInfo(
     const usdAmountOut = BN(skipRouteResponse.usdAmountOut)
 
     if (usdAmountIn.gt(0)) {
-      // Price impact = ((usdAmountOut - usdAmountIn) / usdAmountIn) * 100
       priceImpact = usdAmountOut.minus(usdAmountIn).dividedBy(usdAmountIn).multipliedBy(100)
     }
   }
@@ -110,8 +109,6 @@ function buildSwapRouteInfo(
     description,
     route,
   }
-
-  // Note: Reverse routing is now handled separately using iterative forward routing
 
   return routeInfo
 }
@@ -144,13 +141,10 @@ async function getNeutronRouteInfoInternal(
       ],
       amountIn: amountInWithDecimals,
     }
-    // console.log('skipRouteParams', skipRouteParams)
 
     const skipRouteResponse = await skipRoute(skipRouteParams)
 
-    // console.log('skipRouteResponse', skipRouteResponse)
     if (!skipRouteResponse) {
-      //   console.log('skipRouteResponse is null')
       if (shouldFallbackToAstroport && !isReverse) {
         return await getAstroportRouteInfo(
           denomIn,

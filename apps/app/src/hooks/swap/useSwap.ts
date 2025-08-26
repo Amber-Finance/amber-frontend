@@ -27,9 +27,11 @@ export function useSwap() {
     const userBalance = new BigNumber(fromToken.rawBalance || 0)
 
     if (userBalance.lt(requiredAmount)) {
-      throw new Error(
+      toast.error(
         `Insufficient balance. You have ${userBalance.shiftedBy(-fromToken.decimals).toFixed(6)} ${fromToken.symbol}, but need ${fromAmount} ${fromToken.symbol}`,
+        { autoClose: 5000 },
       )
+      return
     }
 
     setIsExecuting(true)
@@ -45,16 +47,12 @@ export function useSwap() {
       const swapAction = getSwapExactInAction(
         {
           denom: fromToken.denom,
-          amount: {
-            exact: requiredAmount.toString(),
-          },
+          amount: requiredAmount.toString(),
         },
         toToken.denom,
         routeInfo,
         slippage,
       )
-
-      console.log('Swap action:', swapAction)
 
       // Determine which swapper contract to use
       let swapperContractAddress: string
@@ -63,10 +61,11 @@ export function useSwap() {
       } else if (routeInfo.route.astro) {
         swapperContractAddress = chainConfig.contracts.swapper
       } else {
-        throw new Error('Invalid route structure')
+        console.error('Invalid route structure')
+        return
       }
 
-      // Execute the swap using the contract
+      // Execute the swap
       const result = await client.execute(
         address,
         swapperContractAddress,
@@ -91,7 +90,8 @@ export function useSwap() {
         return result
       }
 
-      throw new Error('Swap failed - no transaction hash returned')
+      console.error('Swap failed - no transaction hash returned')
+      return
     } catch (error) {
       console.error('Swap execution failed:', error)
       toast.update(pendingToastId, {
@@ -100,7 +100,7 @@ export function useSwap() {
         isLoading: false,
         autoClose: 5000,
       })
-      throw error
+      return
     } finally {
       setIsExecuting(false)
     }

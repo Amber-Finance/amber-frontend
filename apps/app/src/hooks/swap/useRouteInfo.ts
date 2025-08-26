@@ -11,9 +11,6 @@ export default function useRouteInfo(
   markets: any[],
 ) {
   const debouncedAmount = useDebounce<string>(amount.toString(), 500)
-
-  // console.log('useRouteInfo', denomIn, denomOut, amount.toString(), markets, chainConfig.id)
-
   const neutronRoute = useSWR<SwapRouteInfo | null>(
     debouncedAmount !== '0' && markets && amount.gt(0)
       ? ['route', denomIn, denomOut, debouncedAmount, chainConfig.id]
@@ -24,11 +21,6 @@ export default function useRouteInfo(
   return neutronRoute
 }
 
-/**
- * Hook for reverse routing - specify the amount out to get the required amount in
- * Specifically designed for HLS debt repayment scenarios where we need to know
- * how much collateral to swap to get an exact debt amount
- */
 export function useRouteInfoReverse(
   denomIn: string,
   denomOut: string,
