@@ -38,12 +38,7 @@ export const usePrices = () => {
         }
 
         const data: PriceResponse = await response.json()
-
-        // Special handling for solvBTC (18 decimals)
-        let decimalDifferenceToOracle = market.asset.decimals - 6
-        if (market.asset.symbol === 'solvBTC') {
-          decimalDifferenceToOracle = 2
-        }
+        const decimalDifferenceToOracle = market.asset.decimals - 6
 
         if (data?.data?.price) {
           const priceData: PriceData = {

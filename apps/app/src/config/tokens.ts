@@ -40,19 +40,6 @@ const tokens = [
   },
   {
     chainId: 'neutron-1',
-    denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',
-    symbol: 'FBTC',
-    icon: '/images/FBTC.svg',
-    description: 'FBTC Ignition',
-    protocolIconLight: '/images/FBTC.svg',
-    protocolIconDark: '/images/FBTC.svg',
-    decimals: 8,
-    isLST: true,
-    protocol: 'FBTC Protocol',
-    brandColor: '#F97316', // FBTC orange
-  },
-  {
-    chainId: 'neutron-1',
     denom: 'ibc/B7BF60BB54433071B49D586F54BD4DED5E20BEFBBA91958E87488A761115106B',
     symbol: 'LBTC',
     icon: '/images/LBTC.svg',
