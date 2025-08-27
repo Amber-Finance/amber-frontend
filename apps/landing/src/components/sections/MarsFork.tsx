@@ -48,7 +48,7 @@ export function MarsFork() {
                 Mars‑grade security
               </div>
 
-              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium tracking-tighter text-center text-balance'>
+              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium text-center text-balance'>
                 High Leverage with maximum security
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
