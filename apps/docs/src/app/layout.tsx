@@ -12,6 +12,7 @@ import Logo from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Background } from '@/components/ui/Background'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
+import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingContext'
 
 import './globals.css'
 import { metaData } from './metadata'
@@ -53,11 +54,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yield.'
         />
         <meta name='twitter:card' content='summary_large_image' />
-        <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/default.png' />
+        <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
         <meta name='twitter:site:domain' content='docs.amberfi.io' />
         <meta name='twitter:url' content='https://docs.amberfi.io' />
         <meta name='og:title' content='Amber Finance Documentation' />
-        <meta name='og:image' content='https://docs.amberfi.io/twitter-banner/default.png' />
+        <meta name='og:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
         <meta name='apple-mobile-web-app-title' content='Amber Docs' />
         <link rel='icon' href='/favicon.ico' type='image/x-icon' />
         <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
@@ -66,33 +67,35 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </Head>
       <body>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>
-          <div className='relative min-h-screen w-full'>
-            <Background />
-            <ThemedParticles
-              className='absolute inset-0 z-0'
-              quantity={100}
-              ease={70}
-              size={0.6}
-              staticity={30}
-              refresh={false}
-            />
-            <div className='relative z-10'>
-              <Layout
-                navbar={navbar}
-                pageMap={await getPageMap()}
-                docsRepositoryBase='https://github.com/amber-finance/amber-frontend'
-                editLink='Edit this page on GitHub'
-                feedback={{ content: 'Question? Give us feedback →' }}
-                darkMode={false}
-                sidebar={{
-                  defaultMenuCollapseLevel: 1,
-                  toggleButton: false,
-                }}
-              >
-                {children}
-              </Layout>
+          <CollaborativeEditingProvider>
+            <div className='relative min-h-screen w-full'>
+              <Background />
+              <ThemedParticles
+                className='absolute inset-0 z-0'
+                quantity={100}
+                ease={70}
+                size={0.6}
+                staticity={30}
+                refresh={false}
+              />
+              <div className='relative z-10'>
+                <Layout
+                  navbar={navbar}
+                  pageMap={await getPageMap()}
+                  docsRepositoryBase='https://github.com/amber-finance/amber-frontend'
+                  editLink='Edit this page on GitHub'
+                  feedback={{ content: 'Question? Give us feedback →' }}
+                  darkMode={false}
+                  sidebar={{
+                    defaultMenuCollapseLevel: 1,
+                    toggleButton: false,
+                  }}
+                >
+                  {children}
+                </Layout>
+              </div>
             </div>
-          </div>
+          </CollaborativeEditingProvider>
         </ThemeProvider>
       </body>
     </html>

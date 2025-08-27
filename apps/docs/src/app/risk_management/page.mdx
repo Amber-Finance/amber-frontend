@@ -1,48 +1,256 @@
 # Risk Management
 
-Understanding and managing risk is crucial when participating in DeFi protocols. This guide explains the key risks on Amber Finance and how the platform addresses them.
+Understanding and managing risks is crucial when using DeFi protocols. This guide explains the risks associated with Amber Finance and how to mitigate them.
 
 ---
+
+## Security Framework
+
+### Uncapped Potential with Maximum Security
+
+Amber Finance does **not** implement the same risk framework or deposit caps used by Mars Protocol's default deployments.  
+This means there are **no deposit caps** in place, enabling _uncapped potential_ for liquidity providers and yield seekers.
 
 ## Risk Framework Overview
 
-Amber Finance does **not** implement the same risk framework or deposit caps used by Mars Protocol's default deployments.
-This means there are **no deposit caps** in place — enabling _uncapped potential_ for liquidity providers and yield seekers.
+- **Forked from the Mars Protocol Red Bank**, the most recognized lending framework in the Cosmos ecosystem
+- **Audited smart contracts**, verified for security and robustness by Oak Security and Halborn
+- **Developed by Mars Protocol contributors**, ensuring deep familiarity with the underlying codebase
+- **Isolated market architecture** to reduce contagion risk between assets
 
 ### Key Differences from Mars Protocol
 
-- **No deposit caps** - Unlimited liquidity provision opportunities
-- **Flexible utilization** - Higher potential returns through increased capacity
-- **User-driven risk management** - You control your exposure levels
+You can review the underlying Mars Protocol contracts and audits here: [Mars Protocol Documentation](https://github.com/mars-protocol/mars-audits).
 
 ---
 
-## Platform Security Measures
+## Understanding DeFi Risks
 
-Amber Finance is built on **battle-tested foundations** to ensure maximum security:
+### Smart Contract Risk
 
-- **Forked from Mars Protocol Red Bank** - The most recognized lending framework in the Cosmos ecosystem
-- **Audited smart contracts** - Verified for security and robustness by professional auditors
-- **Developed by Mars Protocol contributors** - Deep familiarity with the underlying codebase
-- **Isolated market architecture** - Reduces contagion risk between different BRT assets
+**What it is**: The risk that smart contracts contain bugs or vulnerabilities that could lead to loss of funds.
+
+**Amber's mitigation**:
+
+- Audited by Oak Security and Halborn
+- Forked from battle-tested Mars Protocol contracts
+- Open-source code for community review
+- Gradual deployment with testing phases
+
+### Liquidation Risk
+
+**What it is**: The risk that your position gets liquidated if your health factor drops below 1.0.
+
+**How to manage**:
+
+- Monitor health factor regularly
+- Keep health factor above 1.5 for safety
+- Have reserves to add collateral if needed
+- Understand liquidation parameters for each asset
+
+### Market Risk
+
+**What it is**: The risk that asset prices move against your position, affecting your collateral value.
+
+**How to manage**:
+
+- Diversify across multiple BRTs
+- Don't over-leverage your positions
+- Monitor market conditions
+- Have exit strategies planned
+
+### Protocol Risk
+
+**What it is**: The risk that underlying BRT protocols fail or experience issues.
+
+**How to manage**:
+
+- Research underlying protocols
+- Diversify across different BRT providers
+- Monitor protocol health and updates
+- Don't put all funds in one protocol
 
 ---
 
-## Your Responsibility
+## Health Factor Management
 
-While Amber Finance provides robust security measures, **you are responsible for**:
+### Understanding Health Factor
 
-- Understanding the risks before participating
-- Managing your own exposure levels
-- Monitoring your positions regularly
-- Making informed decisions about your strategies
+Health factor (HF) is the primary risk metric in Amber Finance:
+
+- **Above 2.0**: Very safe, can increase leverage
+- **1.5 - 2.0**: Safe operating range
+- **1.3 - 1.5**: Caution zone, monitor closely
+- **1.2 - 1.3**: Danger zone, reduce leverage immediately
+- **Below 1.2**: Liquidation risk, take immediate action
+
+### Health Factor Formula
+
+```
+Health Factor = Total Collateral Value / Total Debt Value
+```
+
+### How to Improve Health Factor
+
+1. **Add more collateral** - Deposit additional assets
+2. **Reduce debt** - Repay borrowed assets
+3. **Wait for price appreciation** - If collateral prices increase
+4. **Avoid high leverage** - Keep leverage ratios conservative
+
+---
+
+## Risk Management Strategies
+
+### Conservative Strategy (Low Risk)
+
+**Target APY**: 2-5%
+**Leverage**: 1.2x - 2x
+**Health Factor Target**: Above 2.0
+**Best for**: Beginners, risk-averse users
+
+**Strategy**:
+
+- Focus on established BRTs (LBTC, uniBTC)
+- Low leverage ratios
+- Regular monitoring
+- Diversified positions
+
+### Balanced Strategy (Medium Risk)
+
+**Target APY**: 4-8%
+**Leverage**: 2x - 5x
+**Health Factor Target**: Above 1.5
+**Best for**: Experienced DeFi users
+
+**Strategy**:
+
+- Mix of established and newer BRTs
+- Moderate leverage
+- Active monitoring
+- Risk management protocols
+
+### High Yield Strategy (High Risk)
+
+**Target APY**: 6-12%
+**Leverage**: 5x - 10x
+**Health Factor Target**: Above 1.3
+**Best for**: Advanced users with high risk tolerance
+
+**Strategy**:
+
+- Higher leverage ratios
+- Newer BRT protocols
+- Very active monitoring
+- Sophisticated risk management
+
+---
+
+## Emergency Procedures
+
+### If Your Health Factor is Low
+
+1. **Immediate Actions**:
+   - Add more collateral immediately
+   - Reduce debt by repaying borrowed assets
+   - Consider partial withdrawal to reduce exposure
+
+2. **If Health Factor < 1.2**:
+   - Take immediate action to avoid liquidation
+   - Consider emergency withdrawal
+   - Contact support if needed
+
+### If You Get Liquidated
+
+1. **What happens**:
+   - Partial liquidation occurs
+   - Liquidation penalty applied (5-10%)
+   - Health factor restored to 1.1
+   - Remaining position continues
+
+2. **Recovery**:
+   - Assess what went wrong
+   - Rebuild position gradually
+   - Implement better risk management
+   - Learn from the experience
+
+---
+
+## Best Practices
+
+### Before You Start
+
+- **Understand the risks** - Read all documentation
+- **Start small** - Begin with conservative strategies
+- **Test with small amounts** - Learn the platform first
+- **Have a plan** - Know your risk tolerance and goals
+
+### Ongoing Management
+
+- **Monitor regularly** - Check positions daily
+- **Set alerts** - Use notifications for health factor warnings
+- **Keep reserves** - Maintain emergency funds
+- **Stay informed** - Follow protocol updates and news
+
+### Portfolio Management
+
+- **Diversify** - Don't put everything in one asset
+- **Rebalance** - Adjust positions as needed
+- **Document** - Keep records of your strategies
+- **Review** - Regularly assess your risk management
+
+---
+
+## Risk Assessment Tools
+
+### Health Factor Calculator
+
+Monitor your health factor in real-time on the dashboard. The platform provides:
+
+- Real-time health factor updates
+- Liquidation price alerts
+- Position monitoring tools
+- Risk visualization
+
+### Risk Metrics
+
+Key metrics to monitor:
+
+- **Collateral Utilization**: How much of your collateral is being used
+- **Debt Ratio**: Your total debt relative to collateral
+- **Liquidation Price**: Price at which liquidation occurs
+- **Available Liquidity**: How much you can borrow
 
 ---
 
 ## Additional Resources
 
-- **[Mars Protocol Audits](https://github.com/mars-protocol/mars-audits)** - Review underlying contract security
-- **[Smart Contracts Documentation](/smart_contracts)** - Technical details and queries
-- **[FAQ](/faq)** - Common questions about platform safety
+### Documentation
 
-> **Remember**: Higher potential returns come with higher risks. Only invest what you can afford to lose and always do your own research.
+- **[Smart Contracts](/smart_contracts)** - Technical contract details
+- **[FAQ](/faq)** - Common questions about risks
+- **[Getting Started](/user-guide/getting_started)** - Beginner's guide
+
+### Community
+
+- **Discord**: Real-time support and discussions
+- **GitHub**: Technical documentation and code
+- **Blog**: Latest updates and announcements
+
+### External Resources
+
+- **Mars Protocol Documentation**: [github.com/mars-protocol](https://github.com/mars-protocol)
+- **Neutron Network**: [neutron.org](https://neutron.org)
+- **Cosmos Ecosystem**: [cosmos.network](https://cosmos.network)
+
+---
+
+## Disclaimer
+
+This risk management guide is for informational purposes only and does not constitute financial advice. DeFi protocols carry inherent risks, and users should:
+
+- Conduct their own research
+- Understand the risks involved
+- Only invest what they can afford to lose
+- Seek professional advice if needed
+
+Amber Finance is not responsible for any losses incurred through the use of the platform.

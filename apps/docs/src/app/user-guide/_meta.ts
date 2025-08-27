@@ -4,4 +4,5 @@ export default {
   depositing: 'Depositing BRTs',
   looping: 'Looping BRTs',
   swaps: 'Swapping BRTs',
+  'points-campaigns': 'Points Campaigns',
 }

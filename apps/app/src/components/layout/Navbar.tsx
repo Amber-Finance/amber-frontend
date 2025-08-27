@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -51,7 +51,7 @@ export function Navbar() {
             <Link href='/' className='flex items-center space-x-2 group'>
               <div className='relative'>
                 <Image
-                  src='/logo/logo-dark.svg'
+                  src='/logo/logo-simple/logo-dark-400x140.svg'
                   alt='Amber Finance'
                   width={142}
                   height={50}
@@ -61,7 +61,7 @@ export function Navbar() {
                   )}
                 />
                 <Image
-                  src='/logo/logo-light.svg'
+                  src='/logo/logo-simple/logo-light-400x140.svg'
                   alt='Amber Finance'
                   width={142}
                   height={50}

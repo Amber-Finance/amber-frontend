@@ -116,19 +116,6 @@ const tokens = [
     protocol: 'Eureka',
     brandColor: '#F97316', // Eureka orange (classic Bitcoin orange)
   },
-  {
-    chainId: 'neutron-1',
-    denom: 'ibc/DF8722298D192AAB85D86D0462E8166234A6A9A572DD4A2EA7996029DF4DB363',
-    symbol: 'wBTC.axl',
-    icon: '/images/WBTC.axl.svg',
-    description: 'Wrapped Bitcoin Axelar',
-    protocolIconLight: '/images/axelar/axelarLight.svg',
-    protocolIconDark: '/images/axelar/axelarDark.svg',
-    decimals: 8,
-    isLST: true,
-    protocol: 'Axelar',
-    brandColor: '#6B7280', // Axelar grey
-  },
 ]
 
 export default tokens
