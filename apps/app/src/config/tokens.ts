@@ -69,13 +69,13 @@ const tokens = [
     denom: 'ibc/C0F284F165E6152F6DDDA900537C1BC8DA1EA00F03B9C9EC1841FA7E004EF7A3',
     symbol: 'eBTC',
     icon: '/images/eBTC.png',
-    description: 'Edge Bitcoin',
-    protocolIconLight: '/images/eBTC.png',
-    protocolIconDark: '/images/eBTC.png',
+    description: 'Ether.fi Bitcoin',
+    protocolIconLight: '/images/eBTC.svg',
+    protocolIconDark: '/images/eBTC.svg',
     decimals: 8,
     isLST: true,
-    protocol: 'Edge Protocol',
-    brandColor: '#EC4899', // Edge pink
+    protocol: 'Ether.fi ',
+    brandColor: '#120370', // Ether.fi blue
   },
   {
     chainId: 'neutron-1',
