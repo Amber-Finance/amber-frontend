@@ -1,5 +1,10 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
+
+import BigNumber from 'bignumber.js'
+
+import { StrategyCard } from '@/app/strategies/StrategyCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'

@@ -1,8 +1,15 @@
 'use client'
 
-import Hero from '@/components/layout/Hero'
-import { AuroraText } from '@/components/ui/AuroraText'
-import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
+import { useEffect, useState } from 'react'
+
+import { useRouter, useSearchParams } from 'next/navigation'
+
+import { BigNumber } from 'bignumber.js'
+
+import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
+import tokens from '@/config/tokens'
+import { useLstMarkets, useMarkets } from '@/hooks'
+import { useStore } from '@/store/useStore'
 
 export default function StrategyDeployPage() {
   const router = useRouter()

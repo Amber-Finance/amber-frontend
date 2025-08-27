@@ -15,7 +15,6 @@ import { AmountInput } from '@/components/ui/AmountInput'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import PointsCampaignTooltip from '@/components/ui/PointsCampaignTooltip'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import chainConfig from '@/config/chain'
@@ -69,6 +68,7 @@ export default function DepositClient() {
 
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { isWalletConnected, connect } = useChain(chainConfig.name)
+  const { theme } = useTheme()
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
@@ -129,6 +129,13 @@ export default function DepositClient() {
     }
   }, [tokenSymbol, tokenData, market, router, getTokenStakingApy, walletBalances, depositedAmount])
 
+  // Calculate theme-dependent values after all hooks are called
+  const protocolPoints = selectedToken ? getProtocolPoints(selectedToken.token.symbol) : null
+  const protocolPointsIcon = selectedToken
+    ? getProtocolPointsIcon(selectedToken.token.symbol, theme)
+    : null
+  const neutronIcon = getNeutronIcon(theme)
+
   if (!selectedToken || walletBalancesLoading) {
     return (
       <div className='w-full lg:container mx-auto px-4 py-8'>
@@ -150,10 +157,6 @@ export default function DepositClient() {
   }
 
   const { token, metrics } = selectedToken
-  const { theme } = useTheme()
-  const protocolPoints = getProtocolPoints(token.symbol)
-  const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
-  const neutronIcon = getNeutronIcon(theme)
 
   const handleDeposit = async () => {
     if (!depositAmount || parseFloat(depositAmount) <= 0) return
@@ -338,7 +341,7 @@ export default function DepositClient() {
                 </div>
                 <div className='space-y-2'>
                   {/* Protocol Points, only if available */}
-                  {protocolPoints.protocolPoint && protocolPointsIcon && (
+                  {protocolPoints?.protocolPoint && protocolPointsIcon && (
                     <MetricRow
                       customIcon={protocolPointsIcon}
                       label={protocolPoints.protocolPoint}
