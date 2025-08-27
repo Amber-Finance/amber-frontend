@@ -29,7 +29,8 @@ Returns the contract's configuration.
 
 ```ts
 {
-  config: {}
+  config: {
+  }
 }
 ```
 
@@ -53,7 +54,8 @@ Returns contract ownership details.
 
 ```ts
 {
-  owner: {}
+  owner: {
+  }
 }
 ```
 
@@ -284,7 +286,8 @@ Accepts ownership transfer (proposed owner only).
 
 ```ts
 {
-  accept_ownership: {}
+  accept_ownership: {
+  }
 }
 ```
 
@@ -354,16 +357,19 @@ Updates price from Pyth oracle (authorized callers only).
 The Oracle contract supports multiple price source types:
 
 #### Pyth Oracle
+
 - **Type**: `pyth`
 - **Description**: Real-time price feeds from Pyth Network
 - **Use Case**: High-frequency, low-latency price updates
 
 #### Fixed Price
+
 - **Type**: `fixed`
 - **Description**: Static price values
 - **Use Case**: Stable assets or test scenarios
 
 #### Astroport DEX
+
 - **Type**: `astroport`
 - **Description**: Price derived from DEX liquidity pools
 - **Use Case**: Decentralized price discovery
@@ -380,7 +386,6 @@ The Oracle provides price feeds for:
 - **pumpBTC** - Pump Protocol Bitcoin
 - **uniBTC** - Bedrock Bitcoin
 - **wBTC** - Wrapped Bitcoin (Eureka)
-- **wBTC.axl** - Wrapped Bitcoin (Axelar)
 - **NTRN** - Neutron tokens
 - **USDC** - USD Coin
 - **USDT** - Tether USD
@@ -442,4 +447,4 @@ The Oracle contract integrates with:
 
 ---
 
-*This documentation reflects the Mars Protocol Oracle contract as deployed by Amber Finance on Neutron.*
+_This documentation reflects the Mars Protocol Oracle contract as deployed by Amber Finance on Neutron._
