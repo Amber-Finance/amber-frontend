@@ -145,7 +145,7 @@ export function Hero() {
         <SplineBgObject />
       </div>
       {/* Fade overlay for smooth transition at bottom */}
-      <div className='absolute inset-x-0 bottom-0 h-64 z-5 bg-gradient-to-t from-background via-background/90 via-background/60 to-transparent pointer-events-none' />
+      <div className='absolute inset-x-0 bottom-0 h-64 z-5 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none' />
       <div className='relative h-screen w-full overflow-hidden z-10 flex flex-col justify-between items-center py-8'>
         <div className='flex-1 flex items-center justify-center'>
           <HeroContent />
