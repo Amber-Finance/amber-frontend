@@ -68,7 +68,7 @@ const tokens = [
     chainId: 'neutron-1',
     denom: 'ibc/E2A000FD3EDD91C9429B473995CE2C7C555BCC8CFC1D0A3D02F514392B7A80E8',
     symbol: 'eBTC',
-    icon: '/images/eBTC.png',
+    icon: '/images/eBTC.svg',
     description: 'Ether.fi Bitcoin',
     protocolIconLight: '/images/eBTC.svg',
     protocolIconDark: '/images/eBTC.svg',
