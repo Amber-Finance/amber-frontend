@@ -208,7 +208,7 @@ export default function SwapClient() {
             Swap <AuroraText>Bitcoin Assets</AuroraText>
           </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-            Trade between BRTs, wBTC, and maxBTC with minimal slippage and competitive rates
+            Trade between BRTs, wBTC, and wBTC.axl with minimal slippage and competitive rates
           </p>
         </div>
       </div>

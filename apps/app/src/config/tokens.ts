@@ -49,6 +49,32 @@ const tokens = [
   // },
   {
     chainId: 'neutron-1',
+    denom: 'factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS',
+    symbol: 'MARS',
+    icon: '/images/MARS.svg',
+    description: 'Mars Token',
+    protocolIconLight: '/images/MARS.svg',
+    protocolIconDark: '/images/MARS.svg',
+    decimals: 6,
+    isLST: false,
+    protocol: 'Cosmos Hub',
+    brandColor: '#2E3148',
+  },
+  {
+    chainId: 'neutron-1',
+    denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',
+    symbol: 'FBTC',
+    icon: '/images/FBTC.svg',
+    description: 'FBTC Ignition',
+    protocolIconLight: '/images/FBTC.svg',
+    protocolIconDark: '/images/FBTC.svg',
+    decimals: 8,
+    isLST: true,
+    protocol: 'FBTC Protocol',
+    brandColor: '#F97316', // FBTC orange
+  },
+  {
+    chainId: 'neutron-1',
     denom: 'ibc/B7BF60BB54433071B49D586F54BD4DED5E20BEFBBA91958E87488A761115106B',
     symbol: 'LBTC',
     icon: '/images/LBTC.svg',
@@ -124,19 +150,6 @@ const tokens = [
     isLST: true,
     protocol: 'Eureka',
     brandColor: '#F97316', // Eureka orange (classic Bitcoin orange)
-  },
-  {
-    chainId: 'neutron-1',
-    denom: 'ibc/DF8722298D192AAB85D86D0462E8166234A6A9A572DD4A2EA7996029DF4DB363',
-    symbol: 'wBTC.axl',
-    icon: '/images/WBTC.axl.svg',
-    description: 'Wrapped Bitcoin Axelar',
-    protocolIconLight: '/images/axelar/axelarLight.svg',
-    protocolIconDark: '/images/axelar/axelarDark.svg',
-    decimals: 8,
-    isLST: true,
-    protocol: 'Axelar',
-    brandColor: '#6B7280', // Axelar grey
   },
 ]
 export default tokens

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
+import { formatLargeCurrency, formatLargeNumber } from '@/utils/format'
 
 interface StatCardProps {
   value: number
@@ -21,13 +22,22 @@ export function StatCard({
 }: StatCardProps) {
   const renderValue = () => {
     if (isCurrency && value > 0) {
+      // For currency, we need to separate the dollar sign and number for different colors
+      const formattedValue = formatLargeCurrency(value)
+      const dollarSign = formattedValue.startsWith('-$') ? '-$' : '$'
+      const numberPart = formattedValue.replace(/^-\$|\$/, '')
+
       return (
         <>
-          {prefix}
-          <CountingNumber value={value} decimalPlaces={value >= 10000000 ? 1 : 2} />
-          {suffix}
+          <span className='text-orange-500'>{dollarSign}</span>
+          <span className='text-foreground'>{numberPart}</span>
         </>
       )
+    }
+
+    // Use abbreviated formatting for large numbers
+    if (value >= 1000) {
+      return formatLargeNumber(value, decimalPlaces)
     }
 
     return (
@@ -39,10 +49,32 @@ export function StatCard({
     )
   }
 
+  // Calculate dynamic width based on content length
+  const getDynamicWidth = () => {
+    if (isCurrency && value > 0) {
+      const formattedValue = formatLargeCurrency(value)
+      if (formattedValue.includes('B')) return 'min-w-[120px]'
+      if (formattedValue.includes('M')) return 'min-w-[100px]'
+      if (formattedValue.includes('k')) return 'min-w-[80px]'
+      return 'min-w-[90px]'
+    }
+
+    if (value >= 1000) {
+      const formattedValue = formatLargeNumber(value, decimalPlaces)
+      if (formattedValue.includes('B')) return 'min-w-[110px]'
+      if (formattedValue.includes('M')) return 'min-w-[90px]'
+      if (formattedValue.includes('k')) return 'min-w-[70px]'
+    }
+
+    return 'min-w-[80px]'
+  }
+
   return (
-    <div className='flex-1 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group'>
+    <div
+      className={`${getDynamicWidth()} bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group`}
+    >
       <div className='space-y-1'>
-        <div className='text-base font-funnel sm:text-lg lg:text-2xl text-primary group-hover:scale-110 transition-transform duration-300'>
+        <div className='text-base font-funnel sm:text-lg lg:text-2xl text-foreground group-hover:scale-110 transition-transform duration-300'>
           {renderValue()}
         </div>
         <div className='text-[10px] sm:text-sm text-muted-foreground font-medium uppercase tracking-widest'>

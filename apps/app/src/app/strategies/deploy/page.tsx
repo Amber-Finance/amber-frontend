@@ -21,7 +21,7 @@ export default function StrategyDeployPage() {
   const { getTokenStakingApy } = useLstMarkets()
 
   useEffect(() => {
-    // Parse strategy from URL params (e.g., ?strategy=MAXBTC-wBTC)
+    // Parse strategy from URL params (e.g., ?strategy=wBTC-eBTC)
     const strategyId = searchParams.get('strategy')
     if (!strategyId) {
       router.push('/strategies')
@@ -34,17 +34,17 @@ export default function StrategyDeployPage() {
       return
     }
 
-    // Find collateral token (MAXBTC)
+    // Find collateral token (wBTC.eureka has better liquidity than Axelar bridge)
     const collateralToken = tokens.find((token) => token.symbol === collateralSymbol) || {
       chainId: 'neutron-1',
-      denom: 'maxbtc',
-      symbol: 'MAXBTC',
-      icon: '/images/BTC.svg',
-      description: 'Max Bitcoin',
+      denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
+      symbol: 'wBTC',
+      icon: '/images/WBTC.svg',
+      description: 'Wrapped Bitcoin (Eureka)',
       decimals: 8,
       isLST: true,
-      protocol: 'Max Protocol',
-      brandColor: '#F7931A',
+      protocol: 'Eureka',
+      brandColor: '#F97316',
     }
 
     // Find debt token
@@ -61,14 +61,14 @@ export default function StrategyDeployPage() {
       return
     }
 
-    // Use same approach as strategies page - mock values for MAXBTC
-    // MAXBTC mock values - use realistic supply rate (higher than BTC LST borrow rates)
-    const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for MAXBTC
+    // Use same approach as strategies page - mock values for wBTC.eureka
+    // wBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
+    const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for wBTC.eureka
 
-    // Get real staking APY for collateral asset (MAXBTC)
-    const collateralStakingApy = 0.025 // 2.5% mock staking APY for MAXBTC
+    // Get real staking APY for collateral asset (wBTC.eureka)
+    const collateralStakingApy = 0.025 // 2.5% mock staking APY for wBTC.eureka
 
-    // Calculate total supply APY for MAXBTC (lending + staking)
+    // Calculate total supply APY for wBTC.eureka (lending + staking)
     const collateralTotalApy = collateralSupplyApy + collateralStakingApy
 
     // Get real borrow APY for debt asset (use raw market rate, already in decimal format)

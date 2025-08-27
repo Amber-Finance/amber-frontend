@@ -10,7 +10,7 @@ const tokens = [
   { symbol: 'pumpBTC', icon: '/images/pumpBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
   { symbol: 'bedrock', icon: '/images/bedrock.svg' },
-  { symbol: 'maxBTC', icon: '/images/BTC.svg' },
+  { symbol: 'wBTC.axl', icon: '/images/WBTC.axl.svg' },
   { symbol: 'pumpBTC', icon: '/images/pumpBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },

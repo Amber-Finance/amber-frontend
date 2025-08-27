@@ -75,7 +75,10 @@ export function Navbar() {
 
             <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/80 rounded-full p-1'>
               {navigation.map((item, idx) => {
-                const isActive = pathname === item.href
+                const isActive =
+                  item.href === '/'
+                    ? pathname === '/' || pathname.startsWith('/deposit')
+                    : pathname.startsWith(item.href)
                 return (
                   <Link
                     key={`nav-${item.name}-${idx}`}
@@ -139,7 +142,10 @@ export function Navbar() {
             <div className='px-6 py-8 space-y-6'>
               <div className='space-y-2'>
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/' || pathname.startsWith('/deposit')
+                      : pathname.startsWith(item.href)
                   return (
                     <Link
                       key={item.name}
