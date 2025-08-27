@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Hero
         title='Liquid Staking.'
-        subtitle={<AuroraText>Solid Yield.</AuroraText>}
+        subtitle={<AuroraText>Solid Yields.</AuroraText>}
         description='Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to earn real yield.'
         stats={[
           {

@@ -47,11 +47,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <meta httpEquiv='Content-Language' content='en' />
         <meta
           name='description'
-          content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yield.'
+          content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.'
         />
         <meta
           name='og:description'
-          content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yield.'
+          content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.'
         />
         <meta name='twitter:card' content='summary_large_image' />
         <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />

@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Amber Finance Documentation',
     short_name: 'Amber Docs',
-    description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yield.',
+    description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.',
     start_url: '/',
     display: 'standalone',
     background_color: '#000',

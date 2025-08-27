@@ -6,6 +6,7 @@ const SHARED_CONFIG = {
   baseUrl: 'https://app.amberfi.io',
   twitterHandle: '@amberfi_io',
   bannerImage: 'https://app.amberfi.io/twitter-banner/default.jpg',
+  content: 'Liquid Staking. Solid Yields.',
   locale: 'en_US',
 }
 
@@ -21,13 +22,13 @@ export const metaData: { [key: string]: Metadata } = {
   home: {
     title: 'Amber Finance',
     metadataBase: new URL(SHARED_CONFIG.baseUrl),
-    description: 'Liquid Staking. Solid Yield.',
+    description: 'Liquid Staking. Solid Yields.',
     openGraph: {
       type: 'website',
       url: SHARED_CONFIG.baseUrl,
       title: 'Amber Finance',
       locale: SHARED_CONFIG.locale,
-      description: 'Liquid Staking. Solid Yield.',
+      description: 'Liquid Staking. Solid Yields.',
       siteName: SHARED_CONFIG.siteName,
       images: [SHARED_IMAGE],
     },
@@ -35,7 +36,7 @@ export const metaData: { [key: string]: Metadata } = {
       card: 'summary_large_image',
       site: SHARED_CONFIG.twitterHandle,
       title: 'Amber Finance',
-      description: 'Liquid Staking. Solid Yield.',
+      description: 'Liquid Staking. Solid Yields.',
       images: [SHARED_IMAGE],
     },
   },
@@ -43,13 +44,13 @@ export const metaData: { [key: string]: Metadata } = {
   deposit: {
     title: 'Amber Finance - Yield',
     metadataBase: new URL(SHARED_CONFIG.baseUrl),
-    description: 'Liquid Staking. Solid Yield.',
+    description: 'Liquid Staking. Solid Yields.',
     openGraph: {
       type: 'website',
       url: `${SHARED_CONFIG.baseUrl}/deposit`,
       title: 'Amber Finance - Yield',
       locale: SHARED_CONFIG.locale,
-      description: 'Liquid Staking. Solid Yield.',
+      description: 'Liquid Staking. Solid Yields.',
       siteName: SHARED_CONFIG.siteName,
       images: [SHARED_IMAGE],
     },
@@ -57,7 +58,7 @@ export const metaData: { [key: string]: Metadata } = {
       card: 'summary_large_image',
       site: SHARED_CONFIG.twitterHandle,
       title: 'Amber Finance - Yield',
-      description: 'Liquid Staking. Solid Yield.',
+      description: 'Liquid Staking. Solid Yields.',
       images: [SHARED_IMAGE],
     },
   },
