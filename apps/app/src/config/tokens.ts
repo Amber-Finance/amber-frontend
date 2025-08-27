@@ -38,28 +38,6 @@ const tokens = [
     protocol: 'Circle',
     brandColor: '#2775CA',
   },
-  // {
-  //   chainId: "neutron-1",
-  //   denom:
-  //     "ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B",
-  //   symbol: "FBTC",
-  //   icon: "/images/FBTC.svg",
-  //   description: "FBTC Ignition",
-  //   decimals: 8,
-  // },
-  {
-    chainId: 'neutron-1',
-    denom: 'factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS',
-    symbol: 'MARS',
-    icon: '/images/MARS.svg',
-    description: 'Mars Token',
-    protocolIconLight: '/images/MARS.svg',
-    protocolIconDark: '/images/MARS.svg',
-    decimals: 6,
-    isLST: false,
-    protocol: 'Cosmos Hub',
-    brandColor: '#2E3148',
-  },
   {
     chainId: 'neutron-1',
     denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',

@@ -279,7 +279,13 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='space-y-1'>
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-muted-foreground'>Deposited</span>
-                <span className='text-sm font-medium'>${metrics.valueUsd.toFixed(2)}</span>
+                <span className='text-sm font-medium'>
+                  $
+                  {(
+                    metrics.deposited *
+                    (metrics.balance > 0 ? metrics.valueUsd / metrics.balance : 0)
+                  ).toFixed(2)}
+                </span>
               </div>
               <div className='flex justify-end'>
                 <span className='text-xs text-muted-foreground'>
@@ -292,9 +298,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='space-y-1'>
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-muted-foreground'>Available</span>
-                <span className='text-sm font-medium'>
-                  ${((metrics.balance * metrics.valueUsd) / metrics.deposited || 0).toFixed(2)}
-                </span>
+                <span className='text-sm font-medium'>${metrics.valueUsd.toFixed(2)}</span>
               </div>
               <div className='flex justify-end'>
                 <span className='text-xs text-muted-foreground'>

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useChain } from '@cosmos-kit/react'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
+import { mutate } from 'swr'
 
 import chainConfig from '@/config/chain'
 import { getSwapExactInAction } from '@/utils/swap'
@@ -40,7 +41,8 @@ export function useSwap() {
     try {
       const client = await getSigningCosmWasmClient()
       if (!client) {
-        throw new Error('Failed to connect to wallet')
+        toast.error('Failed to connect to wallet', { autoClose: 5000 })
+        return
       }
 
       // Create the swap action using the helper function
@@ -87,6 +89,11 @@ export function useSwap() {
           isLoading: false,
           autoClose: 5000,
         })
+
+        if (address) {
+          await mutate(`${address}/balances`)
+        }
+
         return result
       }
 
