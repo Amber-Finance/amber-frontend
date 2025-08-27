@@ -183,7 +183,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 max={100}
                 min={0}
                 gaugePrimaryColor={token.brandColor}
-                gaugeSecondaryColor='hsl(var(--muted))'
+                gaugeSecondaryColor={`${token.brandColor}10`}
                 className='size-16 text-xs'
               />
               <div className='text-center'>
@@ -199,7 +199,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 max={100}
                 min={0}
                 gaugePrimaryColor={token.brandColor}
-                gaugeSecondaryColor='hsl(var(--muted))'
+                gaugeSecondaryColor={`${token.brandColor}10`}
                 className='size-16 text-xs'
               />
               <div className='text-center'>
