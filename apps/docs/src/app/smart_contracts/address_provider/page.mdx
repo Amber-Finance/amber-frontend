@@ -1,0 +1,234 @@
+# Address Provider
+
+The Address Provider contract serves as the central registry for all Amber Finance contract addresses. It enables dynamic contract discovery and facilitates seamless upgrades and migrations by providing a single source of truth for contract locations.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1n6m2ykuq9w83a9kq2p6dr4202dcxjpz7a2hwutw5rk4n9kwqmdxsad65pd`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: string | null
+    proposed_new_owner?: string | null
+  }
+}
+```
+
+---
+
+#### `address`
+
+Returns the address for a specific contract type.
+
+```ts
+{
+  address: {
+    contract_type: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address: Addr
+  }
+}
+```
+
+---
+
+#### `addresses`
+
+Returns all registered contract addresses.
+
+```ts
+{
+  addresses: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    addresses: [
+      {
+        contract_type: string
+        address: Addr
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {}
+}
+```
+
+---
+
+#### `set_address`
+
+Sets the address for a specific contract type (owner only).
+
+```ts
+{
+  set_address: {
+    contract_type: string
+    address: Addr
+  }
+}
+```
+
+---
+
+#### `remove_address`
+
+Removes a contract address (owner only).
+
+```ts
+{
+  remove_address: {
+    contract_type: string
+  }
+}
+```
+
+---
+
+### Contract Types
+
+The Address Provider maintains addresses for the following contract types:
+
+- `red_bank` - Lending and borrowing operations
+- `incentives` - Rewards and points distribution
+- `oracle` - Price feeds and market data
+- `swapper` - BRT swapping functionality
+- `duality_swapper` - Advanced DEX integration
+- `params` - Protocol parameters and configuration
+- `zapper` - Multi-step strategy execution
+- `health_computer` - Health factor calculations
+- `credit_manager` - Core account management
+- `account_nft` - NFT representation of accounts
+
+---
+
+### Usage Examples
+
+#### Get Red Bank Address
+
+```bash
+curl -X GET "https://api.neutron.org/address_provider/address" \
+  -H "Content-Type: application/json" \
+  -d '{"contract_type": "red_bank"}'
+```
+
+#### Get All Contract Addresses
+
+```bash
+curl -X GET "https://api.neutron.org/address_provider/addresses"
+```
+
+#### Get Contract Configuration
+
+```bash
+curl -X GET "https://api.neutron.org/address_provider/config"
+```
+
+---
+
+### Integration
+
+The Address Provider is typically used by other contracts and frontend applications to:
+
+1. **Dynamic Discovery**: Locate contract addresses without hardcoding
+2. **Upgrade Management**: Handle contract upgrades seamlessly
+3. **Cross-Contract Communication**: Enable contracts to find each other
+4. **Frontend Integration**: Provide real-time contract locations
+
+---
+
+*This documentation reflects the Mars Protocol Address Provider contract as deployed by Amber Finance on Neutron.*

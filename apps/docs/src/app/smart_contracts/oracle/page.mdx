@@ -1,0 +1,450 @@
+# Oracle
+
+The Oracle contract provides real-time price feeds and market data for Amber Finance. It aggregates price information from multiple sources to ensure accurate and reliable pricing for BRTs and other assets used in lending, borrowing, and swapping operations.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron18l6cfm34qng2h9cvl3mxfw9zck9j5awv9jen4sa4f67x6t98y47s9vmuye`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+type Decimal = string
+type Timestamp = number
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: Addr
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `price`
+
+Returns the current price for a specific asset.
+
+```ts
+{
+  price: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    price: Decimal
+    last_updated: Timestamp
+  }
+}
+```
+
+---
+
+#### `prices`
+
+Returns prices for multiple assets.
+
+```ts
+{
+  prices: {
+    denoms: string[]
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    prices: [
+      {
+        denom: string
+        price: Decimal
+        last_updated: Timestamp
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `all_prices`
+
+Returns all available prices.
+
+```ts
+{
+  all_prices: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    prices: [
+      {
+        denom: string
+        price: Decimal
+        last_updated: Timestamp
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `price_source`
+
+Returns the price source configuration for a specific asset.
+
+```ts
+{
+  price_source: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    price_source: {
+      pyth: {
+        price_feed_id: string
+      }
+    } | {
+      fixed: {
+        price: Decimal
+      }
+    } | {
+      astroport: {
+        pair_address: Addr
+      }
+    }
+  }
+}
+```
+
+---
+
+#### `price_sources`
+
+Returns all price source configurations.
+
+```ts
+{
+  price_sources: {
+    limit?: number | null
+    start_after?: string | null
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    price_sources: [
+      {
+        denom: string
+        price_source: {
+          pyth: {
+            price_feed_id: string
+          }
+        } | {
+          fixed: {
+            price: Decimal
+          }
+        } | {
+          astroport: {
+            pair_address: Addr
+          }
+        }
+      },
+      ...
+    ]
+  }
+}
+```
+
+---
+
+#### `emv_price`
+
+Returns the EMV (Expected Market Value) price for a specific asset.
+
+```ts
+{
+  emv_price: {
+    denom: string
+  }
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    price: Decimal
+    last_updated: Timestamp
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {
+  }
+}
+```
+
+---
+
+#### `set_price_source`
+
+Sets the price source for a specific asset (owner only).
+
+```ts
+{
+  set_price_source: {
+    denom: string
+    price_source: {
+      pyth: {
+        price_feed_id: string
+      }
+    } | {
+      fixed: {
+        price: Decimal
+      }
+    } | {
+      astroport: {
+        pair_address: Addr
+      }
+    }
+  }
+}
+```
+
+---
+
+#### `remove_price_source`
+
+Removes the price source for a specific asset (owner only).
+
+```ts
+{
+  remove_price_source: {
+    denom: string
+  }
+}
+```
+
+---
+
+#### `update_pyth_price`
+
+Updates price from Pyth oracle (authorized callers only).
+
+```ts
+{
+  update_pyth_price: {
+    price_feed_id: string
+    price: Decimal
+    conf: Decimal
+    expo: number
+    publish_time: Timestamp
+  }
+}
+```
+
+---
+
+### Price Sources
+
+The Oracle contract supports multiple price source types:
+
+#### Pyth Oracle
+
+- **Type**: `pyth`
+- **Description**: Real-time price feeds from Pyth Network
+- **Use Case**: High-frequency, low-latency price updates
+
+#### Fixed Price
+
+- **Type**: `fixed`
+- **Description**: Static price values
+- **Use Case**: Stable assets or test scenarios
+
+#### Astroport DEX
+
+- **Type**: `astroport`
+- **Description**: Price derived from DEX liquidity pools
+- **Use Case**: Decentralized price discovery
+
+---
+
+### Supported Assets
+
+The Oracle provides price feeds for:
+
+- **eBTC** - Ether.fi Bitcoin
+- **LBTC** - Lombard Finance Bitcoin
+- **solvBTC** - Solv Protocol Bitcoin
+- **pumpBTC** - Pump Protocol Bitcoin
+- **uniBTC** - Bedrock Bitcoin
+- **wBTC** - Wrapped Bitcoin (Eureka)
+- **NTRN** - Neutron tokens
+- **USDC** - USD Coin
+- **USDT** - Tether USD
+
+---
+
+### Usage Examples
+
+#### Get Single Price
+
+```bash
+curl -X GET "https://api.neutron.org/oracle/price" \
+  -H "Content-Type: application/json" \
+  -d '{"denom": "eBTC"}'
+```
+
+#### Get Multiple Prices
+
+```bash
+curl -X GET "https://api.neutron.org/oracle/prices" \
+  -H "Content-Type: application/json" \
+  -d '{"denoms": ["eBTC", "LBTC", "solvBTC"]}'
+```
+
+#### Get All Prices
+
+```bash
+curl -X GET "https://api.neutron.org/oracle/all_prices"
+```
+
+#### Get Price Source
+
+```bash
+curl -X GET "https://api.neutron.org/oracle/price_source" \
+  -H "Content-Type: application/json" \
+  -d '{"denom": "eBTC"}'
+```
+
+---
+
+### Integration
+
+The Oracle contract integrates with:
+
+1. **Credit Manager** - Provides price data for health factor calculations
+2. **Red Bank** - Supplies collateral and debt pricing
+3. **Swapper** - Offers price feeds for swap calculations
+4. **Health Computer** - Delivers real-time pricing for risk assessment
+5. **Frontend Applications** - Displays current asset prices
+
+---
+
+### Security Features
+
+- **Multi-Source Validation** - Cross-references multiple price sources
+- **Staleness Checks** - Ensures price data is recent and valid
+- **Access Control** - Restricted price update permissions
+- **Fallback Mechanisms** - Graceful handling of price source failures
+
+---
+
+_This documentation reflects the Mars Protocol Oracle contract as deployed by Amber Finance on Neutron._

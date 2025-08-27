@@ -1,44 +1,19 @@
 'use client'
 
-import { useMemo } from 'react'
-
-import DepositCard from '@/components/deposit/DepositCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
-import { useLstMarkets, useMarkets } from '@/hooks'
-import type { LstMarketData } from '@/hooks/useLstMarkets'
-import useUserPositions from '@/hooks/useUserPositions'
+import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
 
 export default function Home() {
-  useMarkets()
-  useUserPositions()
-  const { data: lstMarkets, isLoading } = useLstMarkets()
-
-  const sortedMarkets = useMemo((): LstMarketData[] => {
-    if (!lstMarkets) return []
-
-    return [...lstMarkets].sort((a: LstMarketData, b: LstMarketData) => {
-      //deposits first
-      const aHasDeposits = a.metrics.deposited > 0
-      const bHasDeposits = b.metrics.deposited > 0
-
-      if (aHasDeposits && !bHasDeposits) return -1
-      if (!aHasDeposits && bHasDeposits) return 1
-
-      //total apy highest to lowest
-      return b.metrics.totalApy - a.metrics.totalApy
-    })
-  }, [lstMarkets])
-
   return (
     <>
       <Hero
         title='Liquid Staking.'
-        subtitle={<AuroraText>Solid Yield.</AuroraText>}
+        subtitle={<AuroraText>Solid Yields.</AuroraText>}
         description='Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to earn real yield.'
         stats={[
           {
-            value: sortedMarkets.reduce((sum, m) => sum + m.metrics.collateralTotalUsd, 0),
+            value: 0,
             label: 'Total TVL',
             isCurrency: true,
             prefix: '$',

@@ -1,10 +1,5 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-
-import { BigNumber } from 'bignumber.js'
-
-import { StrategyCard } from '@/app/strategies/StrategyCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
@@ -230,13 +225,13 @@ export default function StrategiesOverview() {
         description='Effortlessly leverage restaking, farm points, arbitrage rates, and more - all with just a few clicks'
         stats={[
           {
-            value: totalBorrowValue,
+            value: 0,
             label: 'Total Borrow',
             isCurrency: true,
             prefix: '$',
           },
           {
-            value: totalSupplyValue,
+            value: 0,
             label: 'Total Supply',
             isCurrency: true,
             prefix: '$',

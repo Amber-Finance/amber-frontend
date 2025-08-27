@@ -346,3 +346,51 @@ button[aria-label='Toggle theme'] .text-primary {
 .theme-toggle-icon {
   color: hsl(var(--primary)) !important;
 }
+
+/* BRT table logo column styling */
+.nextra-content table td:first-child {
+  width: 60px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding: 8px 4px !important;
+}
+
+/* BRT table image styling - extremely aggressive targeting */
+.nextra-content table td:first-child img,
+.nextra-content table td:first-child img[src*="eBTC"],
+.nextra-content table td:first-child img[src*="LBTC"],
+.nextra-content table td:first-child img[src*="pumpBTC"],
+.nextra-content table td:first-child img[src*="solvBTC"],
+.nextra-content table td:first-child img[src*="uniBTC"],
+.nextra-content table td:first-child img[src*="WBTC"],
+.nextra-content table img[src*="eBTC"],
+.nextra-content table img[src*="LBTC"],
+.nextra-content table img[src*="pumpBTC"],
+.nextra-content table img[src*="solvBTC"],
+.nextra-content table img[src*="uniBTC"],
+.nextra-content table img[src*="WBTC"] {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  display: block !important;
+  margin: 0 auto !important;
+  object-fit: contain !important;
+  transform: scale(1) !important;
+  box-sizing: border-box !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Ensure consistent table row heights */
+.nextra-content table tr {
+  height: 40px !important;
+}
+
+.nextra-content table td {
+  vertical-align: middle !important;
+  padding: 8px 12px !important;
+}

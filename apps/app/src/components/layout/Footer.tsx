@@ -71,7 +71,7 @@ export function Footer() {
           <div className='md:col-span-2'>
             <Link href='/' className='flex items-center gap-x-3 mb-4'>
               <Image
-                src='/logo/logo-light.svg'
+                src='/logo/logo-simple/logo-light-400x140.svg'
                 alt='Amber Finance'
                 width={32}
                 height={32}

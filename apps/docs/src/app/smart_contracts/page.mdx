@@ -1,12 +1,95 @@
 # Smart Contracts
 
-Amber Finance utilizes the Mars Protocol’s smart contract architecture. All Mars Protocol contracts have been audited by Oak Security and Halborn.
+Amber Finance utilizes the [Mars Protocol smart contracts structure](https://github.com/mars-protocol/contracts) architecture. All Mars Protocol contracts have been audited by Oak Security and Halborn.
+
 As a fully open-source project, the Mars Protocol smart contracts are licensed under GPL-3.0 and can be reviewed on GitHub here.
 
-### Current deployed set of Smart Contracts
+---
 
-| Contract                                              | Neutron                                                            |
-| ----------------------------------------------------- | ------------------------------------------------------------------ |
-| **[Credit Manager](/smart_contracts/credit_manager)** | neutron1qdzn3l4kn7gsjna2tfpg3g3mwd6kunx4p50lfya59k02846xas6qslgs3r |
-| **[Red Bank](/smart_contracts/red_bank)**             | neutron1qdzn3l4kn7gsjna2tfpg3g3mwd6kunx4p50lfya59k02846xas6qslgs3r |
-| **[Swapper](/smart_contracts/swapper)**               | neutron1udr9fc3kd743dezrj38v2ac74pxxr6qsx4xt4nfpcfczgw52rvyqyjp5au |
+## Security & Audits
+
+### Audit Reports
+
+Amber Finance's smart contracts have undergone comprehensive security audits:
+
+- **Oak Security Audit**: [View Report](https://github.com/mars-protocol/mars-audits)
+- **Halborn Audit**: [View Report](https://github.com/mars-protocol/mars-audits)
+- **Open Source**: All contracts are publicly available for review
+
+### Security Features
+
+- **Isolated Markets**: Each asset operates in its own isolated market
+- **Health Factor Monitoring**: Real-time liquidation risk assessment
+- **Emergency Pause**: Ability to pause operations if needed
+- **Multi-sig Governance**: DAO-controlled parameter updates
+
+---
+
+## Current Deployed Contracts
+
+| Contract                                                  | Address              | Description                                    |
+| --------------------------------------------------------- | -------------------- | ---------------------------------------------- |
+| **[Address Provider](/smart_contracts/address_provider)** | `neutron1...sad65pd` | Central registry for all contract addresses    |
+| **[Red Bank](/smart_contracts/red_bank)**                 | `neutron1...quugyph` | Lending and borrowing operations               |
+| **[Oracle](/smart_contracts/oracle)**                     | `neutron1...s9vmuye` | Price feeds and market data                    |
+| **[Duality Swapper](/smart_contracts/duality_swapper)**   | `neutron1...skg02jp` | Advanced DEX integration for swaps             |
+| **[Params](/smart_contracts/params)**                     | `neutron1...syv5n07` | Protocol parameters and configuration          |
+| **[Health Computer](/smart_contracts/health_computer)**   | `neutron1...stfmwrz` | Health factor calculations and risk assessment |
+| **[Credit Manager](/smart_contracts/credit_manager)**     | `neutron1...qslgs3r` | Core account management and strategy execution |
+| **[Account NFT](/smart_contracts/account_nft)**           | `neutron1...q5zqc6e` | NFT representation of user accounts            |
+
+---
+
+## Architecture Overview
+
+## Key Components
+
+**Address Provider**
+
+- Central registry for all contract addresses
+- Enables dynamic contract discovery
+- Facilitates upgrades and migrations
+
+**Credit Manager**
+
+- Manages user accounts and positions
+- Executes complex strategies
+- Monitors health factors
+- Handles liquidations
+
+**Red Bank**
+
+- Core lending and borrowing logic
+- Interest rate calculations
+- Collateral management
+- Liquidation engine
+
+**Duality Swapper**
+
+- Advanced DEX integration
+- Multi-hop routing
+- Enhanced liquidity access
+
+**Oracle**
+
+- Real-time price feeds
+- Market data aggregation
+- Risk assessment data
+
+**Health Computer**
+
+- Health factor calculations
+- Risk assessment algorithms
+- Liquidation monitoring
+
+**Params**
+
+- Protocol configuration
+- Parameter management
+- Governance controls
+
+**Account NFT**
+
+- NFT representation of accounts
+- Account ownership verification
+- Transferable positions

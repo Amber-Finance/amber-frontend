@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 
 import '@/app/globals.css'
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
     siteName: 'Amber',
     images: [
       {
-        url: 'https://amberfi.io/twitter-banner/default.png',
+        url: 'https://amberfi.io/twitter-banner/default.jpg',
         width: 1280,
         height: 720,
         alt: 'Amber Finance',
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
       'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
     images: [
       {
-        url: 'https://amberfi.io/twitter-banner/default.png',
+        url: 'https://amberfi.io/twitter-banner/default.jpg',
         width: 1280,
         height: 720,
         alt: 'Amber Finance',
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </main>
           <Footer />
+          <Analytics />
         </div>
       </body>
     </html>

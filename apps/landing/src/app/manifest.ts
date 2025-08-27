@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Amber Financel',
     short_name: 'Amber',
-    description: 'Liquid Staking. Solid Yield.',
+    description: 'Liquid Staking. Solid Yields.',
     start_url: '/',
     display: 'standalone',
     background_color: '#000',

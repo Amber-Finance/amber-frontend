@@ -58,7 +58,7 @@ export function Audits() {
               <div className='inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-medium text-white/80 backdrop-blur'>
                 Independent audits
               </div>
-              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium tracking-tighter text-center text-balance'>
+              <h2 className='text-3xl md:text-4xl font-funnelDisplay font-medium text-center text-balance'>
                 Audit coverage from Mars Protocol
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
