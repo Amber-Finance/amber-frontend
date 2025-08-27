@@ -5,9 +5,8 @@ export default {
   risk_management: 'Risk Management',
   faq: 'FAQ',
   governance: 'Governance',
-  legal: { title: 'Legal' },
-  'brand-kit': 'Brand Kit',
   team: 'Amber Finance Team',
-  // strategies: { display: 'hidden' },
-  'collaborative-editing': 'Collaborative Editing Guide',
+  socials: 'Social Media',
+  'brand-kit': 'Brand Kit',
+  legal: { title: 'Legal' },
 }

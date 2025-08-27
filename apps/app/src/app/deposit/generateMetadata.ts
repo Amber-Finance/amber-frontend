@@ -21,13 +21,13 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       openGraph: {
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
     }
   }
@@ -43,13 +43,13 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       openGraph: {
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
     }
   }
