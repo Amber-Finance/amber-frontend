@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 
 import '@/app/globals.css'
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </main>
           <Footer />
+          <Analytics />
         </div>
       </body>
     </html>

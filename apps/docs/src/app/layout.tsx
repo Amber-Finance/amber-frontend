@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Layout, Navbar } from 'nextra-theme-docs'
@@ -95,6 +96,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 </Layout>
               </div>
             </div>
+            <Analytics />
           </CollaborativeEditingProvider>
         </ThemeProvider>
       </body>
