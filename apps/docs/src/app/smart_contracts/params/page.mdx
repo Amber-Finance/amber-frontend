@@ -1,0 +1,394 @@
+# Params
+
+The Params contract manages protocol parameters and configuration for Amber Finance. It provides a centralized location for all protocol settings, enabling governance-controlled parameter updates and ensuring consistency across the entire system.
+
+---
+
+### Deployment
+
+- **Neutron**: `neutron1y2hjwse8sq77gvsmcy8gm6kjye6a3g9ksyxdjg99ceg3rmlpq5usyv5n07`
+
+---
+
+### Types
+
+```ts
+type Uint128 = string
+type Addr = string
+type Decimal = string
+```
+
+---
+
+### Queries
+
+#### `config`
+
+Returns the contract's configuration.
+
+```ts
+{
+  config: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    address_provider: Addr
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `owner`
+
+Returns contract ownership details.
+
+```ts
+{
+  owner: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    owner?: Addr | null
+    proposed_new_owner?: Addr | null
+  }
+}
+```
+
+---
+
+#### `params`
+
+Returns all protocol parameters.
+
+```ts
+{
+  params: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    red_bank: {
+      close_factor: Decimal
+      liquidation_threshold: Decimal
+      liquidation_penalty: Decimal
+      max_borrow_rate: Decimal
+      min_borrow_rate: Decimal
+      optimal_utilization_rate: Decimal
+      reserve_factor: Decimal
+    }
+    swapper: {
+      swap_fee: Decimal
+      slippage_tolerance: Decimal
+    }
+    incentives: {
+      emission_rate: Decimal
+      max_emission_rate: Decimal
+    }
+    health_computer: {
+      max_health_factor: Decimal
+      min_health_factor: Decimal
+    }
+  }
+}
+```
+
+---
+
+#### `red_bank_params`
+
+Returns Red Bank specific parameters.
+
+```ts
+{
+  red_bank_params: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    close_factor: Decimal
+    liquidation_threshold: Decimal
+    liquidation_penalty: Decimal
+    max_borrow_rate: Decimal
+    min_borrow_rate: Decimal
+    optimal_utilization_rate: Decimal
+    reserve_factor: Decimal
+  }
+}
+```
+
+---
+
+#### `swapper_params`
+
+Returns Swapper specific parameters.
+
+```ts
+{
+  swapper_params: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    swap_fee: Decimal
+    slippage_tolerance: Decimal
+  }
+}
+```
+
+---
+
+#### `incentives_params`
+
+Returns Incentives specific parameters.
+
+```ts
+{
+  incentives_params: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    emission_rate: Decimal
+    max_emission_rate: Decimal
+  }
+}
+```
+
+---
+
+#### `health_computer_params`
+
+Returns Health Computer specific parameters.
+
+```ts
+{
+  health_computer_params: {}
+}
+```
+
+**Response:**
+
+```ts
+{
+  data: {
+    max_health_factor: Decimal
+    min_health_factor: Decimal
+  }
+}
+```
+
+---
+
+### Methods
+
+#### `update_owner`
+
+Updates the contract owner (admin only).
+
+```ts
+{
+  update_owner: {
+    new_owner: Addr
+  }
+}
+```
+
+---
+
+#### `accept_ownership`
+
+Accepts ownership transfer (proposed owner only).
+
+```ts
+{
+  accept_ownership: {}
+}
+```
+
+---
+
+#### `update_red_bank_params`
+
+Updates Red Bank parameters (owner only).
+
+```ts
+{
+  update_red_bank_params: {
+    close_factor?: Decimal | null
+    liquidation_threshold?: Decimal | null
+    liquidation_penalty?: Decimal | null
+    max_borrow_rate?: Decimal | null
+    min_borrow_rate?: Decimal | null
+    optimal_utilization_rate?: Decimal | null
+    reserve_factor?: Decimal | null
+  }
+}
+```
+
+---
+
+#### `update_swapper_params`
+
+Updates Swapper parameters (owner only).
+
+```ts
+{
+  update_swapper_params: {
+    swap_fee?: Decimal | null
+    slippage_tolerance?: Decimal | null
+  }
+}
+```
+
+---
+
+#### `update_incentives_params`
+
+Updates Incentives parameters (owner only).
+
+```ts
+{
+  update_incentives_params: {
+    emission_rate?: Decimal | null
+    max_emission_rate?: Decimal | null
+  }
+}
+```
+
+---
+
+#### `update_health_computer_params`
+
+Updates Health Computer parameters (owner only).
+
+```ts
+{
+  update_health_computer_params: {
+    max_health_factor?: Decimal | null
+    min_health_factor?: Decimal | null
+  }
+}
+```
+
+---
+
+### Parameter Categories
+
+#### Red Bank Parameters
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `close_factor` | Maximum percentage of debt that can be repaid in a single liquidation | 0.5 |
+| `liquidation_threshold` | Health factor threshold that triggers liquidation | 1.0 |
+| `liquidation_penalty` | Penalty applied to liquidated positions | 0.1 |
+| `max_borrow_rate` | Maximum annual borrow rate | 0.5 |
+| `min_borrow_rate` | Minimum annual borrow rate | 0.01 |
+| `optimal_utilization_rate` | Target utilization rate for interest rate model | 0.8 |
+| `reserve_factor` | Percentage of interest reserved for protocol | 0.1 |
+
+#### Swapper Parameters
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `swap_fee` | Fee charged on swaps (as percentage) | 0.003 |
+| `slippage_tolerance` | Maximum allowed slippage for swaps | 0.01 |
+
+#### Incentives Parameters
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `emission_rate` | Current reward emission rate | 0.1 |
+| `max_emission_rate` | Maximum allowed emission rate | 0.2 |
+
+#### Health Computer Parameters
+
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `max_health_factor` | Maximum health factor for positions | 2.0 |
+| `min_health_factor` | Minimum health factor before liquidation | 1.0 |
+
+---
+
+### Usage Examples
+
+#### Get All Parameters
+
+```bash
+curl -X GET "https://api.neutron.org/params/params"
+```
+
+#### Get Red Bank Parameters
+
+```bash
+curl -X GET "https://api.neutron.org/params/red_bank_params"
+```
+
+#### Get Swapper Parameters
+
+```bash
+curl -X GET "https://api.neutron.org/params/swapper_params"
+```
+
+#### Update Parameters (Admin Only)
+
+```bash
+curl -X POST "https://api.neutron.org/params/update_red_bank_params" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "liquidation_threshold": "1.1",
+    "liquidation_penalty": "0.08"
+  }'
+```
+
+---
+
+### Governance Integration
+
+The Params contract integrates with:
+
+1. **DAO Governance** - Enables community-controlled parameter updates
+2. **Emergency Controls** - Allows rapid parameter adjustments
+3. **Protocol Safety** - Maintains system stability through parameter management
+4. **Transparency** - Provides public access to all protocol settings
+
+---
+
+### Security Features
+
+- **Access Control** - Only authorized addresses can update parameters
+- **Parameter Validation** - Ensures parameters remain within safe bounds
+- **Timelock Mechanisms** - Prevents rapid parameter changes
+- **Emergency Pause** - Ability to freeze parameter updates if needed
+
+---
+
+*This documentation reflects the Mars Protocol Params contract as deployed by Amber Finance on Neutron.*

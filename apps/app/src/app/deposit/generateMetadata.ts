@@ -8,7 +8,6 @@ const TOKEN_SHARE_IMAGES = {
   solvBTC: 'https://app.amberfi.io/twitter-banner/deposit/solvBTC.png',
   eBTC: 'https://app.amberfi.io/twitter-banner/deposit/eBTC.png',
   WBTC: 'https://app.amberfi.io/twitter-banner/deposit/wBTC.png',
-  'WBTC.axl': 'https://app.amberfi.io/twitter-banner/deposit/wBTC.axl.png',
   pumpBTC: 'https://app.amberfi.io/twitter-banner/deposit/pumpBTC.png',
   uniBTC: 'https://app.amberfi.io/twitter-banner/deposit/uniBTC.png',
 } as const
@@ -21,13 +20,13 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       openGraph: {
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
     }
   }
@@ -43,13 +42,13 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       openGraph: {
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Deposit - Amber',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.png'],
+        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
     }
   }
