@@ -17,13 +17,14 @@ import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
-import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent } from '@/components/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useMarkets, useTokenPreselection } from '@/hooks'
-import { useSwap } from '@/hooks/useSwap'
+import useRouteInfo from '@/hooks/swap/useRouteInfo'
+import { useSwap } from '@/hooks/swap/useSwap'
+import useDebounce from '@/hooks/useDebounce'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
@@ -48,7 +49,6 @@ export default function SwapClient() {
   const { markets } = useStore()
   const { data: walletBalances } = useWalletBalances()
   const { address } = useChain(chainConfig.name)
-  const { fetchSwapRoute, executeSwap } = useSwap()
 
   const [fromTokenDenom, setFromTokenDenom] = useState<string | null>(null)
   const [toTokenDenom, setToTokenDenom] = useState<string | null>(null)
@@ -59,11 +59,11 @@ export default function SwapClient() {
   const [showSlippagePopover, setShowSlippagePopover] = useState(false)
   const [isTokenModalOpen, setTokenModalOpen] = useState(false)
   const [selectingFrom, setSelectingFrom] = useState(true)
-  const [routeInfo, setRouteInfo] = useState<SwapRouteInfo | null>(null)
-  const [debouncedFromAmount, setDebouncedFromAmount] = useState('')
-  const [isRouteLoading, setIsRouteLoading] = useState(false)
   const [isSwapInProgress, setIsSwapInProgress] = useState(false)
   const fromInputRef = useRef<HTMLInputElement>(null)
+  const debouncedFromAmount = useDebounce(fromAmount, 300)
+
+  const { executeSwap } = useSwap()
 
   const swapTokens = useMemo(() => {
     if (!markets || !walletBalances) return []
@@ -72,7 +72,8 @@ export default function SwapClient() {
     return tokens.map((token) => {
       const market = markets.find((m) => m.asset.denom === token.denom)
       const walletBalance = walletBalances.find((b) => b.denom === token.denom)
-      const decimals = market?.asset?.decimals || 6
+      const decimals = market?.asset?.decimals ?? token.decimals ?? 8
+
       const rawBalance = isConnected && walletBalance?.amount ? Number(walletBalance.amount) : 0
 
       const adjustedBalance =
@@ -109,48 +110,21 @@ export default function SwapClient() {
   const hasInsufficientBalance =
     fromToken && fromAmount && parseFloat(fromAmount) > parseFloat(fromToken.balance)
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedFromAmount(fromAmount)
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [fromAmount])
+  const { data: routeInfo, isLoading: isRouteLoading } = useRouteInfo(
+    fromToken?.denom || '',
+    toToken?.denom || '',
+    new BigNumber(debouncedFromAmount || '0').shiftedBy(fromToken?.decimals || 8),
+    markets || [],
+  )
 
   useEffect(() => {
-    const fetchRoute = async () => {
-      const fromToken = fromTokenDenom ? swapTokens.find((t) => t.denom === fromTokenDenom) : null
-      const toToken = toTokenDenom ? swapTokens.find((t) => t.denom === toTokenDenom) : null
-
-      if (!fromToken || !toToken || !debouncedFromAmount || parseFloat(debouncedFromAmount) <= 0) {
-        setRouteInfo(null)
-        setToAmount('')
-        setIsRouteLoading(false)
-        return
-      }
-
-      setIsRouteLoading(true)
-
-      try {
-        const route = await fetchSwapRoute(fromToken, toToken, debouncedFromAmount)
-        setRouteInfo(route)
-
-        if (route) {
-          const toAmountCalculated = new BigNumber(route.amountOut).toFixed(8)
-          setToAmount(toAmountCalculated)
-        } else {
-          setToAmount('')
-        }
-      } catch (error) {
-        console.error('Route fetch failed:', error)
-        setRouteInfo(null)
-        setToAmount('')
-      } finally {
-        setIsRouteLoading(false)
-      }
+    if (routeInfo && routeInfo.amountOut && toToken) {
+      const toAmountCalculated = new BigNumber(routeInfo.amountOut).shiftedBy(-toToken.decimals)
+      setToAmount(toAmountCalculated.toString())
+    } else {
+      setToAmount('')
     }
-
-    fetchRoute()
-  }, [fromTokenDenom, toTokenDenom, debouncedFromAmount, slippage, fetchSwapRoute])
+  }, [routeInfo, toToken])
 
   useEffect(() => {
     if (!address) {
@@ -189,40 +163,42 @@ export default function SwapClient() {
   const toUsdValue = toToken?.price && toAmount ? toToken.price * parseFloat(toAmount) : 0
 
   const handleSwap = async () => {
-    if (!routeInfo) return
+    if (!routeInfo || !fromToken || !toToken) return
+
+    // console.log('handleSwap', routeInfo, fromToken, toToken, fromAmount, slippage)
     setIsSwapInProgress(true)
     try {
       const success = await executeSwap(routeInfo, fromToken, toToken, fromAmount, slippage)
       if (success) {
         setFromAmount('')
         setToAmount('')
-        setDebouncedFromAmount('')
-        setRouteInfo(null)
       }
     } catch (error) {
-      // Error toast is already handled in the hook
+      console.error('Swap failed:', error)
     } finally {
       setIsSwapInProgress(false)
     }
   }
-
   const isWalletConnected = !!address
   const showInsufficientFunds = isWalletConnected && hasInsufficientBalance
 
   const swapButtonLabel = !isWalletConnected
     ? 'Connect Wallet'
-    : isRouteLoading
-      ? 'Loading route...'
-      : showInsufficientFunds
-        ? `Insufficient ${fromToken?.symbol} Balance`
-        : !fromToken || !toToken
-          ? 'Select tokens'
-          : !fromAmount
-            ? 'Enter amount'
-            : !routeInfo
-              ? 'No route available'
-              : 'Swap'
+    : isSwapInProgress
+      ? 'Swapping...'
+      : isRouteLoading
+        ? 'Loading route...'
+        : showInsufficientFunds
+          ? `Insufficient ${fromToken?.symbol} Balance`
+          : !fromToken || !toToken
+            ? 'Select tokens'
+            : !fromAmount
+              ? 'Enter amount'
+              : !routeInfo
+                ? 'No route available'
+                : 'Swap'
 
+  console.log(routeInfo, 'routeInfo')
   return (
     <>
       <TokenPathBackground />
@@ -232,7 +208,7 @@ export default function SwapClient() {
             Swap <AuroraText>Bitcoin Assets</AuroraText>
           </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-            Trade between BRTs, wBTC, and maxBTC with minimal slippage and competitive rates
+            Trade between BRTs, wBTC, and wBTC.axl with minimal slippage and competitive rates
           </p>
         </div>
       </div>
@@ -463,12 +439,13 @@ export default function SwapClient() {
             {fromToken && toToken && fromAmount && (
               <SwapRouteInfo
                 amountIn={fromAmount}
-                amountOut={routeInfo?.amountOut || ''}
-                priceImpact={routeInfo?.priceImpact || 0}
+                amountOut={routeInfo?.amountOut || new BigNumber(0)}
+                priceImpact={routeInfo?.priceImpact?.toNumber() || 0}
                 fromToken={fromToken}
                 toToken={toToken}
                 slippage={slippage}
                 isRouteLoading={isRouteLoading}
+                route={routeInfo?.route}
               />
             )}
 
@@ -495,23 +472,6 @@ export default function SwapClient() {
             </Button>
           </CardContent>
         </Card>
-
-        {/* Stats */}
-        {/* <div className='flex gap-1 sm:gap-2 mt-4'>
-          <StatCard
-            value={127}
-            label={<span className='text-xs'>Total Liquidity</span>}
-            isCurrency={true}
-            prefix='$'
-          />
-          <StatCard
-            value={975}
-            label={<span className='text-xs'>24h Volume</span>}
-            isCurrency={true}
-            prefix='$'
-          />
-        </div> */}
-
         <TokenSelectorModal
           open={isTokenModalOpen}
           onOpenChange={setTokenModalOpen}
@@ -525,6 +485,15 @@ export default function SwapClient() {
             }
           }}
           isWalletConnected={!!address}
+          disabledTokens={
+            selectingFrom
+              ? toTokenDenom
+                ? [toTokenDenom]
+                : []
+              : fromTokenDenom
+                ? [fromTokenDenom]
+                : []
+          }
         />
       </div>
     </>

@@ -10,7 +10,7 @@ const tokens = [
   { symbol: 'pumpBTC', icon: '/images/pumpBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
   { symbol: 'bedrock', icon: '/images/bedrock.svg' },
-  { symbol: 'maxBTC', icon: '/images/BTC.svg' },
+  { symbol: 'wBTC.axl', icon: '/images/WBTC.axl.svg' },
   { symbol: 'pumpBTC', icon: '/images/pumpBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
@@ -35,7 +35,7 @@ export default function TokenPathBackground() {
   return (
     <div
       className='select-none absolute left-1/2 z-0 w-full'
-      style={{ top: '60%', transform: 'translateX(-50%)', zIndex: -10 }}
+      style={{ top: '50%', transform: 'translateX(-50%)', zIndex: -10 }}
     >
       <svg
         width={svgWidth}
@@ -83,7 +83,7 @@ export default function TokenPathBackground() {
                 height={circleRadius * 2}
               >
                 <div
-                  className='w-full h-full flex items-center justify-center filter grayscale opacity-50 transition-all duration-200 transform group-hover:opacity-100 group-hover:scale-125'
+                  className='w-full h-full flex items-center justify-center filter grayscale opacity-50'
                   style={{ width: circleRadius * 2, height: circleRadius * 2 }}
                 >
                   <Image
@@ -92,21 +92,6 @@ export default function TokenPathBackground() {
                     width={38}
                     height={38}
                   />
-                </div>
-              </foreignObject>
-              {/* Token name on hover */}
-              <foreignObject
-                x={x - circleRadius}
-                y={y + circleRadius + 8}
-                width={circleRadius * 2}
-                height={28}
-                style={{ pointerEvents: 'none' }}
-              >
-                <div
-                  className='w-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 select-none'
-                  style={{ fontSize: 16, color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}
-                >
-                  {tokens[i % tokens.length].symbol}
                 </div>
               </foreignObject>
             </g>

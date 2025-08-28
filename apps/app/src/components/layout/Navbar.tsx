@@ -75,15 +75,19 @@ export function Navbar() {
 
             <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/80 rounded-full p-1'>
               {navigation.map((item, idx) => {
-                const isActive = pathname === item.href
+                const isActive =
+                  item.href === '/'
+                    ? pathname === '/' || pathname.startsWith('/deposit')
+                    : pathname.startsWith(item.href)
                 return (
                   <Link
                     key={`nav-${item.name}-${idx}`}
                     href={item.href}
                     className={cn(
                       'relative tracking-wide flex items-center px-6 py-2 text-base rounded-full transition-all duration-300',
+                      'border border-transparent',
                       isActive
-                        ? 'text-foreground nav-glow-active'
+                        ? 'text-foreground nav-glow-active border-border'
                         : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
@@ -138,15 +142,19 @@ export function Navbar() {
             <div className='px-6 py-8 space-y-6'>
               <div className='space-y-2'>
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href
+                  const isActive =
+                    item.href === '/'
+                      ? pathname === '/' || pathname.startsWith('/deposit')
+                      : pathname.startsWith(item.href)
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
                       className={cn(
                         'relative block px-6 py-4 text-base font-semibold rounded-2xl transition-all duration-300',
+                        'border-2 border-transparent',
                         isActive
-                          ? 'text-foreground nav-glow-active'
+                          ? 'text-foreground nav-glow-active border-border'
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
                       )}
                       onClick={() => setMobileMenuOpen(false)}

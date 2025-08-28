@@ -1,12 +1,13 @@
 import { BigNumber } from 'bignumber.js'
 
-import { calculateUsdValue, formatApy, formatTokenAmount } from '@/utils/format'
+import { calculateUsdValue, formatTokenAmount } from '@/utils/format'
+import { getMaxLeverageForStrategy } from '@/utils/maxLeverageCalculator'
 
-export const getMaxAPY = (strategy: Strategy) => {
-  const maxLeverage = calculateMaxLeverage(strategy)
+export const getMaxAPY = (strategy: Strategy, markets?: Market[], isWasmReady?: boolean) => {
+  const maxLeverage = calculateMaxLeverage(strategy, markets, isWasmReady)
   const collateralTotalApy = strategy.collateralTotalApy || strategy.supplyApy || 0
   const debtBorrowRate = strategy.borrowApy || 0
-  const leveragedApy = (maxLeverage + 1) * collateralTotalApy - maxLeverage * debtBorrowRate
+  const leveragedApy = maxLeverage * collateralTotalApy - (maxLeverage - 1) * debtBorrowRate
   return leveragedApy
 }
 
@@ -27,17 +28,34 @@ export const getUserBalance = (
 }
 
 export const getAvailableDepositCapacity = () => {
-  return new BigNumber('100000000000') // 1000 MAXBTC available capacity
+  return new BigNumber('100000000000') // 1000 wBTC.axl available capacity
 }
 
-export const calculateMaxLeverage = (strategy: Strategy) => {
+export const calculateMaxLeverage = (
+  strategy: Strategy,
+  markets?: Market[],
+  isWasmReady?: boolean,
+) => {
+  // Use health computer calculation if available
+  if (markets && isWasmReady) {
+    try {
+      const healthComputerLeverage = getMaxLeverageForStrategy(strategy, markets, isWasmReady)
+      if (healthComputerLeverage > 1) {
+        return healthComputerLeverage
+      }
+    } catch (error) {
+      console.warn('Failed to calculate leverage with health computer:', error)
+    }
+  }
+
+  // Fallback to strategy properties
   if (strategy.maxLeverage && strategy.maxLeverage > 1) {
     return strategy.maxLeverage
   }
   if (strategy.multiplier && strategy.multiplier > 1) {
     return strategy.multiplier
   }
-  return 1
+  return 5 // Default fallback
 }
 
 export const getUserBalanceUsd = (
@@ -52,8 +70,8 @@ export const getUserBalanceUsd = (
     walletBalances,
     collateralDenom,
   )
-  const maxBtcPrice = '95000'
-  const usdValue = calculateUsdValue(userBalance.toString(), maxBtcPrice, 8)
+  const wbtcEurekaPrice = '95000'
+  const usdValue = calculateUsdValue(userBalance.toString(), wbtcEurekaPrice, 8)
   return new BigNumber(usdValue)
 }
 
@@ -61,14 +79,14 @@ export const calculateNetApy = (strategy: Strategy) => {
   return strategy.netApy || 0
 }
 
-export const formatLeverage = (strategy: Strategy) => {
-  return calculateMaxLeverage(strategy).toFixed(2) + 'x'
+export const formatLeverage = (strategy: Strategy, markets?: Market[], isWasmReady?: boolean) => {
+  return calculateMaxLeverage(strategy, markets, isWasmReady).toFixed(2) + 'x'
 }
 
 export const formatCollateralAvailable = () => {
   const availableDepositCapacity = getAvailableDepositCapacity()
-  const maxBtcPrice = '95000'
-  const usdValue = calculateUsdValue(availableDepositCapacity.toString(), maxBtcPrice, 8)
+  const wbtcAxlPrice = '95000'
+  const usdValue = calculateUsdValue(availableDepositCapacity.toString(), wbtcAxlPrice, 8)
 
   if (usdValue >= 1_000_000_000) {
     return `$${(usdValue / 1_000_000_000).toFixed(2)}B`
@@ -143,4 +161,3 @@ export const formatUserTokenAmount = (
 
   return formatTokenAmount(tokenAmount, collateralSymbol)
 }
-

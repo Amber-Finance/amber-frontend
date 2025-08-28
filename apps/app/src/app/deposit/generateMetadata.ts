@@ -6,7 +6,7 @@ import tokens from '@/config/tokens'
 const TOKEN_SHARE_IMAGES = {
   LBTC: 'https://app.amberfi.io/twitter-banner/deposit/LBTC.png',
   solvBTC: 'https://app.amberfi.io/twitter-banner/deposit/solvBTC.png',
-  eBTC: 'https://app.amberfi.io/twitter-banner/deposit/eBTC.png',
+  eBTC: 'https://app.amberfi.io/twitter-banner/deposit/eBTC.svg',
   WBTC: 'https://app.amberfi.io/twitter-banner/deposit/wBTC.png',
   pumpBTC: 'https://app.amberfi.io/twitter-banner/deposit/pumpBTC.png',
   uniBTC: 'https://app.amberfi.io/twitter-banner/deposit/uniBTC.png',

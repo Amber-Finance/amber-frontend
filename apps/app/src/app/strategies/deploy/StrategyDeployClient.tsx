@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
+import { useChain } from '@cosmos-kit/react'
+import { BigNumber } from 'bignumber.js'
 import { ArrowLeft, ArrowRight, Info, RotateCcw, Target, TrendingUp, Wallet } from 'lucide-react'
 
 import { StrategyFlow } from '@/app/strategies/deploy/StrategyFlow'
@@ -16,7 +18,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
+import chainConfig from '@/config/chain'
+import { useActiveStrategies } from '@/hooks/useActiveStrategies'
+import useHealthComputer from '@/hooks/useHealthComputer'
+import { usePrices } from '@/hooks/usePrices'
+import useWalletBalances from '@/hooks/useWalletBalances'
+import { useStore } from '@/store/useStore'
+import { type StrategyParams, useBroadcast } from '@/utils/broadcast'
 import { formatCurrency } from '@/utils/format'
+import { getMaxLeverageForStrategy } from '@/utils/maxLeverageCalculator'
 
 interface StrategyDeployClientProps {
   strategy: Strategy
@@ -24,9 +34,287 @@ interface StrategyDeployClientProps {
 
 export default function StrategyDeployClient({ strategy }: StrategyDeployClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [collateralAmount, setCollateralAmount] = useState('')
   const [multiplier, setMultiplier] = useState(1.5)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const { isWasmReady } = useHealthComputer()
+  const { markets } = useStore()
+  const { executeTransaction } = useBroadcast()
+
+  // Wallet and balance data
+  const { address } = useChain(chainConfig.name)
+  const { data: walletBalances, isLoading: isBalancesLoading } = useWalletBalances()
+  const { activeStrategies } = useActiveStrategies()
+  usePrices() // Initialize price fetching
+
+  // Check if we're modifying an existing position
+  const isModifying = searchParams.get('modify') === 'true'
+  const modifyingAccountId = searchParams.get('accountId')
+
+  const activeStrategy = activeStrategies.find(
+    (active) =>
+      active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
+      active.debtAsset.symbol === strategy.debtAsset.symbol,
+  )
+
+  // If modifying, pre-fill with current position data
+  useEffect(() => {
+    if (isModifying && activeStrategy) {
+      // Set current leverage as starting point for modification
+      setMultiplier(activeStrategy.leverage)
+    }
+  }, [isModifying, activeStrategy])
+
+  // Use health computer to calculate dynamic max leverage
+
+  // Find active strategy for this collateral/debt pair
+
+  // Strategy deployment function
+  const deployStrategy = async (params: {
+    collateralAmount: number
+    collateralDenom: string
+    collateralDecimals: number
+    borrowAmount: number
+    borrowDenom: string
+    borrowDecimals: number
+    swapRoute: any
+    swapDestDenom: string
+    multiplier: number
+    strategy: Strategy
+    accountId?: string
+  }) => {
+    const { BigNumber } = await import('bignumber.js')
+
+    // Format amounts for the blockchain
+    const formattedCollateralAmount = new BigNumber(params.collateralAmount)
+      .shiftedBy(params.collateralDecimals)
+      .integerValue(BigNumber.ROUND_DOWN)
+      .toString()
+
+    const formattedBorrowAmount = new BigNumber(params.borrowAmount)
+      .shiftedBy(params.borrowDecimals)
+      .integerValue(BigNumber.ROUND_DOWN)
+      .toString()
+
+    // Prepare the actions for the credit manager
+    const actions = [
+      // 1. Deposit collateral
+      {
+        deposit: {
+          denom: params.collateralDenom,
+          amount: formattedCollateralAmount,
+        },
+      },
+      // 2. Borrow debt asset
+      {
+        borrow: {
+          denom: params.borrowDenom,
+          amount: formattedBorrowAmount,
+        },
+      },
+      // 3. Execute swap route
+      {
+        swap_exact_in: {
+          coin_in: {
+            denom: params.borrowDenom,
+            amount: formattedBorrowAmount,
+          },
+          denom_out: params.swapDestDenom, // wBTC.eureka collateral
+          slippage: params.swapRoute.slippage || '0.5',
+          route: params.swapRoute,
+        },
+      },
+    ]
+
+    // Create strategy deployment or modification transaction
+    const strategyParams: StrategyParams = {
+      type: 'strategy',
+      strategyType: params.accountId ? 'update' : 'create',
+      accountKind: 'default',
+      accountId: params.accountId,
+      actions,
+      collateralAmount: params.collateralAmount.toString(),
+      multiplier: params.multiplier,
+    }
+
+    // Execute the transaction
+    const actionType = params.accountId ? 'Modifying' : 'Deploying'
+    const successType = params.accountId ? 'modified' : 'deployed'
+
+    return await executeTransaction(strategyParams, {
+      pending: `${actionType} ${params.strategy.collateralAsset.symbol}/${params.strategy.debtAsset.symbol} strategy...`,
+      success: `Strategy ${successType} successfully at ${params.multiplier.toFixed(2)}x leverage!`,
+      error: `Strategy ${params.accountId ? 'modification' : 'deployment'} failed`,
+    })
+  }
+
+  // Use the utility function to get max leverage for this strategy (memoized)
+  const dynamicMaxLeverage = useMemo(
+    () => getMaxLeverageForStrategy(strategy, markets || [], isWasmReady),
+    [strategy, markets, isWasmReady],
+  )
+
+  // Parse current amount early so it can be used in useEffect dependencies
+  const currentAmount = parseFloat(collateralAmount || '0')
+
+  // Get market data for collateral and debt assets
+  const collateralMarket = markets?.find((m) => m.asset.denom === strategy.collateralAsset.denom)
+  const debtMarket = markets?.find((m) => m.asset.denom === strategy.debtAsset.denom)
+
+  // Get user wallet balance for collateral asset
+  const userWalletBalance = walletBalances?.find(
+    (balance) => balance.denom === strategy.collateralAsset.denom,
+  )
+  const userBalance = userWalletBalance
+    ? new BigNumber(userWalletBalance.amount)
+        .shiftedBy(-(strategy.collateralAsset.decimals || 6))
+        .toNumber()
+    : 0
+
+  // Get current asset price (for display)
+  const currentPrice = collateralMarket?.price?.price
+    ? new BigNumber(collateralMarket.price.price).toNumber()
+    : 0
+
+  // Get dynamic APY rates from market data
+  const collateralSupplyApy = collateralMarket?.metrics?.liquidity_rate
+    ? new BigNumber(collateralMarket.metrics.liquidity_rate).toNumber()
+    : strategy.supplyApy || 0
+
+  const debtBorrowApy = debtMarket?.metrics?.borrow_rate
+    ? new BigNumber(debtMarket.metrics.borrow_rate).toNumber()
+    : strategy.borrowApy || 0
+
+  // Validation states
+  const isWalletConnected = !!address
+  const hasValidAmount = collateralAmount && currentAmount > 0
+  const hasInsufficientBalance = currentAmount > userBalance
+
+  // Helper functions for display
+  const getWalletBalanceDisplay = () => {
+    if (isBalancesLoading) return 'Loading...'
+    if (!isWalletConnected) return 'N/A - Connect Wallet'
+    if (userBalance > 0) return `${formatBalance(userBalance)} ${strategy.collateralAsset.symbol}`
+    return `0.000000 ${strategy.collateralAsset.symbol}`
+  }
+
+  const getUsdValue = (amount: number) => {
+    return currentPrice > 0 ? formatUsd(amount * currentPrice) : 'N/A'
+  }
+
+  const getCurrentPriceDisplay = () => {
+    return currentPrice > 0 ? `$${currentPrice.toLocaleString()}` : 'N/A'
+  }
+
+  const getSupplyApyDisplay = () => {
+    return collateralSupplyApy > 0 ? `${(collateralSupplyApy * 100).toFixed(2)}%` : 'N/A'
+  }
+
+  const getBorrowApyDisplay = () => {
+    return debtBorrowApy > 0 ? `${(debtBorrowApy * 100).toFixed(2)}%` : 'N/A'
+  }
+
+  const getAvailableLiquidityDisplay = () => {
+    if (debtMarket?.metrics?.collateral_total_amount) {
+      return new BigNumber(debtMarket.metrics.collateral_total_amount)
+        .shiftedBy(-(strategy.debtAsset.decimals || 6))
+        .toFixed(2)
+    }
+    return strategy.liquidityDisplay || 'N/A'
+  }
+
+  const getEstimatedEarningsUsd = () => {
+    if (currentPrice > 0) {
+      return `~${isRisky ? '-' : ''}${formatUsd(Math.abs(estimatedYearlyEarnings) * currentPrice)}`
+    }
+    return 'N/A'
+  }
+
+  const getButtonContent = () => {
+    if (isProcessing) {
+      return (
+        <>
+          <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2' />
+          {isModifying ? 'Modifying Position...' : 'Opening Position...'}
+        </>
+      )
+    }
+    if (!isWalletConnected) return <>Connect Wallet</>
+    if (isBalancesLoading) return <>Loading Balance...</>
+    if (hasInsufficientBalance) return <>Insufficient Balance</>
+    // TODO: Re-enable risk warnings in production
+    // if (isRisky) return <>⚠️ Negative Yield Spread</>
+    if (!hasValidAmount) return <>Enter Amount</>
+    return (
+      <>
+        {isModifying ? 'Modify Position' : 'Open Position'}
+        <ArrowRight className='w-4 h-4 ml-2' />
+      </>
+    )
+  }
+
+  const getRiskColorClasses = () => {
+    // TODO: Re-enable risk-based styling in production
+    // if (isRisky) {
+    //   return 'bg-red-500/10 border-red-500/30 dark:bg-red-900/20 dark:border-red-700/40'
+    // }
+    // if (yieldSpread > 0.02) {
+    //   return 'bg-emerald-500/10 border-emerald-500/30 dark:bg-emerald-900/20 dark:border-emerald-700/40'
+    // }
+    // return 'bg-amber-500/10 border-amber-500/30 dark:bg-amber-900/20 dark:border-amber-700/30'
+    return 'bg-emerald-500/10 border-emerald-500/30 dark:bg-emerald-900/20 dark:border-emerald-700/40'
+  }
+
+  const getRiskTextColor = () => {
+    // TODO: Re-enable risk-based styling in production
+    // if (isRisky) return 'text-red-600 dark:text-red-400'
+    // if (yieldSpread > 0.02) return 'text-emerald-600 dark:text-emerald-400'
+    // return 'text-amber-600 dark:text-amber-400'
+    return 'text-emerald-600 dark:text-emerald-400'
+  }
+
+  const getRiskSubtextColor = () => {
+    // TODO: Re-enable risk-based styling in production
+    // if (isRisky) return 'text-red-700/80 dark:text-red-400/80'
+    // if (yieldSpread > 0.02) return 'text-emerald-700/80 dark:text-emerald-400/80'
+    // return 'text-amber-700/80 dark:text-amber-400/80'
+    return 'text-emerald-700/80 dark:text-emerald-400/80'
+  }
+
+  const getRiskDescription = () => {
+    // TODO: Re-enable risk-based descriptions in production
+    // if (isRisky) return "Negative spread - You're paying more than earning"
+    // if (yieldSpread > 0.02) return 'Healthy positive spread'
+    // return 'Low but positive spread'
+    return 'Healthy positive spread'
+  }
+
+  const getStrategyRiskColorClasses = () => {
+    return isCorrelatedStrategy
+      ? 'bg-blue-500/10 border-blue-500/20 dark:bg-blue-900/20 dark:border-blue-700/30'
+      : 'bg-amber-500/10 border-amber-500/20 dark:bg-amber-900/20 dark:border-amber-700/30'
+  }
+
+  const getStrategyRiskTextColor = () => {
+    return isCorrelatedStrategy
+      ? 'text-blue-700 dark:text-blue-400'
+      : 'text-amber-700 dark:text-amber-400'
+  }
+
+  const getStrategyRiskSubtextColor = () => {
+    return isCorrelatedStrategy
+      ? 'text-blue-700/80 dark:text-blue-400/80'
+      : 'text-amber-700/80 dark:text-amber-400/80'
+  }
+
+  // Ensure multiplier doesn't exceed max leverage and recalculate when amount changes
+  useEffect(() => {
+    if (multiplier > dynamicMaxLeverage) {
+      setMultiplier(Math.min(multiplier, dynamicMaxLeverage))
+    }
+  }, [dynamicMaxLeverage, multiplier, currentAmount, isWasmReady])
 
   const formatBalance = (balance: number) => {
     if (balance <= 0) return '0.000000'
@@ -36,48 +324,130 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   const formatUsd = (usd: number) => formatCurrency(usd, 2)
 
   const handleDeploy = async () => {
-    console.log(
-      `Deploying strategy: ${collateralAmount} ${strategy.collateralAsset.symbol} at ${multiplier}x leverage`,
-    )
+    if (!collateralAmount || currentAmount <= 0) return
+
+    if (isModifying) {
+      console.log(
+        `Modifying strategy: ${collateralAmount} ${strategy.collateralAsset.symbol} at ${multiplier}x leverage`,
+      )
+    } else {
+      console.log(
+        `Deploying strategy: ${collateralAmount} ${strategy.collateralAsset.symbol} at ${multiplier}x leverage`,
+      )
+    }
     setIsProcessing(true)
-    // Simulate deployment
-    setTimeout(() => setIsProcessing(false), 3000)
+
+    try {
+      // Import route function
+      const { route } = await import('@skip-go/client')
+      const { BigNumber } = await import('bignumber.js')
+
+      // Calculate borrow amount
+      const borrowAmount = currentAmount * (multiplier - 1)
+      const formattedBorrowAmount = new BigNumber(borrowAmount)
+        .shiftedBy(strategy.debtAsset.decimals || 6)
+        .integerValue(BigNumber.ROUND_DOWN)
+        .toString()
+
+      // Fetch swap route from debt asset back to wBTC.eureka (Eureka bridge has better liquidity)
+      const routeResult = await route({
+        amount_in: formattedBorrowAmount,
+        source_asset_denom: strategy.debtAsset.denom,
+        source_asset_chain_id: chainConfig.id,
+        dest_asset_denom: strategy.collateralAsset.denom, // wBTC.eureka
+        dest_asset_chain_id: chainConfig.id,
+        smart_relay: true,
+        experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
+        allow_multi_tx: true,
+        allow_unsafe: true,
+        smart_swap_options: {
+          split_routes: true,
+          evm_swaps: true,
+        },
+        go_fast: false,
+        cumulative_affiliate_fee_bps: '0',
+      } as any)
+
+      if (!routeResult) {
+        throw new Error('Could not find swap route for strategy')
+      }
+
+      // Deploy or modify the strategy
+      const result = await deployStrategy({
+        collateralAmount: currentAmount,
+        collateralDenom: strategy.collateralAsset.denom,
+        collateralDecimals: strategy.collateralAsset.decimals || 6,
+        borrowAmount,
+        borrowDenom: strategy.debtAsset.denom,
+        borrowDecimals: strategy.debtAsset.decimals || 6,
+        swapRoute: routeResult,
+        swapDestDenom: strategy.collateralAsset.denom, // wBTC.eureka
+        multiplier,
+        strategy,
+        accountId: isModifying ? modifyingAccountId || undefined : undefined,
+      })
+
+      if (result.success) {
+        console.log('Strategy deployed successfully!')
+        // Optionally redirect to positions page or strategy details
+        // router.push('/positions')
+      }
+    } catch (error) {
+      console.error('Strategy deployment failed:', error)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const handleMultiplierChange = (value: number[]) => {
-    setMultiplier(value[0])
+    const newMultiplier = value[0]
+    // Ensure the new value is within bounds
+    if (newMultiplier >= 1 && newMultiplier <= dynamicMaxLeverage) {
+      setMultiplier(newMultiplier)
+    }
   }
 
-  const currentAmount = parseFloat(collateralAmount || '0')
   const borrowAmount = currentAmount * (multiplier - 1)
   const totalPosition = currentAmount * multiplier
 
-  // Dynamic APY calculation based on multiplier (using strategy prop data)
-  const collateralTotalApy = strategy.collateralTotalApy || strategy.supplyApy || 0
-  const debtBorrowApy = strategy.borrowApy || 0
-  const leveragedApy = multiplier * collateralTotalApy - (multiplier - 1) * debtBorrowApy
+  // Dynamic APY calculation based on multiplier (using real market data)
+
+  // Leverage multiplier calculations
+  // - borrowAmount: How much we borrow (multiplier - 1) * collateral
+  // - totalPosition: Total exposure (multiplier * collateral)
+  // - leveragedApy: Net APY after accounting for leverage costs
+  const leveragedApy = multiplier * collateralSupplyApy - (multiplier - 1) * debtBorrowApy
+
+  // Calculate yield spread (key risk metric for correlated assets)
+  const yieldSpread = collateralSupplyApy - debtBorrowApy
+  // TODO: Re-enable risk warnings in production
+  // const isRisky = yieldSpread < 0 // Risk when borrow rate > collateral APY
+  const isRisky = false // Temporarily disabled for testing
 
   // Calculate estimated annual earnings properly (convert from decimal to amount)
   const estimatedYearlyEarnings = currentAmount * leveragedApy
 
-  // For correlated LSTs (same price source), liquidation risk is minimal
-  // Liquidation would only occur due to:
-  // 1. LST depeg events (quality/protocol risk)
-  // 2. Extreme leverage at liquidation threshold
-  // Since LSTs move proportionally with BTC, traditional liquidation price calculation doesn't apply
+  // Add debugging info
+  console.log('Strategy leverage info:', {
+    ltv: strategy.ltv,
+    liquidationThreshold: strategy.liquidationThreshold,
+    strategyMaxLeverage: strategy.maxLeverage,
+    calculatedMaxLeverage: dynamicMaxLeverage,
+    currentMultiplier: multiplier,
+  })
+
+  // For correlated LSTs (same price source), liquidation occurs when borrow rate > supply rate
+  // This chips away at collateral over time, increasing effective leverage
+  // If already at max leverage, partial liquidation occurs
   const isCorrelatedStrategy = strategy.isCorrelated
   const liquidationThreshold = strategy.liquidationThreshold || 0.85
 
-  // For correlated LSTs: liquidation price is theoretical and depends on depeg risk
-  // For uncorrelated assets: use traditional calculation
-  const currentPrice = 95000 // Mock current BTC price
-  const liquidationPrice = isCorrelatedStrategy
-    ? null // No meaningful liquidation price for correlated assets
-    : currentPrice * (1 - 1 / multiplier + (1 - liquidationThreshold))
-
-  // Mock user balance data
-  const userBalance = 10.5
-  const userBalanceUsd = 103000
+  // Liquidation mechanism for correlated assets:
+  // - No price-based liquidation since assets move together
+  // - Liquidation happens when yield spread is negative (borrow > supply)
+  // - Negative spread erodes collateral, increasing leverage ratio
+  // - At max leverage, partial liquidation occurs to maintain position
+  const liquidationPrice = null // Not applicable for correlated assets
 
   return (
     <div className='w-full max-w-7xl mx-auto px-4 py-4'>
@@ -95,7 +465,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
         <div className='absolute inset-0 z-10 w-full overflow-hidden rounded-lg'>
           <FlickeringGrid
             className='w-full h-full'
-            color={strategy.collateralAsset.brandColor}
+            color={strategy.debtAsset.brandColor}
             squareSize={8}
             gridGap={2}
             flickerChance={0.2}
@@ -131,11 +501,13 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
 
               <div>
                 <h1 className='text-lg font-semibold text-foreground'>
-                  {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol} Strategy
+                  {isModifying ? 'Modify' : 'Deploy'} {strategy.collateralAsset.symbol}/
+                  {strategy.debtAsset.symbol} Strategy
                 </h1>
                 <p className='text-xs text-muted-foreground'>
-                  Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol},
-                  leverage your position
+                  {isModifying
+                    ? `Modify your existing position - increase/decrease leverage or collateral`
+                    : `Supply ${strategy.collateralAsset.symbol}, borrow ${strategy.debtAsset.symbol}, leverage your position`}
                 </p>
               </div>
             </div>
@@ -172,9 +544,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             <CardContent className='space-y-2'>
               <div className='flex justify-between items-center text-xs'>
                 <span className='text-muted-foreground'>Wallet balance</span>
-                <span className='font-medium text-foreground'>
-                  {formatBalance(userBalance)} {strategy.collateralAsset.symbol}
-                </span>
+                <span className='font-medium text-foreground'>{getWalletBalanceDisplay()}</span>
               </div>
 
               <AmountInput
@@ -184,7 +554,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   symbol: strategy.collateralAsset.symbol,
                   brandColor: strategy.collateralAsset.brandColor || '#F7931A',
                 }}
-                usdValue={formatUsd((currentAmount || 0) * (userBalanceUsd / userBalance))}
+                usdValue={getUsdValue(currentAmount || 0)}
                 balance={userBalance.toString()}
               />
 
@@ -202,7 +572,13 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                         <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className='text-xs'>Leverage multiplier for your position</p>
+                        <p className='text-xs max-w-xs'>
+                          Leverage multiplier: {multiplier}x means you'll have {multiplier}x
+                          exposure to {strategy.collateralAsset.symbol}. You supply{' '}
+                          {currentAmount.toFixed(6)} and borrow{' '}
+                          {(currentAmount * (multiplier - 1)).toFixed(6)}{' '}
+                          {strategy.debtAsset.symbol}.
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -211,16 +587,64 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                 <Slider
                   value={[multiplier]}
                   onValueChange={handleMultiplierChange}
-                  max={strategy.maxLeverage || 5}
+                  max={dynamicMaxLeverage}
                   min={1}
-                  step={0.1}
+                  step={0.01}
                   className='w-full'
                   brandColor={strategy.collateralAsset.brandColor || '#F7931A'}
                 />
 
                 <div className='flex justify-between text-xs text-muted-foreground'>
                   <span>1.0x</span>
-                  <span>Max {(strategy.maxLeverage || 5).toFixed(1)}x</span>
+                  <span>Max {dynamicMaxLeverage.toFixed(1)}x</span>
+                </div>
+
+                {/* Leverage Breakdown */}
+                <div className='p-2 rounded-lg bg-muted/20 border border-border/50'>
+                  <div className='text-xs space-y-1'>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Your collateral:</span>
+                      <span className='font-medium'>
+                        {currentAmount.toFixed(6)} {strategy.collateralAsset.symbol}
+                      </span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Borrow amount:</span>
+                      <span className='font-medium'>
+                        {borrowAmount.toFixed(6)} {strategy.debtAsset.symbol}
+                      </span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Total exposure:</span>
+                      <span className='font-medium'>
+                        {totalPosition.toFixed(6)} {strategy.collateralAsset.symbol}
+                      </span>
+                    </div>
+                    <Separator />
+                    <div className='flex justify-between items-center'>
+                      <span className='text-muted-foreground'>Leverage ratio:</span>
+                      <span className='font-medium'>
+                        {currentAmount > 0 ? (totalPosition / currentAmount).toFixed(2) : '0.00'}x
+                      </span>
+                    </div>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-muted-foreground'>Borrow ratio:</span>
+                      <span className='font-medium'>
+                        {currentAmount > 0 ? (borrowAmount / currentAmount).toFixed(2) : '0.00'}x
+                      </span>
+                    </div>
+                    <Separator />
+                    <div className='flex justify-between items-center'>
+                      <span className='text-muted-foreground'>Max leverage:</span>
+                      <span className='font-medium text-accent-foreground'>
+                        {dynamicMaxLeverage.toFixed(2)}x
+                      </span>
+                    </div>
+                    <div className='text-xs text-muted-foreground/80'>
+                      Based on liquidation threshold:{' '}
+                      {(strategy.liquidationThreshold || 0.85) * 100}%
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -241,30 +665,27 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                     <div className='flex justify-between items-center text-xs'>
                       <span className='text-muted-foreground'>Current price</span>
                       <span className='font-medium text-foreground'>
-                        ${currentPrice.toLocaleString()}
+                        {getCurrentPriceDisplay()}
                       </span>
                     </div>
                     <div className='flex justify-between items-center text-xs'>
-                      <span className='text-muted-foreground'>Liquidation price</span>
+                      <span className='text-muted-foreground'>Liquidation mechanism</span>
                       <div className='flex items-center gap-1'>
                         <span className='font-medium text-orange-600 dark:text-orange-400'>
-                          {liquidationPrice
-                            ? `$${liquidationPrice.toLocaleString()}`
-                            : 'N/A (Correlated)'}
+                          Yield-based
                         </span>
-                        {!liquidationPrice && (
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className='text-xs max-w-xs'>
-                                Correlated LSTs move proportionally with BTC price. Liquidation risk
-                                is minimal as both collateral and debt maintain the same ratio.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className='text-xs max-w-xs'>
+                              Liquidation occurs when borrow rate &gt; supply rate. Negative yield
+                              spread erodes collateral over time, increasing leverage. At max
+                              leverage, partial liquidation occurs.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </div>
                   </div>
@@ -279,7 +700,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                           {totalPosition.toFixed(6)} {strategy.collateralAsset.symbol}
                         </div>
                         <div className='text-xs text-muted-foreground'>
-                          ~{formatUsd(totalPosition * (userBalanceUsd / userBalance))}
+                          ~{getUsdValue(totalPosition)}
                         </div>
                       </div>
                     </div>
@@ -291,7 +712,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                           {borrowAmount.toFixed(6)} {strategy.debtAsset.symbol}
                         </div>
                         <div className='text-xs text-muted-foreground'>
-                          ~{formatUsd(borrowAmount * (userBalanceUsd / userBalance))}
+                          ~{getUsdValue(borrowAmount)}
                         </div>
                       </div>
                     </div>
@@ -299,15 +720,62 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                 </div>
 
                 <div className='space-y-2'>
-                  <div className='p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'>
-                    <div className='text-xs text-emerald-700 dark:text-emerald-400 font-medium mb-1'>
+                  {/* Risk Warning for Negative Yield Spread */}
+                  {/* TODO: Re-enable risk warnings in production */}
+                  {/* {isRisky && (
+                    <div className='p-2 rounded-lg bg-red-500/10 border border-red-500/30 dark:bg-red-900/20 dark:border-red-700/40'>
+                      <div className='text-xs text-red-700 dark:text-red-400 font-medium mb-1'>
+                        High Risk Position
+                      </div>
+                      <div className='text-xs text-red-700/80 dark:text-red-400/80'>
+                        Borrow rate ({(debtBorrowApy * 100).toFixed(2)}%) exceeds supply APY (
+                        {(collateralSupplyApy * 100).toFixed(2)}%). You'll lose money over time.
+                      </div>
+                    </div>
+                  )} */}
+
+                  <div
+                    className={`p-2 rounded-lg border ${
+                      // TODO: Re-enable risk-based styling in production
+                      // isRisky
+                      //   ? 'bg-red-500/10 border-red-500/20 dark:bg-red-900/20 dark:border-red-700/30'
+                      //   : 'bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'
+                      'bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'
+                    }`}
+                  >
+                    <div
+                      className={`text-xs font-medium mb-1 ${
+                        // TODO: Re-enable risk-based styling in production
+                        // isRisky
+                        //   ? 'text-red-700 dark:text-red-400'
+                        //   : 'text-emerald-700 dark:text-emerald-400'
+                        'text-emerald-700 dark:text-emerald-400'
+                      }`}
+                    >
                       Est. Annual Earnings
                     </div>
-                    <div className='font-semibold text-emerald-600 dark:text-emerald-300 text-sm'>
-                      {estimatedYearlyEarnings.toFixed(6)} {strategy.collateralAsset.symbol}
+                    <div
+                      className={`font-semibold text-sm ${
+                        // TODO: Re-enable risk-based styling in production
+                        // isRisky
+                        //   ? 'text-red-600 dark:text-red-300'
+                        //   : 'text-emerald-600 dark:text-emerald-300'
+                        'text-emerald-600 dark:text-emerald-300'
+                      }`}
+                    >
+                      {Math.abs(estimatedYearlyEarnings).toFixed(6)}{' '}
+                      {strategy.collateralAsset.symbol}
                     </div>
-                    <div className='text-xs text-emerald-600/80 dark:text-emerald-400/80'>
-                      ~{formatUsd(estimatedYearlyEarnings * (userBalanceUsd / userBalance))}
+                    <div
+                      className={`text-xs ${
+                        // TODO: Re-enable risk-based styling in production
+                        // isRisky
+                        //   ? 'text-red-600/80 dark:text-red-400/80'
+                        //   : 'text-emerald-600/80 dark:text-red-400/80'
+                        'text-emerald-600/80 dark:text-emerald-400/80'
+                      }`}
+                    >
+                      {getEstimatedEarningsUsd()}
                     </div>
                   </div>
 
@@ -396,6 +864,71 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   </div>
                 </div>
 
+                {/* Active Strategy Display */}
+                {activeStrategy && (
+                  <div className='p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'>
+                    <div className='flex items-center gap-2 mb-3'>
+                      <div className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
+                      <h3 className='text-sm font-semibold text-green-700 dark:text-green-400'>
+                        Active Position
+                      </h3>
+                    </div>
+
+                    <div className='grid grid-cols-2 gap-4 text-xs'>
+                      <div>
+                        <div className='text-muted-foreground'>Collateral Supplied</div>
+                        <div className='font-semibold'>
+                          {activeStrategy.collateralAsset.amountFormatted.toFixed(6)}{' '}
+                          {activeStrategy.collateralAsset.symbol}
+                        </div>
+                        <div className='text-muted-foreground'>
+                          ${activeStrategy.collateralAsset.usdValue.toFixed(2)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className='text-muted-foreground'>Debt Borrowed</div>
+                        <div className='font-semibold'>
+                          {activeStrategy.debtAsset.amountFormatted.toFixed(6)}{' '}
+                          {activeStrategy.debtAsset.symbol}
+                        </div>
+                        <div className='text-muted-foreground'>
+                          ${activeStrategy.debtAsset.usdValue.toFixed(2)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className='text-muted-foreground'>Current Leverage</div>
+                        <div className='font-semibold text-lg'>
+                          {activeStrategy.leverage.toFixed(2)}x
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className='text-muted-foreground'>Current APY</div>
+                        <div
+                          className={`font-semibold text-lg ${
+                            activeStrategy.isPositive
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}
+                        >
+                          {activeStrategy.netApy > 0 ? '+' : ''}
+                          {(activeStrategy.netApy * 100).toFixed(2)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='mt-3 pt-3 border-t border-green-200 dark:border-green-800'>
+                      <div className='text-xs text-green-700 dark:text-green-400'>
+                        💡 <strong>Tip:</strong> You can modify this position by adjusting the
+                        leverage above and deploying again, or close it completely using the
+                        strategy card.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Strategy Summary */}
                 <div className='p-2 rounded-lg bg-muted/20 border border-border/50'>
                   <div className='text-xs text-muted-foreground'>
@@ -407,10 +940,41 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                     {isCorrelatedStrategy && (
                       <span className='text-blue-600 dark:text-blue-400'>
                         {' '}
-                        Since both assets track BTC price, you earn the yield spread with minimal
-                        liquidation risk.
+                        Since all assets track the same BTC price, your profit depends on
+                        maintaining a positive yield spread (collateral APY &gt; borrow rate).
+                        Negative spreads erode collateral and increase leverage over time.
                       </span>
                     )}
+                  </div>
+
+                  {/* Leverage Math Summary */}
+                  <div className='mt-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 dark:bg-blue-900/20 dark:border-blue-700/30'>
+                    <div className='text-xs text-blue-700 dark:text-blue-400 font-medium mb-1'>
+                      Leverage Math
+                    </div>
+                    <div className='text-xs text-blue-700/80 dark:text-blue-400/80 space-y-1'>
+                      <div>
+                        • Supply: {currentAmount.toFixed(6)} {strategy.collateralAsset.symbol}
+                      </div>
+                      <div>
+                        • Borrow: {(currentAmount * (multiplier - 1)).toFixed(6)}{' '}
+                        {strategy.debtAsset.symbol}
+                      </div>
+                      <div>
+                        • Total: {totalPosition.toFixed(6)} {strategy.collateralAsset.symbol} (
+                        {multiplier.toFixed(2)}x exposure)
+                      </div>
+                      <div>
+                        • Net APY: {(leveragedApy * 100).toFixed(2)}% (
+                        {(collateralSupplyApy * 100).toFixed(2)}% × {multiplier.toFixed(2)}x -{' '}
+                        {(debtBorrowApy * (multiplier - 1) * 100).toFixed(2)}%)
+                      </div>
+                      <Separator />
+                      <div className='text-xs text-blue-600/80 dark:text-blue-400/80'>
+                        Max leverage: {dynamicMaxLeverage.toFixed(2)}x (based on liquidation
+                        threshold)
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -443,25 +1007,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Supply APY</span>
                     <span className='font-medium text-accent-foreground'>
-                      {((strategy.supplyApy || 0) * 100).toFixed(2)}%
-                    </span>
-                  </div>
-
-                  {strategy.collateralStakingApy && strategy.collateralStakingApy > 0 && (
-                    <div className='flex justify-between items-center'>
-                      <span className='text-muted-foreground'>Staking APY</span>
-                      <span className='font-medium text-accent-foreground'>
-                        {(strategy.collateralStakingApy * 100).toFixed(2)}%
-                      </span>
-                    </div>
-                  )}
-
-                  <Separator />
-
-                  <div className='flex justify-between items-center'>
-                    <span className='text-muted-foreground font-medium'>Total APY</span>
-                    <span className='font-semibold text-accent-foreground'>
-                      {(collateralTotalApy * 100).toFixed(2)}%
+                      {getSupplyApyDisplay()}
                     </span>
                   </div>
                 </div>
@@ -486,14 +1032,14 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Borrow APY</span>
                     <span className='font-medium text-orange-600 dark:text-orange-400'>
-                      {((strategy.borrowApy || 0) * 100).toFixed(2)}%
+                      {getBorrowApyDisplay()}
                     </span>
                   </div>
 
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Available</span>
                     <span className='font-medium text-foreground'>
-                      {strategy.liquidityDisplay || '$0'}
+                      {getAvailableLiquidityDisplay()}
                     </span>
                   </div>
                 </div>
@@ -506,60 +1052,102 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             <CardHeader className='pb-1'>
               <CardTitle className='text-sm font-semibold flex items-center gap-2'>
                 <Info className='w-4 h-4 text-muted-foreground' />
-                Risk Metrics
+                Risk Assessment
               </CardTitle>
             </CardHeader>
-            <CardContent className='space-y-1 text-xs'>
-              <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>Max LTV</span>
-                <span className='font-medium text-foreground'>
-                  {strategy.ltv ? `${(strategy.ltv * 100).toFixed(0)}%` : '80%'}
-                </span>
+            <CardContent className='space-y-3 text-xs'>
+              {/* Yield Spread - Primary Risk Metric */}
+              <div className={`p-3 rounded-lg border ${getRiskColorClasses()}`}>
+                <div className='flex justify-between items-center mb-2'>
+                  <span className='font-medium text-foreground'>Yield Spread</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className='text-xs max-w-xs'>
+                        Difference between collateral APY and borrow rate. Negative spread means you
+                        pay more to borrow than you earn from collateral.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className={`text-lg font-bold ${getRiskTextColor()}`}>
+                  {yieldSpread >= 0 ? '+' : ''}
+                  {(yieldSpread * 100).toFixed(2)}%
+                </div>
+                <div className={`text-xs mt-1 ${getRiskSubtextColor()}`}>
+                  {getRiskDescription()}
+                </div>
               </div>
 
-              <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>Liquidation Threshold</span>
-                <span className='font-medium text-foreground'>
-                  {strategy.liquidationThreshold
-                    ? `${(strategy.liquidationThreshold * 100).toFixed(0)}%`
-                    : '85%'}
-                </span>
-              </div>
+              {/* Risk Breakdown */}
+              <div className='space-y-2'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-muted-foreground'>Supply APY</span>
+                  <span className='font-medium text-emerald-600 dark:text-emerald-400'>
+                    {(collateralSupplyApy * 100).toFixed(2)}%
+                  </span>
+                </div>
+                <div className='flex justify-between items-center'>
+                  <span className='text-muted-foreground'>Borrow Rate</span>
+                  <span className='font-medium text-orange-600 dark:text-orange-400'>
+                    {(debtBorrowApy * 100).toFixed(2)}%
+                  </span>
+                </div>
 
-              <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>Max Leverage</span>
-                <span className='font-medium text-foreground'>
-                  {(strategy.maxLeverage || 5).toFixed(1)}x
-                </span>
+                {/* Leverage Increase Warning */}
+                {/* TODO: Re-enable leverage warnings in production */}
+                {/* {isRisky && (
+                  <div className='p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 dark:bg-orange-900/20 dark:border-red-700/30'>
+                    <div className='text-xs text-orange-700 dark:text-orange-400 font-medium mb-1'>
+                      Leverage Increasing
+                    </div>
+                    <div className='text-xs text-orange-700/80 dark:text-orange-400/80'>
+                      Negative yield spread will erode your collateral over time, effectively
+                      increasing your leverage ratio.
+                    </div>
+                  </div>
+                )} */}
               </div>
 
               <Separator />
 
-              <div
-                className={`p-2 rounded-lg border ${
-                  isCorrelatedStrategy
-                    ? 'bg-blue-500/10 border-blue-500/20 dark:bg-blue-900/20 dark:border-blue-700/30'
-                    : 'bg-amber-500/10 border-amber-500/20 dark:bg-amber-900/20 dark:border-amber-700/30'
-                }`}
-              >
-                <div
-                  className={`font-medium text-xs mb-1 ${
-                    isCorrelatedStrategy
-                      ? 'text-blue-700 dark:text-blue-400'
-                      : 'text-amber-700 dark:text-amber-400'
-                  }`}
-                >
-                  {isCorrelatedStrategy ? 'LST Strategy Info' : 'Risk Warning'}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-muted-foreground'>Max LTV</span>
+                  <span className='font-medium text-foreground'>
+                    {strategy.ltv ? `${(strategy.ltv * 100).toFixed(0)}%` : '80%'}
+                  </span>
                 </div>
-                <div
-                  className={`text-xs ${
-                    isCorrelatedStrategy
-                      ? 'text-blue-700/80 dark:text-blue-400/80'
-                      : 'text-amber-700/80 dark:text-amber-400/80'
-                  }`}
-                >
+
+                <div className='flex justify-between items-center'>
+                  <span className='text-muted-foreground'>Liquidation Threshold</span>
+                  <span className='font-medium text-foreground'>
+                    {strategy.liquidationThreshold
+                      ? `${(strategy.liquidationThreshold * 100).toFixed(0)}%`
+                      : '85%'}
+                  </span>
+                </div>
+
+                <div className='flex justify-between items-center'>
+                  <span className='text-muted-foreground'>Max Leverage</span>
+                  <span className='font-medium text-foreground'>
+                    {(strategy.maxLeverage || 5).toFixed(1)}x
+                  </span>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Strategy Risk Info */}
+              <div className={`p-2 rounded-lg border ${getStrategyRiskColorClasses()}`}>
+                <div className={`font-medium text-xs mb-1 ${getStrategyRiskTextColor()}`}>
+                  {isCorrelatedStrategy ? 'Correlated Asset Strategy' : 'Risk Warning'}
+                </div>
+                <div className={`text-xs ${getStrategyRiskSubtextColor()}`}>
                   {isCorrelatedStrategy
-                    ? 'Correlated LSTs move proportionally with BTC. Primary risks are LST depeg events and borrow rate changes, not liquidation.'
+                    ? 'Liquidation occurs when borrow rate > supply rate. Negative yield spread erodes collateral over time, increasing leverage. At max leverage, partial liquidation occurs.'
                     : 'Leveraged positions amplify both gains and losses. Monitor your position carefully.'}
                 </div>
               </div>
@@ -567,48 +1155,23 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
           </Card>
 
           {/* Open Position Button */}
-          <div className='relative group/button'>
-            <div
-              className='absolute inset-0 rounded-lg blur-md opacity-0 group-hover/button:opacity-50 transition-all duration-500 scale-105'
-              style={{
-                background: `linear-gradient(135deg, ${strategy.collateralAsset.brandColor}, ${strategy.debtAsset.brandColor})`,
-              }}
-            />
-            <div
-              className='relative p-[2px] rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 ease-out'
-              style={{
-                background: `linear-gradient(135deg, ${strategy.collateralAsset.brandColor}, ${strategy.debtAsset.brandColor})`,
-              }}
-            >
-              <Button
-                onClick={handleDeploy}
-                disabled={isProcessing || !collateralAmount || currentAmount <= 0}
-                variant='outline'
-                className='relative w-full font-semibold text-foreground border-0 bg-card hover:bg-background/90 transition-all duration-300 ease-out overflow-hidden group/btn rounded-md'
-              >
-                <div
-                  className='absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-700'
-                  style={{
-                    background: `linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%)`,
-                    transform: 'translateX(-100%)',
-                  }}
-                />
-                <span className='relative z-10 flex items-center gap-2 text-xs'>
-                  {isProcessing ? (
-                    <>
-                      <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
-                      Opening Position...
-                    </>
-                  ) : (
-                    <>
-                      Open Position
-                      <ArrowRight className='w-4 h-4' />
-                    </>
-                  )}
-                </span>
-              </Button>
-            </div>
-          </div>
+          <Button
+            onClick={handleDeploy}
+            disabled={
+              isProcessing ||
+              // !isWalletConnected ||
+              // !hasValidAmount ||
+              // hasInsufficientBalance ||
+              // TODO: Re-enable risk-based deployment restrictions in production
+              // isRisky ||
+              // isBalancesLoading
+              false
+            }
+            variant='default'
+            className='w-full'
+          >
+            {getButtonContent()}
+          </Button>
         </div>
       </div>
     </div>

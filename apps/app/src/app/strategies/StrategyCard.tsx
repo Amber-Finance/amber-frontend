@@ -1,5 +1,7 @@
 'use client'
 
+import { useMemo } from 'react'
+
 import Image from 'next/image'
 
 import { useChain } from '@cosmos-kit/react'
@@ -11,9 +13,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
+import { useActiveStrategies } from '@/hooks/useActiveStrategies'
+import useHealthComputer from '@/hooks/useHealthComputer'
+import { useStrategyWithdrawal } from '@/hooks/useStrategyWithdrawal'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
-import { formatApy, formatTokenAmount } from '@/utils/format'
+import { formatApy } from '@/utils/format'
 import {
   calculateNetApy,
   formatBorrowTokenAmount,
@@ -35,32 +40,60 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { isWalletConnected } = useChain(chainConfig.name)
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { markets } = useStore()
+  const { isWasmReady } = useHealthComputer()
+  const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
+  const { withdrawFullStrategy, isProcessing: isWithdrawing } = useStrategyWithdrawal()
 
-  // Helper function calls
-  const maxAPY = getMaxAPY(strategy)
-  const userBalanceUsd = getUserBalanceUsd(
-    isWalletConnected,
-    walletBalancesLoading,
-    walletBalances,
-    strategy.collateralAsset.denom,
+  // Find active strategy for this collateral/debt pair
+  const activeStrategy = activeStrategies.find(
+    (active) =>
+      active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
+      active.debtAsset.symbol === strategy.debtAsset.symbol,
   )
-  const netApy = calculateNetApy(strategy)
-  const leverage = formatLeverage(strategy)
-  const collateralAvailable = formatCollateralAvailable()
-  const borrowableUsd = formatBorrowableUsd(strategy)
-  const { collateralColor, debtColor } = getGradientColors(strategy)
-  const collateralTokenAmount = formatCollateralTokenAmount()
-  const borrowTokenAmount = formatBorrowTokenAmount(
-    markets || [],
-    strategy.debtAsset.denom,
-    strategy.debtAsset.symbol,
+
+  // Memoized expensive calculations
+  const maxAPY = useMemo(
+    () => getMaxAPY(strategy, markets || [], isWasmReady),
+    [strategy, markets, isWasmReady],
   )
-  const userTokenAmount = formatUserTokenAmount(
-    isWalletConnected,
-    walletBalancesLoading,
-    walletBalances,
-    strategy.collateralAsset.denom,
-    strategy.collateralAsset.symbol,
+  const userBalanceUsd = useMemo(
+    () =>
+      getUserBalanceUsd(
+        isWalletConnected,
+        walletBalancesLoading,
+        walletBalances,
+        strategy.collateralAsset.denom,
+      ),
+    [isWalletConnected, walletBalancesLoading, walletBalances, strategy.collateralAsset.denom],
+  )
+  const netApy = useMemo(() => calculateNetApy(strategy), [strategy])
+  const leverage = useMemo(
+    () => formatLeverage(strategy, markets || [], isWasmReady),
+    [strategy, markets, isWasmReady],
+  )
+  const borrowableUsd = useMemo(() => formatBorrowableUsd(strategy), [strategy])
+  const { collateralColor, debtColor } = useMemo(() => getGradientColors(strategy), [strategy])
+  const borrowTokenAmount = useMemo(
+    () =>
+      formatBorrowTokenAmount(markets || [], strategy.debtAsset.denom, strategy.debtAsset.symbol),
+    [markets, strategy.debtAsset.denom, strategy.debtAsset.symbol],
+  )
+  const userTokenAmount = useMemo(
+    () =>
+      formatUserTokenAmount(
+        isWalletConnected,
+        walletBalancesLoading,
+        walletBalances,
+        strategy.collateralAsset.denom,
+        strategy.collateralAsset.symbol,
+      ),
+    [
+      isWalletConnected,
+      walletBalancesLoading,
+      walletBalances,
+      strategy.collateralAsset.denom,
+      strategy.collateralAsset.symbol,
+    ],
   )
 
   const cardStyle = {
@@ -70,12 +103,12 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
   return (
     <Card
-      className='group relative w-full min-w-[320px] h-auto min-h-[400px] flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
+      className='group relative w-full aspect-square flex flex-col transition-all duration-300 hover:shadow-xl bg-card backdrop-blur-sm border'
       style={cardStyle}
     >
       <FlickeringGrid
         className='absolute inset-0 z-0 rounded-lg overflow-hidden'
-        color={collateralColor}
+        color={debtColor}
         squareSize={8}
         gridGap={2}
         flickerChance={0.2}
@@ -88,24 +121,24 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       <div
         className='absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'
         style={{
-          background: `linear-gradient(135deg, ${collateralColor}08 0%, transparent 50%, transparent 100%)`,
+          background: `linear-gradient(135deg, ${debtColor}08 0%, transparent 50%, transparent 100%)`,
         }}
       />
 
-      <CardHeader className='pb-2 z-20 space-y-2'>
-        <div className='space-y-3'>
+      <CardHeader className='pb-4 z-20 space-y-3'>
+        <div className='space-y-4'>
           <div className='flex items-center gap-2'>
             <div className='relative'>
               {/* Gradient around token icon */}
               <div
                 className='absolute inset-0 rounded-full blur-md scale-110 opacity-0 group-hover:opacity-100 transition-all duration-300'
                 style={{
-                  backgroundColor: `${collateralColor}50`,
+                  backgroundColor: `${debtColor}50`,
                 }}
               />
               <div
                 className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border-2 p-1 shadow-sm'
-                style={{ borderColor: `${collateralColor}40` }}
+                style={{ borderColor: `${debtColor}40` }}
               >
                 <Image
                   src={strategy.collateralAsset.icon}
@@ -143,13 +176,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className='cursor-help text-center'>
-                  <div
-                    className='text-4xl font-bold leading-tight'
-                    style={{ color: collateralColor }}
-                  >
+                  <div className='text-5xl font-bold leading-tight' style={{ color: debtColor }}>
                     <CountingNumber value={maxAPY} decimalPlaces={2} />%
                   </div>
-                  <div className='text-sm font-bold text-foreground/80 leading-tight tracking-wider'>
+                  <div className='text-base font-bold text-foreground/80 leading-tight tracking-wider'>
                     Max APY
                   </div>
                 </div>
@@ -189,17 +219,17 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className='relative space-y-6 z-20 flex-1 flex flex-col'>
+      <CardContent className='relative space-y-4 z-20 flex-1 flex flex-col'>
         {/* Strategy Metrics Section */}
         <div className='space-y-3'>
-          <div className='space-y-3'>
+          <div className='grid grid-cols-2 gap-3'>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className='bg-secondary/60 rounded-lg p-3 flex justify-between items-center cursor-help border border-border/40'>
-                  <div className='text-sm font-bold text-muted-foreground/70 tracking-wider'>
+                <div className='group/apy bg-secondary/60 rounded-lg p-2.5 flex justify-between items-center cursor-help border border-border/40 hover:bg-secondary/80 transition-colors'>
+                  <div className='text-sm font-medium text-muted-foreground tracking-wide'>
                     Base APY
                   </div>
-                  <div className='text-base font-bold leading-tight text-green-500'>
+                  <div className='text-base font-semibold text-green-600 dark:text-green-400'>
                     {formatApy(netApy)}
                   </div>
                 </div>
@@ -242,13 +272,11 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className='bg-secondary/60 rounded-lg p-3 flex justify-between items-center cursor-help border border-border/40'>
-                  <div className='text-sm font-bold text-muted-foreground/70 tracking-wider'>
+                <div className='group/leverage bg-secondary/60 rounded-lg p-2.5 flex justify-between items-center cursor-help border border-border/40 hover:bg-secondary/80 transition-colors'>
+                  <div className='text-sm font-medium text-muted-foreground tracking-wide'>
                     Max Leverage
                   </div>
-                  <div className='text-base font-bold leading-tight text-foreground'>
-                    {leverage}
-                  </div>
+                  <div className='text-base font-semibold text-foreground'>{leverage}</div>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
@@ -256,27 +284,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 liquidity
               </TooltipContent>
             </Tooltip>
-          </div>
-        </div>
-
-        {/* Available Collateral Section */}
-        <div className='space-y-3'>
-          <div className='flex items-center gap-2'>
-            <span className='text-base font-bold tracking-wider text-foreground'>
-              Available Collateral
-            </span>
-          </div>
-
-          <div className='space-y-2'>
-            <div className='flex justify-between items-center'>
-              <span className='text-sm text-foreground/90'>{strategy.collateralAsset.symbol}</span>
-              <div className='text-base text-foreground'>{collateralAvailable}</div>
-            </div>
-            <div className='flex justify-end'>
-              <div className='text-xs text-muted-foreground'>
-                {formatTokenAmount(collateralTokenAmount, strategy.collateralAsset.symbol)}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -290,7 +297,16 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
           <div className='space-y-2'>
             <div className='flex justify-between items-center'>
-              <span className='text-sm text-foreground/90'>{strategy.debtAsset.symbol}</span>
+              <span className='text-sm text-foreground/90 flex items-center gap-2'>
+                <Image
+                  src={strategy.debtAsset.icon}
+                  alt={strategy.debtAsset.symbol}
+                  width={16}
+                  height={16}
+                  className='w-4 h-4'
+                />
+                {strategy.debtAsset.symbol}
+              </span>
               <div className='text-base text-foreground'>{borrowableUsd}</div>
             </div>
             <div className='flex justify-end'>
@@ -311,30 +327,144 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           <div className='space-y-2'>
-            <div className='flex justify-between items-center'>
-              <span className='text-sm text-foreground/90'>Available Balance</span>
-              <div className='text-base text-foreground'>
-                {userBalanceUsd.gt(0) ? `$${userBalanceUsd.toFormat(2)}` : '$0.00'}
+            {/* Deposited Balance */}
+            <div className='space-y-1'>
+              <div className='flex justify-between items-center'>
+                <span className='text-sm text-foreground/90'>Deposited</span>
+                <span className='text-base font-medium'>
+                  {activeStrategy
+                    ? `$${activeStrategy.collateralAsset.usdValue.toFixed(2)}`
+                    : '$0.00'}
+                </span>
+              </div>
+              <div className='flex justify-end'>
+                <span className='text-xs text-muted-foreground'>
+                  {activeStrategy
+                    ? `${activeStrategy.collateralAsset.amountFormatted.toFixed(6)} ${strategy.collateralAsset.symbol}`
+                    : `0.000000 ${strategy.collateralAsset.symbol}`}
+                </span>
               </div>
             </div>
-            <div className='flex justify-between items-center'>
-              <span className='text-sm text-foreground/90'>Wallet Balance</span>
-              <div className='text-xs text-foreground/80'>{userTokenAmount}</div>
+
+            {/* Available Balance */}
+            <div className='space-y-1'>
+              <div className='flex justify-between items-center'>
+                <span className='text-sm text-foreground/90'>Available</span>
+                <span className='text-base font-medium'>
+                  {userBalanceUsd.gt(0) ? `$${userBalanceUsd.toFormat(2)}` : '$0.00'}
+                </span>
+              </div>
+              <div className='flex justify-end'>
+                <span className='text-xs text-muted-foreground'>{userTokenAmount}</span>
+              </div>
             </div>
+
+            {/* Active Strategy Details */}
+            {activeStrategy && (
+              <>
+                <Separator />
+                <div className='space-y-2'>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-base font-bold tracking-wider text-foreground'>
+                      Active Position
+                    </span>
+                    <div className='px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full'>
+                      Live
+                    </div>
+                  </div>
+
+                  <div className='grid grid-cols-2 gap-3'>
+                    <div className='space-y-1'>
+                      <div className='flex justify-between items-center'>
+                        <span className='text-sm text-foreground/90'>Borrowed</span>
+                        <span className='text-base font-medium'>
+                          ${activeStrategy.debtAsset.usdValue.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className='flex justify-end'>
+                        <span className='text-xs text-muted-foreground'>
+                          {activeStrategy.debtAsset.amountFormatted.toFixed(6)}{' '}
+                          {activeStrategy.debtAsset.symbol}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className='space-y-1'>
+                      <div className='flex justify-between items-center'>
+                        <span className='text-sm text-foreground/90'>Leverage</span>
+                        <span className='text-base font-medium'>
+                          {activeStrategy.leverage.toFixed(2)}x
+                        </span>
+                      </div>
+                      <div className='flex justify-end'>
+                        <span
+                          className={`text-xs font-medium ${
+                            activeStrategy.isPositive
+                              ? 'text-green-600 dark:text-green-400'
+                              : 'text-red-600 dark:text-red-400'
+                          }`}
+                        >
+                          {activeStrategy.netApy > 0 ? '+' : ''}
+                          {(activeStrategy.netApy * 100).toFixed(2)}% APY
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className='relative z-20 pt-1'>
-        <Button
-          onClick={() =>
-            (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`)
-          }
-          variant='default'
-          className='w-full font-semibold'
-        >
-          Deploy
-        </Button>
+      <CardFooter className='relative z-20 pt-2'>
+        {activeStrategy ? (
+          <div className='w-full space-y-2'>
+            <Button
+              onClick={() =>
+                (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}&modify=true&accountId=${activeStrategy.accountId}`)
+              }
+              variant='outline'
+              className='w-full font-semibold'
+              disabled={isWithdrawing}
+            >
+              Modify Position
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  await withdrawFullStrategy({
+                    accountId: activeStrategy.accountId,
+                    collateralDenom: activeStrategy.collateralAsset.denom,
+                    collateralAmount: activeStrategy.collateralAsset.amount,
+                    collateralDecimals: strategy.collateralAsset.decimals || 8,
+                    debtDenom: activeStrategy.debtAsset.denom,
+                    debtAmount: activeStrategy.debtAsset.amount,
+                    debtDecimals: strategy.debtAsset.decimals || 8,
+                  })
+                } catch (error) {
+                  console.error('Withdrawal failed:', error)
+                }
+              }}
+              variant='outline'
+              className='w-full font-semibold'
+              disabled={isWithdrawing}
+            >
+              {isWithdrawing ? 'Withdrawing...' : 'Close Position'}
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={() =>
+              (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`)
+            }
+            variant='default'
+            className='w-full font-semibold'
+            disabled={activeStrategiesLoading}
+          >
+            {activeStrategiesLoading ? 'Loading...' : 'Deploy'}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

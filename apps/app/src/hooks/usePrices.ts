@@ -39,6 +39,7 @@ export const usePrices = () => {
 
         const data: PriceResponse = await response.json()
         const decimalDifferenceToOracle = market.asset.decimals - 6
+
         if (data?.data?.price) {
           const priceData: PriceData = {
             denom,

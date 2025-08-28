@@ -37,8 +37,8 @@ export const getProtocolPoints = (symbol: string) => {
     ebtc: {
       multiplier: '3x',
       protocolPoint: 'Etherfi Points',
-      protocolIconLight: '/images/eBTC.png',
-      protocolIconDark: '/images/eBTC.png', // Same icon for both themes
+      protocolIconLight: '/images/eBTC.svg',
+      protocolIconDark: '/images/eBTC.svg', // Same icon for both themes
     },
     unibtc: {
       multiplier: '3x',
@@ -132,7 +132,7 @@ export const getProtocolIcon = (
   theme?: string,
 ) => {
   if (!protocolIconLight || !protocolIconDark) return null
-  // For tokens with the same icon for both themes (like pump.svg, eBTC.png), just return the light version
+  // For tokens with the same icon for both themes (like pump.svg, eBTC.svg), just return the light version
   if (protocolIconLight === protocolIconDark) return protocolIconLight
   return theme === 'dark' ? protocolIconDark : protocolIconLight
 }

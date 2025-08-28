@@ -35,6 +35,7 @@ export interface LstMarketData {
     brandColor: string
     protocolIconLight?: string
     protocolIconDark?: string
+    denom: string
   }
   metrics: {
     lendingApy: number
@@ -94,6 +95,9 @@ export function useLstMarkets(): {
         if (!tokenData?.isLST) {
           return null
         }
+        if (!market.params.red_bank.borrow_enabled) {
+          return null
+        }
 
         // Calculate protocol APY from the market
         const lendingApy = parseFloat(convertAprToApy(market.metrics.liquidity_rate || '0'))
@@ -151,6 +155,7 @@ export function useLstMarkets(): {
             brandColor: tokenData.brandColor,
             protocolIconLight: tokenData.protocolIconLight,
             protocolIconDark: tokenData.protocolIconDark,
+            denom: tokenData.denom,
           },
           metrics: {
             lendingApy,

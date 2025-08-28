@@ -402,3 +402,45 @@ export const formatTokenAmount = (amount: number, symbol: string): string => {
     return `${amount.toFixed(8)} ${symbol}`
   }
 }
+
+/**
+ * Format large numbers with abbreviations (k, M, B)
+ * Examples: 1500 -> 1.5k, 1500000 -> 1.5M, 1500000000 -> 1.5B
+ */
+export const formatLargeNumber = (value: number, decimalPlaces: number = 2): string => {
+  if (value === 0) return '0'
+
+  const absValue = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
+
+  if (absValue >= 1_000_000_000) {
+    return `${sign}${(absValue / 1_000_000_000).toFixed(decimalPlaces)}B`
+  } else if (absValue >= 1_000_000) {
+    return `${sign}${(absValue / 1_000_000).toFixed(decimalPlaces)}M`
+  } else if (absValue >= 1_000) {
+    return `${sign}${(absValue / 1_000).toFixed(decimalPlaces)}k`
+  } else {
+    return `${sign}${absValue.toFixed(decimalPlaces)}`
+  }
+}
+
+/**
+ * Format large numbers with abbreviations for currency display
+ * Shows up to 999.00, then 1.6k, 1.5M, 6.52B
+ */
+export const formatLargeCurrency = (value: number): string => {
+  if (value === 0) return '$0'
+
+  const absValue = Math.abs(value)
+  const sign = value < 0 ? '-$' : '$'
+
+  if (absValue >= 1_000_000_000) {
+    return `${sign}${(absValue / 1_000_000_000).toFixed(2)}B`
+  } else if (absValue >= 1_000_000) {
+    return `${sign}${(absValue / 1_000_000).toFixed(2)}M`
+  } else if (absValue >= 1_000) {
+    return `${sign}${(absValue / 1_000).toFixed(2)}k`
+  } else {
+    return `${sign}${absValue.toFixed(2)}`
+  }
+}
