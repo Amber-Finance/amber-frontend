@@ -21,7 +21,6 @@ const chainConfig: ChainConfig = {
     rpcUrl: process.env.NEXT_PUBLIC_RPC || 'https://rpc-lb.neutron.org',
     // Fallback RPC for Skip API
     fallbackRpc: 'https://neutron-rpc.cosmos-apis.com',
-    routes: 'https://api.astroport.fi/api/v1/quote',
   },
 
   // Base64 encoded queries

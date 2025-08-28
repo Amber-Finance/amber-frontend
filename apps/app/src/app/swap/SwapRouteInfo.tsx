@@ -57,13 +57,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
   }
 
   const hasValidRoute =
-    amountOut &&
-    amountOut.gt(0) &&
-    fromToken &&
-    toToken &&
-    amountIn &&
-    route &&
-    (route.astro || route.duality)
+    amountOut && amountOut.gt(0) && fromToken && toToken && amountIn && route && route.duality
 
   if (!hasValidRoute) {
     return (
