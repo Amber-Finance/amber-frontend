@@ -34,6 +34,7 @@ export function FirstBentoSection({ className }: { className?: string }) {
   const div5Ref = useRef<HTMLDivElement>(null)
   const div6Ref = useRef<HTMLDivElement>(null)
   const div7Ref = useRef<HTMLDivElement>(null)
+  const div8Ref = useRef<HTMLDivElement>(null)
 
   return (
     <div
@@ -45,12 +46,12 @@ export function FirstBentoSection({ className }: { className?: string }) {
     >
       <div className='flex size-full w-full flex-row items-stretch justify-between'>
         <div className='flex flex-col justify-center'>
-          <Circle ref={div7Ref}>
+          <Circle ref={div8Ref}>
             <Icons.user />
           </Circle>
         </div>
         <div className='flex flex-col justify-center'>
-          <Circle ref={div6Ref} className='size-16'>
+          <Circle ref={div7Ref} className='size-16'>
             <Icons.favicon />
           </Circle>
         </div>
@@ -70,16 +71,20 @@ export function FirstBentoSection({ className }: { className?: string }) {
           <Circle ref={div5Ref}>
             <Icons.lbtc />
           </Circle>
+          <Circle ref={div6Ref}>
+            <Icons.ebtc />
+          </Circle>
         </div>
       </div>
 
       {/* AnimatedBeams */}
-      <AnimatedBeam containerRef={containerRef} fromRef={div1Ref} toRef={div6Ref} duration={3} />
-      <AnimatedBeam containerRef={containerRef} fromRef={div2Ref} toRef={div6Ref} duration={3} />
-      <AnimatedBeam containerRef={containerRef} fromRef={div3Ref} toRef={div6Ref} duration={3} />
-      <AnimatedBeam containerRef={containerRef} fromRef={div4Ref} toRef={div6Ref} duration={3} />
-      <AnimatedBeam containerRef={containerRef} fromRef={div5Ref} toRef={div6Ref} duration={3} />
+      <AnimatedBeam containerRef={containerRef} fromRef={div1Ref} toRef={div7Ref} duration={3} />
+      <AnimatedBeam containerRef={containerRef} fromRef={div2Ref} toRef={div7Ref} duration={3} />
+      <AnimatedBeam containerRef={containerRef} fromRef={div3Ref} toRef={div7Ref} duration={3} />
+      <AnimatedBeam containerRef={containerRef} fromRef={div4Ref} toRef={div7Ref} duration={3} />
+      <AnimatedBeam containerRef={containerRef} fromRef={div5Ref} toRef={div7Ref} duration={3} />
       <AnimatedBeam containerRef={containerRef} fromRef={div6Ref} toRef={div7Ref} duration={3} />
+      <AnimatedBeam containerRef={containerRef} fromRef={div7Ref} toRef={div8Ref} duration={3} />
     </div>
   )
 }
@@ -108,6 +113,9 @@ const Icons = {
   ),
   lbtc: () => (
     <Image src='/images/LBTC.svg' alt='LBTC' width={24} height={24} className='w-6 h-6' />
+  ),
+  ebtc: () => (
+    <Image src='/images/eBTC.svg' alt='eBTC' width={24} height={24} className='w-6 h-6' />
   ),
   user: () => (
     <svg

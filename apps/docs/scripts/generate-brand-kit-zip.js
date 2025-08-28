@@ -42,7 +42,7 @@ const ASSET_CATEGORIES = {
     'images/BTC.svg',
     'images/WBTC.svg',
     'images/LBTC.svg',
-    'images/eBTC.png',
+    'images/eBTC.svg',
     'images/maxBTC.png',
     'images/pumpBTC.svg',
     'images/solvBTC.svg',
@@ -74,7 +74,7 @@ const ASSET_CATEGORIES = {
   ],
   'twitter-banners': [
     'twitter-banner/dafault.png',
-    'twitter-banner/eBTC.png',
+    'twitter-banner/eBTC.svg',
     'twitter-banner/LBTC.png',
     'twitter-banner/pumpBTC.png',
     'twitter-banner/solvBTC.png',
@@ -82,7 +82,7 @@ const ASSET_CATEGORIES = {
     'twitter-banner/wBTC.png',
   ],
   'twitter-banner-deposits': [
-    'twitter-banner/deposit/eBTC.png',
+    'twitter-banner/deposit/eBTC.svg',
     'twitter-banner/deposit/LBTC.png',
     'twitter-banner/deposit/pumpBTC.png',
     'twitter-banner/deposit/solvBTC.png',
