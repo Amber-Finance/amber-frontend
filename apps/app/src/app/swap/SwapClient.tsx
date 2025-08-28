@@ -112,7 +112,11 @@ export default function SwapClient() {
   const hasInsufficientBalance =
     fromToken && fromAmount && parseFloat(fromAmount) > parseFloat(fromToken.balance)
 
-  const { data: forwardRouteInfo, isLoading: isForwardRouteLoading } = useRouteInfo(
+  const {
+    data: forwardRouteInfo,
+    isLoading: isForwardRouteLoading,
+    error: forwardRouteError,
+  } = useRouteInfo(
     fromToken?.denom || '',
     toToken?.denom || '',
     new BigNumber(debouncedFromAmount || '0').shiftedBy(fromToken?.decimals || 8),
@@ -120,7 +124,11 @@ export default function SwapClient() {
     slippage,
   )
 
-  const { data: reverseRouteInfo, isLoading: isReverseRouteLoading } = useRouteInfoReverse(
+  const {
+    data: reverseRouteInfo,
+    isLoading: isReverseRouteLoading,
+    error: reverseRouteError,
+  } = useRouteInfoReverse(
     fromToken?.denom || '',
     toToken?.denom || '',
     new BigNumber(debouncedToAmount || '0').shiftedBy(toToken?.decimals || 8),
@@ -128,8 +136,14 @@ export default function SwapClient() {
     slippage,
   )
 
+  const isFromDebouncePending = fromAmount !== debouncedFromAmount
+  const isToDebouncePending = toAmount !== debouncedToAmount
+  const isDebouncePending =
+    editingDirection === 'from' ? isFromDebouncePending : isToDebouncePending
+
   const routeInfo = editingDirection === 'from' ? forwardRouteInfo : reverseRouteInfo
   const isRouteLoading = editingDirection === 'from' ? isForwardRouteLoading : isReverseRouteLoading
+  const routeError = editingDirection === 'from' ? forwardRouteError : reverseRouteError
 
   useEffect(() => {
     if (editingDirection === 'from') {
@@ -193,7 +207,6 @@ export default function SwapClient() {
   const handleSwap = async () => {
     if (!routeInfo || !fromToken || !toToken) return
 
-    // console.log('handleSwap', routeInfo, fromToken, toToken, fromAmount, slippage)
     setIsSwapInProgress(true)
     try {
       const success = await executeSwap(routeInfo, fromToken, toToken, fromAmount, slippage)
@@ -215,7 +228,7 @@ export default function SwapClient() {
     ? 'Connect Wallet'
     : isSwapInProgress
       ? 'Swapping...'
-      : isRouteLoading
+      : isRouteLoading || isDebouncePending
         ? 'Loading route...'
         : showInsufficientFunds
           ? `Insufficient ${fromToken?.symbol} Balance`
@@ -484,11 +497,8 @@ export default function SwapClient() {
                 slippage={slippage}
                 isRouteLoading={isRouteLoading}
                 route={routeInfo?.route}
-                isDebouncePending={
-                  editingDirection === 'from'
-                    ? fromAmount !== debouncedFromAmount
-                    : toAmount !== debouncedToAmount
-                }
+                isDebouncePending={isDebouncePending}
+                routeError={routeError}
               />
             )}
 
@@ -502,6 +512,7 @@ export default function SwapClient() {
                   !toAmount ||
                   isSwapInProgress ||
                   isRouteLoading ||
+                  isDebouncePending ||
                   showInsufficientFunds ||
                   !routeInfo
                 )

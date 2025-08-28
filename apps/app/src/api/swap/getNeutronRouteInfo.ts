@@ -121,13 +121,13 @@ async function getNeutronRouteInfoInternal(
     const skipRouteResponse = await skipRoute(skipRouteParams)
 
     if (!skipRouteResponse) {
-      return null
+      throw new Error('No route response from Skip API')
     }
 
     const venueType = analyzeVenues(skipRouteResponse)
 
     if (venueType === 'unknown') {
-      return null
+      throw new Error('Unknown venue type - no Duality routes available')
     }
 
     const swapOperations = extractSwapOperations(skipRouteResponse)
@@ -140,15 +140,13 @@ async function getNeutronRouteInfoInternal(
 
     return routeInfo
   } catch (error) {
-    console.log('getNeutronRouteInfoInternal error', error)
-    return null
+    console.error('There was an error getting the route info', error)
+    throw error
   }
 }
 
 /**
  * Reverse routing function that uses minAmountOut instead of amountIn
- * Specifically designed for HLS debt repayment scenarios where we need
- * to know how much collateral to swap to get an exact debt amount
  */
 /**
  * Implements reverse routing using Skip API's native reverse swap support
@@ -180,13 +178,13 @@ export async function getNeutronRouteInfoReverse(
     const skipRouteResponse = await skipRoute(skipRouteParams)
 
     if (!skipRouteResponse) {
-      return null
+      throw new Error('No route response from Skip API')
     }
 
     const venueType = analyzeVenues(skipRouteResponse)
 
     if (venueType === 'unknown') {
-      return null
+      throw new Error('Unknown venue type - no Duality routes available')
     }
 
     const swapOperations = extractSwapOperations(skipRouteResponse)
@@ -210,14 +208,19 @@ export async function getNeutronRouteInfoReverse(
     return routeInfo
   } catch (error) {
     // Fallback to binary search if native reverse routing fails
-    return await binarySearchReverseRouting(
-      denomIn,
-      denomOut,
-      amountOut,
-      assets,
-      chainConfig,
-      effectiveSlippage,
-    )
+    try {
+      return await binarySearchReverseRouting(
+        denomIn,
+        denomOut,
+        amountOut,
+        assets,
+        chainConfig,
+        effectiveSlippage,
+      )
+    } catch (fallbackError) {
+      console.error('Both reverse routing methods failed', error, fallbackError)
+      throw error
+    }
   }
 }
 
@@ -295,7 +298,7 @@ async function binarySearchReverseRouting(
     return bestRoute
   }
 
-  return null
+  throw new Error('No route found through binary search')
 }
 
 export default async function getNeutronRouteInfo(
