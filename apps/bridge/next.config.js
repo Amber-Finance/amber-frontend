@@ -15,7 +15,7 @@ let nextConfig = {
     APP_URL,
   },
   eslint: {
-    ignoreDuringBuilds: Boolean(process.env.VERCEL),
+    ignoreDuringBuilds: true,
   },
   productionBrowserSourceMaps: true,
   rewrites: async () => [

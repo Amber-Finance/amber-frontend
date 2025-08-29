@@ -30,7 +30,7 @@ function MousePosition(): MousePosition {
   return mousePosition
 }
 
-interface ParticlesProps extends ComponentPropsWithoutRef {
+interface ParticlesProps extends ComponentPropsWithoutRef<'div'> {
   className?: string
   quantity?: number
   staticity?: number
@@ -72,7 +72,7 @@ type Circle = {
   magnetism: number
 }
 
-export const Particles: React.FC = ({
+export const Particles: React.FC<ParticlesProps> = ({
   className = '',
   quantity = 100,
   staticity = 50,

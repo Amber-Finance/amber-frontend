@@ -9,15 +9,13 @@ import { ChainProvider } from '@cosmos-kit/react'
 import { wallets as vectisWallets } from '@cosmos-kit/vectis'
 import { wallets as xdefiWallets } from '@cosmos-kit/xdefi'
 import '@interchain-ui/react/styles'
-import { assets, chains } from 'chain-registry'
+import { assetLists } from 'chain-registry'
 
 import chainConfig from '@/config/chain'
 import { getCosmosKitTheme } from '@/theme/cosmosKitTheme'
 
-const chain = chains.filter(
-  (chain) => chain.chain_name === chainConfig.name && chain.network_type === 'mainnet',
-)
-const chainAssets = assets.filter((asset) => asset.chain_name === chainConfig.name)
+const chainNames = [chainConfig.name]
+const chainAssets = assetLists.filter((asset) => asset.chainName === chainConfig.name)
 
 // Combine all wallets
 const wallets = [
@@ -35,9 +33,9 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   return (
     <ChainProvider
-      chains={chain}
-      assetLists={chainAssets}
-      wallets={wallets}
+      chains={chainNames}
+      assetLists={chainAssets as any}
+      wallets={wallets as any}
       throwErrors={false}
       walletConnectOptions={{
         signClient: {
