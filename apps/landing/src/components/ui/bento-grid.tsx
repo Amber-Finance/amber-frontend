@@ -40,6 +40,8 @@ const BentoCard = ({
   <a
     key={name}
     href={href}
+    target='_blank'
+    rel='noopener noreferrer'
     className={cn(
       'group relative col-span-2 lg:col-span-1 flex flex-col justify-between overflow-hidden rounded-xl h-[22rem]',
       // light styles
