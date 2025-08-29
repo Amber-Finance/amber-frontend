@@ -657,7 +657,7 @@ export function SkipPage() {
           </div>
         </div>
 
-        <div className='hidden flex-row justify-end items-center px-8 py-6 w-full md:flex'>
+        <div className='hidden flex-row justify-end items-center px-8 pt-24 w-full md:flex'>
           <p
             className={`text-center text-[13px] opacity-50 ${resolvedTheme === 'dark' ? 'text-white' : 'text-black'}`}
           >

@@ -329,12 +329,67 @@ input[type='number'] {
   pointer-events: none;
 }
 
-.widget-container .drzcYE button .bjIIKU,
-.widget-container .drzcYE button:hover .bjIIKU,
-.widget-container .drzcYE button:hover .bjIIKU::after {
+.widget-container .drzcYE button .KAoVz,
+.widget-container .drzcYE button:hover .KAoVz,
+.widget-container .drzcYE button:hover .KAoVz::after {
   background: transparent !important;
 }
 
 .widget-container .drzcYE .eGRKTo:last-of-type button svg {
   display: none;
+}
+
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: var(--radius);
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+  font-weight: 700; /* font-bold */
+  color: #ffffff; /* text-white */
+  cursor: pointer;
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  background: linear-gradient(
+    90deg,
+    var(--gradient-start),
+    var(--gradient-end),
+    var(--gradient-start)
+  );
+  background-size: 200% 200%; /* gradient-button */
+  transition: all 0.3s ease-in-out; /* duration-300 ease-in-out */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts:hover {
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  background-position: 100% 50%;
+  animation: gradient-shift 2s ease-in-out infinite; /* gradient-button:hover */
+}
+
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts:focus-visible {
+  outline: none; /* focus-visible:outline-none */
+  box-shadow:
+    0 0 0 1px var(--ring),
+    0 1px 2px rgba(0, 0, 0, 0.05); /* focus-visible:ring-1 focus-visible:ring-ring */
+}
+
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts:disabled,
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts[disabled],
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts[aria-disabled='true'] {
+  opacity: 0.5; /* disabled:opacity-50 */
+  cursor: not-allowed;
+}
+
+.widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD.bNIRts svg {
+  display: none;
+}
+
+.widget-container .khevCz::after,
+.widget-container .fzmkwH.oGLhP {
+  display: none !important;
 }
