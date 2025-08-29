@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { GitHubLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/ui'
 
 // Telegram Icon Component
 const TelegramIcon = ({ className }: { className?: string }) => (
@@ -30,17 +30,17 @@ interface Icon {
 
 const icons: Icon[] = [
   {
-    icon: <TwitterLogoIcon className='w-5 h-5' />,
+    icon: <TwitterLogoIcon className='h-5 w-5' />,
     url: 'https://twitter.com/amberfi_io',
     label: 'X',
   },
   {
-    icon: <GitHubLogoIcon className='w-5 h-5' />,
+    icon: <GitHubLogoIcon className='h-5 w-5' />,
     url: 'https://github.com/amber-finance',
     label: 'GitHub',
   },
   {
-    icon: <TelegramIcon className='w-5 h-5' />,
+    icon: <TelegramIcon className='h-5 w-5' />,
     url: 'https://t.me/mars_protocol',
     label: 'Mars Telegram',
   },
@@ -50,9 +50,16 @@ const footerSections = [
   {
     title: 'Platform',
     links: [
-      { title: 'Deposit', url: '/deposit' },
-      { title: 'Strategies (Looping)', url: '/strategies' },
-      { title: 'Swap', url: '/swap' },
+      { title: 'Deposit', url: process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io' },
+      {
+        title: 'Strategies (Looping)',
+        url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/strategies',
+      },
+      {
+        title: 'Swap',
+        url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
+      },
+      { title: 'Bridge', url: '/' },
     ],
   },
   {
@@ -68,38 +75,40 @@ export function Footer() {
   const { resolvedTheme } = useTheme()
 
   return (
-    <footer className='mt-20 border-t backdrop-blur-md bg-background/50 border-border/50'>
+    <footer className='mt-20 border-t border-border/50 bg-background/50 backdrop-blur-md'>
       {/* Main Footer Content */}
-      <div className='px-8 py-12 mx-auto max-w-6xl md:px-16'>
+      <div className='mx-auto max-w-6xl px-8 py-12 md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
-            <Link href='/' className='flex gap-x-3 items-center mb-4'>
-              <Image
-                src='/logo/logo-simple/logo-dark-400x140.sv'
-                alt='Amber Finance'
-                width={142}
-                height={50}
-                className={cn(
-                  'h-10 w-auto transition-opacity duration-700 ease-in-out',
-                  resolvedTheme === 'dark' ? 'opacity-0' : 'opacity-100',
-                )}
-              />
-              <Image
-                src='/logo/logo-simple/logo-light-400x140.sv'
-                alt='Amber Finance'
-                width={142}
-                height={50}
-                className={cn(
-                  'h-10 w-auto absolute inset-0 transition-opacity duration-700 ease-in-out',
-                  resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
-                )}
-              />
+            <Link href='/' className='mb-4 flex items-center gap-x-3'>
+              <div className='relative h-10'>
+                <Image
+                  src='/logo/logo-simple/logo-dark-400x140.svg'
+                  alt='Amber Finance'
+                  width={142}
+                  height={50}
+                  className={cn(
+                    'h-10 w-auto transition-opacity duration-700 ease-in-out',
+                    resolvedTheme === 'dark' ? 'opacity-0' : 'opacity-100',
+                  )}
+                />
+                <Image
+                  src='/logo/logo-simple/logo-light-400x140.svg'
+                  alt='Amber Finance'
+                  width={142}
+                  height={50}
+                  className={cn(
+                    'absolute inset-0 h-10 w-auto transition-opacity duration-700 ease-in-out',
+                    resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
+                  )}
+                />
+              </div>
             </Link>
             <p className='mb-6 max-w-md text-muted-foreground'>Connect with us:</p>
 
             {/* Social Links */}
-            <div className='flex gap-x-4 items-center'>
+            <div className='flex items-center gap-x-4'>
               {icons.map((icon) => (
                 <a
                   key={icon.label}
@@ -107,7 +116,7 @@ export function Footer() {
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label={icon.label}
-                  className='flex justify-center items-center w-10 h-10 rounded-md border transition-all duration-200 ease-linear border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:border-border hover:bg-card'
+                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/50 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
                 >
                   {icon.icon}
                 </a>
@@ -116,10 +125,10 @@ export function Footer() {
           </div>
 
           {/* Link Sections Container */}
-          <div className='grid grid-cols-2 gap-8 text-right md:grid-cols-2 md:col-span-2'>
+          <div className='grid grid-cols-2 gap-8 text-right md:col-span-2 md:grid-cols-2'>
             {footerSections.map((section, index) => (
               <div key={index} className='text-right'>
-                <h3 className='mb-4 text-sm font-semibold tracking-wider uppercase text-foreground'>
+                <h3 className='mb-4 text-sm font-semibold uppercase tracking-wider text-foreground'>
                   {section.title}
                 </h3>
                 <ul className='space-y-3'>
@@ -130,14 +139,14 @@ export function Footer() {
                           href={link.url}
                           target='_blank'
                           rel='noopener noreferrer'
-                          className='text-sm transition-all duration-200 ease-linear text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
                         >
                           {link.title}
                         </a>
                       ) : (
                         <Link
                           href={link.url}
-                          className='text-sm transition-all duration-200 ease-linear text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
                         >
                           {link.title}
                         </Link>
@@ -153,8 +162,8 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className='border-t border-border/50 bg-card/30'>
-        <div className='px-8 py-4 mx-auto max-w-6xl md:px-16'>
-          <p className='text-sm text-center text-muted-foreground'>
+        <div className='mx-auto max-w-6xl px-8 py-4 md:px-16'>
+          <p className='text-center text-sm text-muted-foreground'>
             © 2025 Amber Finance. All rights reserved.
           </p>
         </div>

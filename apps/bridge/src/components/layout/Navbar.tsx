@@ -8,16 +8,21 @@ import { usePathname } from 'next/navigation'
 
 import { Menu, X } from 'lucide-react'
 
-import ConnectButton from '@/components/common/ConnectButton'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/ui'
 
 const navigation = [
-  { name: 'Deposit', href: '/' },
-  { name: 'Strategies', href: '/strategies' },
-  { name: 'Swap', href: '/swap' },
-  { name: 'Bridge', href: 'https://bridge.amberfi.io' },
+  { name: 'Deposit', href: process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io' },
+  {
+    name: 'Strategies',
+    href: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/strategies',
+  },
+  {
+    name: 'Swap',
+    href: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
+  },
+  { name: 'Bridge', href: '/' },
 ]
 
 export function Navbar() {
@@ -46,10 +51,10 @@ export function Navbar() {
 
   return (
     <>
-      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50'>
-        <nav className='px-4 py-2 mx-auto max-w-screen-2xl sm:px-6 lg:px-8'>
-          <div className='flex justify-between items-center py-1'>
-            <Link href='/' className='flex items-center space-x-2 group'>
+      <header className='fixed left-0 right-0 top-0 z-50 bg-background/50 backdrop-blur-md'>
+        <nav className='mx-auto max-w-screen-2xl px-4 py-2 sm:px-6 lg:px-8'>
+          <div className='flex items-center justify-between py-1'>
+            <Link href='/' className='group flex items-center space-x-2'>
               <div className='relative'>
                 <Image
                   src='/logo/logo-simple/logo-dark-400x140.svg'
@@ -74,17 +79,19 @@ export function Navbar() {
               </div>
             </Link>
 
-            <div className='hidden justify-center items-center p-1 rounded-full border md:flex bg-card/50 border-border/80'>
+            <div className='hidden items-center justify-center rounded-full border border-border/80 bg-card/50 p-1 md:flex'>
               {navigation.map((item, idx) => {
-                const isActive = pathname === item.href
+                const isActive =
+                  pathname === item.href || (item.name === 'Bridge' && pathname === '/')
+
                 return (
                   <Link
                     key={`nav-${item.name}-${idx}`}
                     href={item.href}
                     className={cn(
-                      'flex relative items-center px-6 py-2 text-base tracking-wide rounded-full transition-all duration-300',
+                      'relative flex items-center rounded-full px-6 py-2 text-base tracking-wide transition-all duration-300',
                       isActive
-                        ? 'text-foreground nav-glow-active'
+                        ? 'nav-glow-active text-foreground'
                         : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
@@ -96,11 +103,8 @@ export function Navbar() {
 
             {/* Desktop Actions */}
             <div className='hidden md:flex md:items-center md:space-x-3'>
-              <div className='hidden p-1 rounded-full border md:flex md:items-center bg-card/50 border-border/80'>
+              <div className='hidden rounded-full border border-border/80 bg-card/50 p-1 md:flex md:items-center'>
                 <ThemeToggle />
-              </div>
-              <div className='hidden p-2 text-base rounded-full border md:flex md:items-center md:space-x-3 bg-card/50 border-border/80'>
-                <ConnectButton />
               </div>
             </div>
 
@@ -109,15 +113,15 @@ export function Navbar() {
               <ThemeToggle />
               <button
                 type='button'
-                className='inline-flex justify-center items-center p-2 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary'
+                className='inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground'
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded='false'
               >
                 <span className='sr-only'>Open main menu</span>
                 {mobileMenuOpen ? (
-                  <X className='block w-5 h-5' aria-hidden='true' />
+                  <X className='block h-5 w-5' aria-hidden='true' />
                 ) : (
-                  <Menu className='block w-5 h-5' aria-hidden='true' />
+                  <Menu className='block h-5 w-5' aria-hidden='true' />
                 )}
               </button>
             </div>
@@ -130,25 +134,48 @@ export function Navbar() {
         <div className='fixed inset-0 z-40 md:hidden'>
           {/* Backdrop */}
           <div
-            className='fixed inset-0 backdrop-blur-sm bg-background/80'
+            className='fixed inset-0 bg-background/80 backdrop-blur-sm'
             onClick={() => setMobileMenuOpen(false)}
           />
 
           {/* Menu Panel */}
-          <div className='fixed right-0 left-0 top-16 border-b shadow-lg backdrop-blur-md bg-background/95 border-border'>
-            <div className='px-6 py-8 space-y-6'>
+          <div className='fixed left-0 right-0 top-16 border-b border-border bg-background/95 shadow-lg backdrop-blur-md'>
+            <div className='space-y-6 px-6 py-8'>
               <div className='space-y-2'>
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href
+                  const isActive =
+                    pathname === item.href || (item.name === 'Bridge' && pathname === '/')
+                  const isExternal = item.href.startsWith('http')
+
+                  if (isExternal) {
+                    return (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className={cn(
+                          'relative block rounded-2xl px-6 py-4 text-base font-semibold transition-all duration-300',
+                          isActive
+                            ? 'nav-glow-active text-foreground'
+                            : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground',
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span className='relative z-10'>{item.name}</span>
+                      </a>
+                    )
+                  }
+
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        'block relative px-6 py-4 text-base font-semibold rounded-2xl transition-all duration-300',
+                        'relative block rounded-2xl px-6 py-4 text-base font-semibold transition-all duration-300',
                         isActive
-                          ? 'text-foreground nav-glow-active'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
+                          ? 'nav-glow-active text-foreground'
+                          : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground',
                       )}
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -156,11 +183,6 @@ export function Navbar() {
                     </Link>
                   )
                 })}
-              </div>
-
-              {/* Mobile Connect Button */}
-              <div className='pt-4 border-t border-border'>
-                <ConnectButton />
               </div>
             </div>
           </div>

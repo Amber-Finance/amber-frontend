@@ -3,36 +3,43 @@
 @tailwind utilities;
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
+  margin: 0;
+  background: transparent;
 }
 
 :root {
-    --eureka-border: conic-gradient(from 90deg at 50% 50%, #49D6DD 0deg, #FF663C 120.6000030040741deg, #D466FF 251.99999570846558deg, #49D6DD 360deg);
+  --eureka-border: conic-gradient(
+    from 90deg at 50% 50%,
+    #49d6dd 0deg,
+    #ff663c 120.6000030040741deg,
+    #d466ff 251.99999570846558deg,
+    #49d6dd 360deg
+  );
 }
 
 [data-logo="skip-go"] {
-    display: none !important;
+  display: none !important;
 }
 
 .widget-container {
-    padding: 0 10px;
-    width: 500px;
-  }
-  
-@media screen and (min-height: 600px) {
-    .widget-container {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-185px);
-    }
+  padding: 0 10px;
+  width: 500px;
 }
-  
+
+@media screen and (min-height: 600px) {
+  .widget-container {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-185px);
+  }
+}
+
 @media screen and (max-width: 500px) {
-    .widget-container {
-        width: 100vw;
-    }
+  .widget-container {
+    width: 100vw;
+  }
 }

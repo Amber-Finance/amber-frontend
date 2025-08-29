@@ -26,7 +26,7 @@ export default function Home() {
           <div className="relative h-[250px] w-[95%] overflow-hidden rounded-3xl bg-white p-2 shadow-xl sm:w-[450px]">
             <div className="flex h-full w-full flex-col items-center justify-center space-y-4">
               <p className="font-diatype text-2xl font-bold">Sorry!</p>
-              <p className="text-center font-diatype">The Skip Go App is unavailable in your region.</p>
+              <p className="font-diatype text-center">The Skip Go App is unavailable in your region.</p>
             </div>
           </div>
         </div>

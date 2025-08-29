@@ -1,6 +1,6 @@
-import type { ComponentProps } from "react";
+import type { SVGProps } from "react";
 
-export const IbcFunLogo = (props: ComponentProps<"svg">) => {
+export const IbcFunLogo = ({ ref: _ref, ...props }: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       fill="none"

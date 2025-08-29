@@ -52,7 +52,6 @@ async function collectChainData(directory, packageName, networkType, apiType, is
             const extractedData = apiType === "rpc" ? extractRpc(chain) : extractRest(chain);
             chains.push(extractedData);
           }
-
         } catch (error) {
           console.warn(`Error generating chain info for ${chainName} in ${packageName}:`, error.message);
         }

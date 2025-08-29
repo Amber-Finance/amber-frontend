@@ -11,7 +11,7 @@ function SkipBanner({ className, ...props }: Omit<AdaptiveLinkProps, "href">) {
       className={cn("overflow-hidden bg-[#FF486E] py-2 text-sm font-semibold text-white", className)}
       {...props}
     >
-      <div className="flex w-[5000px] animate-banner-rotate items-center">
+      <div className="animate-banner-rotate flex w-[5000px] items-center">
         {Array.from({ length: 6 }, (_, i) => (
           <div
             className="inline-flex w-[1000px] items-center justify-around uppercase"

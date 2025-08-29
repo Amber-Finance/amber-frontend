@@ -1,12 +1,12 @@
 import { APP_DOMAIN, APP_PROTOCOL } from "./api";
 
 export const metadata = {
-  name: "Skip:Go - Anything Anywhere",
-  shortName: "Skip:Go",
-  description: "Everything you need to seamlessly connect your application, protocol, or ecosystem across chains.",
+  name: "Amber Finance - Bridge",
+  shortName: "Amber",
+  description: "Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to earn real yield.",
   domain: APP_DOMAIN,
   email: "support@skip.build",
-  images: [{ url: `${APP_PROTOCOL}://${APP_DOMAIN}/social-thumbnail.png` }],
+  images: [{ url: `${APP_PROTOCOL}://${APP_DOMAIN}/favicon-96x96.png` }],
   url: `${APP_PROTOCOL}://${APP_DOMAIN}`,
   github: {
     username: "skip-mev",

@@ -44,7 +44,7 @@ export const Banner = ({ theme }: { theme: "dark" | "light" }) => {
         className={`flex flex-col gap-[18px] rounded-[10px] p-[18px] ${theme === "light" ? "bg-white text-black" : "bg-black text-white"}`}
       >
         <strong
-          className={`flex items-center justify-between font-diatype text-[15px] ${theme === "light" ? "text-black" : "text-white"}`}
+          className={`font-diatype flex items-center justify-between text-[15px] ${theme === "light" ? "text-black" : "text-white"}`}
         >
           {process.env.NEXT_PUBLIC_BANNER_TITLE}
           <CloseIcon

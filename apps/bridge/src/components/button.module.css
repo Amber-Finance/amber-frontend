@@ -1,4 +1,4 @@
-.skipbutton{
+.skipbutton {
   font-size: 1rem;
   padding: 0.4rem 0.7rem 0.4rem 0.8rem;
   font-weight: 600;
@@ -19,24 +19,23 @@
   text-decoration: none;
   width: fit-content;
 }
-.skipbutton:hover{
-
+.skipbutton:hover {
   color: white;
   background-color: black;
   cursor: pointer;
 }
 
-.skipbutton:hover svg{
+.skipbutton:hover svg {
   fill: white;
 }
 
-.skipbutton svg{
+.skipbutton svg {
   width: auto;
   fill: black;
 }
 
 @media screen and (max-width: 767px) /* Mobile */ {
-  .widgetButton{
+  .widgetButton {
     display: none !important;
   }
 }
