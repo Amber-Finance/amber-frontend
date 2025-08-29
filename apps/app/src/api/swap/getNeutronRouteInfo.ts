@@ -1,10 +1,9 @@
 import { route as skipRoute } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
-import getAstroportRouteInfo from '@/api/swap/getAstroportRouteInfo'
 import { BN, byDenom, toIntegerString } from '@/utils/helpers'
 
-type VenueType = 'duality' | 'astroport' | 'mixed' | 'unknown'
+type VenueType = 'duality' | 'unknown'
 
 function analyzeVenues(skipRouteResponse: any): VenueType {
   if (!skipRouteResponse) return 'unknown'
@@ -22,11 +21,9 @@ function analyzeVenues(skipRouteResponse: any): VenueType {
   })
 
   if (venuesUsed.size === 0) return 'unknown'
-  if (venuesUsed.size > 1) return 'mixed'
 
   const singleVenue = Array.from(venuesUsed)[0]
   if (singleVenue === 'neutron-duality') return 'duality'
-  if (singleVenue === 'neutron-astroport') return 'astroport'
 
   return 'unknown'
 }
@@ -55,23 +52,6 @@ function createDualityRoute(denomIn: string, denomOut: string, swapOperations: a
       from: denomIn,
       swap_denoms: swapDenoms,
       to: denomOut,
-    },
-  }
-}
-
-function createAstroportRoute(denomIn: string, denomOut: string, swapOperations: any[]): any {
-  const swaps: any[] = []
-
-  swapOperations.forEach((op: any) => {
-    swaps.push({
-      from: op.denomIn,
-      to: op.denomOut,
-    })
-  })
-
-  return {
-    astro: {
-      swaps: swaps.length > 0 ? swaps : [{ from: denomIn, to: denomOut }],
     },
   }
 }
@@ -123,7 +103,6 @@ async function getNeutronRouteInfoInternal(
   chainConfig: ChainConfig,
   routeParams: any,
   isReverse: boolean = false,
-  shouldFallbackToAstroport: boolean = true,
 ): Promise<SwapRouteInfo | null> {
   try {
     const amountInWithDecimals = new BigNumber(routeParams.amountIn).integerValue().toString()
@@ -135,49 +114,25 @@ async function getNeutronRouteInfoInternal(
       destAssetDenom: denomOut,
       destAssetChainId: chainConfig.id,
       allowUnsafe: true,
-      swapVenues: [
-        { name: 'neutron-duality', chainId: chainConfig.id },
-        { name: 'neutron-astroport', chainId: chainConfig.id },
-      ],
+      swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
       amountIn: amountInWithDecimals,
     }
 
     const skipRouteResponse = await skipRoute(skipRouteParams)
 
     if (!skipRouteResponse) {
-      if (shouldFallbackToAstroport && !isReverse) {
-        return await getAstroportRouteInfo(
-          denomIn,
-          denomOut,
-          routeParams.amountIn,
-          assets,
-          chainConfig,
-        )
-      }
-      return null
+      throw new Error('No route response from Skip API')
     }
 
     const venueType = analyzeVenues(skipRouteResponse)
 
-    if (venueType === 'mixed' || venueType === 'unknown') {
-      if (shouldFallbackToAstroport && !isReverse) {
-        return await getAstroportRouteInfo(
-          denomIn,
-          denomOut,
-          routeParams.amountIn,
-          assets,
-          chainConfig,
-        )
-      }
-      return null
+    if (venueType === 'unknown') {
+      throw new Error('Unknown venue type - no Duality routes available')
     }
 
     const swapOperations = extractSwapOperations(skipRouteResponse)
 
-    const route =
-      venueType === 'duality'
-        ? createDualityRoute(denomIn, denomOut, swapOperations)
-        : createAstroportRoute(denomIn, denomOut, swapOperations)
+    const route = createDualityRoute(denomIn, denomOut, swapOperations)
 
     const description = createSwapDescription(denomIn, denomOut, assets)
 
@@ -185,24 +140,13 @@ async function getNeutronRouteInfoInternal(
 
     return routeInfo
   } catch (error) {
-    console.log('getNeutronRouteInfoInternal error', error)
-    if (shouldFallbackToAstroport && !isReverse) {
-      return await getAstroportRouteInfo(
-        denomIn,
-        denomOut,
-        routeParams.amountIn,
-        assets,
-        chainConfig,
-      )
-    }
-    return null
+    console.error('There was an error getting the route info', error)
+    throw error
   }
 }
 
 /**
  * Reverse routing function that uses minAmountOut instead of amountIn
- * Specifically designed for HLS debt repayment scenarios where we need
- * to know how much collateral to swap to get an exact debt amount
  */
 /**
  * Implements reverse routing using Skip API's native reverse swap support
@@ -226,10 +170,7 @@ export async function getNeutronRouteInfoReverse(
       destAssetDenom: denomOut,
       destAssetChainId: chainConfig.id,
       allowUnsafe: true,
-      swapVenues: [
-        { name: 'neutron-duality', chainId: chainConfig.id },
-        { name: 'neutron-astroport', chainId: chainConfig.id },
-      ],
+      swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
       // Use reverse routing parameters
       amountOut: toIntegerString(amountOut),
     }
@@ -237,21 +178,18 @@ export async function getNeutronRouteInfoReverse(
     const skipRouteResponse = await skipRoute(skipRouteParams)
 
     if (!skipRouteResponse) {
-      return null
+      throw new Error('No route response from Skip API')
     }
 
     const venueType = analyzeVenues(skipRouteResponse)
 
-    if (venueType === 'mixed' || venueType === 'unknown') {
-      return null
+    if (venueType === 'unknown') {
+      throw new Error('Unknown venue type - no Duality routes available')
     }
 
     const swapOperations = extractSwapOperations(skipRouteResponse)
 
-    const route =
-      venueType === 'duality'
-        ? createDualityRoute(denomIn, denomOut, swapOperations)
-        : createAstroportRoute(denomIn, denomOut, swapOperations)
+    const route = createDualityRoute(denomIn, denomOut, swapOperations)
 
     const description = createSwapDescription(denomIn, denomOut, assets)
 
@@ -270,14 +208,19 @@ export async function getNeutronRouteInfoReverse(
     return routeInfo
   } catch (error) {
     // Fallback to binary search if native reverse routing fails
-    return await binarySearchReverseRouting(
-      denomIn,
-      denomOut,
-      amountOut,
-      assets,
-      chainConfig,
-      effectiveSlippage,
-    )
+    try {
+      return await binarySearchReverseRouting(
+        denomIn,
+        denomOut,
+        amountOut,
+        assets,
+        chainConfig,
+        effectiveSlippage,
+      )
+    } catch (fallbackError) {
+      console.error('Both reverse routing methods failed', error, fallbackError)
+      throw error
+    }
   }
 }
 
@@ -315,7 +258,6 @@ async function binarySearchReverseRouting(
         assets,
         chainConfig,
         { amountIn: mid.toString() },
-        false,
         false,
       )
 
@@ -356,7 +298,7 @@ async function binarySearchReverseRouting(
     return bestRoute
   }
 
-  return null
+  throw new Error('No route found through binary search')
 }
 
 export default async function getNeutronRouteInfo(
@@ -373,6 +315,5 @@ export default async function getNeutronRouteInfo(
     chainConfig,
     { amountIn: amount.toString() },
     false, // isReverse
-    true, // shouldFallbackToAstroport
   )
 }

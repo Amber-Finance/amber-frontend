@@ -75,6 +75,8 @@ export function MarsFork() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.6 }}
               href='https://docs.marsprotocol.io/'
+              target='_blank'
+              rel='noopener noreferrer'
               className='group relative overflow-hidden rounded-xl bg-background [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:bg-background dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-10px_30px_-10px_#ffffff1f_inset] p-8 flex flex-col transform-gpu transition-all duration-300'
             >
               <div className='flex flex-col gap-6'>

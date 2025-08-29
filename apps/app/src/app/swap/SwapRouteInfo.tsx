@@ -21,6 +21,8 @@ interface SwapRouteInfoProps {
   slippage: number
   isRouteLoading?: boolean
   route?: any
+  isDebouncePending?: boolean
+  routeError?: any
 }
 
 export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
@@ -32,8 +34,13 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
   slippage,
   isRouteLoading = false,
   route,
+  isDebouncePending = false,
+  routeError,
 }) => {
-  if (isRouteLoading) {
+  const hasValidAmounts = amountIn && parseFloat(amountIn) > 0 && amountOut && amountOut.gt(0)
+  const shouldShowLoading = isRouteLoading || isDebouncePending || (!hasValidAmounts && !routeError)
+
+  if (shouldShowLoading) {
     return (
       <div className='p-3 rounded-lg bg-muted/20 border border-border/30 space-y-2 text-sm my-2'>
         <div className='flex justify-between'>
@@ -56,18 +63,9 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
     )
   }
 
-  const hasValidRoute =
-    amountOut &&
-    amountOut.gt(0) &&
-    fromToken &&
-    toToken &&
-    amountIn &&
-    route &&
-    (route.astro || route.duality)
-
-  if (!hasValidRoute) {
+  if (routeError && !isRouteLoading && !isDebouncePending) {
     return (
-      <div className='flex items-center justify-center h-[100px] rounded-lg border border-border/30 my-2'>
+      <div className='flex items-center justify-center h-[130px] rounded-lg border border-border/30 my-2'>
         <span className='text-muted-foreground text-sm'>No route available</span>
       </div>
     )

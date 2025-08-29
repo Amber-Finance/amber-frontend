@@ -216,30 +216,7 @@ type SwapRouteInfo = {
   description: string
 }
 
-type AstroportRouteResponse = {
-  id: string
-  swaps: AstroportRoute[]
-  denom_in: string
-  decimals_in: number
-  price_in: number
-  value_in: string
-  amount_in: string
-  denom_out: string
-  decimals_out: number
-  price_out: number
-  value_out: string
-  amount_out: string
-  price_difference: number
-  price_impact: number
-}
 
-type AstroportRoute = {
-  contract_addr: string
-  from: string
-  to: string
-  type: string
-  illiquid: boolean
-}
 
 /**
  * Options for formatting values
@@ -563,23 +540,8 @@ interface SwapRouteInfo {
   route: SwapperRoute
 }
 
-// Import the SwapperRoute type from the generated types
-type SwapperRoute =
-  | {
-      astro: AstroRoute
-    }
-  | {
-      duality: DualityRoute
-    }
-
-
-interface AstroRoute {
-  swaps: AstroSwap[]
-}
-
-interface AstroSwap {
-  from: string
-  to: string
+type SwapperRoute = {
+  duality: DualityRoute
 }
 
 interface DualityRoute {

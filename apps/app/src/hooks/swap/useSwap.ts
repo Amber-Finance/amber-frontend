@@ -56,16 +56,8 @@ export function useSwap() {
         slippage,
       )
 
-      // Determine which swapper contract to use
-      let swapperContractAddress: string
-      if (routeInfo.route.duality) {
-        swapperContractAddress = chainConfig.contracts.dualitySwapper
-      } else if (routeInfo.route.astro) {
-        swapperContractAddress = chainConfig.contracts.swapper
-      } else {
-        console.error('Invalid route structure')
-        return
-      }
+      // Use duality swapper contract
+      const swapperContractAddress = chainConfig.contracts.dualitySwapper
 
       // Execute the swap
       const result = await client.execute(

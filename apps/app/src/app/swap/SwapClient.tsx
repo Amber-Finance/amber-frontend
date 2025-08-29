@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useMarkets, useTokenPreselection } from '@/hooks'
-import useRouteInfo from '@/hooks/swap/useRouteInfo'
+import useRouteInfo, { useRouteInfoReverse } from '@/hooks/swap/useRouteInfo'
 import { useSwap } from '@/hooks/swap/useSwap'
 import useDebounce from '@/hooks/useDebounce'
 import useWalletBalances from '@/hooks/useWalletBalances'
@@ -60,8 +60,10 @@ export default function SwapClient() {
   const [isTokenModalOpen, setTokenModalOpen] = useState(false)
   const [selectingFrom, setSelectingFrom] = useState(true)
   const [isSwapInProgress, setIsSwapInProgress] = useState(false)
+  const [editingDirection, setEditingDirection] = useState<'from' | 'to'>('from')
   const fromInputRef = useRef<HTMLInputElement>(null)
   const debouncedFromAmount = useDebounce(fromAmount, 300)
+  const debouncedToAmount = useDebounce(toAmount, 300)
 
   const { executeSwap } = useSwap()
 
@@ -110,21 +112,60 @@ export default function SwapClient() {
   const hasInsufficientBalance =
     fromToken && fromAmount && parseFloat(fromAmount) > parseFloat(fromToken.balance)
 
-  const { data: routeInfo, isLoading: isRouteLoading } = useRouteInfo(
+  const {
+    data: forwardRouteInfo,
+    isLoading: isForwardRouteLoading,
+    error: forwardRouteError,
+  } = useRouteInfo(
     fromToken?.denom || '',
     toToken?.denom || '',
     new BigNumber(debouncedFromAmount || '0').shiftedBy(fromToken?.decimals || 8),
     markets || [],
+    slippage,
   )
 
+  const {
+    data: reverseRouteInfo,
+    isLoading: isReverseRouteLoading,
+    error: reverseRouteError,
+  } = useRouteInfoReverse(
+    fromToken?.denom || '',
+    toToken?.denom || '',
+    new BigNumber(debouncedToAmount || '0').shiftedBy(toToken?.decimals || 8),
+    markets || [],
+    slippage,
+  )
+
+  const isFromDebouncePending = fromAmount !== debouncedFromAmount
+  const isToDebouncePending = toAmount !== debouncedToAmount
+  const isDebouncePending =
+    editingDirection === 'from' ? isFromDebouncePending : isToDebouncePending
+
+  const routeInfo = editingDirection === 'from' ? forwardRouteInfo : reverseRouteInfo
+  const isRouteLoading = editingDirection === 'from' ? isForwardRouteLoading : isReverseRouteLoading
+  const routeError = editingDirection === 'from' ? forwardRouteError : reverseRouteError
+
   useEffect(() => {
-    if (routeInfo && routeInfo.amountOut && toToken) {
-      const toAmountCalculated = new BigNumber(routeInfo.amountOut).shiftedBy(-toToken.decimals)
-      setToAmount(toAmountCalculated.toString())
-    } else {
-      setToAmount('')
+    if (editingDirection === 'from') {
+      if (forwardRouteInfo && forwardRouteInfo.amountOut && toToken) {
+        const toAmountCalculated = new BigNumber(forwardRouteInfo.amountOut).shiftedBy(
+          -toToken.decimals,
+        )
+        setToAmount(toAmountCalculated.toString())
+      } else if (!forwardRouteInfo) {
+        setToAmount('')
+      }
+    } else if (editingDirection === 'to') {
+      if (reverseRouteInfo && (reverseRouteInfo as any).amountIn && fromToken) {
+        const fromAmountCalculated = new BigNumber((reverseRouteInfo as any).amountIn).shiftedBy(
+          -fromToken.decimals,
+        )
+        setFromAmount(fromAmountCalculated.toString())
+      } else if (!reverseRouteInfo) {
+        setFromAmount('')
+      }
     }
-  }, [routeInfo, toToken])
+  }, [editingDirection, forwardRouteInfo, reverseRouteInfo, toToken, fromToken])
 
   useEffect(() => {
     if (!address) {
@@ -157,6 +198,7 @@ export default function SwapClient() {
     setToTokenDenom(tempDenom)
     setFromAmount(toAmount)
     setToAmount(tempAmount)
+    setEditingDirection('from')
   }
 
   const fromUsdValue = fromToken?.price && fromAmount ? fromToken.price * parseFloat(fromAmount) : 0
@@ -165,13 +207,13 @@ export default function SwapClient() {
   const handleSwap = async () => {
     if (!routeInfo || !fromToken || !toToken) return
 
-    // console.log('handleSwap', routeInfo, fromToken, toToken, fromAmount, slippage)
     setIsSwapInProgress(true)
     try {
       const success = await executeSwap(routeInfo, fromToken, toToken, fromAmount, slippage)
       if (success) {
         setFromAmount('')
         setToAmount('')
+        setEditingDirection('from')
       }
     } catch (error) {
       console.error('Swap failed:', error)
@@ -186,19 +228,18 @@ export default function SwapClient() {
     ? 'Connect Wallet'
     : isSwapInProgress
       ? 'Swapping...'
-      : isRouteLoading
+      : isRouteLoading || isDebouncePending
         ? 'Loading route...'
         : showInsufficientFunds
           ? `Insufficient ${fromToken?.symbol} Balance`
           : !fromToken || !toToken
             ? 'Select tokens'
-            : !fromAmount
+            : !fromAmount || !toAmount
               ? 'Enter amount'
               : !routeInfo
                 ? 'No route available'
                 : 'Swap'
 
-  console.log(routeInfo, 'routeInfo')
   return (
     <>
       <TokenPathBackground />
@@ -208,7 +249,7 @@ export default function SwapClient() {
             Swap <AuroraText>Bitcoin Assets</AuroraText>
           </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-            Trade between BRTs, wBTC, and wBTC.axl with minimal slippage and competitive rates
+            Trade between BRTs, wBTC, and maxBTC with minimal slippage and competitive rates
           </p>
         </div>
       </div>
@@ -288,6 +329,7 @@ export default function SwapClient() {
                     if (fromToken && parseFloat(fromToken.balance) > 0) {
                       const calculatedAmount = parseFloat(fromToken.balance) * percent
                       setFromAmount(calculatedAmount.toFixed(8))
+                      setEditingDirection('from')
                     }
                   }}
                   disabled={!fromToken || parseFloat(fromToken.balance) <= 0}
@@ -309,6 +351,7 @@ export default function SwapClient() {
                       clean += '.' + parts.slice(1).join('')
                     }
                     setFromAmount(clean)
+                    setEditingDirection('from')
                     setTimeout(() => {
                       if (fromInputRef.current) {
                         fromInputRef.current.selectionStart = fromInputRef.current.value.length
@@ -386,8 +429,16 @@ export default function SwapClient() {
                   type='text'
                   value={formatWithThousandsSeparator(toAmount)}
                   onChange={(e) => {
-                    // Remove commas before updating state
-                    setToAmount(e.target.value.replace(/,/g, ''))
+                    // Get raw value without commas
+                    const raw = stripNonNumericExceptDot(e.target.value.replace(/,/g, ''))
+                    // Prevent multiple decimals
+                    const parts = raw.split('.')
+                    let clean = parts[0]
+                    if (parts.length > 1) {
+                      clean += '.' + parts.slice(1).join('')
+                    }
+                    setToAmount(clean)
+                    setEditingDirection('to')
                   }}
                   placeholder='0.00'
                   className='w-full pr-32 bg-transparent text-xl font-semibold text-foreground outline-none border-none focus:ring-0 placeholder:text-muted-foreground'
@@ -436,7 +487,7 @@ export default function SwapClient() {
             </div>
 
             {/* Swap Info */}
-            {fromToken && toToken && fromAmount && (
+            {fromToken && toToken && (fromAmount || toAmount) && (
               <SwapRouteInfo
                 amountIn={fromAmount}
                 amountOut={routeInfo?.amountOut || new BigNumber(0)}
@@ -446,6 +497,8 @@ export default function SwapClient() {
                 slippage={slippage}
                 isRouteLoading={isRouteLoading}
                 route={routeInfo?.route}
+                isDebouncePending={isDebouncePending}
+                routeError={routeError}
               />
             )}
 
@@ -456,9 +509,13 @@ export default function SwapClient() {
                   !fromToken ||
                   !toToken ||
                   !fromAmount ||
+                  !toAmount ||
                   isSwapInProgress ||
+                  isDebouncePending ||
                   isRouteLoading ||
-                  showInsufficientFunds
+                  showInsufficientFunds ||
+                  routeError ||
+                  !routeInfo
                 )
               }
               className='w-full h-12'
