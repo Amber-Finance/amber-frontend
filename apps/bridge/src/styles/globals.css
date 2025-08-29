@@ -325,7 +325,8 @@ input[type='number'] {
   mix-blend-mode: normal;
 }
 
-.widget-container .drzcYE .eGRKTo:last-of-type {
+.widget-container .drzcYE .eGRKTo:last-of-type,
+.widget-container button.sc-ggWZvA {
   pointer-events: none;
 }
 

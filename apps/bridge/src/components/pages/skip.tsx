@@ -580,14 +580,13 @@ export function SkipPage() {
             <div className='flex flex-col flex-1 gap-6 justify-between'>
               <div className='space-y-3'>
                 <h1 className='text-3xl leading-tight lg:text-5xl font-funnel'>
-                  <>Liquid Staking.</>
+                  Bridge BRTs.
                   <span className='block'>
-                    <AuroraText>Solid Yields.</AuroraText>
+                    <AuroraText>Via Skip:Go</AuroraText>
                   </span>
                 </h1>
                 <p className='max-w-lg text-sm leading-relaxed sm:text-base text-muted-foreground'>
-                  Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets
-                  to earn real yield.
+                  Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
                 </p>
               </div>
             </div>
