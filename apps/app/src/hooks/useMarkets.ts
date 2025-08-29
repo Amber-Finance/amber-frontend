@@ -16,10 +16,8 @@ const createInitialMarkets = (paramsData: AssetParamsResponse, tokensData: Token
     .filter(
       // Only include assets where deposits are enabled, credit_manager.whitelisted is true,
       // and max_loan_to_value is not "0"
-      (param) =>
-        param.red_bank.deposit_enabled &&
-        param.credit_manager.whitelisted &&
-        param.max_loan_to_value !== '0',
+      (param) => param.red_bank.deposit_enabled && param.credit_manager.whitelisted,
+      // && param.max_loan_to_value !== '0',
     )
     .map((param) => {
       // Find matching token in tokens data

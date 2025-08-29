@@ -11,6 +11,7 @@ import WalletModal from '@/components/modals/WalletModal'
 import { HoverBaseButton } from '@/components/ui/HoverBaseButton'
 import chainConfig from '@/config/chain'
 import { cn } from '@/lib/utils'
+import { useStore } from '@/store/useStore'
 
 export default function ConnectButton() {
   const [showWalletModal, setShowWalletModal] = useState(false)
@@ -19,6 +20,8 @@ export default function ConnectButton() {
 
   const { connect, isWalletConnecting, isWalletConnected, address, username, wallet, disconnect } =
     useChain(chainConfig.name)
+
+  const { resetPositions } = useStore()
 
   // Handle connection
   const handleClick = () => {
@@ -31,6 +34,7 @@ export default function ConnectButton() {
 
   // Handle disconnect
   const handleDisconnect = () => {
+    resetPositions()
     disconnect()
     setShowDropdown(false)
   }

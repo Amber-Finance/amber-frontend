@@ -70,7 +70,7 @@ importers:
         version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
       '@cosmos-kit/keplr':
         specifier: ^2.15.3
-        version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
+        version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
       '@cosmos-kit/leap':
         specifier: ^2.15.3
         version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(cosmjs-types@0.10.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
@@ -130,7 +130,7 @@ importers:
         version: 1.2.8(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@skip-go/client':
         specifier: ^1.5.4
-        version: 1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)(viem@2.36.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))
+        version: 1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.36.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))
       '@vercel/analytics':
         specifier: ^1.5.0
         version: 1.5.0(next@15.5.2(@babel/core@7.26.0)(@playwright/test@1.55.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
@@ -251,10 +251,10 @@ importers:
         version: 1.0.6
       '@keplr-wallet/cosmos':
         specifier: 0.12.189
-        version: 0.12.189
+        version: 0.12.189(starknet@7.6.4)
       '@keplr-wallet/types':
         specifier: ^0.12.66
-        version: 0.12.251(starknet@7.5.1)
+        version: 0.12.251(starknet@7.6.4)
       '@next/third-parties':
         specifier: ^15.2.3
         version: 15.5.2(next@14.2.32(@babel/core@7.26.0)(@playwright/test@1.55.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
@@ -281,7 +281,7 @@ importers:
         version: 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@skip-go/widget':
         specifier: ^3.14.7
-        version: 3.14.7(0c9e1e61152de0c5792a06a119db2295)
+        version: 3.14.7(42d30646df705db712b2377ed3eb767f)
       '@solana/web3.js':
         specifier: ^1.95.8
         version: 1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)
@@ -366,6 +366,9 @@ importers:
       react-icons:
         specifier: ^5.1.0
         version: 5.5.0(react@18.3.1)
+      starknet:
+        specifier: ^7.6.4
+        version: 7.6.4
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -501,7 +504,7 @@ importers:
         version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       '@cosmos-kit/keplr':
         specifier: ^2.15.3
-        version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)
+        version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)
       '@cosmos-kit/leap':
         specifier: ^2.15.3
         version: 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(cosmjs-types@0.10.1)(typescript@5.8.3)(utf-8-validate@5.0.10)
@@ -12934,8 +12937,8 @@ packages:
     resolution: {integrity: sha512-WjlahMgHmCJpqzU8bIBy4qtsZdU9lRlcZE3Lvyej6t4tuOuv1vk57OW3MBrj6hXBFx/nNoC9MPMTcr5YA7NQbg==}
     engines: {node: '>=6'}
 
-  starknet@7.5.1:
-    resolution: {integrity: sha512-PYMAWjxSivJp+zK1wTv7PeK3imkIP2P1cxRyHIcP47B+tjYlwfodTUzjCd+bar6MEMXKj4Y4sgEE6K1Oi9iPJQ==}
+  starknet@7.6.4:
+    resolution: {integrity: sha512-FB20IaLCDbh/XomkB+19f5jmNxG+RzNdRO7QUhm7nfH81UPIt2C/MyWAlHCYkbv2wznSEb73wpxbp9tytokTgQ==}
     engines: {node: '>=22'}
 
   static-extend@0.1.2:
@@ -15508,14 +15511,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@cosmos-kit/keplr-extension@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)':
+  '@cosmos-kit/keplr-extension@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)':
     dependencies:
       '@chain-registry/keplr': 1.74.249
       '@cosmjs/amino': 0.36.0
       '@cosmjs/proto-signing': 0.36.0
       '@cosmos-kit/core': 2.16.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@keplr-wallet/provider-extension': 0.12.240(starknet@7.5.1)
-      '@keplr-wallet/types': 0.12.251(starknet@7.5.1)
+      '@keplr-wallet/provider-extension': 0.12.240(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.251(starknet@7.6.4)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -15542,16 +15545,16 @@ snapshots:
       - uploadthing
       - utf-8-validate
 
-  '@cosmos-kit/keplr-mobile@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)':
+  '@cosmos-kit/keplr-mobile@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)':
     dependencies:
       '@chain-registry/keplr': 1.74.249
       '@cosmjs/amino': 0.36.0
       '@cosmjs/proto-signing': 0.36.0
       '@cosmos-kit/core': 2.16.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)
+      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)
       '@cosmos-kit/walletconnect': 2.13.3(@cosmjs/amino@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
-      '@keplr-wallet/provider-extension': 0.12.240(starknet@7.5.1)
-      '@keplr-wallet/wc-client': 0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.5.1)
+      '@keplr-wallet/provider-extension': 0.12.240(starknet@7.6.4)
+      '@keplr-wallet/wc-client': 0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.6.4)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -15582,16 +15585,16 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@cosmos-kit/keplr-mobile@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)':
+  '@cosmos-kit/keplr-mobile@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@chain-registry/keplr': 1.74.249
       '@cosmjs/amino': 0.36.0
       '@cosmjs/proto-signing': 0.36.0
       '@cosmos-kit/core': 2.16.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)
+      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)
       '@cosmos-kit/walletconnect': 2.13.3(@cosmjs/amino@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
-      '@keplr-wallet/provider-extension': 0.12.240(starknet@7.5.1)
-      '@keplr-wallet/wc-client': 0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.5.1)
+      '@keplr-wallet/provider-extension': 0.12.240(starknet@7.6.4)
+      '@keplr-wallet/wc-client': 0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.6.4)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -15622,10 +15625,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@cosmos-kit/keplr@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)':
+  '@cosmos-kit/keplr@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)':
     dependencies:
-      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)
-      '@cosmos-kit/keplr-mobile': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
+      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)
+      '@cosmos-kit/keplr-mobile': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -15658,10 +15661,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@cosmos-kit/keplr@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)':
+  '@cosmos-kit/keplr@2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)':
     dependencies:
-      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)
-      '@cosmos-kit/keplr-mobile': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.5.1)(typescript@5.8.3)(utf-8-validate@5.0.10)
+      '@cosmos-kit/keplr-extension': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)
+      '@cosmos-kit/keplr-mobile': 2.15.3(@cosmjs/amino@0.36.0)(@cosmjs/proto-signing@0.36.0)(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(bufferutil@4.0.9)(starknet@7.6.4)(typescript@5.8.3)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -17714,19 +17717,19 @@ snapshots:
 
   '@jsdevtools/ono@7.1.3': {}
 
-  '@keplr-wallet/common@0.12.156':
+  '@keplr-wallet/common@0.12.156(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/crypto': 0.12.156
-      '@keplr-wallet/types': 0.12.156
+      '@keplr-wallet/crypto': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
       buffer: 6.0.3
       delay: 4.4.1
     transitivePeerDependencies:
       - starknet
 
-  '@keplr-wallet/common@0.12.189':
+  '@keplr-wallet/common@0.12.189(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/crypto': 0.12.189
-      '@keplr-wallet/types': 0.12.189
+      '@keplr-wallet/crypto': 0.12.189(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.189(starknet@7.6.4)
       buffer: 6.0.3
       delay: 4.4.1
     transitivePeerDependencies:
@@ -17740,15 +17743,15 @@ snapshots:
       delay: 4.4.1
       mobx: 6.13.7
 
-  '@keplr-wallet/cosmos@0.12.156':
+  '@keplr-wallet/cosmos@0.12.156(starknet@7.6.4)':
     dependencies:
       '@ethersproject/address': 5.8.0
-      '@keplr-wallet/common': 0.12.156
-      '@keplr-wallet/crypto': 0.12.156
+      '@keplr-wallet/common': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/crypto': 0.12.156(starknet@7.6.4)
       '@keplr-wallet/proto-types': 0.12.156
       '@keplr-wallet/simple-fetch': 0.12.156
-      '@keplr-wallet/types': 0.12.156
-      '@keplr-wallet/unit': 0.12.156
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/unit': 0.12.156(starknet@7.6.4)
       bech32: 1.1.4
       buffer: 6.0.3
       long: 4.0.0
@@ -17756,15 +17759,15 @@ snapshots:
     transitivePeerDependencies:
       - starknet
 
-  '@keplr-wallet/cosmos@0.12.189':
+  '@keplr-wallet/cosmos@0.12.189(starknet@7.6.4)':
     dependencies:
       '@ethersproject/address': 5.8.0
-      '@keplr-wallet/common': 0.12.189
-      '@keplr-wallet/crypto': 0.12.189
+      '@keplr-wallet/common': 0.12.189(starknet@7.6.4)
+      '@keplr-wallet/crypto': 0.12.189(starknet@7.6.4)
       '@keplr-wallet/proto-types': 0.12.189
       '@keplr-wallet/simple-fetch': 0.12.189
-      '@keplr-wallet/types': 0.12.189
-      '@keplr-wallet/unit': 0.12.189
+      '@keplr-wallet/types': 0.12.189(starknet@7.6.4)
+      '@keplr-wallet/unit': 0.12.189(starknet@7.6.4)
       bech32: 1.1.4
       buffer: 6.0.3
       long: 4.0.0
@@ -17786,7 +17789,7 @@ snapshots:
       long: 4.0.0
       protobufjs: 6.11.4
 
-  '@keplr-wallet/crypto@0.12.156':
+  '@keplr-wallet/crypto@0.12.156(starknet@7.6.4)':
     dependencies:
       '@noble/curves': 1.9.6
       '@noble/hashes': 1.8.0
@@ -17794,8 +17797,9 @@ snapshots:
       bip39: 3.1.0
       bs58check: 2.1.2
       buffer: 6.0.3
+      starknet: 7.6.4
 
-  '@keplr-wallet/crypto@0.12.189':
+  '@keplr-wallet/crypto@0.12.189(starknet@7.6.4)':
     dependencies:
       '@noble/curves': 1.9.2
       '@noble/hashes': 1.8.0
@@ -17803,6 +17807,7 @@ snapshots:
       bip39: 3.1.0
       bs58check: 2.1.2
       buffer: 6.0.3
+      starknet: 7.6.4
 
   '@keplr-wallet/crypto@0.12.28':
     dependencies:
@@ -17835,21 +17840,21 @@ snapshots:
       long: 4.0.0
       protobufjs: 6.11.4
 
-  '@keplr-wallet/provider-extension@0.12.240(starknet@7.5.1)':
+  '@keplr-wallet/provider-extension@0.12.240(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/types': 0.12.240(starknet@7.5.1)
+      '@keplr-wallet/types': 0.12.240(starknet@7.6.4)
       deepmerge: 4.3.1
       long: 4.0.0
-      starknet: 7.5.1
+      starknet: 7.6.4
 
-  '@keplr-wallet/provider@0.12.240(starknet@7.5.1)':
+  '@keplr-wallet/provider@0.12.240(starknet@7.6.4)':
     dependencies:
       '@keplr-wallet/router': 0.12.240
-      '@keplr-wallet/types': 0.12.240(starknet@7.5.1)
+      '@keplr-wallet/types': 0.12.240(starknet@7.6.4)
       buffer: 6.0.3
       deepmerge: 4.3.1
       long: 4.0.0
-      starknet: 7.5.1
+      starknet: 7.6.4
 
   '@keplr-wallet/router@0.12.240': {}
 
@@ -17863,47 +17868,49 @@ snapshots:
     dependencies:
       long: 4.0.0
 
-  '@keplr-wallet/types@0.12.156':
+  '@keplr-wallet/types@0.12.156(starknet@7.6.4)':
     dependencies:
       long: 4.0.0
+      starknet: 7.6.4
 
-  '@keplr-wallet/types@0.12.189':
+  '@keplr-wallet/types@0.12.189(starknet@7.6.4)':
     dependencies:
       long: 4.0.0
+      starknet: 7.6.4
 
-  '@keplr-wallet/types@0.12.240(starknet@7.5.1)':
+  '@keplr-wallet/types@0.12.240(starknet@7.6.4)':
     dependencies:
       long: 4.0.0
-      starknet: 7.5.1
+      starknet: 7.6.4
 
-  '@keplr-wallet/types@0.12.251(starknet@7.5.1)':
+  '@keplr-wallet/types@0.12.251(starknet@7.6.4)':
     dependencies:
       long: 4.0.0
-      starknet: 7.5.1
+      starknet: 7.6.4
 
   '@keplr-wallet/types@0.12.28':
     dependencies:
       long: 4.0.0
 
-  '@keplr-wallet/unit@0.12.156':
+  '@keplr-wallet/unit@0.12.156(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/types': 0.12.156
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
       big-integer: 1.6.52
       utility-types: 3.11.0
     transitivePeerDependencies:
       - starknet
 
-  '@keplr-wallet/unit@0.12.189':
+  '@keplr-wallet/unit@0.12.189(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/types': 0.12.189
+      '@keplr-wallet/types': 0.12.189(starknet@7.6.4)
       big-integer: 1.6.52
       utility-types: 3.11.0
     transitivePeerDependencies:
       - starknet
 
-  '@keplr-wallet/unit@0.12.251(starknet@7.5.1)':
+  '@keplr-wallet/unit@0.12.251(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/types': 0.12.251(starknet@7.5.1)
+      '@keplr-wallet/types': 0.12.251(starknet@7.6.4)
       big-integer: 1.6.52
       utility-types: 3.11.0
     transitivePeerDependencies:
@@ -17915,27 +17922,27 @@ snapshots:
       big-integer: 1.6.52
       utility-types: 3.11.0
 
-  '@keplr-wallet/wc-client@0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.5.1)':
+  '@keplr-wallet/wc-client@0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/provider': 0.12.240(starknet@7.5.1)
-      '@keplr-wallet/types': 0.12.240(starknet@7.5.1)
+      '@keplr-wallet/provider': 0.12.240(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.240(starknet@7.6.4)
       '@walletconnect/sign-client': 2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
       '@walletconnect/types': 2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))
       buffer: 6.0.3
       deepmerge: 4.3.1
       long: 5.3.2
-      starknet: 7.5.1
+      starknet: 7.6.4
 
-  '@keplr-wallet/wc-client@0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.5.1)':
+  '@keplr-wallet/wc-client@0.12.240(@walletconnect/sign-client@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(@walletconnect/types@2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10))))(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/provider': 0.12.240(starknet@7.5.1)
-      '@keplr-wallet/types': 0.12.240(starknet@7.5.1)
+      '@keplr-wallet/provider': 0.12.240(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.240(starknet@7.6.4)
       '@walletconnect/sign-client': 2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       '@walletconnect/types': 2.21.3(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@19.1.8)(bufferutil@4.0.9)(react@19.1.1)(utf-8-validate@5.0.10)))
       buffer: 6.0.3
       deepmerge: 4.3.1
       long: 5.3.2
-      starknet: 7.5.1
+      starknet: 7.6.4
 
   '@keystonehq/alias-sampling@0.1.2': {}
 
@@ -21170,7 +21177,7 @@ snapshots:
 
   '@scure/bip32@1.7.0':
     dependencies:
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.6
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
@@ -21252,7 +21259,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@skip-go/client@1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.67))':
+  '@skip-go/client@1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.67))':
     dependencies:
       '@cosmjs/amino': 0.33.1
       '@cosmjs/cosmwasm-stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -21260,7 +21267,7 @@ snapshots:
       '@cosmjs/math': 0.33.1
       '@cosmjs/proto-signing': 0.33.1
       '@cosmjs/stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@keplr-wallet/unit': 0.12.251(starknet@7.5.1)
+      '@keplr-wallet/unit': 0.12.251(starknet@7.6.4)
       '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))
       '@solana/web3.js': 1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)
       bech32: 2.0.0
@@ -21274,7 +21281,7 @@ snapshots:
       - starknet
       - utf-8-validate
 
-  '@skip-go/client@1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.5.1)(utf-8-validate@5.0.10)(viem@2.36.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))':
+  '@skip-go/client@1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.36.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))':
     dependencies:
       '@cosmjs/amino': 0.33.1
       '@cosmjs/cosmwasm-stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -21282,7 +21289,7 @@ snapshots:
       '@cosmjs/math': 0.33.1
       '@cosmjs/proto-signing': 0.33.1
       '@cosmjs/stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      '@keplr-wallet/unit': 0.12.251(starknet@7.5.1)
+      '@keplr-wallet/unit': 0.12.251(starknet@7.6.4)
       '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10))
       '@solana/web3.js': 1.98.2(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       bech32: 2.0.0
@@ -21296,7 +21303,7 @@ snapshots:
       - starknet
       - utf-8-validate
 
-  '@skip-go/widget@3.14.7(0c9e1e61152de0c5792a06a119db2295)':
+  '@skip-go/widget@3.14.7(42d30646df705db712b2377ed3eb767f)':
     dependencies:
       '@amplitude/analytics-browser': 2.23.5
       '@amplitude/plugin-session-replay-browser': 1.22.10(@amplitude/rrweb@2.0.0-alpha.32)(rollup@4.46.2)
@@ -21313,7 +21320,7 @@ snapshots:
       '@penumbra-zone/protobuf': 7.2.0(@bufbuild/protobuf@1.10.1)
       '@penumbra-zone/transport-dom': 7.5.2
       '@r2wc/react-to-web-component': 2.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@skip-go/client': 1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.67))
+      '@skip-go/client': 1.5.4(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.67))
       '@solana/spl-token': 0.4.13(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.2.2)(utf-8-validate@5.0.10)
       '@solana/wallet-adapter-ledger': 0.9.29(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))
       '@solana/wallet-adapter-react': 0.15.39(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(bs58@5.0.0)(react-native@0.81.1(@babel/core@7.26.0)(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)
@@ -21326,7 +21333,7 @@ snapshots:
       '@walletconnect/solana-adapter': 0.0.8(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@solana/wallet-adapter-base@0.9.27(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10)))(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.67)
       add: 2.0.6
       bech32: 2.0.0
-      graz: 0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.5(react@18.3.1))(@types/react@18.3.23)(bufferutil@4.0.9)(immer@10.1.1)(react@18.3.1)(typescript@5.2.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.67)
+      graz: 0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.5(react@18.3.1))(@types/react@18.3.23)(bufferutil@4.0.9)(immer@10.1.1)(react@18.3.1)(starknet@7.6.4)(typescript@5.2.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.67)
       jotai: 2.13.1(@babel/core@7.26.0)(@babel/template@7.27.2)(@types/react@18.3.23)(react@18.3.1)
       jotai-effect: 1.1.6(jotai@2.13.1(@babel/core@7.26.0)(@babel/template@7.27.2)(@types/react@18.3.23)(react@18.3.1))
       jotai-tanstack-query: 0.8.8(@tanstack/query-core@5.85.5)(jotai@2.13.1(@babel/core@7.26.0)(@babel/template@7.27.2)(@types/react@18.3.23)(react@18.3.1))
@@ -22188,7 +22195,7 @@ snapshots:
 
   '@solana/wallet-adapter-unsafe-burner@0.1.11(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))':
     dependencies:
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.6
       '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.2(bufferutil@4.0.9)(typescript@5.2.2)(utf-8-validate@5.0.10))
       '@solana/wallet-standard-features': 1.3.0
       '@solana/wallet-standard-util': 1.1.2
@@ -29112,7 +29119,7 @@ snapshots:
 
   graphql@16.11.0: {}
 
-  graz@0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.5(react@18.3.1))(@types/react@18.3.23)(bufferutil@4.0.9)(immer@10.1.1)(react@18.3.1)(typescript@5.2.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.67):
+  graz@0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.26.0)(@types/react@18.3.23)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.5(react@18.3.1))(@types/react@18.3.23)(bufferutil@4.0.9)(immer@10.1.1)(react@18.3.1)(starknet@7.6.4)(typescript@5.2.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.67):
     dependencies:
       '@cosmjs/amino': 0.33.1
       '@cosmjs/cosmwasm-stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -29121,8 +29128,8 @@ snapshots:
       '@cosmjs/stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@cosmsnap/snapper': 0.2.7
       '@dao-dao/cosmiframe': 1.0.0(@cosmjs/amino@0.33.1)(@cosmjs/proto-signing@0.33.1)
-      '@keplr-wallet/cosmos': 0.12.156
-      '@keplr-wallet/types': 0.12.156
+      '@keplr-wallet/cosmos': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
       '@metamask/providers': 12.0.0
       '@tanstack/react-query': 5.85.5(react@18.3.1)
       '@vectis/extension-client': 0.7.2
@@ -32251,7 +32258,7 @@ snapshots:
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.6
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
@@ -32266,7 +32273,7 @@ snapshots:
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.6
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
@@ -32281,7 +32288,7 @@ snapshots:
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.6
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
@@ -34250,7 +34257,7 @@ snapshots:
     dependencies:
       type-fest: 0.7.1
 
-  starknet@7.5.1:
+  starknet@7.6.4:
     dependencies:
       '@noble/curves': 1.7.0
       '@noble/hashes': 1.6.0

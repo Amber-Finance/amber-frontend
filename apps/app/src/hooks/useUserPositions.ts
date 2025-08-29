@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { useChain } from '@cosmos-kit/react'
 import useSWR from 'swr'
@@ -21,6 +21,10 @@ export default function useUserPositions() {
     deposits: UserPosition[]
     debts: UserPosition[]
   } | null>(null)
+
+  useEffect(() => {
+    prevPositionsRef.current = null
+  }, [address])
 
   // Only create a key when user is connected
   const swrKey = address ? `${address}/positions` : null
