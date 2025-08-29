@@ -15,9 +15,17 @@ import { AuroraText } from '../ui/AuroraText'
 export function SkipPage() {
   const defaultRoute = useURLQueryParams()
   const defaultRouteConfig = useMemo(() => {
-    if (!defaultRoute) return undefined
-    const shouldLockDest = Boolean(defaultRoute.destChainId && defaultRoute.destAssetDenom)
-    return shouldLockDest ? { ...defaultRoute, destLocked: true } : { ...defaultRoute }
+    // If no route provided via URL, preselect Ethereum WBTC -> Neutron WBTC
+    const preselectedIfEmpty = defaultRoute ?? {
+      srcChainId: '1',
+      srcAssetDenom: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+      destChainId: 'neutron-1',
+      destAssetDenom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
+    }
+
+    // Only lock destination if explicitly provided by URL params
+    const shouldLockDest = Boolean(defaultRoute?.destChainId && defaultRoute?.destAssetDenom)
+    return shouldLockDest ? { ...preselectedIfEmpty, destLocked: true } : { ...preselectedIfEmpty }
   }, [defaultRoute])
   const { resolvedTheme } = useTheme()
   const [queryParamsString, setQueryParamsString] = useState<string>()
