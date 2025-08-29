@@ -74,9 +74,9 @@ export function Footer() {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
-            <Link href='/' className='flex gap-x-3 items-center mb-4'>
+            <Link href='/' className='flex gap-x-3 items-center mb-4 relative'>
               <Image
-                src='/logo/logo-simple/logo-dark-400x140.sv'
+                src='/logo/logo-simple/logo-dark-400x140.svg'
                 alt='Amber Finance'
                 width={142}
                 height={50}
@@ -86,7 +86,7 @@ export function Footer() {
                 )}
               />
               <Image
-                src='/logo/logo-simple/logo-light-400x140.sv'
+                src='/logo/logo-simple/logo-light-400x140.svg'
                 alt='Amber Finance'
                 width={142}
                 height={50}
