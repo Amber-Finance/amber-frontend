@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 
 import BigNumber from 'bignumber.js'
 
-import { StrategyCard } from '@/app/strategies/StrategyCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
+import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
 import tokens from '@/config/tokens'
 import { useLstMarkets } from '@/hooks/useLstMarkets'
 import { useMarkets } from '@/hooks/useMarkets'
@@ -244,57 +244,8 @@ export default function StrategiesOverview() {
         ]}
       />
 
-      {/* Strategies Grid - Match yields page structure exactly */}
-      <div className='w-full pt-6 pb-2 px-4 sm:px-6 lg:px-8'>
-        <div className='w-full mx-auto'>
-          {marketsLoading ? (
-            <div className='text-center py-12'>
-              <div className='max-w-md mx-auto space-y-3'>
-                <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
-                  <div className='w-6 h-6 bg-muted/40 rounded-full animate-pulse' />
-                </div>
-                <h3 className='text-base font-semibold text-foreground'>Loading Strategies...</h3>
-                <p className='text-sm text-muted-foreground'>
-                  Fetching market data to generate looping strategies...
-                </p>
-              </div>
-            </div>
-          ) : marketsError ? (
-            <div className='text-center py-12'>
-              <div className='max-w-md mx-auto space-y-3'>
-                <div className='w-12 h-12 mx-auto bg-red-500/20 rounded-full flex items-center justify-center'>
-                  <div className='w-6 h-6 bg-red-500/40 rounded-full' />
-                </div>
-                <h3 className='text-base font-semibold text-red-500'>Error Loading Strategies</h3>
-                <p className='text-sm text-muted-foreground'>
-                  Failed to fetch market data: {marketsError.message}
-                </p>
-              </div>
-            </div>
-          ) : strategies.length > 0 ? (
-            <div
-              className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-screen-2xl mx-auto justify-items-center'
-              style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}
-            >
-              {strategies.map((strategy) => (
-                <StrategyCard key={strategy.id} strategy={strategy} />
-              ))}
-            </div>
-          ) : (
-            <div className='text-center py-12'>
-              <div className='max-w-md mx-auto space-y-3'>
-                <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
-                  <div className='w-6 h-6 bg-muted/40 rounded-full' />
-                </div>
-                <h3 className='text-base font-semibold text-foreground'>No Strategies Available</h3>
-                <p className='text-sm text-muted-foreground'>
-                  No looping strategies available with current market data.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Coming Soon Overlay */}
+      <ComingSoonOverlay />
     </>
   )
 }

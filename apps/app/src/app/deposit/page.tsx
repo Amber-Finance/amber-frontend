@@ -1,20 +1,6 @@
-import { Metadata } from 'next'
-
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
-
-import { generateDepositMetadata } from './generateMetadata'
-
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ token?: string }>
-}): Promise<Metadata> {
-  const params = await searchParams
-  const tokenSymbol = params.token || null
-  return generateDepositMetadata(tokenSymbol)
-}
 
 export default function DepositPage() {
   return (
