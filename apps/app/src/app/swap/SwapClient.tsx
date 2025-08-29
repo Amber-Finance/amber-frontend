@@ -511,9 +511,10 @@ export default function SwapClient() {
                   !fromAmount ||
                   !toAmount ||
                   isSwapInProgress ||
-                  isRouteLoading ||
                   isDebouncePending ||
+                  isRouteLoading ||
                   showInsufficientFunds ||
+                  routeError ||
                   !routeInfo
                 )
               }

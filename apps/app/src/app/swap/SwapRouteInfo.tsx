@@ -37,7 +37,10 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
   isDebouncePending = false,
   routeError,
 }) => {
-  if (isRouteLoading || isDebouncePending) {
+  const hasValidAmounts = amountIn && parseFloat(amountIn) > 0 && amountOut && amountOut.gt(0)
+  const shouldShowLoading = isRouteLoading || isDebouncePending || (!hasValidAmounts && !routeError)
+
+  if (shouldShowLoading) {
     return (
       <div className='p-3 rounded-lg bg-muted/20 border border-border/30 space-y-2 text-sm my-2'>
         <div className='flex justify-between'>
@@ -60,8 +63,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
     )
   }
 
-  // If there's an error from Skip API, show "No route available"
-  if (routeError) {
+  if (routeError && !isRouteLoading && !isDebouncePending) {
     return (
       <div className='flex items-center justify-center h-[130px] rounded-lg border border-border/30 my-2'>
         <span className='text-muted-foreground text-sm'>No route available</span>
