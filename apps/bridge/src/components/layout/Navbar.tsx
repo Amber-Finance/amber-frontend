@@ -134,48 +134,29 @@ export function Navbar() {
         <div className='fixed inset-0 z-40 md:hidden'>
           {/* Backdrop */}
           <div
-            className='fixed inset-0 bg-background/80 backdrop-blur-sm'
+            className='fixed inset-0 backdrop-blur-sm bg-background/80'
             onClick={() => setMobileMenuOpen(false)}
           />
 
           {/* Menu Panel */}
-          <div className='fixed left-0 right-0 top-16 border-b border-border bg-background/95 shadow-lg backdrop-blur-md'>
-            <div className='space-y-6 px-6 py-8'>
+          <div className='fixed right-0 left-0 top-16 border-b shadow-lg backdrop-blur-md bg-background/95 border-border'>
+            <div className='px-6 py-8 space-y-6'>
               <div className='space-y-2'>
                 {navigation.map((item) => {
                   const isActive =
-                    pathname === item.href || (item.name === 'Bridge' && pathname === '/')
-                  const isExternal = item.href.startsWith('http')
-
-                  if (isExternal) {
-                    return (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className={cn(
-                          'relative block rounded-2xl px-6 py-4 text-base font-semibold transition-all duration-300',
-                          isActive
-                            ? 'nav-glow-active text-foreground'
-                            : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground',
-                        )}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <span className='relative z-10'>{item.name}</span>
-                      </a>
-                    )
-                  }
-
+                    item.href === '/'
+                      ? pathname === '/' || pathname.startsWith('/deposit')
+                      : pathname.startsWith(item.href)
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        'relative block rounded-2xl px-6 py-4 text-base font-semibold transition-all duration-300',
+                        'relative block px-6 py-4 text-base font-semibold rounded-2xl transition-all duration-300',
+                        'border-2 border-transparent',
                         isActive
-                          ? 'nav-glow-active text-foreground'
-                          : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground',
+                          ? 'text-foreground nav-glow-active border-border'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
                       )}
                       onClick={() => setMobileMenuOpen(false)}
                     >
