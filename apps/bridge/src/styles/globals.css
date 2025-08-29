@@ -324,3 +324,17 @@ input[type='number'] {
   animation: none;
   mix-blend-mode: normal;
 }
+
+.widget-container .drzcYE .eGRKTo:last-of-type {
+  pointer-events: none;
+}
+
+.widget-container .drzcYE button .bjIIKU,
+.widget-container .drzcYE button:hover .bjIIKU,
+.widget-container .drzcYE button:hover .bjIIKU::after {
+  background: transparent !important;
+}
+
+.widget-container .drzcYE .eGRKTo:last-of-type button svg {
+  display: none;
+}
