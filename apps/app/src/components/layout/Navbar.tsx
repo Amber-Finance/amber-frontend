@@ -17,6 +17,7 @@ const navigation = [
   { name: 'Deposit', href: '/' },
   { name: 'Strategies', href: '/strategies' },
   { name: 'Swap', href: '/swap' },
+  { name: 'Bridge', href: 'https://bridge.amberfi.io' },
 ]
 
 export function Navbar() {
@@ -45,9 +46,9 @@ export function Navbar() {
 
   return (
     <>
-      <header className='fixed top-0 left-0 right-0 z-50 bg-background/50 backdrop-blur-md'>
-        <nav className='mx-auto py-2 max-w-screen-2xl px-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center justify-between py-1'>
+      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50'>
+        <nav className='px-4 py-2 mx-auto max-w-screen-2xl sm:px-6 lg:px-8'>
+          <div className='flex justify-between items-center py-1'>
             <Link href='/' className='flex items-center space-x-2 group'>
               <div className='relative'>
                 <Image
@@ -73,7 +74,7 @@ export function Navbar() {
               </div>
             </Link>
 
-            <div className='hidden md:flex items-center justify-center bg-card/50 border border-border/80 rounded-full p-1'>
+            <div className='hidden justify-center items-center p-1 rounded-full border md:flex bg-card/50 border-border/80'>
               {navigation.map((item, idx) => {
                 const isActive =
                   item.href === '/'
@@ -99,10 +100,10 @@ export function Navbar() {
 
             {/* Desktop Actions */}
             <div className='hidden md:flex md:items-center md:space-x-3'>
-              <div className='hidden md:flex md:items-center bg-card/50 border border-border/80 rounded-full p-1'>
+              <div className='hidden p-1 rounded-full border md:flex md:items-center bg-card/50 border-border/80'>
                 <ThemeToggle />
               </div>
-              <div className='hidden md:flex md:items-center md:space-x-3 p-2 text-base bg-card/50 border border-border/80 rounded-full'>
+              <div className='hidden p-2 text-base rounded-full border md:flex md:items-center md:space-x-3 bg-card/50 border-border/80'>
                 <ConnectButton />
               </div>
             </div>
@@ -112,15 +113,15 @@ export function Navbar() {
               <ThemeToggle />
               <button
                 type='button'
-                className='inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors'
+                className='inline-flex justify-center items-center p-2 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary'
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded='false'
               >
                 <span className='sr-only'>Open main menu</span>
                 {mobileMenuOpen ? (
-                  <X className='block h-5 w-5' aria-hidden='true' />
+                  <X className='block w-5 h-5' aria-hidden='true' />
                 ) : (
-                  <Menu className='block h-5 w-5' aria-hidden='true' />
+                  <Menu className='block w-5 h-5' aria-hidden='true' />
                 )}
               </button>
             </div>
@@ -133,12 +134,12 @@ export function Navbar() {
         <div className='fixed inset-0 z-40 md:hidden'>
           {/* Backdrop */}
           <div
-            className='fixed inset-0 bg-background/80 backdrop-blur-sm'
+            className='fixed inset-0 backdrop-blur-sm bg-background/80'
             onClick={() => setMobileMenuOpen(false)}
           />
 
           {/* Menu Panel */}
-          <div className='fixed top-16 left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border shadow-lg'>
+          <div className='fixed right-0 left-0 top-16 border-b shadow-lg backdrop-blur-md bg-background/95 border-border'>
             <div className='px-6 py-8 space-y-6'>
               <div className='space-y-2'>
                 {navigation.map((item) => {

@@ -5,6 +5,9 @@ import Link from 'next/link'
 
 import { GitHubLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons'
 
+import { useTheme } from '@/components/providers/ThemeProvider'
+import { cn } from '@/lib/utils'
+
 // Telegram Icon Component
 const TelegramIcon = ({ className }: { className?: string }) => (
   <svg
@@ -27,17 +30,17 @@ interface Icon {
 
 const icons: Icon[] = [
   {
-    icon: <TwitterLogoIcon className='h-5 w-5' />,
+    icon: <TwitterLogoIcon className='w-5 h-5' />,
     url: 'https://twitter.com/amberfi_io',
     label: 'X',
   },
   {
-    icon: <GitHubLogoIcon className='h-5 w-5' />,
+    icon: <GitHubLogoIcon className='w-5 h-5' />,
     url: 'https://github.com/amber-finance',
     label: 'GitHub',
   },
   {
-    icon: <TelegramIcon className='h-5 w-5' />,
+    icon: <TelegramIcon className='w-5 h-5' />,
     url: 'https://t.me/mars_protocol',
     label: 'Mars Telegram',
   },
@@ -62,26 +65,41 @@ const footerSections = [
 ]
 
 export function Footer() {
+  const { resolvedTheme } = useTheme()
+
   return (
-    <footer className='mt-20 bg-background/50 backdrop-blur-md border-t border-border/50'>
+    <footer className='mt-20 border-t backdrop-blur-md bg-background/50 border-border/50'>
       {/* Main Footer Content */}
-      <div className='mx-auto max-w-6xl px-8 md:px-16 py-12'>
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-8'>
+      <div className='px-8 py-12 mx-auto max-w-6xl md:px-16'>
+        <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
-            <Link href='/' className='flex items-center gap-x-3 mb-4'>
+            <Link href='/' className='flex gap-x-3 items-center mb-4'>
               <Image
-                src='/logo/logo-simple/logo-light-400x140.svg'
+                src='/logo/logo-simple/logo-dark-400x140.sv'
                 alt='Amber Finance'
-                width={32}
-                height={32}
-                className='h-10 w-auto'
+                width={142}
+                height={50}
+                className={cn(
+                  'h-10 w-auto transition-opacity duration-700 ease-in-out',
+                  resolvedTheme === 'dark' ? 'opacity-0' : 'opacity-100',
+                )}
+              />
+              <Image
+                src='/logo/logo-simple/logo-light-400x140.sv'
+                alt='Amber Finance'
+                width={142}
+                height={50}
+                className={cn(
+                  'h-10 w-auto absolute inset-0 transition-opacity duration-700 ease-in-out',
+                  resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
+                )}
               />
             </Link>
-            <p className='text-muted-foreground mb-6 max-w-md'>Connect with us:</p>
+            <p className='mb-6 max-w-md text-muted-foreground'>Connect with us:</p>
 
             {/* Social Links */}
-            <div className='flex items-center gap-x-4'>
+            <div className='flex gap-x-4 items-center'>
               {icons.map((icon) => (
                 <a
                   key={icon.label}
@@ -89,7 +107,7 @@ export function Footer() {
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label={icon.label}
-                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/50 text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:border-border hover:bg-card'
+                  className='flex justify-center items-center w-10 h-10 rounded-md border transition-all duration-200 ease-linear border-border/50 bg-card/50 text-muted-foreground hover:text-foreground hover:border-border hover:bg-card'
                 >
                   {icon.icon}
                 </a>
@@ -98,10 +116,10 @@ export function Footer() {
           </div>
 
           {/* Link Sections Container */}
-          <div className='grid grid-cols-2 md:grid-cols-2 gap-8 md:col-span-2 text-right'>
+          <div className='grid grid-cols-2 gap-8 text-right md:grid-cols-2 md:col-span-2'>
             {footerSections.map((section, index) => (
               <div key={index} className='text-right'>
-                <h3 className='text-sm font-semibold text-foreground mb-4 uppercase tracking-wider'>
+                <h3 className='mb-4 text-sm font-semibold tracking-wider uppercase text-foreground'>
                   {section.title}
                 </h3>
                 <ul className='space-y-3'>
@@ -112,14 +130,14 @@ export function Footer() {
                           href={link.url}
                           target='_blank'
                           rel='noopener noreferrer'
-                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm transition-all duration-200 ease-linear text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4'
                         >
                           {link.title}
                         </a>
                       ) : (
                         <Link
                           href={link.url}
-                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm transition-all duration-200 ease-linear text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4'
                         >
                           {link.title}
                         </Link>
@@ -135,8 +153,8 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className='border-t border-border/50 bg-card/30'>
-        <div className='mx-auto max-w-6xl px-8 md:px-16 py-4'>
-          <p className='text-center text-sm text-muted-foreground'>
+        <div className='px-8 py-4 mx-auto max-w-6xl md:px-16'>
+          <p className='text-sm text-center text-muted-foreground'>
             © 2025 Amber Finance. All rights reserved.
           </p>
         </div>
