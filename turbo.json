@@ -8,7 +8,8 @@
     },
     "build": {
       "dependsOn": ["copy-public", "^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["POLKACHU_USER", "POLKACHU_PASSWORD", "APP_URL", "EDGE_CONFIG"]
     },
     "dev": {
       "dependsOn": ["copy-public"],
