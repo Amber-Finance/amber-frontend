@@ -8,7 +8,7 @@ import { BigNumber } from 'bignumber.js'
 
 import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
-import { useLstMarkets, useMarkets } from '@/hooks'
+import { useMarkets } from '@/hooks'
 import { useStore } from '@/store/useStore'
 
 export default function StrategyDeployPage() {
@@ -18,7 +18,6 @@ export default function StrategyDeployPage() {
 
   useMarkets()
   const { markets } = useStore()
-  const { getTokenStakingApy } = useLstMarkets()
 
   useEffect(() => {
     // Parse strategy from URL params (e.g., ?strategy=wBTC-eBTC)
@@ -65,18 +64,13 @@ export default function StrategyDeployPage() {
     // wBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
     const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for wBTC.eureka
 
-    // Get real staking APY for collateral asset (wBTC.eureka)
-    const collateralStakingApy = 0.025 // 2.5% mock staking APY for wBTC.eureka
-
-    // Calculate total supply APY for wBTC.eureka (lending + staking)
-    const collateralTotalApy = collateralSupplyApy + collateralStakingApy
+    // Total supply APY (no staking - just supply APY)
+    const collateralTotalApy = collateralSupplyApy
 
     // Get real borrow APY for debt asset (use raw market rate, already in decimal format)
     const debtBorrowApy = parseFloat(debtMarket.metrics.borrow_rate || '0')
 
-    // Get real staking APY for debt asset
-    const debtStakingApyRaw = getTokenStakingApy(debtToken.symbol)
-    const debtStakingApy = debtStakingApyRaw > 0 ? debtStakingApyRaw / 100 : 0
+    // No staking APY - just borrow APY
 
     // Calculate base net APY for 1x leverage (no looping)
     const netApy = collateralTotalApy - debtBorrowApy
@@ -132,16 +126,16 @@ export default function StrategyDeployPage() {
       maxBorrowCapacityUsd: availableLiquidity,
       maxPositionSizeUsd: availableLiquidity * 2,
 
-      // Enhanced APY breakdown with staking components (already in decimal format)
-      collateralStakingApy: collateralStakingApy,
+      // APY breakdown (supply minus borrow - no staking)
+      collateralStakingApy: 0,
       collateralTotalApy: collateralTotalApy, // Already in decimal format
-      debtStakingApy: debtStakingApy,
+      debtStakingApy: 0,
       debtNetCost: debtBorrowApy, // Already in decimal format
-      hasStakingData: debtStakingApyRaw > 0, // Use raw value to check if staking data exists
+      hasStakingData: false, // No staking data
     }
 
     setStrategy(strategyData)
-  }, [searchParams, markets, router, getTokenStakingApy])
+  }, [searchParams, markets, router])
 
   if (!strategy) {
     return (

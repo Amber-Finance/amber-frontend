@@ -8,8 +8,8 @@ import { StrategyCard } from '@/app/strategies/StrategyCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
-import { useLstMarkets } from '@/hooks/useLstMarkets'
 import { useMarkets } from '@/hooks/useMarkets'
+import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue, formatLargeCurrency } from '@/utils/format'
 
@@ -18,49 +18,15 @@ export default function StrategiesOverview() {
   const { isLoading: marketsLoading, error: marketsError } = useMarkets()
   const { markets } = useStore()
 
-  // Fetch LST markets data for staking APY
-  const { getTokenStakingApy } = useLstMarkets()
+  // Fetch maxBTC APY data for strategy supply APY simulation
+  const { apy: maxBtcApy, error: maxBtcError } = useMaxBtcApy()
+
+  // Fallback APY in case API fails
+  const effectiveMaxBtcApy = maxBtcError ? 6.5 : maxBtcApy
 
   const [strategies, setStrategies] = useState<Strategy[]>([])
-  const [totalBorrowValue, setTotalBorrowValue] = useState<number>(0)
-  const [totalSupplyValue, setTotalSupplyValue] = useState<number>(0)
 
-  useEffect(() => {
-    if (markets && markets.length > 0) {
-      let totalBorrowValueBN = new BigNumber(0)
-      let totalSupplyValueBN = new BigNumber(0)
-
-      markets.forEach((market: Market) => {
-        // Calculate borrow total
-        if (market.metrics && market.metrics.debt_total_amount && market.price?.price) {
-          const borrowValueUsd = calculateUsdValue(
-            market.metrics.debt_total_amount,
-            market.price.price,
-            market.asset.decimals,
-          )
-
-          totalBorrowValueBN = totalBorrowValueBN.plus(borrowValueUsd)
-        }
-
-        // Calculate supply total
-        if (market.metrics && market.metrics.collateral_total_amount && market.price?.price) {
-          const supplyValueUsd = calculateUsdValue(
-            market.metrics.collateral_total_amount,
-            market.price.price,
-            market.asset.decimals,
-          )
-
-          totalSupplyValueBN = totalSupplyValueBN.plus(supplyValueUsd)
-        }
-      })
-
-      // Store raw values for StatCard
-      setTotalBorrowValue(totalBorrowValueBN.toNumber())
-      setTotalSupplyValue(totalSupplyValueBN.toNumber())
-    }
-  }, [markets])
-
-  // Use wBTC.eureka for looping supply (better liquidity than Axelar bridge)
+  // Use maxBTC (temporarily wBTC.eureka) for supply APY simulation
   const wbtcEurekaToken = useMemo(
     () =>
       tokens.find((token) => token.symbol === 'wBTC') || {
@@ -68,7 +34,7 @@ export default function StrategiesOverview() {
         denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
         symbol: 'wBTC',
         icon: '/images/WBTC.svg',
-        description: 'Wrapped Bitcoin (Eureka)',
+        description: 'maxBTC (temporarily wBTC.eureka)',
         decimals: 8,
         isLST: true,
         protocol: 'Eureka',
@@ -97,7 +63,7 @@ export default function StrategiesOverview() {
     ],
   )
 
-  // Generate strategies: wBTC.eureka as collateral, all available tokens as debt assets
+  // Generate strategies: maxBTC as collateral, all available tokens as debt assets
   useEffect(() => {
     if (!markets || markets.length === 0) {
       setStrategies([])
@@ -105,7 +71,7 @@ export default function StrategiesOverview() {
     }
 
     // Filter markets that can be used as debt assets (borrow_enabled and whitelisted)
-    // These will be all available tokens that we borrow against wBTC.eureka collateral
+    // These will be all available tokens that we borrow against maxBTC collateral
     // This creates strategy cards for all deposit options
     const debtMarkets = markets.filter(
       (market) =>
@@ -121,29 +87,14 @@ export default function StrategiesOverview() {
         (token) => token.denom === market.asset.denom || token.symbol === market.asset.symbol,
       )
 
-      // Calculate base APY (1x leverage): wBTC.eureka Supply APY - Debt Asset Borrow APY
-      // wBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
-      const wbtcEurekaSupplyRate = 0.065 // 6.5% APY mock supply rate for wBTC.eureka
+      // Calculate base APY (1x leverage): maxBTC supply APY - borrow APY
+      // Use real maxBTC APY data from Amber Finance API with fallback
+      const maxBtcSupplyApy = effectiveMaxBtcApy / 100 // Convert percentage to decimal
 
       const debtBorrowRate = parseFloat(market.metrics.borrow_rate || '0')
 
-      // Get staking APY for the debt asset (any token that we're borrowing)
-      const debtAssetStakingApyRaw = getTokenStakingApy(market.asset.symbol)
-      const debtAssetStakingApy = debtAssetStakingApyRaw > 0 ? debtAssetStakingApyRaw / 100 : 0 // Convert percentage to decimal, hide if zero
-
-      // For wBTC.eureka collateral, use mock staking APY (since it's not in the API yet)
-      const wbtcEurekaStakingApy = 0.025 // 2.5% mock staking APY for wBTC.eureka
-
-      // Calculate total supply APY for wBTC.eureka (lending + staking)
-      const wbtcEurekaTotalSupplyApy = wbtcEurekaSupplyRate + wbtcEurekaStakingApy
-
-      // For looping strategy calculation at max leverage:
-      // At 8x leverage: 9 wBTC.eureka supplied, 8 XToken borrowed
-      // APY = 9 × wBTC.eureka(supply + staking) - 8 × XToken(borrow)
-      // Normalized per 1 unit: (leverage + 1) × collateral_apy - leverage × debt_borrow_rate
-
-      // Calculate base net APY for 1x leverage (no looping)
-      const baseNetApy = wbtcEurekaTotalSupplyApy - debtBorrowRate
+      // Base APY = maxBTC supply APY - borrow APY (1x leverage)
+      const baseNetApy = maxBtcSupplyApy - debtBorrowRate
 
       // Calculate available borrow capacity for this debt asset
       // Available liquidity = total collateral - total debt
@@ -174,10 +125,14 @@ export default function StrategiesOverview() {
       // (This is already calculated as availableBorrowCapacity above)
 
       // Calculate max position size in USD (collateral + max borrowable)
-      // Using a mock $1000 initial collateral for calculation
-      const mockCollateralUsd = new BigNumber(1000)
-      const maxBorrowUsd = mockCollateralUsd.multipliedBy(maxLTV)
-      const maxPositionUsd = mockCollateralUsd.plus(maxBorrowUsd)
+      // Using 0.00001 maxBTC as collateral amount
+      const collateralAmount = new BigNumber(0.00001)
+      const maxBtcPrice = market.price?.price || '0'
+      const collateralUsd = new BigNumber(
+        calculateUsdValue(collateralAmount.toString(), maxBtcPrice, wbtcEurekaToken.decimals),
+      )
+      const maxBorrowUsd = collateralUsd.multipliedBy(maxLTV)
+      const maxPositionUsd = collateralUsd.plus(maxBorrowUsd)
 
       return {
         id: `wBTC-${market.asset.symbol}`,
@@ -200,34 +155,34 @@ export default function StrategiesOverview() {
         isCorrelated: market.asset.symbol.includes('BTC') || market.asset.symbol.includes('btc'), // BTC assets are correlated, others may not be
         liquidity: borrowCapacityUsd,
         liquidityDisplay: formatLargeCurrency(borrowCapacityUsd),
-        subText: `Supply wBTC.eureka, borrow ${market.asset.symbol}, and loop for amplified exposure`,
-        supplyApy: wbtcEurekaSupplyRate,
+        subText: `Supply maxBTC, borrow ${market.asset.symbol}`,
+        supplyApy: maxBtcSupplyApy,
         borrowApy: debtBorrowRate,
-        netApy: baseNetApy, // Base APY for 1x leverage
+        netApy: baseNetApy, // Base APY (1x leverage)
         ltv: maxLTV, // Use actual LTV from market params
         liquidationThreshold: liquidationThreshold, // Use actual liquidation threshold from market params
         // Additional strategy metadata
         maxLeverage: cappedMaxLeverage,
         maxBorrowCapacityUsd: borrowCapacityUsd,
         maxPositionSizeUsd: maxPositionUsd.toNumber(),
-        // Enhanced APY breakdown
-        collateralStakingApy: wbtcEurekaStakingApy,
-        collateralTotalApy: wbtcEurekaTotalSupplyApy,
-        debtStakingApy: debtAssetStakingApy,
-        debtNetCost: debtBorrowRate, // Just the borrow rate for debt cost
-        hasStakingData: debtAssetStakingApyRaw > 0, // Flag to show/hide staking info
+        // APY breakdown (supply minus borrow)
+        collateralStakingApy: 0,
+        collateralTotalApy: maxBtcSupplyApy,
+        debtStakingApy: 0,
+        debtNetCost: debtBorrowRate,
+        hasStakingData: false,
       }
     })
 
     setStrategies(generatedStrategies)
-  }, [markets, getTokenStakingApy, wbtcEurekaAsset])
+  }, [markets, wbtcEurekaAsset, effectiveMaxBtcApy])
 
   return (
     <>
       <Hero
         title={<AuroraText>Looping</AuroraText>}
         subtitle='BRT Strategies'
-        description='Effortlessly leverage restaking, farm points, arbitrage rates, and more - all with just a few clicks'
+        description='Effortlessly leverage arbitrage rates and more - all with just a few clicks'
         stats={[
           {
             value: 0,

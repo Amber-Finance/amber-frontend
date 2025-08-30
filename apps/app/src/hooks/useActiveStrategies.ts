@@ -7,7 +7,6 @@ import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValue } from '@/utils/format'
-import { clearMaxLeverageCache } from '@/utils/maxLeverageCalculator'
 
 interface ActiveStrategy {
   accountId: string
@@ -256,8 +255,6 @@ export function useActiveStrategies() {
   // Scan accounts when wallet connects (only on initial load and address changes)
   useEffect(() => {
     if (address) {
-      // Clear max leverage cache when wallet changes to ensure fresh calculations
-      clearMaxLeverageCache()
       scanCreditAccounts()
     } else {
       setActiveStrategies([])

@@ -23,8 +23,6 @@ import {
   calculateNetApy,
   formatBorrowTokenAmount,
   formatBorrowableUsd,
-  formatCollateralAvailable,
-  formatCollateralTokenAmount,
   formatLeverage,
   formatUserTokenAmount,
   getGradientColors,
@@ -54,7 +52,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   // Memoized expensive calculations
   const maxAPY = useMemo(
     () => getMaxAPY(strategy, markets || [], isWasmReady),
-    [strategy, markets, isWasmReady],
+    [strategy, isWasmReady],
   )
   const userBalanceUsd = useMemo(
     () =>
@@ -177,7 +175,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               <TooltipTrigger asChild>
                 <div className='cursor-help text-center'>
                   <div className='text-5xl font-bold leading-tight' style={{ color: debtColor }}>
-                    <CountingNumber value={maxAPY} decimalPlaces={2} />%
+                    <CountingNumber value={maxAPY * 100} decimalPlaces={2} />%
                   </div>
                   <div className='text-base font-bold text-foreground/80 leading-tight tracking-wider'>
                     Max APY
@@ -207,11 +205,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   <div className='border-t pt-1'>
                     <div className='font-semibold'>Result: {formatApy(maxAPY)}</div>
                   </div>
-                  {strategy.hasStakingData && (
-                    <div className='border-t pt-1 text-muted-foreground text-xs'>
-                      Includes staking rewards where available
-                    </div>
-                  )}
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -242,24 +235,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                       • {strategy.collateralAsset.symbol} Supply:{' '}
                       {((strategy.supplyApy || 0) * 100).toFixed(2)}%
                     </div>
-                    {strategy.collateralStakingApy && strategy.collateralStakingApy > 0 && (
-                      <div>
-                        • {strategy.collateralAsset.symbol} Staking:{' '}
-                        {(strategy.collateralStakingApy * 100).toFixed(2)}%
-                      </div>
-                    )}
                     <div>
                       • {strategy.debtAsset.symbol} Borrow: -
                       {((strategy.borrowApy || 0) * 100).toFixed(2)}%
                     </div>
-                    {strategy.hasStakingData &&
-                      strategy.debtStakingApy &&
-                      strategy.debtStakingApy > 0 && (
-                        <div>
-                          • {strategy.debtAsset.symbol} Staking: +
-                          {(strategy.debtStakingApy * 100).toFixed(2)}%
-                        </div>
-                      )}
                   </div>
                   <div className='border-t pt-1'>
                     <div className='font-semibold'>

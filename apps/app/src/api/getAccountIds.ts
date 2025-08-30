@@ -3,7 +3,7 @@ import { ITEM_LIMIT_PER_QUERY } from '@/constants/query'
 
 export interface AccountIdAndKind {
   id: string
-  kind: 'default' | 'high_levered_strategy'
+  kind: 'default'
 }
 
 export default async function getAccountIds(
@@ -15,7 +15,7 @@ export default async function getAccountIds(
   try {
     const client = await getCreditManagerQueryClient(chainConfig)
 
-    const lastItem = previousResults && previousResults.at(-1)
+    const lastItem = previousResults?.at(-1)
     const accounts = (
       await client.accounts({
         limit: ITEM_LIMIT_PER_QUERY,
