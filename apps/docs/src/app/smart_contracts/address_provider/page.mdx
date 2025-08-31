@@ -1,3 +1,8 @@
+---
+title: Amber Finance | Address Provider
+description: Technical documentation for the Address Provider contract that acts as a registry of Amber Finance contract addresses.
+---
+
 # Address Provider
 
 The Address Provider contract serves as the central registry for all Amber Finance contract addresses. It enables dynamic contract discovery and facilitates seamless upgrades and migrations by providing a single source of truth for contract locations.
@@ -27,7 +32,8 @@ Returns the contract's configuration.
 
 ```ts
 {
-  config: {}
+  config: {
+  }
 }
 ```
 
@@ -105,7 +111,8 @@ Returns contract ownership details.
 
 ```ts
 {
-  owner: {}
+  owner: {
+  }
 }
 ```
 
@@ -144,7 +151,8 @@ Accepts ownership transfer (proposed owner only).
 
 ```ts
 {
-  accept_ownership: {}
+  accept_ownership: {
+  }
 }
 ```
 
@@ -231,4 +239,4 @@ The Address Provider is typically used by other contracts and frontend applicati
 
 ---
 
-*This documentation reflects the Mars Protocol Address Provider contract as deployed by Amber Finance on Neutron.*
+_This documentation reflects the Mars Protocol Address Provider contract as deployed by Amber Finance on Neutron._

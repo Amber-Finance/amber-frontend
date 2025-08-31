@@ -1,3 +1,8 @@
+---
+title: Amber Finance | Duality Swapper
+description: Technical documentation for the Duality Swapper contract providing advanced DEX integration and multi-hop routing for Amber Finance.
+---
+
 # Duality Swapper
 
 The Duality Swapper contract provides advanced DEX integration for Amber Finance, enabling multi-hop routing and enhanced liquidity access through Duality Protocol. It extends the basic swapping functionality with sophisticated routing algorithms and cross-DEX operations.
@@ -28,7 +33,8 @@ Returns the contract's configuration.
 
 ```ts
 {
-  config: {}
+  config: {
+  }
 }
 ```
 
@@ -53,7 +59,8 @@ Returns contract ownership details.
 
 ```ts
 {
-  owner: {}
+  owner: {
+  }
 }
 ```
 
@@ -272,7 +279,8 @@ Accepts ownership transfer (proposed owner only).
 
 ```ts
 {
-  accept_ownership: {}
+  accept_ownership: {
+  }
 }
 ```
 
@@ -325,18 +333,22 @@ Removes the route for a token pair (owner only).
 The Duality Swapper provides advanced routing capabilities:
 
 #### Multi-Hop Routing
+
 - **Description**: Routes swaps through multiple pools for optimal pricing
 - **Use Case**: Complex token pairs with no direct liquidity
 
 #### Cross-DEX Integration
+
 - **Description**: Integrates with Duality Protocol pools
 - **Use Case**: Access to specialized liquidity sources
 
 #### Slippage Protection
+
 - **Description**: Built-in slippage tolerance and protection
 - **Use Case**: Prevents unfavorable price movements
 
 #### Gas Optimization
+
 - **Description**: Optimized routing to minimize gas costs
 - **Use Case**: Cost-effective swap execution
 
@@ -408,4 +420,4 @@ The Duality Swapper integrates with:
 
 ---
 
-*This documentation reflects the Mars Protocol Duality Swapper contract as deployed by Amber Finance on Neutron.*
+_This documentation reflects the Mars Protocol Duality Swapper contract as deployed by Amber Finance on Neutron._
