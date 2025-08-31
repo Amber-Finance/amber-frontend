@@ -18,13 +18,13 @@ const SHARED_IMAGE = {
 }
 
 export const metaData: Metadata = {
-  title: 'Amber Finance Documentation',
+  title: 'Amber Finance | Documentation',
   metadataBase: new URL(SHARED_CONFIG.baseUrl),
   description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.',
   openGraph: {
     type: 'website',
     url: SHARED_CONFIG.baseUrl,
-    title: 'Amber Finance Documentation',
+    title: 'Amber Finance | Documentation',
     locale: SHARED_CONFIG.locale,
     description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.',
     siteName: SHARED_CONFIG.siteName,
@@ -33,7 +33,8 @@ export const metaData: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: SHARED_CONFIG.twitterHandle,
-    title: 'Amber Finance Documentation',
+    title: 'Amber Finance | Documentation',
+    creator: SHARED_CONFIG.twitterHandle,
     description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.',
     images: [SHARED_IMAGE],
   },

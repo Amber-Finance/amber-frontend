@@ -36,19 +36,20 @@ export const metaData: { [key: string]: Metadata } = {
       card: 'summary_large_image',
       site: SHARED_CONFIG.twitterHandle,
       title: 'Amber Finance',
+      creator: SHARED_CONFIG.twitterHandle,
       description: 'Liquid Staking. Solid Yields.',
       images: [SHARED_IMAGE],
     },
   },
 
   deposit: {
-    title: 'Amber Finance - Yield',
+    title: 'Amber Finance | Yield',
     metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description: 'Liquid Staking. Solid Yields.',
     openGraph: {
       type: 'website',
       url: `${SHARED_CONFIG.baseUrl}/deposit`,
-      title: 'Amber Finance - Yield',
+      title: 'Amber Finance | Yield',
       locale: SHARED_CONFIG.locale,
       description: 'Liquid Staking. Solid Yields.',
       siteName: SHARED_CONFIG.siteName,
@@ -57,20 +58,21 @@ export const metaData: { [key: string]: Metadata } = {
     twitter: {
       card: 'summary_large_image',
       site: SHARED_CONFIG.twitterHandle,
-      title: 'Amber Finance - Yield',
+      title: 'Amber Finance | Yield',
+      creator: SHARED_CONFIG.twitterHandle,
       description: 'Liquid Staking. Solid Yields.',
       images: [SHARED_IMAGE],
     },
   },
 
   strategies: {
-    title: 'Amber Finance - Strategies',
+    title: 'Amber Finance | Strategies',
     metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description: 'Preserve Value. Generate Wealth.',
     openGraph: {
       type: 'website',
       url: `${SHARED_CONFIG.baseUrl}/strategies`,
-      title: 'Amber Finance - Strategies',
+      title: 'Amber Finance | Strategies',
       locale: SHARED_CONFIG.locale,
       description: 'Preserve Value. Generate Wealth.',
       siteName: SHARED_CONFIG.siteName,
@@ -79,21 +81,22 @@ export const metaData: { [key: string]: Metadata } = {
     twitter: {
       card: 'summary_large_image',
       site: SHARED_CONFIG.twitterHandle,
-      title: 'Amber Finance - Strategies',
+      title: 'Amber Finance | Strategies',
+      creator: SHARED_CONFIG.twitterHandle,
       description: 'Preserve Value. Generate Wealth.',
       images: [SHARED_IMAGE],
     },
   },
 
   swap: {
-    title: 'Amber Finance - Swap',
+    title: 'Amber Finance | Swap',
     metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description:
       'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
     openGraph: {
       type: 'website',
       url: `${SHARED_CONFIG.baseUrl}/swap`,
-      title: 'Amber Finance - Swap',
+      title: 'Amber Finance | Swap',
       locale: SHARED_CONFIG.locale,
       description:
         'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
@@ -103,7 +106,8 @@ export const metaData: { [key: string]: Metadata } = {
     twitter: {
       card: 'summary_large_image',
       site: SHARED_CONFIG.twitterHandle,
-      title: 'Amber Finance - Swap',
+      title: 'Amber Finance | Swap',
+      creator: SHARED_CONFIG.twitterHandle,
       description:
         'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
       images: [SHARED_IMAGE],

@@ -1,17 +1,28 @@
-import { DocsThemeConfig } from 'nextra-theme-docs'
+// Using untyped config to avoid version-specific type issues
 
-const config: DocsThemeConfig = {
+const config = {
   logo: <span>Amber Finance Docs</span>,
   project: {
     link: 'https://github.com/amber-finance/amber-frontend',
-  },
-  chat: {
-    link: 'https://discord.gg/bitcoin-outpost',
   },
   docsRepositoryBase: 'https://github.com/amber-finance/amber-frontend',
   footer: {
     content: 'Amber Finance Documentation',
   },
+  useNextSeoProps() {
+    return {
+      titleTemplate: 'Amber FInance | %s',
+      twitter: {
+        handle: '@amberfi_io',
+        site: '@amberfi_io',
+        cardType: 'summary_large_image',
+      },
+      openGraph: {
+        siteName: 'Amber FInance | Documentation',
+      },
+    }
+  },
+  head: undefined,
 }
 
 export default config
