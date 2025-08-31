@@ -143,10 +143,7 @@ export function Navbar() {
             <div className='px-6 py-8 space-y-6'>
               <div className='space-y-2'>
                 {navigation.map((item) => {
-                  const isActive =
-                    item.href === '/'
-                      ? pathname === '/' || pathname.startsWith('/deposit')
-                      : pathname.startsWith(item.href)
+                  const isActive = item.href === '/'
                   return (
                     <Link
                       key={item.name}

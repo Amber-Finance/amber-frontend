@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo, useRef, useState } from 'react'
 
 import { Widget } from '@skip-go/widget'

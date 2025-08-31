@@ -1,3 +1,5 @@
+'use client'
+
 import { ArrowDownOnSquareIcon } from "@heroicons/react/20/solid";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";

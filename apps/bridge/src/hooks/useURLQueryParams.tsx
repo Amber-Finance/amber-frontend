@@ -1,13 +1,14 @@
-import { useQueryState } from "nuqs";
 import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 
 export const useURLQueryParams = () => {
-  const [srcChainQP] = useQueryState("src_chain");
-  const [srcAssetQP] = useQueryState("src_asset");
-  const [destChainQP] = useQueryState("dest_chain");
-  const [destAssetQP] = useQueryState("dest_asset");
-  const [amountInQP] = useQueryState("amount_in");
-  const [amountOutQP] = useQueryState("amount_out");
+  const searchParams = useSearchParams();
+  const srcChainQP = searchParams.get("src_chain");
+  const srcAssetQP = searchParams.get("src_asset");
+  const destChainQP = searchParams.get("dest_chain");
+  const destAssetQP = searchParams.get("dest_asset");
+  const amountInQP = searchParams.get("amount_in");
+  const amountOutQP = searchParams.get("amount_out");
 
   const queryParams = useMemo(() => {
     return {
