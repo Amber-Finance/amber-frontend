@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: 'Amber Finance | Bridge',
   metadataBase: new URL(BRIDGE_CONFIG.baseUrl),
   description:
-    'Bridge BRTs across chains with Amber Finance. Seamless cross-chain transfers powered by Skip Protocol.',
+    'Bridge BRTs across chains with Amber Finance. Seamless cross-chain transfers powered by Skip:go.',
   keywords: ['bridge', 'cross-chain', 'DeFi', 'Amber Finance', 'cryptocurrency', 'blockchain'],
   authors: [{ name: 'Amber Finance' }],
   creator: 'Amber Finance',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: 'Amber Finance | Bridge',
     locale: BRIDGE_CONFIG.locale,
     description:
-      'Bridge assets across chains with Amber Finance. Seamless cross-chain transfers powered by Skip Protocol.',
+      'Bridge assets across chains with Amber Finance. Seamless cross-chain transfers powered by Skip:go.',
     siteName: BRIDGE_CONFIG.siteName,
     images: [BRIDGE_IMAGE],
   },
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     creator: BRIDGE_CONFIG.twitterHandle,
     title: 'Amber Finance | Bridge',
     description:
-      'Bridge assets across chains with Amber Finance. Seamless cross-chain transfers powered by Skip Protocol.',
+      'Bridge assets across chains with Amber Finance. Seamless cross-chain transfers powered by Skip:go.',
     images: [BRIDGE_IMAGE],
   },
   robots: {
