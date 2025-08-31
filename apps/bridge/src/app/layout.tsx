@@ -13,7 +13,7 @@ export const metadata: Metadata = defaultMetadata
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='en' className='no-scrollbar overflow-y-scroll' suppressHydrationWarning>
+    <html lang='en' className='no-scrollbar overflow-y-scroll dark' suppressHydrationWarning>
       <body
         className='overflow-x-hidden font-sans antialiased'
         style={{ overscrollBehavior: 'none' }}

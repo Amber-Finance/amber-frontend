@@ -325,6 +325,10 @@ input[type='number'] {
   mix-blend-mode: normal;
 }
 
+.widget-container {
+  font-family: SourceSans !important;
+}
+
 .widget-container .drzcYE .eGRKTo:last-of-type,
 .widget-container sc-ggWZvA sc-dFVmKS sc-ixcdjX fzmkwH chCXjZ kppEIL {
   pointer-events: none;

@@ -10,7 +10,6 @@ import { useURLQueryParams } from '@/hooks/useURLQueryParams'
 import { apiURL, endpointOptions } from '@/lib/skip-go-widget'
 import { cn } from '@/utils/ui'
 
-import { Banner } from '../Banner'
 import { AuroraText } from '../ui/AuroraText'
 
 interface AssetPair {
@@ -364,7 +363,6 @@ export function SkipPage() {
     }
   }
 
-  if (!resolvedTheme) return null
   return (
     <div
       className={cn(
@@ -414,11 +412,6 @@ export function SkipPage() {
               filter={baseAllowedFilter}
               hideAssetsUnlessWalletTypeConnected={false}
             />
-            {process.env.NEXT_PUBLIC_SHOW_BANNER === 'true' &&
-            process.env.NEXT_PUBLIC_BANNER_MESSAGE &&
-            process.env.NEXT_PUBLIC_BANNER_TITLE ? (
-              <Banner theme={resolvedTheme} />
-            ) : null}
           </div>
         </div>
 
