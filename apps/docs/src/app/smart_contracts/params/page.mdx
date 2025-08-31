@@ -1,3 +1,13 @@
+---
+title: Amber Finance | Params
+description: Technical documentation for the Params contract managing protocol parameters and configuration for Amber Finance.
+openGraph:
+  images:
+    - url: https://docs.amberfi.io/twitter-banner/docs.jpg
+      width: 1280
+      height: 720
+---
+
 # Params
 
 The Params contract manages protocol parameters and configuration for Amber Finance. It provides a centralized location for all protocol settings, enabling governance-controlled parameter updates and ensuring consistency across the entire system.
@@ -28,7 +38,8 @@ Returns the contract's configuration.
 
 ```ts
 {
-  config: {}
+  config: {
+  }
 }
 ```
 
@@ -52,7 +63,8 @@ Returns contract ownership details.
 
 ```ts
 {
-  owner: {}
+  owner: {
+  }
 }
 ```
 
@@ -75,7 +87,8 @@ Returns all protocol parameters.
 
 ```ts
 {
-  params: {}
+  params: {
+  }
 }
 ```
 
@@ -117,7 +130,8 @@ Returns Red Bank specific parameters.
 
 ```ts
 {
-  red_bank_params: {}
+  red_bank_params: {
+  }
 }
 ```
 
@@ -145,7 +159,8 @@ Returns Swapper specific parameters.
 
 ```ts
 {
-  swapper_params: {}
+  swapper_params: {
+  }
 }
 ```
 
@@ -168,7 +183,8 @@ Returns Incentives specific parameters.
 
 ```ts
 {
-  incentives_params: {}
+  incentives_params: {
+  }
 }
 ```
 
@@ -191,7 +207,8 @@ Returns Health Computer specific parameters.
 
 ```ts
 {
-  health_computer_params: {}
+  health_computer_params: {
+  }
 }
 ```
 
@@ -230,7 +247,8 @@ Accepts ownership transfer (proposed owner only).
 
 ```ts
 {
-  accept_ownership: {}
+  accept_ownership: {
+  }
 }
 ```
 
@@ -305,36 +323,36 @@ Updates Health Computer parameters (owner only).
 
 #### Red Bank Parameters
 
-| Parameter | Description | Default Value |
-|-----------|-------------|---------------|
-| `close_factor` | Maximum percentage of debt that can be repaid in a single liquidation | 0.5 |
-| `liquidation_threshold` | Health factor threshold that triggers liquidation | 1.0 |
-| `liquidation_penalty` | Penalty applied to liquidated positions | 0.1 |
-| `max_borrow_rate` | Maximum annual borrow rate | 0.5 |
-| `min_borrow_rate` | Minimum annual borrow rate | 0.01 |
-| `optimal_utilization_rate` | Target utilization rate for interest rate model | 0.8 |
-| `reserve_factor` | Percentage of interest reserved for protocol | 0.1 |
+| Parameter                  | Description                                                           | Default Value |
+| -------------------------- | --------------------------------------------------------------------- | ------------- |
+| `close_factor`             | Maximum percentage of debt that can be repaid in a single liquidation | 0.5           |
+| `liquidation_threshold`    | Health factor threshold that triggers liquidation                     | 1.0           |
+| `liquidation_penalty`      | Penalty applied to liquidated positions                               | 0.1           |
+| `max_borrow_rate`          | Maximum annual borrow rate                                            | 0.5           |
+| `min_borrow_rate`          | Minimum annual borrow rate                                            | 0.01          |
+| `optimal_utilization_rate` | Target utilization rate for interest rate model                       | 0.8           |
+| `reserve_factor`           | Percentage of interest reserved for protocol                          | 0.1           |
 
 #### Swapper Parameters
 
-| Parameter | Description | Default Value |
-|-----------|-------------|---------------|
-| `swap_fee` | Fee charged on swaps (as percentage) | 0.003 |
-| `slippage_tolerance` | Maximum allowed slippage for swaps | 0.01 |
+| Parameter            | Description                          | Default Value |
+| -------------------- | ------------------------------------ | ------------- |
+| `swap_fee`           | Fee charged on swaps (as percentage) | 0.003         |
+| `slippage_tolerance` | Maximum allowed slippage for swaps   | 0.01          |
 
 #### Incentives Parameters
 
-| Parameter | Description | Default Value |
-|-----------|-------------|---------------|
-| `emission_rate` | Current reward emission rate | 0.1 |
-| `max_emission_rate` | Maximum allowed emission rate | 0.2 |
+| Parameter           | Description                   | Default Value |
+| ------------------- | ----------------------------- | ------------- |
+| `emission_rate`     | Current reward emission rate  | 0.1           |
+| `max_emission_rate` | Maximum allowed emission rate | 0.2           |
 
 #### Health Computer Parameters
 
-| Parameter | Description | Default Value |
-|-----------|-------------|---------------|
-| `max_health_factor` | Maximum health factor for positions | 2.0 |
-| `min_health_factor` | Minimum health factor before liquidation | 1.0 |
+| Parameter           | Description                              | Default Value |
+| ------------------- | ---------------------------------------- | ------------- |
+| `max_health_factor` | Maximum health factor for positions      | 2.0           |
+| `min_health_factor` | Minimum health factor before liquidation | 1.0           |
 
 ---
 
@@ -391,4 +409,4 @@ The Params contract integrates with:
 
 ---
 
-*This documentation reflects the Mars Protocol Params contract as deployed by Amber Finance on Neutron.*
+_This documentation reflects the Mars Protocol Params contract as deployed by Amber Finance on Neutron._
