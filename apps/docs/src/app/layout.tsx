@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
 
 import { Analytics } from '@vercel/analytics/next'
-import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Layout, Navbar } from 'nextra-theme-docs'
 import 'nextra-theme-docs/style.css'
@@ -16,9 +15,6 @@ import { ThemedParticles } from '@/components/ui/ThemedParticles'
 import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingContext'
 
 import './globals.css'
-import { metaData } from './metadata'
-
-export const metadata: Metadata = metaData
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const navbar = (
