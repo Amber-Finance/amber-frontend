@@ -17,13 +17,15 @@ const SHARED_IMAGE = {
   alt: 'Amber Finance Documentation',
 }
 
-export const metaData: Metadata = {
-  title: 'Amber Finance | Documentation',
+export const metadata: Metadata = {
+  title: {
+    default: 'Amber Finance | Documentation',
+    template: 'Amber Finance | %s',
+  },
   metadataBase: new URL(SHARED_CONFIG.baseUrl),
   description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.',
   openGraph: {
     type: 'website',
-    url: SHARED_CONFIG.baseUrl,
     title: 'Amber Finance | Documentation',
     locale: SHARED_CONFIG.locale,
     description: 'Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.',
