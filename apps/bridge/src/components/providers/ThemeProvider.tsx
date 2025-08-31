@@ -1,11 +1,11 @@
 'use client'
 
-import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
-type Theme = 'light' | 'dark' | 'system'
+type Theme = 'dark' | 'light' | 'system'
 
 type ThemeProviderProps = {
-  children: ReactNode
+  children: React.ReactNode
   defaultTheme?: Theme
   storageKey?: string
 }
@@ -24,58 +24,91 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
+// Helper to safely check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined'
+
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
   storageKey = 'ui-theme',
+  ...props
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
+    // Only try to access localStorage in browser environment
+    if (isBrowser) {
       return (localStorage.getItem(storageKey) as Theme) || defaultTheme
     }
     return defaultTheme
   })
 
+  // Track the resolved theme (what's actually applied)
   const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>('dark')
 
   useEffect(() => {
     const root = window.document.documentElement
+
     root.classList.remove('light', 'dark')
 
-    let applied: 'light' | 'dark'
+    let appliedTheme: 'light' | 'dark'
+
     if (theme === 'system') {
-      applied = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+
+      root.classList.add(systemTheme)
+      appliedTheme = systemTheme
     } else {
-      applied = theme
+      root.classList.add(theme)
+      appliedTheme = theme as 'light' | 'dark'
     }
-    root.classList.add(applied)
-    setResolvedTheme(applied)
+
+    // Set the resolved theme
+    setResolvedTheme(appliedTheme)
   }, [theme])
 
+  // Add listener for system preference changes
   useEffect(() => {
     if (theme !== 'system') return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = () => {
-      const applied = mq.matches ? 'dark' : 'light'
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+    const handleChange = () => {
       const root = window.document.documentElement
+      const systemTheme = mediaQuery.matches ? 'dark' : 'light'
+
       root.classList.remove('light', 'dark')
-      root.classList.add(applied)
-      setResolvedTheme(applied)
+      root.classList.add(systemTheme)
+      setResolvedTheme(systemTheme)
     }
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
+
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
   }, [theme])
 
   const value = {
     theme,
     resolvedTheme,
-    setTheme: (t: Theme) => {
-      if (typeof window !== 'undefined') localStorage.setItem(storageKey, t)
-      setTheme(t)
+    setTheme: (theme: Theme) => {
+      // Only try to use localStorage in browser environment
+      if (isBrowser) {
+        localStorage.setItem(storageKey, theme)
+      }
+      setTheme(theme)
     },
   }
 
-  return <ThemeProviderContext.Provider value={value}>{children}</ThemeProviderContext.Provider>
+  return (
+    <ThemeProviderContext.Provider {...props} value={value}>
+      {children}
+    </ThemeProviderContext.Provider>
+  )
 }
 
-export const useTheme = () => useContext(ThemeProviderContext)
+export const useTheme = () => {
+  const context = useContext(ThemeProviderContext)
+
+  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider')
+
+  return context
+}
