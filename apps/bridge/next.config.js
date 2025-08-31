@@ -75,13 +75,6 @@ let nextConfig = {
   },
   webpack: (config, { dev, isServer }) => {
     if (dev && isServer) checkEnv()
-    // Force this app to use its local React 18 to avoid hoisted React 19
-    config.resolve = config.resolve || {}
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      react: require('path').resolve(__dirname, 'node_modules/react'),
-      'react-dom': require('path').resolve(__dirname, 'node_modules/react-dom'),
-    }
     return config
   },
 }
