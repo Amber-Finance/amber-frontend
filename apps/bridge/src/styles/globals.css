@@ -419,6 +419,10 @@ input[type='number'] {
   color: #ffffff !important; /* text-white */
 }
 
+.widget-container .sc-ggWZvA.sc-jwTyAe {
+  color: var(--muted-foreground) !important;
+}
+
 .widget-container .sc-bRKDuR.sc-lgpSej.eVgeQD:hover,
 .widget-container .sc-bRKDuR.sc-lgpSej.sc-eqYatC.cXkXST:hover {
   box-shadow:
