@@ -75,7 +75,7 @@ const tokens = [
     decimals: 8,
     isLST: true,
     protocol: 'Ether.fi ',
-    brandColor: '#120370', // Ether.fi blue
+    brandColor: '#6366F1', // Ether.fi blue
   },
   {
     chainId: 'neutron-1',
@@ -88,7 +88,7 @@ const tokens = [
     decimals: 8,
     isLST: true,
     protocol: 'Pump Protocol',
-    brandColor: '#3B82F6', // Pump blue
+    brandColor: '#0891B2', // Pump blue
   },
   {
     chainId: 'neutron-1',

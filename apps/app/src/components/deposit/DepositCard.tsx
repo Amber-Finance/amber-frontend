@@ -157,23 +157,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className='flex-1 space-y-4'>
+      <CardContent className='flex-1 space-y-5'>
         {/* TVL and Metrics Section */}
         <div className='space-y-4'>
-          {/* TVL Info
-          <div className='flex items-center justify-between p-3 rounded-lg bg-muted/50'>
-            <div className='flex items-center gap-2'>
-              <TrendingUp className='w-4 h-4 text-muted-foreground' />
-              <span className='text-sm font-medium'>Total Value Locked</span>
-            </div>
-            <div className='text-right'>
-              <div className='text-sm font-semibold'>
-                {formatCompactCurrency(currentTokenTvlAmount)}
-              </div>
-              <div className='text-xs text-muted-foreground'>{token.symbol} denominated</div>
-            </div>
-          </div> */}
-
           {/* Progress Bars Section */}
           <div className='grid grid-cols-2 gap-4'>
             {/* Utilization Rate */}
@@ -212,7 +198,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
         {/* Points Section */}
         <div className='space-y-3'>
-          <h4 className='text-sm font-medium text-foreground'>Earning Points</h4>
+          <h4 className='text-sm font-bold tracking-wider'>Earning Points</h4>
           <div className='flex flex-wrap gap-2'>
             {/* Protocol Points - Show first if they exist */}
             {protocolPoints.protocolPoint && protocolPointsIcon && (
@@ -271,7 +257,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
             <Wallet className='w-4 h-4 text-muted-foreground' />
-            <span className='text-sm font-medium'>Your Balances</span>
+            <span className='text-sm font-bold tracking-wider'>Your Balances</span>
+            {/* <span className='text-base font-bold tracking-wider text-foreground'>
+              Your Balances
+            </span> */}
           </div>
 
           <div className='space-y-2'>
