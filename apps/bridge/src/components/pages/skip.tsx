@@ -141,22 +141,6 @@ export function SkipPage() {
         denom: 'ibc/E2A000FD3EDD91C9429B473995CE2C7C555BCC8CFC1D0A3D02F514392B7A80E8',
       },
     },
-    // pumpBTC
-    // {
-    //   source: {
-    //     chainId: 'neutron-1',
-    //     denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
-    //   },
-    //   destination: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
-    // },
-    // {
-    //   source: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
-    //   destination: {
-    //     chainId: 'neutron-1',
-    //     denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
-    //   },
-    // },
-    // uniBTC
     {
       source: {
         chainId: 'neutron-1',

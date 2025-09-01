@@ -79,19 +79,6 @@ const tokens = [
   },
   {
     chainId: 'neutron-1',
-    denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
-    symbol: 'pumpBTC',
-    icon: '/images/pumpBTC.svg',
-    description: 'Pump Bitcoin',
-    protocolIconLight: '/images/pump.svg',
-    protocolIconDark: '/images/pump.svg',
-    decimals: 8,
-    isLST: true,
-    protocol: 'Pump Protocol',
-    brandColor: '#3B82F6', // Pump blue
-  },
-  {
-    chainId: 'neutron-1',
     denom: 'ibc/3F1D988D9EEA19EB0F3950B4C19664218031D8BCE68CE7DE30F187D5ACEA0463',
     symbol: 'uniBTC',
     icon: '/images/uniBTC.svg',

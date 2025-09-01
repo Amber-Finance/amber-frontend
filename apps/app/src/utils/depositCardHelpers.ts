@@ -46,12 +46,6 @@ export const getProtocolPoints = (symbol: string) => {
       protocolIconLight: '/images/bedrock.svg',
       protocolIconDark: '/images/bedrock.svg', // Same icon for both themes
     },
-    pumpbtc: {
-      multiplier: '2x',
-      protocolPoint: 'Pump Points',
-      protocolIconLight: '/images/pump.svg',
-      protocolIconDark: '/images/pump.svg', // Same icon for both themes
-    },
     maxbtc: { multiplier: '1x', protocolPoint: 'Structured Points (TBC)' },
   }
 
@@ -95,7 +89,6 @@ export const getBadgeStyle = (pointType: 'neutron' | 'protocol' | 'mars', symbol
         lbtc: { bg: '#63C9B980', border: '#63C9B9' }, // Teal from Lombard with 50% opacity
         ebtc: { bg: '#6366F180', border: '#6366F1' }, // Indigo for Etherfi with 50% opacity
         unibtc: { bg: '#9236EA80', border: '#9236EA' }, // Purple from Bedrock with 50% opacity
-        pumpbtc: { bg: '#F59E0B80', border: '#F59E0B' }, // Amber/orange for Pump with 50% opacity
       }
       const protocolColor = protocolColors[symbolLower] || {
         bg: '#6B728080',
@@ -132,7 +125,7 @@ export const getProtocolIcon = (
   theme?: string,
 ) => {
   if (!protocolIconLight || !protocolIconDark) return null
-  // For tokens with the same icon for both themes (like pump.svg, eBTC.svg), just return the light version
+  // For tokens with the same icon for both themes (like eBTC.svg), just return the light version
   if (protocolIconLight === protocolIconDark) return protocolIconLight
   return theme === 'dark' ? protocolIconDark : protocolIconLight
 }

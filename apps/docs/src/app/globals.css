@@ -357,18 +357,16 @@ button[aria-label='Toggle theme'] .text-primary {
 
 /* BRT table image styling - extremely aggressive targeting */
 .nextra-content table td:first-child img,
-.nextra-content table td:first-child img[src*="eBTC"],
-.nextra-content table td:first-child img[src*="LBTC"],
-.nextra-content table td:first-child img[src*="pumpBTC"],
-.nextra-content table td:first-child img[src*="solvBTC"],
-.nextra-content table td:first-child img[src*="uniBTC"],
-.nextra-content table td:first-child img[src*="WBTC"],
-.nextra-content table img[src*="eBTC"],
-.nextra-content table img[src*="LBTC"],
-.nextra-content table img[src*="pumpBTC"],
-.nextra-content table img[src*="solvBTC"],
-.nextra-content table img[src*="uniBTC"],
-.nextra-content table img[src*="WBTC"] {
+.nextra-content table td:first-child img[src*='eBTC'],
+.nextra-content table td:first-child img[src*='LBTC'],
+.nextra-content table td:first-child img[src*='solvBTC'],
+.nextra-content table td:first-child img[src*='uniBTC'],
+.nextra-content table td:first-child img[src*='WBTC'],
+.nextra-content table img[src*='eBTC'],
+.nextra-content table img[src*='LBTC'],
+.nextra-content table img[src*='solvBTC'],
+.nextra-content table img[src*='uniBTC'],
+.nextra-content table img[src*='WBTC'] {
   width: 16px !important;
   height: 16px !important;
   max-width: 16px !important;

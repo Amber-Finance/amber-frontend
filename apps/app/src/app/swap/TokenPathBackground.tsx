@@ -7,13 +7,11 @@ const tokens = [
   { symbol: 'WBTC', icon: '/images/WBTC.svg' },
   { symbol: 'LBTC', icon: '/images/LBTC.svg' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
-  { symbol: 'pumpBTC', icon: '/images/pumpBTC.svg' },
   { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
   { symbol: 'eBTC', icon: '/images/eBTC.svg' },
   { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
-  { symbol: 'pumpBTC', icon: '/images/pumpBTC.svg' },
 ]
 
 export default function TokenPathBackground() {
