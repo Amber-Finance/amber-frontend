@@ -1,14 +1,14 @@
-import { WidgetProps } from "@skip-go/widget";
+import { WidgetProps } from '@skip-go/widget'
 
-import { appUrl } from "@/constants/api";
+import { appUrl } from '@/constants/api'
 
-export const endpointOptions: WidgetProps["endpointOptions"] = {
+export const endpointOptions: WidgetProps['endpointOptions'] = {
   getRpcEndpointForChain: async (chainID) => {
-    return `${appUrl}/api/rpc/${chainID}`;
+    return `${appUrl}/api/rpc/${chainID}`
   },
   getRestEndpointForChain: async (chainID) => {
-    return `${appUrl}/api/rest/${chainID}`;
+    return `${appUrl}/api/rest/${chainID}`
   },
-};
+}
 
-export const apiURL = `${appUrl}/api/skip`;
+export const apiURL = 'https://go.skip.build/api/skip'
