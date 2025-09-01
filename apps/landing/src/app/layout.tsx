@@ -10,7 +10,7 @@ import { Footer } from '../components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'Amber Finance',
-  metadataBase: new URL('https:/amberfi.io'),
+  metadataBase: new URL('https://amberfi.io'),
   description:
     'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
   openGraph: {
@@ -33,6 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: '@amberfi_io',
+    creator: '@amberfi_io',
     title: 'Amber Finance',
     description:
       'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',

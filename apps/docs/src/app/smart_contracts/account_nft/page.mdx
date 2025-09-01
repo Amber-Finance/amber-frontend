@@ -1,3 +1,8 @@
+---
+title: Amber Finance | Account NFT
+description: Technical documentation for the Account NFT contract deployed by Amber Finance on Neutron. NFT representation of user accounts.
+---
+
 # Account NFT
 
 The Account NFT contract provides NFT representation of user accounts in Amber Finance. It enables account ownership verification, transferable positions, and enhanced user experience through visual representation of DeFi positions.
@@ -29,7 +34,8 @@ Returns the contract's configuration.
 
 ```ts
 {
-  config: {}
+  config: {
+  }
 }
 ```
 
@@ -54,7 +60,8 @@ Returns contract ownership details.
 
 ```ts
 {
-  owner: {}
+  owner: {
+  }
 }
 ```
 
@@ -231,7 +238,6 @@ Returns approval information for a specific token.
     }
   }
 }
-
 ```
 
 ---
@@ -272,7 +278,8 @@ Returns contract information.
 
 ```ts
 {
-  contract_info: {}
+  contract_info: {
+  }
 }
 ```
 
@@ -296,7 +303,8 @@ Returns the total number of tokens.
 
 ```ts
 {
-  num_tokens: {}
+  num_tokens: {
+  }
 }
 ```
 
@@ -459,7 +467,8 @@ Accepts ownership transfer (proposed owner only).
 
 ```ts
 {
-  accept_ownership: {}
+  accept_ownership: {
+  }
 }
 ```
 
@@ -468,16 +477,19 @@ Accepts ownership transfer (proposed owner only).
 ### NFT Features
 
 #### Account Representation
+
 - **Visual Identity**: Each account has a unique NFT representation
 - **Metadata**: Rich metadata including account information and visual assets
 - **Transferability**: Accounts can be transferred through NFT transfers
 
 #### Ownership Verification
+
 - **Clear Ownership**: NFT ownership directly represents account ownership
 - **Transfer History**: Complete transfer history through blockchain
 - **Approval System**: Delegated account management through approvals
 
 #### Enhanced UX
+
 - **Visual Interface**: NFT marketplaces can display account information
 - **Portfolio Management**: Easy account tracking and management
 - **Social Features**: Share and showcase DeFi positions
@@ -497,6 +509,7 @@ Each NFT contains metadata with:
 ```
 
 #### Extended Metadata (via URI)
+
 ```ts
 {
   description: string,           // Account description
@@ -587,4 +600,4 @@ The Account NFT integrates with:
 
 ---
 
-*This documentation reflects the Mars Protocol Account NFT contract as deployed by Amber Finance on Neutron.*
+_This documentation reflects the Mars Protocol Account NFT contract as deployed by Amber Finance on Neutron._

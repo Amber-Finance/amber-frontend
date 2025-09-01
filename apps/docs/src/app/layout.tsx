@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
 
 import { Analytics } from '@vercel/analytics/next'
-import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Layout, Navbar } from 'nextra-theme-docs'
 import 'nextra-theme-docs/style.css'
@@ -16,9 +15,6 @@ import { ThemedParticles } from '@/components/ui/ThemedParticles'
 import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingContext'
 
 import './globals.css'
-import { metaData } from './metadata'
-
-export const metadata: Metadata = metaData
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const navbar = (
@@ -46,25 +42,23 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <meta name='theme-color' content='#000000' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <meta httpEquiv='Content-Language' content='en' />
-        <meta
-          name='description'
-          content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.'
-        />
-        <meta
-          name='og:description'
-          content='Comprehensive documentation for Amber Finance - Liquid Staking. Solid Yields.'
-        />
-        <meta name='twitter:card' content='summary_large_image' />
-        <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
-        <meta name='twitter:site:domain' content='docs.amberfi.io' />
-        <meta name='twitter:url' content='https://docs.amberfi.io' />
-        <meta name='og:title' content='Amber Finance Documentation' />
-        <meta name='og:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
         <meta name='apple-mobile-web-app-title' content='Amber Docs' />
         <link rel='icon' href='/favicon.ico' type='image/x-icon' />
         <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
         <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
         <link rel='manifest' href='/manifest.json' />
+        <meta property='og:site_name' content='Amber Finance | Docs' />
+        <meta property='og:locale' content='en_US' />
+        <meta property='og:url' content='https://docs.amberfi.io' />
+        <meta property='og:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
+        <meta property='og:image:width' content='1280' />
+        <meta property='og:image:height' content='720' />
+        <meta property='og:image:alt' content='Amber Finance Documentation' />
+        <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:url' content='https://docs.amberfi.io' />
+        <meta name='twitter:creator' content='@amberfi_io' />
+        <meta name='twitter:site' content='@amberfi_io' />
       </Head>
       <body>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>

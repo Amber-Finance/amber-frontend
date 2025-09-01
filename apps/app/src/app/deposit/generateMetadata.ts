@@ -15,18 +15,20 @@ const TOKEN_SHARE_IMAGES = {
 export async function generateDepositMetadata(tokenSymbol: string | null): Promise<Metadata> {
   if (!tokenSymbol) {
     return {
-      title: 'Deposit - Amber',
+      title: 'Amber Finance | Deposit',
       description: 'Deposit your assets on Amber and start earning yield.',
       openGraph: {
-        title: 'Deposit - Amber',
+        title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
         images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Deposit - Amber',
+        title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
         images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
+        site: '@amberfi_io',
+        creator: '@amberfi_io',
       },
     }
   }
@@ -37,23 +39,25 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
   // If token not found or no share image exists, return default deposit metadata
   if (!token || !shareImage) {
     return {
-      title: 'Deposit - Amber',
+      title: 'Amber Finance | Deposit',
       description: 'Deposit your assets on Amber and start earning yield.',
       openGraph: {
-        title: 'Deposit - Amber',
+        title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
         images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Deposit - Amber',
+        title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
         images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
+        site: '@amberfi_io',
+        creator: '@amberfi_io',
       },
     }
   }
 
-  const title = `${tokenSymbol} Deposit - Amber`
+  const title = `Amber Finance | Deposit ${tokenSymbol}`
   const description = `Get yield on your ${tokenSymbol}. Preserve value. Generate wealth.`
 
   return {

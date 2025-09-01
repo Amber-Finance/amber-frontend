@@ -216,30 +216,7 @@ type SwapRouteInfo = {
   description: string
 }
 
-type AstroportRouteResponse = {
-  id: string
-  swaps: AstroportRoute[]
-  denom_in: string
-  decimals_in: number
-  price_in: number
-  value_in: string
-  amount_in: string
-  denom_out: string
-  decimals_out: number
-  price_out: number
-  value_out: string
-  amount_out: string
-  price_difference: number
-  price_impact: number
-}
 
-type AstroportRoute = {
-  contract_addr: string
-  from: string
-  to: string
-  type: string
-  illiquid: boolean
-}
 
 /**
  * Options for formatting values
@@ -563,23 +540,8 @@ interface SwapRouteInfo {
   route: SwapperRoute
 }
 
-// Import the SwapperRoute type from the generated types
-type SwapperRoute =
-  | {
-      astro: AstroRoute
-    }
-  | {
-      duality: DualityRoute
-    }
-
-
-interface AstroRoute {
-  swaps: AstroSwap[]
-}
-
-interface AstroSwap {
-  from: string
-  to: string
+type SwapperRoute = {
+  duality: DualityRoute
 }
 
 interface DualityRoute {
@@ -609,3 +571,177 @@ interface TvlHistoricalPoint {
   date: string
   value: string
 }
+
+
+// Types
+type TransactionType = 'deposit' | 'withdraw' | 'borrow' | 'repay' | 'swap' | 'strategy'
+
+interface BaseTransactionParams {
+  amount: string
+  denom: string
+  decimals: number
+  symbol?: string
+}
+
+interface DepositParams extends BaseTransactionParams {
+  type: 'deposit'
+}
+
+interface WithdrawParams extends BaseTransactionParams {
+  type: 'withdraw'
+}
+
+interface BorrowParams extends BaseTransactionParams {
+  type: 'borrow'
+  recipient?: string
+}
+
+interface RepayParams extends BaseTransactionParams {
+  type: 'repay'
+  onBehalfOf?: string
+}
+
+interface SwapParams {
+  type: 'swap'
+  fromToken: SwapToken
+  toToken: SwapToken
+  amount: string
+  routeInfo: SwapRouteInfo
+  slippage?: number
+}
+
+interface StrategyParams {
+  type: 'strategy'
+  strategyType: 'create' | 'update' | 'close' | 'delete'
+  accountId?: string
+  accountKind?: 'default' | 'high_levered_strategy'
+  actions: any[] // Action array from credit manager
+  collateralAmount?: string
+  multiplier?: number
+}
+
+interface DeployStrategyParams {
+  type: 'deploy_strategy'
+  strategyType: 'create' | 'increase' // create new or increase existing
+  accountId?: string // required for increase
+  collateralAmount: number
+  collateralDenom: string
+  collateralDecimals: number
+  borrowAmount: number
+  borrowDenom: string
+  borrowDecimals: number
+  swapRoute: any
+  swapDestDenom: string
+  multiplier: number
+  strategy: any // Strategy object
+}
+
+interface ManageStrategyParams {
+  type: 'manage_strategy'
+  actionType: 'close_partial' | 'close_full' // strategy closure actions
+  accountId: string
+  collateralAmount: number // amount of collateral to swap back
+  collateralDenom: string
+  collateralDecimals: number
+  debtAmount: number // amount of debt to repay
+  debtDenom: string
+  debtDecimals: number
+  swapRoute: any // route to swap collateral back to debt asset
+}
+
+// Enhanced functional transaction types
+interface BaseTransactionConfig {
+  amount: string
+  denom: string
+  decimals: number
+  symbol?: string
+}
+
+interface ToastMessages {
+  pending?: string
+  success?: string
+  error?: string
+}
+
+interface TransactionResult {
+  success: boolean
+  result?: any
+  error?: string
+}
+
+interface StrategyAsset {
+  amount: number
+  denom: string
+  decimals: number
+}
+
+interface SwapConfig {
+  route: any
+  slippage?: string
+}
+
+interface DeployStrategyConfig {
+  type: 'deploy_strategy'
+  strategyType: 'create' | 'increase'
+  accountId?: string
+  collateral: StrategyAsset
+  debt: StrategyAsset
+  swap: SwapConfig & { destDenom: string }
+  multiplier: number
+  strategy: any
+}
+
+interface ManageStrategyConfig {
+  type: 'manage_strategy'
+  actionType: 'close_partial' | 'close_full'
+  accountId: string
+  collateral: StrategyAsset
+  debt: StrategyAsset
+  swap: SwapConfig
+}
+
+interface DepositConfig extends BaseTransactionConfig {
+  type: 'deposit'
+}
+
+interface WithdrawConfig extends BaseTransactionConfig {
+  type: 'withdraw'
+}
+
+interface BorrowConfig extends BaseTransactionConfig {
+  type: 'borrow'
+  recipient?: string
+}
+
+interface RepayConfig extends BaseTransactionConfig {
+  type: 'repay'
+  onBehalfOf?: string
+}
+
+interface SwapTransactionConfig {
+  type: 'swap'
+  fromToken: any
+  toToken: any
+  amount: string
+  routeInfo: any
+  slippage?: number
+}
+
+type TransactionConfig =
+  | DepositConfig
+  | WithdrawConfig
+  | BorrowConfig
+  | RepayConfig
+  | SwapTransactionConfig
+  | DeployStrategyConfig
+  | ManageStrategyConfig
+
+type TransactionParams =
+  | DepositParams
+  | WithdrawParams
+  | BorrowParams
+  | RepayParams
+  | SwapParams
+  | StrategyParams
+  | DeployStrategyParams
+  | ManageStrategyParams

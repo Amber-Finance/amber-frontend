@@ -1,0 +1,41 @@
+.skipbutton {
+  font-size: 1rem;
+  padding: 0.4rem 0.7rem 0.4rem 0.8rem;
+  font-weight: 600;
+  color: black;
+  background-color: white;
+  border-radius: 2rem;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.15rem;
+  height: 2.5rem;
+  gap: 8px;
+
+  appearance: none;
+  border: none;
+
+  font-family: var(--f-sans);
+
+  text-decoration: none;
+  width: fit-content;
+}
+.skipbutton:hover {
+  color: white;
+  background-color: black;
+  cursor: pointer;
+}
+
+.skipbutton:hover svg {
+  fill: white;
+}
+
+.skipbutton svg {
+  width: auto;
+  fill: black;
+}
+
+@media screen and (max-width: 767px) /* Mobile */ {
+  .widgetButton {
+    display: none !important;
+  }
+}

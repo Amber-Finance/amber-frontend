@@ -19,7 +19,9 @@ export const formatNumber = (num: number | string, decimals = 2): string => {
 
 export const formatApy = (value: number) => {
   if (value === 0 || value === undefined) return '-'
-  return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`
+  // Convert decimal to percentage for display
+  const percentageValue = value * 100
+  return `${percentageValue > 0 ? '+' : ''}${percentageValue.toFixed(2)}%`
 }
 
 // Format a number to display in millions, billions, etc.

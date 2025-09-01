@@ -1,17 +1,14 @@
-import { DocsThemeConfig } from 'nextra-theme-docs'
-
-const config: DocsThemeConfig = {
+// Using untyped config to avoid version-specific type issues
+const config = {
   logo: <span>Amber Finance Docs</span>,
   project: {
     link: 'https://github.com/amber-finance/amber-frontend',
-  },
-  chat: {
-    link: 'https://discord.gg/bitcoin-outpost',
   },
   docsRepositoryBase: 'https://github.com/amber-finance/amber-frontend',
   footer: {
     content: 'Amber Finance Documentation',
   },
+  // Let Nextra Docs theme read front matter for title/description/openGraph
 }
 
 export default config
