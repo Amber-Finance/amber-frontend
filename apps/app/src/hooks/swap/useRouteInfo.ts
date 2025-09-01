@@ -9,11 +9,13 @@ export default function useRouteInfo(
   denomOut: string,
   amount: BigNumber,
   markets: any[],
+  slippage?: number,
 ) {
+  const effectiveSlippage = slippage ?? 0.5
   const debouncedAmount = useDebounce<string>(amount.toString(), 500)
   const neutronRoute = useSWR<SwapRouteInfo | null>(
     debouncedAmount !== '0' && markets && amount.gt(0)
-      ? ['route', denomIn, denomOut, debouncedAmount, chainConfig.id]
+      ? ['route', denomIn, denomOut, debouncedAmount, effectiveSlippage, chainConfig.id]
       : null,
     async () => getNeutronRouteInfo(denomIn, denomOut, amount, markets, chainConfig),
   )
