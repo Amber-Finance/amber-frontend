@@ -13,15 +13,8 @@ const TOKEN_BASE_IMAGES = {
   uniBTC: '/twitter-banner/deposit/uniBTC.png',
 } as const
 
-// Hardcoded APY for testing
-const MOCK_APY_DATA = {
-  LBTC: { total: 8.45, protocol: 3.2, staking: 5.25 },
-  solvBTC: { total: 7.8, protocol: 2.95, staking: 4.85 },
-  eBTC: { total: 6.5, protocol: 3.3, staking: 3.2 },
-  WBTC: { total: 5.7, protocol: 3.2, staking: 2.5 },
-  pumpBTC: { total: 7.3, protocol: 3.2, staking: 4.1 },
-  uniBTC: { total: 7.0, protocol: 3.2, staking: 3.8 },
-}
+// API endpoint for APY data
+const APY_API_URL = 'https://api.amberfi.io/api/btc'
 
 export async function GET(
   request: NextRequest,
@@ -37,11 +30,29 @@ export async function GET(
       return new NextResponse('Banner image not found', { status: 404 })
     }
 
-    // Get mock APY data
-    const apyData = MOCK_APY_DATA[tokenSymbol as keyof typeof MOCK_APY_DATA]
+    let apyData = null
 
-    if (!apyData) {
-      return new NextResponse('Token not supported', { status: 404 })
+    try {
+      const response = await fetch(APY_API_URL, {
+        next: { revalidate: 60 }, // Cache for 1 minute
+      })
+
+      if (response.ok) {
+        const apiData = await response.json()
+        const tokenKey = tokenSymbol.toLowerCase() as keyof typeof apiData.apys
+
+        if (apiData.apys && apiData.apys[tokenKey]) {
+          const apyValue = parseFloat(apiData.apys[tokenKey])
+          apyData = { apy: apyValue }
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch APY data for ${tokenSymbol}.`)
+    }
+
+    // Use fallback if API fails or returns 0
+    if (!apyData || apyData.apy === 0) {
+      apyData = { apy: 0 }
     }
 
     return new ImageResponse(
@@ -84,44 +95,45 @@ export async function GET(
               GET
             </div>
 
-            {/* Large APY Number */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                marginBottom: '5px',
-              }}
-            >
-              <span
-                style={
-                  {
-                    fontSize: '120px',
-                    fontWeight: '900',
-                    color: '#FF6B35',
-                    lineHeight: '1',
-                    letterSpacing: '0.1em',
-                    WebkitTextStroke: '8px #FF6B35',
-                  } as React.CSSProperties
-                }
+            {/* Large APY Number - Only show when APY > 0 */}
+            {apyData.apy > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  marginBottom: '5px',
+                }}
               >
-                {apyData.total.toFixed(2)}
-              </span>
-              <span
-                style={
-                  {
-                    fontSize: '80px',
-                    fontWeight: '900',
-                    color: '#FF6B35',
-                    lineHeight: '1',
-                    WebkitTextStroke: '5px #FF6B35',
-                  } as React.CSSProperties
-                }
-              >
-                %
-              </span>
-            </div>
+                <span
+                  style={
+                    {
+                      fontSize: '120px',
+                      fontWeight: '900',
+                      color: '#FF6B35',
+                      lineHeight: '1',
+                      letterSpacing: '0.1em',
+                      WebkitTextStroke: '8px #FF6B35',
+                    } as React.CSSProperties
+                  }
+                >
+                  {apyData.apy.toFixed(2)}
+                </span>
+                <span
+                  style={
+                    {
+                      fontSize: '80px',
+                      fontWeight: '900',
+                      color: '#FF6B35',
+                      lineHeight: '1',
+                      WebkitTextStroke: '5px #FF6B35',
+                    } as React.CSSProperties
+                  }
+                >
+                  %
+                </span>
+              </div>
+            )}
 
-            {/* YIELD ON YOUR */}
             <div
               style={{
                 fontSize: '48px',
@@ -134,7 +146,6 @@ export async function GET(
               YIELD ON YOUR
             </div>
 
-            {/* Token Symbol */}
             <div
               style={{
                 fontSize: '48px',
