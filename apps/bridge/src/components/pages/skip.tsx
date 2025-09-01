@@ -370,48 +370,46 @@ export function SkipPage() {
       )}
     >
       <main className='relative flex min-h-[calc(100vh-500px)] flex-col'>
-        {/* Intro Section (mirror @app Hero) */}
-        <section className='overflow-hidden relative px-4 py-10 w-full sm:px-8 sm:py-20'>
-          <div className='flex flex-col gap-8 items-start lg:flex-row lg:items-end lg:gap-12'>
-            <div className='flex flex-col flex-1 gap-6 justify-between'>
-              <div className='space-y-3'>
-                <h1 className='text-3xl leading-tight lg:text-5xl font-funnel'>
-                  Bridge BRTs.
-                  <span className='block'>
-                    <AuroraText>Via Skip:Go</AuroraText>
-                  </span>
-                </h1>
-                <p className='max-w-lg text-sm leading-relaxed sm:text-base text-muted-foreground'>
-                  Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
-                </p>
-              </div>
-            </div>
+        {/* Intro Section (mirror Swap hero copy/center) */}
+        <section className='relative w-full py-8 sm:py-10 px-4'>
+          <div className='flex flex-col items-center gap-4'>
+            <h1 className='text-3xl lg:text-5xl font-funnel leading-tight text-center'>
+              Bridge <AuroraText>Bitcoin Related</AuroraText> Tokens
+            </h1>
+            <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
+              Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
+            </p>
           </div>
         </section>
 
-        <div className='flex flex-col flex-grow justify-center items-center'>
-          <div className='widget-container'>
-            <Widget
-              rootId='amber-bridge'
-              theme={resolvedTheme}
-              endpointOptions={endpointOptions}
-              apiUrl={apiURL}
-              defaultRoute={defaultRouteConfig}
-              onlyTestnet={false}
-              enableAmplitudeAnalytics
-              disableShadowDom
-              onRouteUpdated={onRouteUpdated}
-              onSourceAssetUpdated={onSourceAssetUpdated}
-              onDestinationAssetUpdated={onDestinationAssetUpdated}
-              routeConfig={{
-                experimentalFeatures: ['eureka'],
-              }}
-              settings={{
-                useUnlimitedApproval: true,
-              }}
-              filter={baseAllowedFilter}
-              hideAssetsUnlessWalletTypeConnected={false}
-            />
+        {/* Widget Card wrapper to mirror Swap card */}
+        <div className='w-full max-w-lg mx-auto pb-16 px-4'>
+          <div className='bg-card rounded-2xl shadow-xl border border-border/30 py-2 min-h-[295px]'>
+            <div className='sm:py-2 px-2'>
+              <div className='widget-container'>
+                <Widget
+                  rootId='amber-bridge'
+                  theme={resolvedTheme}
+                  endpointOptions={endpointOptions}
+                  apiUrl={apiURL}
+                  defaultRoute={defaultRouteConfig}
+                  onlyTestnet={false}
+                  enableAmplitudeAnalytics
+                  disableShadowDom
+                  onRouteUpdated={onRouteUpdated}
+                  onSourceAssetUpdated={onSourceAssetUpdated}
+                  onDestinationAssetUpdated={onDestinationAssetUpdated}
+                  routeConfig={{
+                    experimentalFeatures: ['eureka'],
+                  }}
+                  settings={{
+                    useUnlimitedApproval: true,
+                  }}
+                  filter={baseAllowedFilter}
+                  hideAssetsUnlessWalletTypeConnected={false}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
