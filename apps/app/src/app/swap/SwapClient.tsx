@@ -241,7 +241,7 @@ export default function SwapClient() {
 
   return (
     <>
-      <TokenPathBackground />
+      <TokenPathBackground fromToken={fromToken?.symbol} toToken={toToken?.symbol} />
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
