@@ -29,10 +29,7 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
 
   const [animateFromToken, setAnimateFromToken] = useState(false)
   const [animateToToken, setAnimateToToken] = useState(false)
-  const [animatePath, setAnimatePath] = useState(false)
-  const [showPath, setShowPath] = useState(false)
-  const [pathAnimationKey, setPathAnimationKey] = useState(0)
-  const [pathOpacity, setPathOpacity] = useState(0)
+  const [showBeam, setShowBeam] = useState(false)
 
   const getPointAt = (t: number) => {
     const P0 = { x: 0, y: 40 }
@@ -77,39 +74,12 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
       const timer = setTimeout(() => setAnimateToToken(false), 1000)
 
       if (fromToken) {
-        setAnimatePath(false)
-        setPathOpacity(0)
-        setShowPath(true)
-        setPathAnimationKey((prev) => prev + 1)
-
-        // Start animation after a short delay
-        const pathTimer = setTimeout(() => {
-          setAnimatePath(true)
-          setPathOpacity(1)
-
-          // Start fade out after 2.5 seconds (before hiding)
-          const fadeTimer = setTimeout(() => {
-            setPathOpacity(0)
-
-            // Hide the path after fade out completes
-            const hideTimer = setTimeout(() => {
-              setShowPath(false)
-            }, 500)
-          }, 2500)
-
-          return () => clearTimeout(fadeTimer)
-        }, 100)
-
-        return () => {
-          clearTimeout(timer)
-          clearTimeout(pathTimer)
-        }
+        setShowBeam(true)
       }
 
       return () => clearTimeout(timer)
     } else {
-      setAnimatePath(false)
-      setShowPath(false)
+      setShowBeam(false)
     }
   }, [toToken, fromToken])
 
@@ -134,11 +104,45 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
             </feMerge>
           </filter>
 
-          {/* Gradient for the animated path */}
-          <linearGradient id='pathGradient' x1='0%' y1='0%' x2='100%' y2='0%'>
-            <stop offset='0%' stopColor='#ffaa40' />
-            <stop offset='100%' stopColor='#9c40ff' />
-          </linearGradient>
+          {/* Animated gradient for the beam - direction based on token selection */}
+          <motion.linearGradient
+            id='beamGradient'
+            gradientUnits='userSpaceOnUse'
+            initial={{
+              x1: '0%',
+              x2: '0%',
+              y1: '0%',
+              y2: '0%',
+            }}
+            animate={{
+              x1: fromTokenIndex < toTokenIndex ? ['10%', '110%'] : ['90%', '-10%'],
+              x2: fromTokenIndex < toTokenIndex ? ['0%', '100%'] : ['100%', '0%'],
+              y1: ['0%', '0%'],
+              y2: ['0%', '0%'],
+            }}
+            transition={{
+              duration: 3.5,
+              ease: [0.16, 1, 0.3, 1],
+              repeat: Infinity,
+              repeatDelay: 0,
+            }}
+          >
+            {fromTokenIndex < toTokenIndex ? (
+              <>
+                <stop stopColor='#ffaa40' stopOpacity='0' />
+                <stop stopColor='#ffaa40' />
+                <stop offset='32.5%' stopColor='#9c40ff' />
+                <stop offset='100%' stopColor='#9c40ff' stopOpacity='0' />
+              </>
+            ) : (
+              <>
+                <stop stopColor='#9c40ff' stopOpacity='0' />
+                <stop stopColor='#9c40ff' />
+                <stop offset='32.5%' stopColor='#ffaa40' />
+                <stop offset='100%' stopColor='#ffaa40' stopOpacity='0' />
+              </>
+            )}
+          </motion.linearGradient>
 
           <mask id='arc-mask'>
             <rect x='0' y='0' width={svgWidth} height={svgHeight} fill='white' />
@@ -160,25 +164,29 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
           mask='url(#arc-mask)'
         />
 
-        {/* Animated path between tokens */}
-        {showPath && fromTokenIndex >= 0 && toTokenIndex >= 0 && (
-          <motion.path
-            key={pathAnimationKey}
-            d={connectionPath}
-            stroke='url(#pathGradient)'
-            strokeWidth='3'
-            fill='none'
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{
-              pathLength: animatePath ? 1 : 0,
-              opacity: pathOpacity,
-            }}
-            transition={{
-              pathLength: { duration: 1.2, ease: 'easeInOut' },
-              opacity: { duration: 0.5, ease: 'easeInOut' },
-            }}
-            strokeDasharray='1 1'
-          />
+        {/* Flashing beam between tokens */}
+        {showBeam && fromTokenIndex >= 0 && toTokenIndex >= 0 && (
+          <>
+            <path
+              d={connectionPath}
+              stroke='gray'
+              strokeWidth='2'
+              strokeOpacity='0.2'
+              strokeLinecap='round'
+              fill='none'
+              mask='url(#arc-mask)'
+            />
+
+            <path
+              d={connectionPath}
+              strokeWidth='2'
+              stroke='url(#beamGradient)'
+              strokeOpacity='1'
+              strokeLinecap='round'
+              fill='none'
+              mask='url(#arc-mask)'
+            />
+          </>
         )}
 
         {/* Circles and icons */}
@@ -186,6 +194,7 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
           const { x, y } = getPointAt(t)
           const isFromToken = i === fromTokenIndex
           const isToToken = i === toTokenIndex
+          const isSelected = isFromToken || isToToken
 
           return (
             <g key={i} className='group'>
@@ -208,7 +217,7 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
                 transition={{ duration: 0.5 }}
               />
 
-              {/* Animated ring for selected tokens */}
+              {/* Brief animated ring only when first selecting tokens */}
               {(isFromToken && animateFromToken) || (isToToken && animateToToken) ? (
                 <motion.circle
                   cx={x}
@@ -236,10 +245,8 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
                   className='w-full h-full flex items-center justify-center filter grayscale opacity-50'
                   style={{ width: circleRadius * 2, height: circleRadius * 2 }}
                   animate={{
-                    filter: isFromToken || isToToken ? 'none' : 'grayscale(100%)',
-                    opacity: isFromToken || isToToken ? 1 : 0.5,
-                    scale:
-                      (isFromToken && animateFromToken) || (isToToken && animateToToken) ? 1.2 : 1,
+                    filter: isSelected ? 'none' : 'grayscale(100%)',
+                    opacity: isSelected ? 1 : 0.5,
                   }}
                   transition={{ duration: 0.3 }}
                 >
