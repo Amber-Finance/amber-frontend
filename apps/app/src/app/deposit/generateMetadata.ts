@@ -8,7 +8,6 @@ const TOKEN_SHARE_IMAGES = {
   solvBTC: 'https://app.amberfi.io/api/banner/solvBTC',
   eBTC: 'https://app.amberfi.io/api/banner/eBTC',
   WBTC: 'https://app.amberfi.io/api/banner/WBTC',
-  pumpBTC: 'https://app.amberfi.io/api/banner/pumpBTC',
   uniBTC: 'https://app.amberfi.io/api/banner/uniBTC',
 } as const
 
