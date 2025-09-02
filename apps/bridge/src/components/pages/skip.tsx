@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Widget } from '@skip-go/widget'
 
@@ -77,6 +77,33 @@ export function SkipPage() {
     destChainId?: string
     destAssetDenom?: string
   }>({})
+
+  // Hide Solana connect option inside the Skip widget wallet modal
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const ROOT_SELECTOR = '[data-root-id="amber-bridge"]'
+
+    function hideSolanaConnectButtons() {
+      const roots = document.querySelectorAll(ROOT_SELECTOR)
+      roots.forEach((root) => {
+        // Look for any button elements rendered by the wallet connect UI that contain "Solana"
+        const buttons = root.querySelectorAll('button')
+        buttons.forEach((button) => {
+          const text = (button.textContent || '').trim()
+          if (/solana/i.test(text)) {
+            ;(button as HTMLElement).style.display = 'none'
+          }
+        })
+      })
+    }
+
+    const observer = new MutationObserver(() => hideSolanaConnectButtons())
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true })
+    hideSolanaConnectButtons()
+
+    return () => observer.disconnect()
+  }, [])
 
   // Define allowed asset pairs. Populate this with your desired pairs.
   // Each entry restricts bridging from a specific source asset to a specific destination asset.
@@ -412,12 +439,19 @@ export function SkipPage() {
             </div>
           </div>
         </div>
-
-        <div className='hidden flex-row justify-end items-center px-8 pt-24 w-full md:flex'>
-          <p
-            className={`text-center text-[13px] opacity-50 ${resolvedTheme === 'dark' ? 'text-white' : 'text-black'}`}
-          >
-            <u>bridge.amberfi.io</u> {' is powered by Cosmos Hub, IBC Eureka & Skip:Go'}
+        <div className='w-full max-w-lg mx-auto p-4'>
+          <p className='sm:text-base max-w-md text-center text-xs text-muted-foreground'>
+            If you hold your BRTs on any other chain than Ethereum or Neutron, you can bridge them
+            via the official{' '}
+            <a
+              href='https://go.skip.build'
+              className='text-amber-500 underline hover:no-underline'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Skip:Go bridge UI
+            </a>
+            .
           </p>
         </div>
       </main>

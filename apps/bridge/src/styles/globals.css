@@ -505,6 +505,18 @@ input[type='number'] {
 
 .widget-container .bevWOp,
 .widget-container .fWrOlH,
-.widget-container .foGcJn {
+.widget-container .foGcJn,
+.kQHwtD,
+.dSZUYw {
   background: var(--card) !important;
+}
+
+.kQHwtD {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center;
+}
+
+.kQHwtD img {
+  height: 40px;
 }
