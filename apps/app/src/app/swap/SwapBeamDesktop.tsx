@@ -15,12 +15,12 @@ const tokens = [
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
 ]
 
-interface TokenPathBackgroundProps {
+interface SwapBeamDesktopProps {
   fromToken?: string | null
   toToken?: string | null
 }
 
-export default function TokenPathBackground({ fromToken, toToken }: TokenPathBackgroundProps) {
+export default function SwapBeamDesktop({ fromToken, toToken }: SwapBeamDesktopProps) {
   const svgWidth = 2000
   const svgHeight = 500
   const positions = Array.from({ length: 6 }, (_, i) => i / 5)

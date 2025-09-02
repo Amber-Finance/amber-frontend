@@ -10,8 +10,9 @@ import BigNumber from 'bignumber.js'
 import { ArrowUpDown, Settings } from 'lucide-react'
 
 import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
+import SwapBeamDesktop from '@/app/swap/SwapBeamDesktop'
+import SwapBeamMobile from '@/app/swap/SwapBeamMobile'
 import { SwapRouteInfo } from '@/app/swap/SwapRouteInfo'
-import TokenPathBackground from '@/app/swap/TokenPathBackground'
 import FormattedValue from '@/components/common/FormattedValue'
 import { TokenSelectorModal } from '@/components/common/TokenSelectorModal'
 import { AuroraText } from '@/components/ui/AuroraText'
@@ -241,7 +242,9 @@ export default function SwapClient() {
 
   return (
     <>
-      <TokenPathBackground fromToken={fromToken?.symbol} toToken={toToken?.symbol} />
+      <div className='hidden sm:block'>
+        <SwapBeamDesktop fromToken={fromToken?.symbol} toToken={toToken?.symbol} />
+      </div>
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
@@ -252,7 +255,7 @@ export default function SwapClient() {
           </p>
         </div>
       </div>
-      <div className='w-full max-w-lg mx-auto pb-16'>
+      <div className='w-full max-w-lg mx-auto pb-0 sm:pb-16'>
         <Card className='bg-card rounded-2xl shadow-xl border border-border/30 py-2'>
           <CardContent className='sm:py-2 px-2'>
             <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
@@ -552,6 +555,10 @@ export default function SwapClient() {
           }
         />
       </div>
+      <SwapBeamMobile
+        fromToken={fromToken ? fromToken.symbol : null}
+        toToken={toToken ? toToken.symbol : null}
+      />
     </>
   )
 }
