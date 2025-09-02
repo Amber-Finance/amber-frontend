@@ -43,6 +43,12 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
   const fromTokenIndex = fromToken ? tokens.findIndex((t) => t.symbol === fromToken) : -1
   const toTokenIndex = toToken ? tokens.findIndex((t) => t.symbol === toToken) : -1
 
+  // Calculate animation timing based on token distance
+  const tokenDistance =
+    fromTokenIndex >= 0 && toTokenIndex >= 0 ? Math.abs(toTokenIndex - fromTokenIndex) : 0
+  const animationDuration = Math.max(1.2, 3.5 - tokenDistance * 0.4)
+  const repeatDelay = Math.max(0.1, 3.0 - animationDuration)
+
   let connectionPath = ''
   if (fromTokenIndex >= 0 && toTokenIndex >= 0) {
     const fromT = positions[fromTokenIndex]
@@ -121,10 +127,10 @@ export default function TokenPathBackground({ fromToken, toToken }: TokenPathBac
               y2: ['0%', '0%'],
             }}
             transition={{
-              duration: 3.5,
-              ease: [0.16, 1, 0.3, 1],
+              duration: animationDuration,
+              ease: [0.4, 0, 0.6, 1],
               repeat: Infinity,
-              repeatDelay: 0,
+              repeatDelay: repeatDelay,
             }}
           >
             {fromTokenIndex < toTokenIndex ? (
