@@ -242,9 +242,6 @@ export default function SwapClient() {
 
   return (
     <>
-      <div className='hidden sm:block'>
-        <SwapBeamDesktop fromToken={fromToken?.symbol} toToken={toToken?.symbol} />
-      </div>
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
@@ -555,10 +552,15 @@ export default function SwapClient() {
           }
         />
       </div>
-      <SwapBeamMobile
-        fromToken={fromToken ? fromToken.symbol : null}
-        toToken={toToken ? toToken.symbol : null}
-      />
+      <div className='hidden md:block'>
+        <SwapBeamDesktop fromToken={fromToken?.symbol} toToken={toToken?.symbol} />
+      </div>
+      <div className='md:hidden'>
+        <SwapBeamMobile
+          fromToken={fromToken ? fromToken.symbol : null}
+          toToken={toToken ? toToken.symbol : null}
+        />
+      </div>
     </>
   )
 }
