@@ -10,8 +10,8 @@ const tokens = [
   { symbol: 'wBTC', icon: '/images/WBTC.svg' },
   { symbol: 'LBTC', icon: '/images/LBTC.svg' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
-  { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
   { symbol: 'eBTC', icon: '/images/eBTC.svg' },
+  { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
 ]
 
@@ -34,78 +34,63 @@ export default function SwapBeamMobile({ fromToken, toToken }: SwapBeamMobilePro
   const ellipseRadiusX = 180
   const ellipseRadiusY = 65
   const circleRadius = 18
+  const animationDuration = 2.0
+  const repeatDelay = 1.0
 
   // Calculate 3D elliptical orbital positions
-  const getOrbitPosition = (index: number, depth: number = 0) => {
-    const angle = (index / 6) * Math.PI * 2 - Math.PI / 2 // Start from top
+  const getOrbitPosition = (index: number, isSelected: boolean = false) => {
+    const angle = (index / 6) * Math.PI * 2 - Math.PI / 2
 
-    // Calculate base elliptical position - tokens should be ON the ellipse line
+    // Tokens should be ON the ellipse line
     const baseX = Math.cos(angle) * ellipseRadiusX
     const baseY = Math.sin(angle) * ellipseRadiusY
 
-    // Calculate Z-depth based on Y position (back tokens are "further away")
-    // Tokens at the top of the ellipse are furthest back, bottom ones are closest
-    const normalizedY = (baseY + ellipseRadiusY) / (ellipseRadiusY * 2) // 0 to 1
-    const zDepth = Math.sin(normalizedY * Math.PI) * 0.7 // 0 to 0.7, peaked at middle
+    // Back tokens are "further away"
+    const normalizedY = (baseY + ellipseRadiusY) / (ellipseRadiusY * 2)
+    const zDepth = Math.sin(normalizedY * Math.PI) * 0.7
 
-    // Apply perspective opacity based on Z-depth (but keep size uniform)
-    const perspectiveOpacity = 1 - zDepth * 0.3 // Tokens further back are slightly more transparent
+    // Tokens further back are slightly more transparent
+    const perspectiveOpacity = 1 - zDepth * 0.3
 
-    // Position tokens exactly on the ellipse line
     const x = centerX + baseX
-    const y = centerY + baseY + zDepth * 8 // Slight vertical shift for back tokens
+    const y = centerY + baseY
 
     return {
       x,
       y,
-      scale: 0.8, // All orbital tokens same small size
-      opacity: perspectiveOpacity,
-      zDepth,
+      scale: isSelected ? 1.4 : 0.8, // Bigger if selected
+      opacity: isSelected ? 1 : perspectiveOpacity, // Full opacity if selected
+      zDepth: isSelected ? 0 : zDepth, // No depth if selected
       angle,
-    }
-  }
-
-  // Get the front-most positions on the ellipse (bottom part)
-  const getFrontEllipsePosition = (tokenIndex: number) => {
-    const orbitPos = getOrbitPosition(tokenIndex, 0)
-    return {
-      x: orbitPos.x,
-      y: orbitPos.y,
-      scale: 1.4, // Much bigger when selected to show they're active
-      zDepth: 0, // Always in front
     }
   }
 
   const fromTokenIndex = fromToken ? tokens.findIndex((t) => t.symbol === fromToken) : -1
   const toTokenIndex = toToken ? tokens.findIndex((t) => t.symbol === toToken) : -1
 
-  // Calculate animation timing based on token distance (same as desktop)
-  const tokenDistance =
-    fromTokenIndex >= 0 && toTokenIndex >= 0 ? Math.abs(toTokenIndex - fromTokenIndex) : 0
-  const animationDuration = Math.max(1.2, 3.5 - tokenDistance * 0.4)
-  const repeatDelay = Math.max(0.1, 3.0 - animationDuration)
-
   // Connection path along the ellipse from 'from' token to 'to' token
   let connectionPath = ''
   if (fromTokenIndex >= 0 && toTokenIndex >= 0) {
-    // Always start from the 'from' token and go to the 'to' token
-    const startAngle = (fromTokenIndex / 6) * Math.PI * 2 - Math.PI / 2
-    const endAngle = (toTokenIndex / 6) * Math.PI * 2 - Math.PI / 2
+    const fromAngle = (fromTokenIndex / 6) * Math.PI * 2 - Math.PI / 2
+    const toAngle = (toTokenIndex / 6) * Math.PI * 2 - Math.PI / 2
 
-    // Go the shorter way, but ensure we always start from FROM token
-    let angleDiff = endAngle - startAngle
-    if (Math.abs(angleDiff) > Math.PI) {
-      angleDiff = angleDiff > 0 ? angleDiff - 2 * Math.PI : angleDiff + 2 * Math.PI
+    // Calculate the shortest path direction
+    let angleDiff = toAngle - fromAngle
+
+    // Normalize the angle difference to [-π, π] to find shortest path
+    if (angleDiff > Math.PI) {
+      angleDiff = angleDiff - 2 * Math.PI
+    } else if (angleDiff < -Math.PI) {
+      angleDiff = angleDiff + 2 * Math.PI
     }
 
-    // Create smooth arc along ellipse from 'from' to 'to'
+    // Create smooth arc along ellipse from 'from' to 'to' using shortest path
     const numSegments = 20
     const pathPoints = []
 
-    // ALWAYS draw from from-token to to-token (shorter path)
     for (let i = 0; i <= numSegments; i++) {
       const t = i / numSegments
-      const currentAngle = startAngle + angleDiff * t
+      const currentAngle = fromAngle + angleDiff * t
       const x = centerX + Math.cos(currentAngle) * ellipseRadiusX
       const y = centerY + Math.sin(currentAngle) * ellipseRadiusY
       pathPoints.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`)
@@ -236,30 +221,14 @@ export default function SwapBeamMobile({ fromToken, toToken }: SwapBeamMobilePro
             const isFromToken = i === fromTokenIndex
             const isToToken = i === toTokenIndex
             const isSelected = isFromToken || isToToken
-
-            let targetPos
-            let targetScale
-            let targetOpacity
-
-            if (isSelected) {
-              // Selected tokens are larger and brighter
-              const ellipsePos = getFrontEllipsePosition(i)
-              targetPos = ellipsePos
-              targetScale = ellipsePos.scale // 1.2x scale
-              targetOpacity = 1
-            } else {
-              // Non-selected tokens are small with low opacity
-              const orbitPos = getOrbitPosition(i, 0)
-              targetPos = orbitPos
-              targetScale = 0.8 // All non-selected tokens same small size
-              targetOpacity = Math.min(0.3, orbitPos.opacity * 0.5) // Much lower opacity
-            }
+            const targetPos = getOrbitPosition(i, isSelected)
+            const targetOpacity = isSelected ? 1 : Math.min(0.3, targetPos.opacity * 0.5)
 
             return (
               <motion.g
                 key={i}
                 animate={{
-                  x: 0, // No group translation needed
+                  x: 0,
                   y: 0,
                 }}
                 transition={{
@@ -286,7 +255,7 @@ export default function SwapBeamMobile({ fromToken, toToken }: SwapBeamMobilePro
                       (isFromToken && animateFromToken) || (isToToken && animateToToken) ? 3 : 0,
                     strokeOpacity:
                       (isFromToken && animateFromToken) || (isToToken && animateToToken) ? 1 : 0,
-                    scale: targetScale,
+                    scale: targetPos.scale,
                     opacity: targetOpacity,
                   }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -322,7 +291,7 @@ export default function SwapBeamMobile({ fromToken, toToken }: SwapBeamMobilePro
                     style={{ width: circleRadius * 2, height: circleRadius * 2 }}
                     animate={{
                       filter: isSelected ? 'none' : 'grayscale(100%)',
-                      scale: targetScale,
+                      scale: targetPos.scale,
                       opacity: targetOpacity,
                     }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
