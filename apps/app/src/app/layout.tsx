@@ -27,7 +27,7 @@ export default function RootLayout({
         className='antialiased overflow-x-hidden font-sans'
         style={{ overscrollBehavior: 'none' }}
       >
-        <ThemeProvider defaultTheme='dark' storageKey='btc-outpost-theme'>
+        <ThemeProvider defaultTheme='dark' storageKey='amberfi-theme'>
           <SWRProvider>
             <CosmosKitProvider>
               <SkipProvider>

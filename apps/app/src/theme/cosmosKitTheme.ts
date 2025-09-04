@@ -181,7 +181,7 @@ export const cosmosKitOverrides = {
 // Define the theme definitions, matching Tailwind colors where possible
 export const cosmosKitThemeDefs = [
   {
-    name: 'btc-outpost-theme',
+    name: 'amberfi-theme',
     vars: {
       colors: {
         background: '#ffffff',
@@ -203,7 +203,7 @@ export const getCosmosKitTheme = (): Theme => {
   return {
     overrides: cosmosKitOverrides,
     themeDefs: cosmosKitThemeDefs,
-    customTheme: 'btc-outpost-theme',
+    customTheme: 'amberfi-theme',
     modalContentStyles: {},
   }
 }

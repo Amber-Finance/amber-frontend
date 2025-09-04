@@ -74,8 +74,8 @@
 @font-face {
   font-family: SourceSans;
   src:
-    url('/fonts/SourceSans-Bold.woff2') format('woff2'),
-    url('/fonts/SourceSans-Bold.woff') format('woff');
+    url('/fonts/SourceSans3-Bold.woff2') format('woff2'),
+    url('/fonts/SourceSans3-Bold.woff') format('woff');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
