@@ -1,8 +1,9 @@
 import Image from 'next/image'
 
-import { BookOpen, Github } from 'lucide-react'
+import { GitHubLogoIcon } from '@radix-ui/react-icons'
+import { BookOpen } from 'lucide-react'
 
-import { AuroraText } from './AuroraText'
+import { AuroraText } from '@/components/ui/AuroraText'
 
 // X (Twitter) Icon Component
 const XIcon = ({ className }: { className?: string }) => (
@@ -105,7 +106,7 @@ export function ComingSoonOverlay() {
               rel='noopener noreferrer'
               aria-label='GitHub'
             >
-              <Github className='h-5 w-5' />
+              <GitHubLogoIcon className='h-5 w-5' />
             </a>
             <a
               href='https://docs.amberfi.io'

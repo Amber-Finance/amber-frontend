@@ -7,14 +7,13 @@ import 'nextra-theme-docs/style.css'
 import { Head } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 
+import '@/app/globals.css'
 import { LaunchAppButton } from '@/components/LaunchAppButton'
 import Logo from '@/components/Logo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Background } from '@/components/ui/Background'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingContext'
-
-import './globals.css'
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const navbar = (

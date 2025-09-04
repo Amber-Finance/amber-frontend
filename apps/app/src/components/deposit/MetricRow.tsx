@@ -16,6 +16,21 @@ interface MetricRowProps {
   tooltipMessage?: string
 }
 
+const renderIcon = (
+  customIcon?: string,
+  Icon?: LucideIcon,
+  brandColor?: string,
+  label?: string,
+) => {
+  if (customIcon) {
+    return <Image src={customIcon} alt={label || ''} width={16} height={16} />
+  }
+  if (Icon) {
+    return <Icon className='w-3 h-3 sm:w-4 sm:h-4' style={{ color: brandColor }} />
+  }
+  return null
+}
+
 export default function MetricRow({
   label,
   value,
@@ -39,11 +54,7 @@ export default function MetricRow({
       )}
     >
       <div className='flex items-center gap-2'>
-        {customIcon ? (
-          <Image src={customIcon} alt={label} width={16} height={16} />
-        ) : Icon ? (
-          <Icon className='w-3 h-3 sm:w-4 sm:h-4' style={{ color: brandColor }} />
-        ) : null}
+        {renderIcon(customIcon, Icon, brandColor, label)}
         <span className='text-xs font-medium text-muted-foreground'>{label}</span>
       </div>
       <div className='flex items-center gap-1'>

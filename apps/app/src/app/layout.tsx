@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import '@/app/globals.css'
+import { metaData } from '@/app/metadata'
 import { Background } from '@/components/layout/Background'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
@@ -11,8 +12,6 @@ import { CosmosKitProvider, SkipProvider } from '@/components/providers'
 import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
-
-import { metaData } from './metadata'
 
 export const metadata: Metadata = metaData.home
 
@@ -59,7 +58,11 @@ export default function RootLayout({
                     draggable
                     pauseOnHover
                     theme='dark'
-                    toastClassName='!bg-gray-800 !text-white !border !border-gray-600 !shadow-lg'
+                    toastClassName='!bg-card/95 !text-foreground !border !border-border/50 !shadow-xl !rounded-xl !backdrop-blur-sm'
+                    progressClassName='!bg-gradient-to-r !from-gradient-start !to-gradient-end'
+                    style={{
+                      fontFamily: 'var(--font-space-mono), monospace',
+                    }}
                   />
                   <Analytics />
                 </div>

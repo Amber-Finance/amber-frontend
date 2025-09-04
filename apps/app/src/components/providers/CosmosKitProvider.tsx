@@ -35,8 +35,8 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     <ChainProvider
       chains={chainNames}
       assetLists={chainAssets as any}
-      wallets={wallets as any}
-      throwErrors={false}
+      wallets={wallets}
+      throwErrors={true}
       walletConnectOptions={{
         signClient: {
           projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
@@ -52,16 +52,17 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       signerOptions={{
         signingCosmwasm: () => {
           return {
-            gasPrice: GasPrice.fromString('0.025untrn'),
+            gasPrice: GasPrice.fromString('0.025untrn') as unknown as any,
           }
         },
         signingStargate: () => {
           return {
-            gasPrice: GasPrice.fromString('0.025untrn'),
+            gasPrice: GasPrice.fromString('0.025untrn') as unknown as any,
           }
         },
       }}
       modalTheme={modalTheme}
+      logLevel={'ERROR'}
     >
       {children}
     </ChainProvider>

@@ -2,19 +2,6 @@ import { useCallback } from 'react'
 
 import chainConfig from '@/config/chain'
 
-interface StrategyDeploymentParams {
-  collateralAmount: number
-  multiplier: number
-  swapRoute: any
-}
-
-interface UseStrategyDeploymentProps {
-  strategy: Strategy
-  executeTransaction: any
-  isModifying: boolean
-  modifyingAccountId: string | null
-}
-
 export const useStrategyDeployment = ({
   strategy,
   executeTransaction,
@@ -91,7 +78,7 @@ export const useStrategyDeployment = ({
           cumulative_affiliate_fee_bps: '0',
         } as any)
 
-        if (!routeResult || !routeResult.operations || routeResult.operations.length === 0) {
+        if (!routeResult?.operations || routeResult?.operations?.length === 0) {
           throw new Error(
             `No swap route found between ${strategy.debtAsset.symbol} and ${strategy.collateralAsset.symbol}`,
           )

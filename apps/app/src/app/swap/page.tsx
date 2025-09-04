@@ -1,8 +1,7 @@
 import { Metadata } from 'next'
 
+import { metaData } from '@/app/metadata'
 import SwapClient from '@/app/swap/SwapClient'
-
-import { metaData } from '../metadata'
 
 export const metadata: Metadata = metaData.swap
 

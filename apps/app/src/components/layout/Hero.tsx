@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 
-import { AuroraText } from '@/components/ui/AuroraText'
 import { StatCard } from '@/components/ui/StatCard'
 
 interface HeroProps {
@@ -44,7 +43,7 @@ export default function Hero({ title, subtitle, description, stats }: HeroProps)
             <div className='flex flex-row gap-2 sm:gap-3'>
               {stats.map((stat, index) => (
                 <StatCard
-                  key={index}
+                  key={`stat-${stat.value}-${index}`}
                   value={stat.value}
                   label={stat.label}
                   isCurrency={stat.isCurrency}

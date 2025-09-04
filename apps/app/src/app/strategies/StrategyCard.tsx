@@ -34,6 +34,98 @@ interface StrategyCardProps {
   strategy: Strategy
 }
 
+// Pure component for strategy icon display
+const StrategyIcon: React.FC<{ strategy: any; debtColor: string }> = ({ strategy, debtColor }) => (
+  <div className='relative'>
+    {/* Gradient around token icon */}
+    <div
+      className='absolute inset-0 rounded-full blur-md scale-110 opacity-0 group-hover:opacity-100 transition-all duration-300'
+      style={{ backgroundColor: `${debtColor}50` }}
+    />
+    <div
+      className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border-2 p-1 shadow-sm'
+      style={{ borderColor: `${debtColor}40` }}
+    >
+      <Image
+        src={strategy.collateralAsset.icon}
+        alt={strategy.collateralAsset.symbol}
+        fill
+        className='object-contain'
+        sizes='40px'
+      />
+    </div>
+    {/* Debt Asset Badge */}
+    <div className='absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-background border-2 border-border/80 p-1 shadow-md ring-1 ring-black/5'>
+      <Image
+        src={strategy.debtAsset.icon}
+        alt={strategy.debtAsset.symbol}
+        width={16}
+        height={16}
+        className='object-contain w-full h-full'
+      />
+    </div>
+  </div>
+)
+
+// Pure component for strategy title
+const StrategyTitle: React.FC<{ strategy: any }> = ({ strategy }) => (
+  <div className='flex flex-col'>
+    <h3 className='text-xl font-funnel text-foreground'>
+      {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
+    </h3>
+    <p className='text-sm text-foreground/80 font-medium leading-tight tracking-wider'>
+      Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
+    </p>
+  </div>
+)
+
+// Pure component for APY display
+const ApyDisplay: React.FC<{
+  maxAPY: number
+  leverage: string
+  strategy: any
+  debtColor: string
+}> = ({ maxAPY, leverage, strategy, debtColor }) => (
+  <div className='flex justify-center'>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className='cursor-help text-center'>
+          <div className='text-5xl font-bold leading-tight' style={{ color: debtColor }}>
+            <CountingNumber value={maxAPY * 100} decimalPlaces={2} />%
+          </div>
+          <div className='text-base font-bold text-foreground/80 leading-tight tracking-wider'>
+            Max APY
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className='space-y-2 text-xs'>
+          <div className='font-semibold'>Looping Strategy at {leverage} leverage:</div>
+          <div className='space-y-1'>
+            <div>
+              • Position: {(strategy.maxLeverage || strategy.multiplier || 1 + 1).toFixed(1)}{' '}
+              {strategy.collateralAsset.symbol} supplied
+            </div>
+            <div>
+              • Borrowed: {(strategy.maxLeverage || strategy.multiplier || 1).toFixed(1)}{' '}
+              {strategy.debtAsset.symbol}
+            </div>
+            <div>
+              • Formula: {(strategy.maxLeverage || strategy.multiplier || 1 + 1).toFixed(1)} ×{' '}
+              {strategy.collateralAsset.symbol} APY -{' '}
+              {(strategy.maxLeverage || strategy.multiplier || 1).toFixed(1)} ×{' '}
+              {strategy.debtAsset.symbol} borrow rate
+            </div>
+          </div>
+          <div className='border-t pt-1'>
+            <div className='font-semibold'>Result: {formatApy(maxAPY)}</div>
+          </div>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  </div>
+)
+
 export function StrategyCard({ strategy }: StrategyCardProps) {
   const { isWalletConnected } = useChain(chainConfig.name)
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
@@ -48,6 +140,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
       active.debtAsset.symbol === strategy.debtAsset.symbol,
   )
+
+  // These would be used for more complex strategy processing if needed
+  // const processedStrategy = useMemo(() => processStrategyForDisplay(strategy), [strategy])
+  // const calculator = useMemo(() => createStrategyCalculator(strategy), [strategy])
 
   // Memoized expensive calculations
   const maxAPY = useMemo(
@@ -126,89 +222,17 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       <CardHeader className='pb-4 z-20 space-y-3'>
         <div className='space-y-4'>
           <div className='flex items-center gap-2'>
-            <div className='relative'>
-              {/* Gradient around token icon */}
-              <div
-                className='absolute inset-0 rounded-full blur-md scale-110 opacity-0 group-hover:opacity-100 transition-all duration-300'
-                style={{
-                  backgroundColor: `${debtColor}50`,
-                }}
-              />
-              <div
-                className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border-2 p-1 shadow-sm'
-                style={{ borderColor: `${debtColor}40` }}
-              >
-                <Image
-                  src={strategy.collateralAsset.icon}
-                  alt={strategy.collateralAsset.symbol}
-                  fill
-                  className='object-contain'
-                  sizes='40px'
-                />
-              </div>
-
-              {/* Debt Asset Badge */}
-              <div className='absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-background border-2 border-border/80 p-1 shadow-md ring-1 ring-black/5'>
-                <Image
-                  src={strategy.debtAsset.icon}
-                  alt={strategy.debtAsset.symbol}
-                  width={16}
-                  height={16}
-                  className='object-contain w-full h-full'
-                />
-              </div>
-            </div>
-
-            <div className='flex flex-col'>
-              <h3 className='text-xl font-funnel text-foreground'>
-                {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
-              </h3>
-              <p className='text-sm text-foreground/80 font-medium leading-tight tracking-wider'>
-                Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
-              </p>
-            </div>
+            <StrategyIcon strategy={strategy} debtColor={debtColor} />
+            <StrategyTitle strategy={strategy} />
           </div>
 
           {/* Max APY - New line for better layout */}
-          <div className='flex justify-center'>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className='cursor-help text-center'>
-                  <div className='text-5xl font-bold leading-tight' style={{ color: debtColor }}>
-                    <CountingNumber value={maxAPY * 100} decimalPlaces={2} />%
-                  </div>
-                  <div className='text-base font-bold text-foreground/80 leading-tight tracking-wider'>
-                    Max APY
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className='space-y-2 text-xs'>
-                  <div className='font-semibold'>Looping Strategy at {leverage} leverage:</div>
-                  <div className='space-y-1'>
-                    <div>
-                      • Position:{' '}
-                      {(strategy.maxLeverage || strategy.multiplier || 1 + 1).toFixed(1)}{' '}
-                      {strategy.collateralAsset.symbol} supplied
-                    </div>
-                    <div>
-                      • Borrowed: {(strategy.maxLeverage || strategy.multiplier || 1).toFixed(1)}{' '}
-                      {strategy.debtAsset.symbol}
-                    </div>
-                    <div>
-                      • Formula: {(strategy.maxLeverage || strategy.multiplier || 1 + 1).toFixed(1)}{' '}
-                      × {strategy.collateralAsset.symbol} APY -{' '}
-                      {(strategy.maxLeverage || strategy.multiplier || 1).toFixed(1)} ×{' '}
-                      {strategy.debtAsset.symbol} borrow rate
-                    </div>
-                  </div>
-                  <div className='border-t pt-1'>
-                    <div className='font-semibold'>Result: {formatApy(maxAPY)}</div>
-                  </div>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <ApyDisplay
+            maxAPY={maxAPY}
+            leverage={leverage}
+            strategy={strategy}
+            debtColor={debtColor}
+          />
         </div>
       </CardHeader>
 

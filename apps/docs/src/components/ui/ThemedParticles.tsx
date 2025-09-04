@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes'
 
-import { Particles } from './Particles'
+import { Particles } from '@/components/ui/Particles'
 
 interface ThemedParticlesProps {
   className?: string

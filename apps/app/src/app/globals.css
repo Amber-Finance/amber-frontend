@@ -259,7 +259,71 @@ input[type='number']::-webkit-outer-spin-button {
 }
 input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
-  appearance: textfield;
+}
+
+/* Custom Toast Styling */
+.Toastify__toast {
+  @apply bg-card/95 text-foreground border border-border/50 shadow-xl rounded-xl backdrop-blur-sm;
+  font-family: var(--font-space-mono), monospace;
+  font-size: 0.875rem;
+  min-height: 64px;
+  padding: 16px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.Toastify__toast--success {
+  @apply bg-card/95 text-foreground border-l-4 border-l-green-500;
+}
+
+.Toastify__toast--error {
+  @apply bg-card/95 text-foreground border-l-4 border-l-red-500;
+}
+
+.Toastify__toast--info {
+  @apply bg-card/95 text-foreground border-l-4 border-l-blue-500;
+}
+
+.Toastify__toast--warning {
+  @apply bg-card/95 text-foreground border-l-4 border-l-yellow-500;
+}
+
+.Toastify__toast--loading {
+  @apply bg-card/95 text-foreground border-l-4 border-l-primary;
+}
+
+.Toastify__progress-bar {
+  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+  height: 3px;
+}
+
+.Toastify__close-button {
+  @apply text-muted-foreground hover:text-foreground transition-colors duration-200;
+  opacity: 0.8;
+}
+
+.Toastify__toast-body {
+  @apply text-foreground;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+}
+
+/* Add subtle animation */
+.Toastify__toast {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Custom scrollbar for token selector modal */

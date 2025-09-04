@@ -7,26 +7,6 @@ import chainConfig from '@/config/chain'
 import { useStore } from '@/store/useStore'
 import { useBroadcast } from '@/utils/broadcast'
 
-interface BNCoin {
-  denom: string
-  amount: string
-}
-
-interface DeleteAccountOptions {
-  accountId: string
-  lends: BNCoin[]
-}
-
-interface WithdrawStrategyParams {
-  accountId: string
-  collateralDenom: string
-  collateralAmount: string
-  collateralDecimals: number
-  debtDenom: string
-  debtAmount: string
-  debtDecimals: number
-}
-
 export function useStrategyWithdrawal() {
   const [isProcessing, setIsProcessing] = useState(false)
   const { executeTransaction } = useBroadcast()
@@ -211,7 +191,7 @@ export function useStrategyWithdrawal() {
         const result = await executeTransaction(
           {
             type: 'strategy',
-            strategyType: 'update',
+            strategyType: 'decrease',
             accountId: params.accountId,
             actions,
           },
@@ -245,21 +225,6 @@ export function useStrategyWithdrawal() {
             amount: coin.amount,
           },
         }))
-
-        // Build the refund message
-        const refundMessage = {
-          update_credit_account: {
-            account_id: options.accountId,
-            actions: [...reclaimMsg, { refund_all_coin_balances: {} }],
-          },
-        }
-
-        // Build the burn message
-        const burnMessage = {
-          burn: {
-            token_id: options.accountId,
-          },
-        }
 
         // Execute delete transaction with reclaim and refund actions
         const result = await executeTransaction(

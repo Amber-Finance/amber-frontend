@@ -7,9 +7,8 @@ import { motion } from 'framer-motion'
 
 import { Background } from '@/components/Background'
 import { SectionHeader } from '@/components/section-header'
+import { GridPattern } from '@/components/ui/grid-pattern'
 import { cn } from '@/lib/utils'
-
-import { GridPattern } from '../ui/grid-pattern'
 
 export function Audits() {
   return (

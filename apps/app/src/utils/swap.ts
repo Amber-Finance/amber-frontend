@@ -1,20 +1,5 @@
 import BigNumber from 'bignumber.js'
 
-// The contract expects a simple Coin structure
-interface Coin {
-  denom: string
-  amount: string
-}
-
-export interface SwapAction {
-  swap_exact_in: {
-    coin_in: Coin
-    denom_out: string
-    min_receive: string
-    route: any
-  }
-}
-
 export function getMinAmountOutFromRouteInfo(
   routeInfo: SwapRouteInfo,
   slippage: number,

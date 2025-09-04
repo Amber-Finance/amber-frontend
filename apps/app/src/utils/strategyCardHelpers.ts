@@ -1,163 +1,238 @@
 import { BigNumber } from 'bignumber.js'
 
-import { calculateUsdValue, formatTokenAmount } from '@/utils/format'
-import { getMaxLeverageForStrategy } from '@/utils/maxLeverageCalculator'
+import { formatLargeCurrency, formatTokenAmountLegacy } from '@/utils/format'
+import { pipe } from '@/utils/functional'
+import { calculatePositionMetrics } from '@/utils/strategyUtils'
 
-export const getMaxAPY = (strategy: Strategy, markets?: Market[], isWasmReady?: boolean) => {
-  const maxLeverage = calculateMaxLeverage(strategy, markets, isWasmReady)
-  const collateralTotalApy = strategy.collateralTotalApy || strategy.supplyApy || 0
-  const debtBorrowRate = strategy.borrowApy || 0
-  const leveragedApy = maxLeverage * collateralTotalApy - (maxLeverage - 1) * debtBorrowRate
-  return leveragedApy
+// Pure functions for strategy card calculations
+
+// Calculate maximum APY for a strategy
+export const getMaxAPY = (strategy: any, markets: any[], isWasmReady: boolean): number => {
+  if (!isWasmReady || !markets || markets.length === 0) {
+    return strategy.maxROE || 0
+  }
+
+  // Use the pre-calculated maxROE from strategy
+  return strategy.maxROE || 0
 }
 
-export const getUserBalance = (
+// Calculate net APY for a strategy
+export const calculateNetApy = (strategy: any): number => {
+  return strategy.netApy || strategy.supplyApy - strategy.borrowApy || 0
+}
+
+// Format leverage display
+export const formatLeverage = (strategy: any, markets: any[], isWasmReady: boolean): string => {
+  if (!isWasmReady) {
+    return `${(strategy.maxLeverage || strategy.multiplier || 1).toFixed(1)}x`
+  }
+
+  return `${(strategy.maxLeverage || strategy.multiplier || 1).toFixed(1)}x`
+}
+
+// Format borrowable USD amount
+export const formatBorrowableUsd = (strategy: any): string => {
+  return strategy.liquidityDisplay || formatLargeCurrency(strategy.liquidity || 0)
+}
+
+// Get gradient colors for strategy
+export const getGradientColors = (
+  strategy: any,
+): { collateralColor: string; debtColor: string } => ({
+  collateralColor: strategy.collateralAsset?.brandColor || '#F97316',
+  debtColor: strategy.debtAsset?.brandColor || '#6B7280',
+})
+
+// Format borrow token amount
+export const formatBorrowTokenAmount = (
+  markets: any[],
+  debtDenom: string,
+  debtSymbol: string,
+): string => {
+  const market = markets.find((m) => m.asset.denom === debtDenom)
+  if (!market?.metrics?.collateral_total_amount) {
+    return `0 ${debtSymbol}`
+  }
+
+  const amount = new BigNumber(market.metrics.collateral_total_amount)
+    .shiftedBy(-(market.asset.decimals || 6))
+    .toNumber()
+
+  return formatTokenAmountLegacy(amount, debtSymbol)
+}
+
+// Get user balance in USD
+export const getUserBalanceUsd = (
   isWalletConnected: boolean,
-  walletBalancesLoading: boolean,
+  isLoading: boolean,
   walletBalances: any[] | undefined,
   collateralDenom: string,
-) => {
-  if (!isWalletConnected || walletBalancesLoading || !walletBalances) {
+): BigNumber => {
+  if (!isWalletConnected || isLoading || !walletBalances) {
     return new BigNumber(0)
   }
+
   const balance = walletBalances.find((b) => b.denom === collateralDenom)
-  if (!balance) {
+  if (!balance?.amount) {
     return new BigNumber(0)
   }
+
+  // This would need market price data to convert to USD
+  // For now, return the raw amount
   return new BigNumber(balance.amount)
 }
 
-export const getAvailableDepositCapacity = () => {
-  return new BigNumber('100000000000') // 1000 WBTC.axl available capacity
-}
-
-export const calculateMaxLeverage = (
-  strategy: Strategy,
-  markets?: Market[],
-  isWasmReady?: boolean,
-) => {
-  // Use health computer calculation if available
-  if (markets && isWasmReady) {
-    try {
-      const healthComputerLeverage = getMaxLeverageForStrategy(strategy, markets, isWasmReady)
-      if (healthComputerLeverage > 1) {
-        return healthComputerLeverage
-      }
-    } catch (error) {
-      console.warn('Failed to calculate leverage with health computer:', error)
-    }
-  }
-
-  // Fallback to strategy properties
-  if (strategy.maxLeverage && strategy.maxLeverage > 1) {
-    return strategy.maxLeverage
-  }
-  if (strategy.multiplier && strategy.multiplier > 1) {
-    return strategy.multiplier
-  }
-  return 5 // Default fallback
-}
-
-export const getUserBalanceUsd = (
-  isWalletConnected: boolean,
-  walletBalancesLoading: boolean,
-  walletBalances: any[] | undefined,
-  collateralDenom: string,
-) => {
-  const userBalance = getUserBalance(
-    isWalletConnected,
-    walletBalancesLoading,
-    walletBalances,
-    collateralDenom,
-  )
-  const wbtcEurekaPrice = '95000'
-  const usdValue = calculateUsdValue(userBalance.toString(), wbtcEurekaPrice, 8)
-  return new BigNumber(usdValue)
-}
-
-export const calculateNetApy = (strategy: Strategy) => {
-  return strategy.netApy || 0
-}
-
-export const formatLeverage = (strategy: Strategy, markets?: Market[], isWasmReady?: boolean) => {
-  return calculateMaxLeverage(strategy, markets, isWasmReady).toFixed(2) + 'x'
-}
-
-export const formatCollateralAvailable = () => {
-  const availableDepositCapacity = getAvailableDepositCapacity()
-  const wbtcAxlPrice = '95000'
-  const usdValue = calculateUsdValue(availableDepositCapacity.toString(), wbtcAxlPrice, 8)
-
-  if (usdValue >= 1_000_000_000) {
-    return `$${(usdValue / 1_000_000_000).toFixed(2)}B`
-  } else if (usdValue >= 1_000_000) {
-    return `$${(usdValue / 1_000_000).toFixed(2)}M`
-  } else if (usdValue >= 1_000) {
-    return `$${(usdValue / 1_000).toFixed(2)}K`
-  }
-  return `$${usdValue.toFixed(2)}`
-}
-
-export const getAvailableBorrowCapacity = (markets: any[] | undefined, debtAssetDenom: string) => {
-  if (!markets) return new BigNumber(0)
-  const debtMarket = markets.find((m) => m.asset.denom === debtAssetDenom)
-  if (!debtMarket) return new BigNumber(0)
-  const totalCollateral = new BigNumber(debtMarket.metrics.collateral_total_amount || '0')
-  const totalDebt = new BigNumber(debtMarket.metrics.debt_total_amount || '0')
-  return BigNumber.max(0, totalCollateral.minus(totalDebt))
-}
-
-export const formatBorrowableUsd = (strategy: Strategy) => {
-  return strategy.liquidityDisplay || '$0'
-}
-
-export const getGradientColors = (strategy: Strategy) => {
-  const collateralColor = strategy.collateralAsset.brandColor || '#F7931A'
-  const debtColor = strategy.debtAsset.brandColor || '#6B7280'
-  return { collateralColor, debtColor }
-}
-
-export const formatCollateralTokenAmount = () => {
-  const availableDepositCapacity = getAvailableDepositCapacity()
-  const formatted = availableDepositCapacity.dividedBy(new BigNumber(10).pow(8)).toNumber()
-
-  return formatted
-}
-
-export const formatBorrowTokenAmount = (
-  markets: any[] | undefined,
-  debtAssetDenom: string,
-  debtAssetSymbol: string,
-) => {
-  const availableBorrowCapacity = getAvailableBorrowCapacity(markets, debtAssetDenom)
-
-  if (!markets) return formatTokenAmount(0, debtAssetSymbol)
-
-  const debtMarket = markets.find((m) => m.asset.denom === debtAssetDenom)
-
-  if (!debtMarket) return formatTokenAmount(0, debtAssetSymbol)
-
-  const formatted = availableBorrowCapacity
-    .dividedBy(new BigNumber(10).pow(debtMarket.asset.decimals || 6))
-    .toNumber()
-
-  return formatTokenAmount(formatted, debtAssetSymbol)
-}
-
+// Format user token amount
 export const formatUserTokenAmount = (
   isWalletConnected: boolean,
-  walletBalancesLoading: boolean,
+  isLoading: boolean,
   walletBalances: any[] | undefined,
   collateralDenom: string,
   collateralSymbol: string,
-) => {
-  const userBalance = getUserBalance(
-    isWalletConnected,
-    walletBalancesLoading,
-    walletBalances,
-    collateralDenom,
-  )
-  const tokenAmount = userBalance.dividedBy(new BigNumber(10).pow(8)).toNumber()
+): string => {
+  if (!isWalletConnected || isLoading) {
+    return `0.000000 ${collateralSymbol}`
+  }
 
-  return formatTokenAmount(tokenAmount, collateralSymbol)
+  if (!walletBalances) {
+    return `0.000000 ${collateralSymbol}`
+  }
+
+  const balance = walletBalances.find((b) => b.denom === collateralDenom)
+  if (!balance?.amount) {
+    return `0.000000 ${collateralSymbol}`
+  }
+
+  const amount = new BigNumber(balance.amount).shiftedBy(-8).toNumber() // Assuming 8 decimals
+  return `${amount.toFixed(6)} ${collateralSymbol}`
+}
+
+// Pure function to calculate strategy risk level
+export const calculateRiskLevel = (strategy: any): 'low' | 'medium' | 'high' => {
+  const leverage = strategy.maxLeverage || strategy.multiplier || 1
+  const isCorrelated = strategy.isCorrelated || false
+
+  if (leverage > 5 || (!isCorrelated && leverage > 3)) {
+    return 'high'
+  } else if (leverage > 3 || (!isCorrelated && leverage > 2)) {
+    return 'medium'
+  } else {
+    return 'low'
+  }
+}
+
+// Pure function to get risk color
+export const getRiskColor = (riskLevel: 'low' | 'medium' | 'high'): string => {
+  switch (riskLevel) {
+    case 'low':
+      return '#10B981' // green
+    case 'medium':
+      return '#F59E0B' // yellow
+    case 'high':
+      return '#EF4444' // red
+    default:
+      return '#6B7280' // gray
+  }
+}
+
+// Pure function to format APY with sign
+export const formatApyWithSign = (apy: number): string => {
+  const percentage = apy * 100
+  const sign = percentage > 0 ? '+' : ''
+  return `${sign}${percentage.toFixed(2)}%`
+}
+
+// Pure function to calculate position health
+export const calculatePositionHealth = (
+  collateralValue: number,
+  debtValue: number,
+  liquidationThreshold: number,
+): number => {
+  if (collateralValue === 0) return 0
+  const currentLTV = debtValue / collateralValue
+  return Math.max(0, (liquidationThreshold - currentLTV) / liquidationThreshold)
+}
+
+// Pure function to format position health
+export const formatPositionHealth = (
+  health: number,
+): {
+  percentage: number
+  color: string
+  label: string
+} => {
+  const percentage = health * 100
+
+  if (percentage > 50) {
+    return { percentage, color: '#10B981', label: 'Healthy' }
+  } else if (percentage > 20) {
+    return { percentage, color: '#F59E0B', label: 'Caution' }
+  } else {
+    return { percentage, color: '#EF4444', label: 'Risk' }
+  }
+}
+
+// Higher-order function to create strategy calculators
+export const createStrategyCalculator = (strategy: any) => ({
+  calculatePosition: (amount: number, multiplier: number) =>
+    calculatePositionMetrics(amount, multiplier, strategy.supplyApy || 0, strategy.borrowApy || 0),
+
+  getRiskLevel: () => calculateRiskLevel(strategy),
+
+  getColors: () => getGradientColors(strategy),
+
+  formatDisplay: () => ({
+    title: `${strategy.collateralAsset?.symbol}/${strategy.debtAsset?.symbol}`,
+    maxApy: formatApyWithSign(strategy.maxROE || 0),
+    netApy: formatApyWithSign(strategy.netApy || 0),
+    leverage: `${(strategy.maxLeverage || 1).toFixed(1)}x`,
+  }),
+})
+
+// Composition functions for strategy data processing
+export const processStrategyForDisplay = pipe(
+  (strategy: any) => strategy,
+  (strategy: any) => ({
+    ...strategy,
+    calculator: createStrategyCalculator(strategy),
+    riskLevel: calculateRiskLevel(strategy),
+    colors: getGradientColors(strategy),
+  }),
+)
+
+// Pure function to validate strategy data
+export const isValidStrategy = (strategy: any): boolean => {
+  return !!(
+    strategy?.id &&
+    strategy?.collateralAsset &&
+    strategy?.debtAsset &&
+    typeof strategy?.maxROE === 'number' &&
+    typeof strategy?.multiplier === 'number'
+  )
+}
+
+// Pure function to filter valid strategies
+export const filterValidStrategies = (strategies: any[]): any[] =>
+  strategies.filter(isValidStrategy)
+
+// Pure function to sort strategies by APY
+export const sortStrategiesByApy = (strategies: any[], direction: 'asc' | 'desc' = 'desc'): any[] =>
+  [...strategies].sort((a, b) => {
+    const aApy = a.maxROE || 0
+    const bApy = b.maxROE || 0
+    return direction === 'asc' ? aApy - bApy : bApy - aApy
+  })
+
+// Pure function to group strategies by risk level
+export const groupStrategiesByRisk = (strategies: any[]): Record<string, any[]> => {
+  return strategies.reduce(
+    (groups, strategy) => {
+      const risk = calculateRiskLevel(strategy)
+      return {
+        ...groups,
+        [risk]: [...(groups[risk] || []), strategy],
+      }
+    },
+    {} as Record<string, any[]>,
+  )
 }

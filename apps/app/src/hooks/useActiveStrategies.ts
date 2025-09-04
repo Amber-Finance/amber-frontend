@@ -6,29 +6,7 @@ import { BigNumber } from 'bignumber.js'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValue } from '@/utils/format'
-
-interface ActiveStrategy {
-  accountId: string
-  collateralAsset: {
-    denom: string
-    symbol: string
-    amount: string
-    amountFormatted: number
-    usdValue: number
-  }
-  debtAsset: {
-    denom: string
-    symbol: string
-    amount: string
-    amountFormatted: number
-    usdValue: number
-  }
-  leverage: number
-  netApy: number
-  isPositive: boolean
-  strategyId: string
-}
+import { calculateUsdValueLegacy } from '@/utils/format'
 
 export function useActiveStrategies() {
   const { address, getCosmWasmClient } = useChain(chainConfig.name)
@@ -39,7 +17,120 @@ export function useActiveStrategies() {
 
   // Get WBTC.eureka denom (temporarily using WBTC.eureka as mentioned in requirements)
   const wbtcDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // WBTC.eureka for now
-  const wbtcEurekaDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // actual WBTC.eureka
+
+  const getAllTokens = async (client: any) => {
+    const allTokensQuery = { all_tokens: {} }
+    const response = await client.queryContractSmart(
+      chainConfig.contracts.accountNft,
+      allTokensQuery,
+    )
+
+    if (Array.isArray(response)) return response
+    if (response?.data && Array.isArray(response.data)) return response.data
+    if (response?.tokens && Array.isArray(response.tokens)) return response.tokens
+    return []
+  }
+
+  const getTokenOwner = async (client: any, tokenId: string) => {
+    const ownerQuery = { owner_of: { token_id: tokenId } }
+    const response = await client.queryContractSmart(chainConfig.contracts.accountNft, ownerQuery)
+    return response?.owner
+  }
+
+  const getTokenPositions = async (client: any, tokenId: string) => {
+    const positionsQuery = { positions: { account_id: tokenId } }
+    return await client.queryContractSmart(chainConfig.contracts.creditManager, positionsQuery)
+  }
+
+  const hasActivePositions = (positions: any) => {
+    return positions && (positions.lends?.length > 0 || positions.debts?.length > 0)
+  }
+
+  const createStrategy = (account: any, wbtcCollateral: any, debt: any) => {
+    const collateralToken = tokens.find((t) => t.denom === wbtcCollateral.denom)
+    const debtToken = tokens.find((t) => t.denom === debt.denom)
+    const collateralMarket = markets?.find((m) => m.asset.denom === wbtcCollateral.denom)
+    const debtMarket = markets?.find((m) => m.asset.denom === debt.denom)
+
+    if (!collateralToken || !debtToken || !collateralMarket || !debtMarket) return null
+
+    const collateralAmount = new BigNumber(wbtcCollateral.amount)
+      .shiftedBy(-collateralToken.decimals)
+      .toNumber()
+    const debtAmount = new BigNumber(debt.amount).shiftedBy(-debtToken.decimals).toNumber()
+
+    const collateralUsd = calculateUsdValueLegacy(
+      wbtcCollateral.amount,
+      collateralMarket.price?.price || '0',
+      collateralToken.decimals,
+    )
+    const debtUsd = calculateUsdValueLegacy(
+      debt.amount,
+      debtMarket.price?.price || '0',
+      debtToken.decimals,
+    )
+
+    const leverage = collateralUsd > 0 ? (collateralUsd + debtUsd) / collateralUsd : 1
+    const collateralSupplyApy = parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
+    const debtBorrowApy = parseFloat(debtMarket.metrics?.borrow_rate || '0')
+    const netApy = collateralSupplyApy * leverage - debtBorrowApy * (leverage - 1)
+
+    return {
+      accountId: account.id,
+      collateralAsset: {
+        denom: wbtcCollateral.denom,
+        symbol: collateralToken.symbol,
+        amount: wbtcCollateral.amount,
+        amountFormatted: collateralAmount,
+        usdValue: collateralUsd,
+      },
+      debtAsset: {
+        denom: debt.denom,
+        symbol: debtToken.symbol,
+        amount: debt.amount,
+        amountFormatted: debtAmount,
+        usdValue: debtUsd,
+      },
+      leverage,
+      netApy,
+      isPositive: netApy > 0,
+      strategyId: `${collateralToken.symbol}-${debtToken.symbol}`,
+    }
+  }
+
+  const getUserAccounts = async (client: any, tokensToCheck: string[]) => {
+    const accounts = []
+    for (const tokenId of tokensToCheck) {
+      try {
+        const tokenOwner = await getTokenOwner(client, tokenId)
+        if (tokenOwner !== address) continue
+
+        const positions = await getTokenPositions(client, tokenId)
+        if (hasActivePositions(positions)) {
+          accounts.push({ id: tokenId, kind: 'default', positions })
+        }
+      } catch (error) {
+        console.warn(`Failed to query token ${tokenId}:`, error)
+      }
+    }
+    return accounts
+  }
+
+  const processAccount = (account: any) => {
+    const { lends = [], debts = [] } = account.positions
+    const wbtcCollateral = lends.find((lend: any) => lend.denom === wbtcDenom)
+
+    if (!wbtcCollateral) return []
+
+    const btcDebts = debts.filter((debt: any) => {
+      const token = tokens.find((t) => t.denom === debt.denom)
+      return token && token.symbol.includes('BTC') && token.symbol !== 'WBTC'
+    })
+
+    return btcDebts
+      .map((debt: any) => createStrategy(account, wbtcCollateral, debt))
+      .filter(Boolean)
+  }
 
   const scanCreditAccounts = useCallback(async () => {
     if (!address || !markets?.length) return
@@ -51,197 +142,16 @@ export function useActiveStrategies() {
       const client = await getCosmWasmClient()
       if (!client) throw new Error('Failed to get CosmWasm client')
 
-      // Query all tokens first, then filter by owner
-      let allTokens = []
-
-      try {
-        const allTokensQuery = {
-          all_tokens: {},
-        }
-
-        const allTokensResponse = await client.queryContractSmart(
-          chainConfig.contracts.accountNft,
-          allTokensQuery,
-        )
-
-        console.log('All tokens response:', allTokensResponse)
-
-        // Handle different possible response formats
-        if (Array.isArray(allTokensResponse)) {
-          allTokens = allTokensResponse
-        } else if (allTokensResponse?.data && Array.isArray(allTokensResponse.data)) {
-          allTokens = allTokensResponse.data
-        } else if (allTokensResponse?.tokens && Array.isArray(allTokensResponse.tokens)) {
-          allTokens = allTokensResponse.tokens
-        } else {
-          console.warn('Unexpected all_tokens response format:', allTokensResponse)
-          allTokens = []
-        }
-      } catch (allTokensError) {
-        console.error('Failed to query all_tokens:', allTokensError)
-        allTokens = []
-      }
-
-      // For each token, query the owner and positions
-      // Limit to first 20 tokens to avoid rate limiting
-      const maxTokensToCheck = Math.min(allTokens.length, 20)
-      const tokensToCheck = allTokens.slice(0, maxTokensToCheck)
-
-      console.log(`Checking ${tokensToCheck.length} out of ${allTokens.length} total tokens`)
-
-      const defaultAccounts = []
+      const allTokens = await getAllTokens(client).catch(() => [])
+      const tokensToCheck = allTokens.slice(0, Math.min(allTokens.length, 20))
 
       if (tokensToCheck.length === 0) {
-        console.log('No tokens found to check')
         setActiveStrategies([])
         return
       }
 
-      for (const tokenId of tokensToCheck) {
-        try {
-          // Query token owner
-          const ownerQuery = {
-            owner_of: {
-              token_id: tokenId,
-            },
-          }
-
-          const ownerResponse = await client.queryContractSmart(
-            chainConfig.contracts.accountNft,
-            ownerQuery,
-          )
-
-          const tokenOwner = ownerResponse?.owner
-          console.log(`Token ${tokenId} owner:`, tokenOwner, 'User address:', address)
-
-          // Check if this token belongs to the user
-          if (tokenOwner === address) {
-            // Query account positions from credit manager
-            const positionsQuery = {
-              positions: {
-                account_id: tokenId,
-              },
-            }
-
-            const positionsResponse = await client.queryContractSmart(
-              chainConfig.contracts.creditManager,
-              positionsQuery,
-            )
-
-            console.log(`Positions for account ${tokenId}:`, positionsResponse)
-
-            // Check if this account has positions (lends or debts)
-            if (
-              positionsResponse &&
-              ((positionsResponse.lends && positionsResponse.lends.length > 0) ||
-                (positionsResponse.debts && positionsResponse.debts.length > 0))
-            ) {
-              defaultAccounts.push({
-                id: tokenId,
-                kind: 'default', // Assume default for now
-                positions: positionsResponse,
-              })
-            }
-          }
-        } catch (tokenError) {
-          console.warn(`Failed to query token ${tokenId}:`, tokenError)
-        }
-      }
-
-      console.log(`Found ${defaultAccounts.length} active accounts for user`)
-
-      const strategies: ActiveStrategy[] = []
-
-      // Scan each default credit account
-      for (const account of defaultAccounts) {
-        try {
-          // Use the positions data already retrieved
-          const positions = account.positions
-          const lends = positions?.lends || []
-          const debts = positions?.debts || []
-
-          // Look for WBTC collateral (either WBTC.axl or WBTC.eureka)
-          const wbtcCollateral = lends.find(
-            (lend: any) => lend.denom === wbtcDenom || lend.denom === wbtcEurekaDenom,
-          )
-
-          if (!wbtcCollateral) continue
-
-          // Look for BTC debt assets
-          const btcDebts = debts.filter((debt: any) => {
-            const token = tokens.find((t) => t.denom === debt.denom)
-            return token && token.symbol.includes('BTC') && token.symbol !== 'WBTC'
-          })
-
-          // Create strategy entries for each BTC debt
-          for (const debt of btcDebts) {
-            const collateralToken = tokens.find((t) => t.denom === wbtcCollateral.denom)
-            const debtToken = tokens.find((t) => t.denom === debt.denom)
-
-            if (!collateralToken || !debtToken) continue
-
-            // Find market data for price calculations
-            const collateralMarket = markets.find((m) => m.asset.denom === wbtcCollateral.denom)
-            const debtMarket = markets.find((m) => m.asset.denom === debt.denom)
-
-            if (!collateralMarket || !debtMarket) continue
-
-            // Calculate formatted amounts
-            const collateralAmount = new BigNumber(wbtcCollateral.amount)
-              .shiftedBy(-collateralToken.decimals)
-              .toNumber()
-
-            const debtAmount = new BigNumber(debt.amount).shiftedBy(-debtToken.decimals).toNumber()
-
-            // Calculate USD values
-            const collateralUsd = calculateUsdValue(
-              wbtcCollateral.amount,
-              collateralMarket.price?.price || '0',
-              collateralToken.decimals,
-            )
-
-            const debtUsd = calculateUsdValue(
-              debt.amount,
-              debtMarket.price?.price || '0',
-              debtToken.decimals,
-            )
-
-            // Calculate leverage: (collateral + debt) / collateral
-            const leverage = collateralUsd > 0 ? (collateralUsd + debtUsd) / collateralUsd : 1
-
-            // Calculate net APY (simplified calculation)
-            const collateralSupplyApy = parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
-            const debtBorrowApy = parseFloat(debtMarket.metrics?.borrow_rate || '0')
-            const netApy = collateralSupplyApy * leverage - debtBorrowApy * (leverage - 1)
-
-            const strategy: ActiveStrategy = {
-              accountId: account.id,
-              collateralAsset: {
-                denom: wbtcCollateral.denom,
-                symbol: collateralToken.symbol,
-                amount: wbtcCollateral.amount,
-                amountFormatted: collateralAmount,
-                usdValue: collateralUsd,
-              },
-              debtAsset: {
-                denom: debt.denom,
-                symbol: debtToken.symbol,
-                amount: debt.amount,
-                amountFormatted: debtAmount,
-                usdValue: debtUsd,
-              },
-              leverage,
-              netApy,
-              isPositive: netApy > 0,
-              strategyId: `${collateralToken.symbol}-${debtToken.symbol}`,
-            }
-
-            strategies.push(strategy)
-          }
-        } catch (accountError) {
-          console.warn(`Failed to scan account ${account.id}:`, accountError)
-        }
-      }
+      const defaultAccounts = await getUserAccounts(client, tokensToCheck)
+      const strategies = defaultAccounts.flatMap(processAccount)
 
       setActiveStrategies(strategies)
     } catch (err) {
@@ -250,7 +160,7 @@ export function useActiveStrategies() {
     } finally {
       setIsLoading(false)
     }
-  }, [address, getCosmWasmClient, wbtcDenom, wbtcEurekaDenom])
+  }, [address, getCosmWasmClient, wbtcDenom, markets])
 
   // Scan accounts when wallet connects (only on initial load and address changes)
   useEffect(() => {

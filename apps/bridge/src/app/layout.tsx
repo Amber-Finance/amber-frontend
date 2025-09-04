@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 
+import { metadata as defaultMetadata } from '@/app/metadata'
 import { Providers } from '@/app/providers'
 import { Background } from '@/components/layout/Background'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
-
-import '../styles/globals.css'
-import { metadata as defaultMetadata } from './metadata'
+import '@/styles/globals.css'
 
 export const metadata: Metadata = defaultMetadata
 

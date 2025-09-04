@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { BookOpen, Github, HomeIcon, MapIcon, XIcon } from 'lucide-react'
+import { GitHubLogoIcon } from '@radix-ui/react-icons'
+import { BookOpen, HomeIcon, MapIcon, XIcon } from 'lucide-react'
 
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
@@ -78,7 +79,7 @@ export default function NotFound() {
               rel='noopener noreferrer'
               aria-label='GitHub'
             >
-              <Github className='h-5 w-5' />
+              <GitHubLogoIcon className='h-5 w-5' />
             </a>
             <a
               href='https://docs.amberfi.io'

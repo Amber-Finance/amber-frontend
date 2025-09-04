@@ -9,7 +9,22 @@ import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 
 // Create initial markets from params data and token data
-const createInitialMarkets = (paramsData: AssetParamsResponse, tokensData: Token[]): Market[] => {
+const createInitialMarkets = (
+  paramsData: AssetParamsResponse,
+  tokensData: Array<{
+    chainId: string
+    denom: string
+    symbol: string
+    icon: string
+    description: string
+    protocolIconLight: string
+    protocolIconDark: string
+    decimals: number
+    isLST: boolean
+    protocol: string
+    brandColor: string
+  }>,
+): Market[] => {
   // First filter params to only include deposit-enabled assets
   // Convert to proper Market objects and filter out nulls
   const marketsWithNulls = paramsData.data
@@ -194,7 +209,7 @@ export const useMarkets = () => {
     revalidateOnReconnect: false,
     onSuccess: (data: MarketDataResponse) => {
       // Update markets with metrics if we have both markets and market data
-      if (markets && data && data.data) {
+      if (markets && data?.data) {
         updateMarketsWithMetrics(markets, data, updateMarketMetrics)
       }
     },

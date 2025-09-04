@@ -1,0 +1,84 @@
+import Image from 'next/image'
+
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
+
+import { CountingNumber } from '@/components/ui/CountingNumber'
+import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+interface DepositHeaderProps {
+  token: {
+    symbol: string
+    icon: string
+    protocol: string
+    brandColor: string
+  }
+  totalApy: number
+  activeTab: 'deposit' | 'withdraw'
+  onTabChange: (value: 'deposit' | 'withdraw') => void
+}
+
+export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: DepositHeaderProps) => (
+  <div className='relative mb-4 sm:mb-6'>
+    <div className='absolute inset-0 z-10 w-full overflow-hidden'>
+      <FlickeringGrid
+        className='w-full h-full'
+        color={token.brandColor}
+        squareSize={8}
+        gridGap={2}
+        flickerChance={0.2}
+        maxOpacity={0.3}
+        gradientDirection='top-to-bottom'
+        height={140}
+      />
+    </div>
+
+    <div className='relative z-20'>
+      <div className='flex justify-between p-4'>
+        <div className='flex items-center justify-start gap-3'>
+          <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
+            <Image
+              src={token.icon}
+              alt={`${token.symbol} token icon`}
+              fill
+              className='object-contain'
+            />
+          </div>
+          <div>
+            <h2 className='text-lg sm:text-xl font-bold text-foreground'>{token.symbol} Deposit</h2>
+            <p className='text-xs sm:text-sm text-muted-foreground'>{token.protocol}</p>
+          </div>
+        </div>
+
+        <div className='text-right'>
+          <div className='text-4xl font-bold text-primary'>
+            <CountingNumber value={totalApy} decimalPlaces={2} />%
+          </div>
+        </div>
+      </div>
+
+      <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 sm:mt-3 w-full sm:w-[550px] ml-auto'>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => onTabChange(value as 'deposit' | 'withdraw')}
+          className='w-full'
+        >
+          <TabsList>
+            <TabsTrigger value='deposit'>
+              <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                <ArrowUpRight className='w-3 h-3' />
+                Deposit
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value='withdraw'>
+              <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                <ArrowRight className='w-3 h-3' />
+                Withdraw
+              </div>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+    </div>
+  </div>
+)

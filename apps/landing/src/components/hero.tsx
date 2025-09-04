@@ -7,9 +7,8 @@ import { BookOpen, ChevronRight } from 'lucide-react'
 
 import SplineBgObject from '@/components/SplineBgObject'
 import { Partners } from '@/components/sections/Partners'
+import { AnimatedGradientText } from '@/components/ui/animated-gradient-text'
 import { cn } from '@/lib/utils'
-
-import { AnimatedGradientText } from './ui/animated-gradient-text'
 
 const XIcon = ({ className }: { className?: string }) => {
   return (

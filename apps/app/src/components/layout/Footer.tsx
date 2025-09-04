@@ -22,12 +22,6 @@ const TelegramIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-interface Icon {
-  icon: React.ReactElement
-  url: string
-  label: string
-}
-
 const icons: Icon[] = [
   {
     icon: <TwitterLogoIcon className='w-5 h-5' />,
@@ -119,7 +113,7 @@ export function Footer() {
           {/* Link Sections Container */}
           <div className='grid grid-cols-2 gap-8 text-right md:grid-cols-2 md:col-span-2'>
             {footerSections.map((section, index) => (
-              <div key={index} className='text-right'>
+              <div key={`${section.title}-${index}`} className='text-right'>
                 <h3 className='mb-4 text-sm font-semibold tracking-wider uppercase text-foreground'>
                   {section.title}
                 </h3>

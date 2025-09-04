@@ -612,7 +612,7 @@ interface SwapParams {
 
 interface StrategyParams {
   type: 'strategy'
-  strategyType: 'create' | 'update' | 'close' | 'delete'
+  strategyType: 'create' | 'update' | 'close' | 'delete' | 'decrease'
   accountId?: string
   accountKind?: 'default' | 'high_levered_strategy'
   actions: any[] // Action array from credit manager
@@ -735,6 +735,141 @@ type TransactionConfig =
   | SwapTransactionConfig
   | DeployStrategyConfig
   | ManageStrategyConfig
+  | StrategyParams
+
+interface ActiveStrategy {
+  accountId: string
+  collateralAsset: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+  }
+  debtAsset: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+  }
+  leverage: number
+  netApy: number
+  isPositive: boolean
+  strategyId: string
+}
+
+interface DepositState {
+  activeTab: 'deposit' | 'withdraw'
+  depositAmount: string
+  withdrawAmount: string
+  sliderPercentage: number
+  lastAction: 'deposit' | 'withdraw' | null
+}
+
+type DepositAction =
+  | { type: 'SET_ACTIVE_TAB'; payload: 'deposit' | 'withdraw' }
+  | { type: 'SET_DEPOSIT_AMOUNT'; payload: string }
+  | { type: 'SET_WITHDRAW_AMOUNT'; payload: string }
+  | { type: 'SET_SLIDER_PERCENTAGE'; payload: number }
+  | { type: 'SET_LAST_ACTION'; payload: 'deposit' | 'withdraw' | null }
+  | { type: 'UPDATE_AMOUNT_FROM_SLIDER'; payload: { percentage: number; maxAmount: number } }
+  | { type: 'UPDATE_SLIDER_FROM_AMOUNT'; payload: { amount: string; maxAmount: number } }
+  | { type: 'RESET_AMOUNTS' }
+  | { type: 'RESET_STATE' }
+
+interface StrategyState {
+  collateralAmount: string
+  multiplier: number
+  isProcessing: boolean
+  error: string | null
+  selectedStrategy: string | null
+}
+
+type StrategyAction =
+  | { type: 'SET_COLLATERAL_AMOUNT'; payload: string }
+  | { type: 'SET_MULTIPLIER'; payload: number }
+  | { type: 'SET_PROCESSING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_SELECTED_STRATEGY'; payload: string | null }
+  | { type: 'RESET_STATE' }
+  | { type: 'RESET_FORM' }
+
+
+type SwapAction =
+  | { type: 'SET_FROM_TOKEN'; payload: string | null }
+  | { type: 'SET_TO_TOKEN'; payload: string | null }
+  | { type: 'SET_FROM_AMOUNT'; payload: string }
+  | { type: 'SET_TO_AMOUNT'; payload: string }
+  | { type: 'SET_SLIPPAGE'; payload: number }
+  | { type: 'SET_CUSTOM_SLIPPAGE'; payload: string }
+  | { type: 'TOGGLE_SLIPPAGE_POPOVER'; payload?: boolean }
+  | { type: 'TOGGLE_TOKEN_MODAL'; payload?: boolean }
+  | { type: 'SET_SELECTING_FROM'; payload: boolean }
+  | { type: 'SET_SWAP_IN_PROGRESS'; payload: boolean }
+  | { type: 'SET_SLIDER_PERCENTAGE'; payload: number }
+  | { type: 'SWAP_TOKENS' }
+  | { type: 'RESET_AMOUNTS' }
+  | { type: 'RESET_STATE' }
+
+interface StrategyDeploymentParams {
+  collateralAmount: number
+  multiplier: number
+  swapRoute: any
+}
+
+interface UseStrategyDeploymentProps {
+  strategy: Strategy
+  executeTransaction: any
+  isModifying: boolean
+  modifyingAccountId: string | null
+}
+
+interface LegacyTransactionParams {
+  amount: string
+  denom: string
+  symbol: string
+  decimals: number
+}
+
+// Token-related interfaces for hooks
+interface Token {
+  symbol: string
+  name: string
+  icon: string
+  balance: string
+  rawBalance: number
+  price: number
+  denom: string
+  usdValue: string
+  decimals: number
+}
+
+interface WalletBalance {
+  denom: string
+  amount: string
+}
+
+interface UseTokenPreselectionReturn {
+  bestToken: Token | null
+  shouldInitialize: boolean
+  markInitialized: () => void
+}
+
+// Swap utility interfaces
+interface Coin {
+  denom: string
+  amount: string
+}
+
+interface SwapAction {
+  swap_exact_in: {
+    coin_in: Coin
+    denom_out: string
+    min_receive: string
+    route: any
+  }
+}
 
 type TransactionParams =
   | DepositParams
@@ -745,3 +880,171 @@ type TransactionParams =
   | StrategyParams
   | DeployStrategyParams
   | ManageStrategyParams
+
+interface AccountIdAndKind {
+  id: string
+  kind: 'default'
+}
+
+interface Icon {
+  icon: React.ReactElement
+  url: string
+  label: string
+}
+
+interface StrategyData {
+  id: string
+  type: string
+  collateralAsset: AssetInfo
+  debtAsset: AssetInfo
+  maxROE: number
+  isPositive: boolean
+  hasPoints: boolean
+  rewards: string
+  multiplier: number
+  isCorrelated: boolean
+  liquidity: number
+  liquidityDisplay: string
+  subText: string
+  supplyApy: number
+  borrowApy: number
+  netApy: number
+  ltv: number
+  liquidationThreshold: number
+  maxLeverage: number
+  maxBorrowCapacityUsd: number
+  maxPositionSizeUsd: number
+  collateralStakingApy: number
+  collateralTotalApy: number
+  debtStakingApy: number
+  debtNetCost: number
+  hasStakingData: boolean
+}
+
+interface AssetInfo {
+  denom: string
+  symbol: string
+  name: string
+  description: string
+  decimals: number
+  icon: string
+  brandColor?: string
+}
+
+interface MarketData {
+  asset: {
+    denom: string
+    symbol: string
+    name: string
+    description: string
+    decimals: number
+    icon?: string
+  }
+  metrics: {
+    collateral_total_amount?: string
+    debt_total_amount?: string
+    borrow_rate?: string
+    liquidity_rate?: string
+  }
+  params: {
+    red_bank: {
+      borrow_enabled: boolean
+    }
+    credit_manager: {
+      whitelisted: boolean
+    }
+    max_loan_to_value?: string
+    liquidation_threshold?: string
+  }
+  price?: {
+    price: string
+  }
+}
+
+interface TokenData {
+  symbol: string
+  name: string
+  icon: string
+  balance: string
+  rawBalance: number
+  price: number
+  denom: string
+  usdValue: string
+  decimals: number
+  chainId: string
+}
+
+interface TokenBalance {
+  denom: string
+  amount: string
+}
+
+interface MarketData {
+  asset: {
+    denom: string
+    symbol?: string
+    decimals: number
+  }
+  price?: {
+    price: string
+  }
+}
+
+interface UserDepositResponse {
+  data: {
+    amount: string
+  }
+}
+
+
+interface BNCoin {
+  denom: string
+  amount: string
+}
+
+interface DeleteAccountOptions {
+  accountId: string
+  lends: BNCoin[]
+}
+
+interface WithdrawStrategyParams {
+  accountId: string
+  collateralDenom: string
+  collateralAmount: string
+  collateralDecimals: number
+  debtDenom: string
+  debtAmount: string
+  debtDecimals: number
+}
+
+
+interface SwapState {
+  fromTokenDenom: string | null
+  toTokenDenom: string | null
+  fromAmount: string
+  toAmount: string
+  slippage: number
+  customSlippage: string
+  showSlippagePopover: boolean
+  sliderPercentage: number
+  isTokenModalOpen: boolean
+  selectingFrom: boolean
+  isSwapInProgress: boolean
+  editingDirection: 'from' | 'to'
+}
+
+interface SwapActions {
+  setFromTokenDenom: (denom: string | null) => void
+  setToTokenDenom: (denom: string | null) => void
+  setFromAmount: (amount: string) => void
+  setToAmount: (amount: string) => void
+  setSlippage: (slippage: number) => void
+  setCustomSlippage: (slippage: string) => void
+  setShowSlippagePopover: (show: boolean) => void
+  setTokenModalOpen: (open: boolean) => void
+  setSelectingFrom: (selecting: boolean) => void
+  setIsSwapInProgress: (inProgress: boolean) => void
+  setEditingDirection: (direction: 'from' | 'to') => void
+  resetAmounts: () => void
+  swapTokens: () => void
+}

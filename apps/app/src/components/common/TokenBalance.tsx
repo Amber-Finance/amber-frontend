@@ -6,12 +6,15 @@ import { BigNumber } from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValue } from '@/utils/format'
+import { calculateUsdValueLegacy } from '@/utils/format'
+
+type Size = 'sm' | 'md' | 'lg'
+type Align = 'left' | 'right' | 'center'
 
 interface TokenBalanceProps {
   coin: Coin // Required coin object with denom and amount
-  size?: 'sm' | 'md' | 'lg'
-  align?: 'left' | 'right' | 'center'
+  size?: Size
+  align?: Align
   className?: string
 }
 
@@ -30,23 +33,28 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   const { markets } = useStore()
 
   // Set font sizes based on size prop, with responsive variants
-  const amountTextSize =
-    size === 'sm'
-      ? 'text-xs sm:text-sm'
-      : size === 'lg'
-        ? 'text-base sm:text-lg'
-        : 'text-sm sm:text-base'
+  const getAmountTextSize = (size: Size) => {
+    if (size === 'sm') return 'text-xs sm:text-sm'
+    if (size === 'lg') return 'text-base sm:text-lg'
+    return 'text-sm sm:text-base'
+  }
 
-  const valueTextSize =
-    size === 'sm'
-      ? 'text-xxs sm:text-xs'
-      : size === 'lg'
-        ? 'text-sm sm:text-base'
-        : 'text-xs sm:text-sm'
+  const getValueTextSize = (size: Size) => {
+    if (size === 'sm') return 'text-xxs sm:text-xs'
+    if (size === 'lg') return 'text-sm sm:text-base'
+    return 'text-xs sm:text-sm'
+  }
 
   // Set alignment classes
-  const alignmentClass =
-    align === 'left' ? 'text-left' : align === 'center' ? 'text-center' : 'text-right'
+  const getAlignmentClass = (align: Align) => {
+    if (align === 'left') return 'text-left'
+    if (align === 'center') return 'text-center'
+    return 'text-right'
+  }
+
+  const amountTextSize = getAmountTextSize(size)
+  const valueTextSize = getValueTextSize(size)
+  const alignmentClass = getAlignmentClass(align)
 
   // Calculate USD value from the store using coin.denom
   let usdValue = '0'
@@ -58,7 +66,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
 
     if (market?.price?.price) {
       const decimals = market.asset.decimals || 6
-      usdValue = calculateUsdValue(coin.amount, market.price.price, decimals).toString()
+      usdValue = calculateUsdValueLegacy(coin.amount, market.price.price, decimals).toString()
     }
     if (market?.asset) {
       adjustedAmount = new BigNumber(coin.amount).shiftedBy(-market.asset.decimals).toString()

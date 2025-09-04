@@ -2,7 +2,7 @@
 import { grayColors } from '@/theme/themeColors'
 
 // Define the Theme interface based on the CosmosKit theme structure
-export interface Theme {
+interface Theme {
   overrides: Record<string, Record<string, Record<string, string>>>
   themeDefs: Array<{
     name: string

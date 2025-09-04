@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 import { ArrowLeft, Target } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 import { MarginCollateralCard } from '@/components/strategy/MarginCollateralCard'
 import { MarketInfoCard } from '@/components/strategy/MarketInfoCard'
@@ -162,6 +163,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       // All success/error handling is done by the broadcast system via toast notifications
       // No need for custom console.logs or manual error handling
     } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Unknown error')
+      console.error(error)
+
       // Error handling is managed by the broadcast system
       // The error will be shown as a toast notification automatically
     } finally {
@@ -180,7 +184,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
 
   const getEstimatedEarningsUsd = () => {
     if (marketData.currentPrice > 0) {
-      return `~${formatCurrency(Math.abs(positionCalcs.estimatedYearlyEarnings) * marketData.currentPrice, 2)}`
+      return `~${formatCurrency(Math.abs(positionCalcs.estimatedYearlyEarnings) * marketData.currentPrice)}`
     }
     return 'N/A'
   }

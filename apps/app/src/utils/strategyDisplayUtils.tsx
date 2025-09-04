@@ -1,8 +1,9 @@
-import { formatCurrency } from '@/utils/format'
-import { formatBalance } from '@/hooks/useStrategyCalculations'
-import { ArrowRight, Wallet } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
-const formatUsd = (usd: number): string => formatCurrency(usd, 2)
+import { formatBalance } from '@/hooks/useStrategyCalculations'
+import { formatCurrencyLegacy } from '@/utils/format'
+
+const formatUsd = (usd: number): string => formatCurrencyLegacy(usd, 2)
 
 export const createDisplayValues = (
   isBalancesLoading: boolean,

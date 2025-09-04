@@ -4,12 +4,6 @@ import useSWR from 'swr'
 import chainConfig from '@/config/chain'
 import { getUrl } from '@/utils/format'
 
-interface UserDepositResponse {
-  data: {
-    amount: string
-  }
-}
-
 async function fetchUserDeposit(address: string, denom: string): Promise<string> {
   if (!address || !denom) return '0'
 

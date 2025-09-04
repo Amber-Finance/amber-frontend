@@ -1,3 +1,5 @@
+import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+import { GasPrice } from '@cosmjs/stargate'
 import { useChain } from '@cosmos-kit/react'
 import { executeRoute } from '@skip-go/client'
 import { BigNumber } from 'bignumber.js'
@@ -81,6 +83,19 @@ const generateSuccessMessage = (config: TransactionConfig): string => {
       return `Strategy ${closure} successfully! Collateral swapped back, debt repaid, and balances refunded.`
     }
 
+    case 'strategy': {
+      switch (config.strategyType) {
+        case 'update':
+          return 'Strategy withdrawal successful!'
+        case 'decrease':
+          return 'Strategy position closed successfully!'
+        case 'delete':
+          return 'Strategy account deleted successfully!'
+        default:
+          return 'Strategy operation successful!'
+      }
+    }
+
     case 'deposit':
       return `Successfully deposited ${config.amount} ${config.symbol || config.denom}`
 
@@ -109,25 +124,42 @@ const generateTrackingEvent = (config: TransactionConfig): string => {
     case 'manage_strategy':
       return `strategy_${config.actionType}`
 
+    case 'strategy':
+      return `strategy_${config.strategyType}`
+
     default:
       return `${config.type}_success`
   }
 }
 
 export function useBroadcast() {
-  const { getSigningCosmWasmClient, address } = useChain(chainConfig.name)
+  const { address, isWalletConnected, getOfflineSigner } = useChain(chainConfig.name)
+
+  const getWalletClient = async () => {
+    const offlineSigner = getOfflineSigner()
+    if (!offlineSigner) {
+      throw new Error('Wallet not connected. Please connect your wallet first.')
+    }
+
+    return await SigningCosmWasmClient.connectWithSigner(
+      chainConfig.endpoints.rpcUrl,
+      offlineSigner,
+      {
+        gasPrice: GasPrice.fromString('0.025untrn'),
+      },
+    )
+  }
 
   // Pure function for message creation
   const createMessages = (customMessages?: ToastMessages): ToastMessages => ({
-    pending: 'Transaction pending...',
+    pending: 'Processing transaction...',
     success: 'Transaction successful',
     error: 'Transaction failed',
     ...customMessages,
   })
 
   const executeDeployStrategy = async (config: DeployStrategyConfig) => {
-    const client = await getSigningCosmWasmClient()
-    if (!client) throw new Error('Failed to connect to wallet')
+    const client = await getWalletClient()
 
     const actions = buildDeployActions(config)
     const funds = [
@@ -160,8 +192,7 @@ export function useBroadcast() {
   }
 
   const executeManageStrategy = async (config: ManageStrategyConfig) => {
-    const client = await getSigningCosmWasmClient()
-    if (!client) throw new Error('Failed to connect to wallet')
+    const client = await getWalletClient()
 
     const actions = buildManageActions(config)
     const funds = [
@@ -193,9 +224,57 @@ export function useBroadcast() {
     }
   }
 
+  const executeStrategy = async (config: StrategyParams) => {
+    const client = await getWalletClient()
+
+    // For strategy operations, actions are provided directly
+    const actions = config.actions
+    const funds: any[] = [] // Strategy operations typically don't require funds
+
+    let contractAddress: string
+    let message: any
+
+    switch (config.strategyType) {
+      case 'update':
+      case 'decrease':
+        contractAddress = chainConfig.contracts.creditManager
+        message = {
+          update_credit_account: {
+            account_id: config.accountId,
+            actions,
+          },
+        }
+        break
+      case 'delete':
+        contractAddress = chainConfig.contracts.accountNft
+        message = {
+          burn: {
+            token_id: config.accountId,
+          },
+        }
+        break
+      default:
+        throw new Error(`Unsupported strategy type: ${config.strategyType}`)
+    }
+
+    const result = await client.execute(
+      address!,
+      contractAddress,
+      message,
+      'auto',
+      undefined,
+      funds,
+    )
+
+    return {
+      result,
+      successMessage: generateSuccessMessage(config),
+      trackingEvent: generateTrackingEvent(config),
+    }
+  }
+
   const executeDeposit = async (config: DepositConfig) => {
-    const client = await getSigningCosmWasmClient()
-    if (!client) throw new Error('Failed to connect to wallet')
+    const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
     const msg = { deposit: {} }
@@ -210,8 +289,7 @@ export function useBroadcast() {
   }
 
   const executeWithdraw = async (config: WithdrawConfig) => {
-    const client = await getSigningCosmWasmClient()
-    if (!client) throw new Error('Failed to connect to wallet')
+    const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
     const msg = { withdraw: { amount: formattedAmount, denom: config.denom } }
@@ -225,8 +303,7 @@ export function useBroadcast() {
   }
 
   const executeBorrow = async (config: BorrowConfig) => {
-    const client = await getSigningCosmWasmClient()
-    if (!client) throw new Error('Failed to connect to wallet')
+    const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
     const msg = {
@@ -246,8 +323,7 @@ export function useBroadcast() {
   }
 
   const executeRepay = async (config: RepayConfig) => {
-    const client = await getSigningCosmWasmClient()
-    if (!client) throw new Error('Failed to connect to wallet')
+    const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
     const msg = { repay: { on_behalf_of: config.onBehalfOf } }
@@ -267,8 +343,7 @@ export function useBroadcast() {
         throw new Error(`Unsupported chain: ${chainId}`)
       }
 
-      const client = await getSigningCosmWasmClient()
-      if (!client) throw new Error('Failed to get signing client')
+      const client = await getWalletClient()
       return (client as any).signer || client
     }
 
@@ -294,6 +369,7 @@ export function useBroadcast() {
     const executorMap = {
       deploy_strategy: () => executeDeployStrategy(config as DeployStrategyConfig),
       manage_strategy: () => executeManageStrategy(config as ManageStrategyConfig),
+      strategy: () => executeStrategy(config as StrategyParams),
       deposit: () => executeDeposit(config as DepositConfig),
       withdraw: () => executeWithdraw(config as WithdrawConfig),
       borrow: () => executeBorrow(config as BorrowConfig),
@@ -317,6 +393,7 @@ export function useBroadcast() {
       withdraw: [`${address}/positions`, `${address}/deposit/${(config as WithdrawConfig).denom}`],
       deploy_strategy: [`${address}/positions`, `${address}/credit-accounts`],
       manage_strategy: [`${address}/positions`, `${address}/credit-accounts`],
+      strategy: [`${address}/positions`, `${address}/credit-accounts`],
     }
 
     const additionalRefreshes = refreshMap[config.type] || []
@@ -329,7 +406,7 @@ export function useBroadcast() {
     config: TransactionConfig,
     customMessages?: ToastMessages,
   ): Promise<TransactionResult> => {
-    if (!address) {
+    if (!address || !isWalletConnected) {
       toast.error('Wallet not connected')
       return { success: false, error: 'Wallet not connected' }
     }
@@ -375,6 +452,7 @@ export function useBroadcast() {
     executeTransaction,
     executeDeployStrategy,
     executeManageStrategy,
+    executeStrategy,
     executeDeposit,
     executeWithdraw,
     executeBorrow,

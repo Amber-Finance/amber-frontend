@@ -4,13 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Widget } from '@skip-go/widget'
 
-// import { useFeatureEnabled } from '@/hooks/useFeatureEnabled'
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { AuroraText } from '@/components/ui/AuroraText'
 import { useURLQueryParams } from '@/hooks/useURLQueryParams'
 import { apiURL, endpointOptions } from '@/lib/skip-go-widget'
 import { cn } from '@/utils/ui'
-
-import { AuroraText } from '../ui/AuroraText'
 
 interface AssetPair {
   source: { chainId: string; denom: string }
@@ -27,7 +25,6 @@ const preselectedIfEmpty = {
 export function SkipPage() {
   const defaultRoute = useURLQueryParams()
   const { resolvedTheme } = useTheme()
-  const [queryParamsString, setQueryParamsString] = useState<string>()
 
   // Track the current source asset to detect changes
   const [currentSourceAsset, setCurrentSourceAsset] = useState<{
@@ -87,11 +84,6 @@ export function SkipPage() {
     }
   }, [defaultRoute, autoSelectedRoute, shouldResetAmounts])
 
-  const lastAutoSelectionRef = useRef<{
-    type: 'source' | 'destination'
-    chainId: string
-    denom: string
-  } | null>(null)
   const isAutoSelectingRef = useRef(false)
   const currentSelectionRef = useRef<{
     srcChainId?: string
@@ -100,27 +92,26 @@ export function SkipPage() {
     destAssetDenom?: string
   }>({})
 
+  // Helper function to hide Solana connect buttons
+  const hideSolanaConnectButtons = () => {
+    const ROOT_SELECTOR = '[data-root-id="amber-bridge"]'
+    const roots = document.querySelectorAll(ROOT_SELECTOR)
+    roots.forEach((root) => {
+      const buttons = root.querySelectorAll('button')
+      buttons.forEach((button) => {
+        const text = (button.textContent || '').trim()
+        if (/solana/i.test(text)) {
+          ;(button as HTMLElement).style.display = 'none'
+        }
+      })
+    })
+  }
+
   // Hide Solana connect option inside the Skip widget wallet modal
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const ROOT_SELECTOR = '[data-root-id="amber-bridge"]'
-
-    function hideSolanaConnectButtons() {
-      const roots = document.querySelectorAll(ROOT_SELECTOR)
-      roots.forEach((root) => {
-        // Look for any button elements rendered by the wallet connect UI that contain "Solana"
-        const buttons = root.querySelectorAll('button')
-        buttons.forEach((button) => {
-          const text = (button.textContent || '').trim()
-          if (/solana/i.test(text)) {
-            ;(button as HTMLElement).style.display = 'none'
-          }
-        })
-      })
-    }
-
-    const observer = new MutationObserver(() => hideSolanaConnectButtons())
+    const observer = new MutationObserver(hideSolanaConnectButtons)
     observer.observe(document.body, { childList: true, subtree: true, characterData: true })
     hideSolanaConnectButtons()
 
@@ -238,7 +229,7 @@ export function SkipPage() {
   ]
 
   function isEvmChainId(chainId?: string) {
-    return typeof chainId === 'string' && /^[0-9]+$/.test(chainId)
+    return typeof chainId === 'string' && /^\d+$/.test(chainId)
   }
 
   function normalizeDenomForCompare(denom?: string, chainId?: string) {
@@ -285,11 +276,11 @@ export function SkipPage() {
         const set = new Set(aDenoms)
         const intersection = bDenoms.filter((d) => set.has(d))
         // If either side omits the chain or is empty, treat as allowing only the other
-        merged[side][chainId] = intersection.length
-          ? intersection
-          : aDenoms.length
-            ? aDenoms
-            : bDenoms
+        let selectedDenoms = intersection
+        if (!intersection.length) {
+          selectedDenoms = aDenoms.length ? aDenoms : bDenoms
+        }
+        merged[side][chainId] = selectedDenoms
       }
     }
     return merged
@@ -326,7 +317,7 @@ export function SkipPage() {
         }
     }
     // If nothing matched, return undefined to avoid over-restricting
-    return filter ? filter : undefined
+    return filter ?? undefined
   }
 
   const onRouteUpdated = (props: {
@@ -378,18 +369,6 @@ export function SkipPage() {
       }, 50)
     }
 
-    const params = new URLSearchParams({
-      src_asset: props?.srcAssetDenom ?? '',
-      src_chain: props?.srcChainId ?? '',
-      dest_asset: props?.destAssetDenom ?? '',
-      dest_chain: props?.destChainId ?? '',
-      amount_in: props?.amountIn ?? '',
-      amount_out: props?.amountOut ?? '',
-    })
-
-    const queryString = params.toString()
-    setQueryParamsString(queryString)
-
     // Auto-select destination based on source selection
     const pf = computePairFilter(props)
     if (!pf) {
@@ -431,18 +410,20 @@ export function SkipPage() {
     }
   }
 
-  const onSourceAssetUpdated = ({ chainId, denom }: { chainId?: string; denom?: string }) => {
-    // Clear auto-selection when user manually changes source
+  const clearAutoSelection = () => {
     if (!isAutoSelectingRef.current && autoSelectedRoute) {
       setAutoSelectedRoute(null)
     }
   }
 
+  const onSourceAssetUpdated = ({ chainId, denom }: { chainId?: string; denom?: string }) => {
+    // Clear auto-selection when user manually changes source
+    clearAutoSelection()
+  }
+
   const onDestinationAssetUpdated = ({ chainId, denom }: { chainId?: string; denom?: string }) => {
     // Clear auto-selection when user manually changes destination
-    if (!isAutoSelectingRef.current && autoSelectedRoute) {
-      setAutoSelectedRoute(null)
-    }
+    clearAutoSelection()
   }
 
   return (
@@ -506,7 +487,7 @@ export function SkipPage() {
             >
               Skip:Go bridge UI
             </a>
-            .
+            <span>.</span>
           </p>
         </div>
       </main>

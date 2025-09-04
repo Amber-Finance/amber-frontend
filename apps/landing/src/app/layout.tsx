@@ -4,9 +4,8 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 
 import '@/app/globals.css'
-
-import { Background } from '../components/Background'
-import { Footer } from '../components/layout/Footer'
+import { Background } from '@/components/Background'
+import { Footer } from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'Amber Finance',

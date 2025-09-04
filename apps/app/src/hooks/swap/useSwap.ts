@@ -74,7 +74,7 @@ export function useSwap() {
         ],
       )
 
-      if (result && result.transactionHash) {
+      if (result.transactionHash) {
         toast.update(pendingToastId, {
           render: `Swap successful! ${fromAmount} ${fromToken.symbol} → ${toToken.symbol}`,
           type: 'success',

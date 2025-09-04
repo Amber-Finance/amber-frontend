@@ -3,13 +3,19 @@ import React from 'react'
 import BigNumber from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
-import { cn } from '@/lib/utils'
 
 // Helper function to get route type
 const getRouteType = (route: any): string => {
   if (!route || typeof route !== 'object') return ''
   const routeKeys = Object.keys(route)
   return routeKeys.length > 0 ? routeKeys[0] : ''
+}
+
+// Helper function to get price impact color
+const getPriceImpactColor = (priceImpact: number): string => {
+  if (priceImpact > 0) return 'text-green-500'
+  if (priceImpact < 0) return 'text-red-500'
+  return 'text-muted-foreground'
 }
 
 interface SwapRouteInfoProps {
@@ -37,7 +43,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
   isDebouncePending = false,
   routeError,
 }) => {
-  const hasValidAmounts = amountIn && parseFloat(amountIn) > 0 && amountOut && amountOut.gt(0)
+  const hasValidAmounts = amountIn && parseFloat(amountIn) > 0 && amountOut.gt(0)
   const shouldShowLoading = isRouteLoading || isDebouncePending || (!hasValidAmounts && !routeError)
 
   if (shouldShowLoading) {
@@ -102,15 +108,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
       {priceImpact !== null && (
         <div className='flex justify-between'>
           <span className='text-muted-foreground'>Price Impact</span>
-          <span
-            className={cn(
-              priceImpact > 0
-                ? 'text-green-500'
-                : priceImpact < 0
-                  ? 'text-red-500'
-                  : 'text-muted-foreground',
-            )}
-          >
+          <span className={getPriceImpactColor(priceImpact)}>
             {priceImpact > 0 ? '+' : '-'}
             <FormattedValue
               value={Math.abs(priceImpact)}
