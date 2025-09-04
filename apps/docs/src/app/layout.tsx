@@ -50,11 +50,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <meta property='og:site_name' content='Amber Finance | Docs' />
         <meta property='og:locale' content='en_US' />
         <meta property='og:url' content='https://docs.amberfi.io' />
-        <meta property='og:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
+        <meta property='og:image' content='https://docs.amberfi.io/x-banner/docs.jpg' />
         <meta property='og:image:width' content='1280' />
         <meta property='og:image:height' content='720' />
         <meta property='og:image:alt' content='Amber Finance Documentation' />
-        <meta name='twitter:image' content='https://docs.amberfi.io/twitter-banner/docs.jpg' />
+        <meta name='twitter:image' content='https://docs.amberfi.io/x-banner/docs.jpg' />
         <meta name='twitter:card' content='summary_large_image' />
         <meta name='twitter:url' content='https://docs.amberfi.io' />
         <meta name='twitter:creator' content='@amberfi_io' />

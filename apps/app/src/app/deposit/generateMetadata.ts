@@ -19,13 +19,27 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       openGraph: {
         title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
+        images: [
+          {
+            url: 'https://docs.amberfi.io/x-banner/deposit.jpg',
+            width: 1032,
+            height: 540,
+            alt: 'Amber Finance | Deposit',
+          },
+        ],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
+        images: [
+          {
+            url: 'https://docs.amberfi.io/x-banner/deposit.jpg',
+            width: 1032,
+            height: 540,
+            alt: 'Amber Finance | Deposit',
+          },
+        ],
         site: '@amberfi_io',
         creator: '@amberfi_io',
       },
@@ -43,13 +57,27 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       openGraph: {
         title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
+        images: [
+          {
+            url: 'https://docs.amberfi.io/x-banner/deposit.jpg',
+            width: 1032,
+            height: 540,
+            alt: 'Amber Finance | Deposit',
+          },
+        ],
       },
       twitter: {
         card: 'summary_large_image',
         title: 'Amber Finance | Deposit',
         description: 'Deposit your assets on Amber and start earning yield.',
-        images: ['https://docs.amberfi.io/twitter-banner/default.jpg'],
+        images: [
+          {
+            url: 'https://docs.amberfi.io/x-banner/deposit.jpg',
+            width: 1032,
+            height: 540,
+            alt: 'Amber Finance | Deposit',
+          },
+        ],
         site: '@amberfi_io',
         creator: '@amberfi_io',
       },
@@ -81,7 +109,14 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
       card: 'summary_large_image',
       title,
       description,
-      images: [shareImage],
+      images: [
+        {
+          url: shareImage,
+          width: 1200,
+          height: 630,
+          alt: `${tokenSymbol} deposit yield on Amber`,
+        },
+      ],
       site: '@amberfi_io',
       creator: '@amberfi_io',
     },

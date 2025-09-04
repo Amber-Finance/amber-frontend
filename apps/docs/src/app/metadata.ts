@@ -5,15 +5,15 @@ const SHARED_CONFIG = {
   siteName: 'Amber Docs',
   baseUrl: 'https://docs.amberfi.io',
   twitterHandle: '@amberfi_io',
-  bannerImage: 'https://docs.amberfi.io/twitter-banner/docs.jpg',
+  bannerImage: 'https://docs.amberfi.io/x-banner/docs.jpg',
   locale: 'en_US',
 }
 
 // Shared image for social media
 const SHARED_IMAGE = {
   url: SHARED_CONFIG.bannerImage,
-  width: 1280,
-  height: 720,
+  width: 1032,
+  height: 540,
   alt: 'Amber Finance Documentation',
 }
 

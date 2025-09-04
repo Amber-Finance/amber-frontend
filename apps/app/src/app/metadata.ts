@@ -5,17 +5,9 @@ const SHARED_CONFIG = {
   siteName: 'Amber',
   baseUrl: 'https://app.amberfi.io',
   twitterHandle: '@amberfi_io',
-  bannerImage: 'https://app.amberfi.io/twitter-banner/default.jpg',
+  bannerImage: 'https://app.amberfi.io/x-banner/default.jpg',
   content: 'Liquid Staking. Solid Yields.',
   locale: 'en_US',
-}
-
-// Shared image for social media
-const SHARED_IMAGE = {
-  url: SHARED_CONFIG.bannerImage,
-  width: 1280,
-  height: 720,
-  alt: 'Amber Finance',
 }
 
 export const metaData: { [key: string]: Metadata } = {
@@ -30,7 +22,14 @@ export const metaData: { [key: string]: Metadata } = {
       locale: SHARED_CONFIG.locale,
       description: 'Liquid Staking. Solid Yields.',
       siteName: SHARED_CONFIG.siteName,
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/deposit.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
@@ -38,7 +37,14 @@ export const metaData: { [key: string]: Metadata } = {
       title: 'Amber Finance',
       creator: SHARED_CONFIG.twitterHandle,
       description: 'Liquid Staking. Solid Yields.',
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/deposit.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance',
+        },
+      ],
     },
   },
 
@@ -53,7 +59,14 @@ export const metaData: { [key: string]: Metadata } = {
       locale: SHARED_CONFIG.locale,
       description: 'Liquid Staking. Solid Yields.',
       siteName: SHARED_CONFIG.siteName,
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/deposit.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
@@ -61,7 +74,14 @@ export const metaData: { [key: string]: Metadata } = {
       title: 'Amber Finance | Yield',
       creator: SHARED_CONFIG.twitterHandle,
       description: 'Liquid Staking. Solid Yields.',
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/deposit.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance | Yield',
+        },
+      ],
     },
   },
 
@@ -76,7 +96,14 @@ export const metaData: { [key: string]: Metadata } = {
       locale: SHARED_CONFIG.locale,
       description: 'Preserve Value. Generate Wealth.',
       siteName: SHARED_CONFIG.siteName,
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/strategies.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance | Strategies',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
@@ -84,7 +111,14 @@ export const metaData: { [key: string]: Metadata } = {
       title: 'Amber Finance | Strategies',
       creator: SHARED_CONFIG.twitterHandle,
       description: 'Preserve Value. Generate Wealth.',
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/strategies.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance | Strategies',
+        },
+      ],
     },
   },
 
@@ -101,7 +135,14 @@ export const metaData: { [key: string]: Metadata } = {
       description:
         'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
       siteName: SHARED_CONFIG.siteName,
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/swap.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance | Swap',
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
@@ -110,7 +151,14 @@ export const metaData: { [key: string]: Metadata } = {
       creator: SHARED_CONFIG.twitterHandle,
       description:
         'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
-      images: [SHARED_IMAGE],
+      images: [
+        {
+          url: 'https://app.amberfi.io/x-banner/swap.jpg',
+          width: 1032,
+          height: 540,
+          alt: 'Amber Finance | Swap',
+        },
+      ],
     },
   },
 }
