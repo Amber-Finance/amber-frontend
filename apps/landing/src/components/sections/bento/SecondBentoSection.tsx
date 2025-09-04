@@ -16,7 +16,6 @@ export function SecondBentoAnimation() {
       </OrbitingCircles>
 
       <OrbitingCircles iconSize={40} radius={100} reverse>
-        <Image src='/images/pumpBTC.svg' alt='pumpBTC' width={32} height={32} />
         <Image src='/images/LBTC.svg' alt='LBTC' width={32} height={32} />
         <Image src='/images/maxBTC.png' alt='maxBTC' width={32} height={32} />
         <Image src='/images/eBTC.svg' alt='eBTC' width={32} height={32} />

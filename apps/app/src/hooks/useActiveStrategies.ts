@@ -37,9 +37,9 @@ export function useActiveStrategies() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Get wBTC.eureka denom (temporarily using wBTC.eureka as mentioned in requirements)
-  const wbtcDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // wBTC.eureka for now
-  const wbtcEurekaDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // actual wBTC.eureka
+  // Get WBTC.eureka denom (temporarily using WBTC.eureka as mentioned in requirements)
+  const wbtcDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // WBTC.eureka for now
+  const wbtcEurekaDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // actual WBTC.eureka
 
   const scanCreditAccounts = useCallback(async () => {
     if (!address || !markets?.length) return
@@ -160,7 +160,7 @@ export function useActiveStrategies() {
           const lends = positions?.lends || []
           const debts = positions?.debts || []
 
-          // Look for wBTC collateral (either wBTC.axl or wBTC.eureka)
+          // Look for WBTC collateral (either WBTC.axl or WBTC.eureka)
           const wbtcCollateral = lends.find(
             (lend: any) => lend.denom === wbtcDenom || lend.denom === wbtcEurekaDenom,
           )
@@ -170,7 +170,7 @@ export function useActiveStrategies() {
           // Look for BTC debt assets
           const btcDebts = debts.filter((debt: any) => {
             const token = tokens.find((t) => t.denom === debt.denom)
-            return token && token.symbol.includes('BTC') && token.symbol !== 'wBTC'
+            return token && token.symbol.includes('BTC') && token.symbol !== 'WBTC'
           })
 
           // Create strategy entries for each BTC debt
