@@ -5,8 +5,7 @@ import { BigNumber } from 'bignumber.js'
 export const formatBalance = (balance: number): string =>
   balance <= 0 ? '0.000000' : balance.toFixed(6)
 
-export const calculateMaxLeverage = (ltv: number): number =>
-  ltv > 0 ? Math.min(1 / (1 - ltv), 10) : 5
+export const calculateMaxLeverage = (ltv: number): number => (ltv > 0 ? 1 / (1 - ltv) : 1)
 
 export const usePositionCalculations = (
   currentAmount: number,
@@ -40,8 +39,23 @@ export const useMarketData = (strategy: Strategy, markets: Market[] | null) =>
       ? new BigNumber(debtMarket.metrics.borrow_rate).toNumber()
       : strategy.borrowApy || 0
 
-    const dynamicMaxLeverage = calculateMaxLeverage(
-      parseFloat(debtMarket?.params?.max_loan_to_value || '0.8'),
+    // Use COLLATERAL asset's LTV for max leverage calculation, not debt asset's LTV
+    const maxLTV = parseFloat(collateralMarket?.params?.max_loan_to_value || '0.8')
+    const dynamicMaxLeverage = calculateMaxLeverage(maxLTV)
+
+    // Console log useStrategyCalculations maxLTV values
+    console.log(
+      `⚙️ useStrategyCalculations ${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}:`,
+      {
+        maxLTV,
+        collateralRawMaxLoanToValue: collateralMarket?.params?.max_loan_to_value,
+        debtRawMaxLoanToValue: debtMarket?.params?.max_loan_to_value,
+        calculatedMaxLeverage: dynamicMaxLeverage,
+        collateralMarketSymbol: collateralMarket?.asset?.symbol,
+        collateralMarketDenom: collateralMarket?.asset?.denom,
+        debtMarketSymbol: debtMarket?.asset?.symbol,
+        debtMarketDenom: debtMarket?.asset?.denom,
+      },
     )
 
     return {

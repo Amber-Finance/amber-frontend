@@ -37,8 +37,8 @@ export const getProtocolPoints = (symbol: string) => {
     ebtc: {
       multiplier: '3x',
       protocolPoint: 'Etherfi Points',
-      protocolIconLight: '/images/etherfi.svg',
-      protocolIconDark: '/images/etherfi.svg', // Same icon for both themes
+      protocolIconLight: '/images/etherfiDark.svg',
+      protocolIconDark: '/images/etherfi.svg',
     },
     unibtc: {
       multiplier: '3x',

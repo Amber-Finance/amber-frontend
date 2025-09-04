@@ -60,6 +60,13 @@ export default function StrategyDeployPage() {
       return
     }
 
+    // Find collateral market for LTV calculation (this determines max leverage)
+    const collateralMarket = markets?.find((market) => market.asset.denom === collateralToken.denom)
+    if (!collateralMarket) {
+      router.push('/strategies')
+      return
+    }
+
     // Use same approach as strategies page - mock values for WBTC.eureka
     // WBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
     const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for WBTC.eureka
@@ -74,9 +81,22 @@ export default function StrategyDeployPage() {
 
     // Calculate base net APY for 1x leverage (no looping)
     const netApy = collateralTotalApy - debtBorrowApy
-    const maxLTV = parseFloat(debtMarket.params.max_loan_to_value || '0.8')
-    const maxLeverage = Math.min(1 / (1 - maxLTV), 10)
+    // Use COLLATERAL asset's LTV for max leverage calculation, not debt asset's LTV
+    const maxLTV = parseFloat(collateralMarket.params.max_loan_to_value || '0.8')
+    const maxLeverage = 1 / (1 - maxLTV)
     const liquidationThreshold = parseFloat(debtMarket.params.liquidation_threshold || '0.85')
+
+    // Console log deploy page maxLTV values
+    console.log(`🚀 Deploy Page Strategy ${strategyId}:`, {
+      maxLTV,
+      collateralRawMaxLoanToValue: collateralMarket.params.max_loan_to_value,
+      debtRawMaxLoanToValue: debtMarket.params.max_loan_to_value,
+      calculatedMaxLeverage: maxLeverage,
+      collateralSymbol: collateralSymbol,
+      collateralDenom: collateralToken.denom,
+      debtSymbol: debtSymbol,
+      debtDenom: debtMarket.asset.denom,
+    })
 
     // Calculate available liquidity
     const totalCollateral = new BigNumber(debtMarket.metrics.collateral_total_amount || '0')

@@ -78,7 +78,7 @@ const tokens = [
     symbol: 'eBTC',
     icon: '/images/eBTC.svg',
     description: 'Ether.fi Bitcoin',
-    protocolIconLight: '/images/etherfi.svg',
+    protocolIconLight: '/images/etherfiDark.svg',
     protocolIconDark: '/images/etherfi.svg',
     decimals: 8,
     isLST: true,

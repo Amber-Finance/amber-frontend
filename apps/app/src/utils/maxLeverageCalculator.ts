@@ -11,12 +11,20 @@ export function maxLeverageCalculator(markets: Market[]): { [denom: string]: num
       const maxLTV = parseFloat(market.params?.max_loan_to_value || '0.8')
 
       // Calculate max leverage using LTV formula: maxLev = 1 / (1 - LTV)
-      const maxLeverage = maxLTV > 0 ? Math.min(1 / (1 - maxLTV), 10) : 1
+      const maxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) : 1
+
+      // Console log maxLeverageCalculator values
+      console.log(`📊 maxLeverageCalculator ${market.asset.symbol}:`, {
+        maxLTV,
+        rawMaxLoanToValue: market.params?.max_loan_to_value,
+        calculatedMaxLeverage: maxLeverage,
+        marketDenom: market.asset.denom,
+      })
 
       leverageResults[market.asset.denom] = maxLeverage
     } catch (error) {
       console.warn(`Error calculating leverage for ${market.asset.symbol}:`, error)
-      leverageResults[market.asset.denom] = 5 // Fallback to 5x
+      leverageResults[market.asset.denom] = 1 // Fallback to 1x
     }
   })
 
@@ -32,10 +40,21 @@ export function getMaxLeverageForDenom(
   isWasmReady: boolean,
 ): number {
   const market = markets.find((m) => m.asset.denom === debtDenom)
-  if (!market) return 5 // Fallback to 5x
+  if (!market) return 1 // Fallback to 1x
 
   const maxLTV = parseFloat(market.params?.max_loan_to_value || '0.8')
-  return maxLTV > 0 ? Math.min(1 / (1 - maxLTV), 10) : 5
+  const calculatedMaxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) : 1
+
+  // Console log getMaxLeverageForDenom values
+  console.log(`🎯 getMaxLeverageForDenom ${market.asset.symbol}:`, {
+    debtDenom,
+    maxLTV,
+    rawMaxLoanToValue: market.params?.max_loan_to_value,
+    calculatedMaxLeverage,
+    marketDenom: market.asset.denom,
+  })
+
+  return calculatedMaxLeverage
 }
 
 /**
@@ -47,8 +66,5 @@ export function getMaxLeverageForStrategy(
   isWasmReady: boolean,
 ): number {
   // Use simple LTV calculation
-  const ltvLeverage = getMaxLeverageForDenom(strategy.debtAsset.denom, markets, isWasmReady)
-
-  // Return LTV-based leverage, capped at reasonable maximum
-  return Math.min(ltvLeverage, 50)
+  return getMaxLeverageForDenom(strategy.debtAsset.denom, markets, isWasmReady)
 }

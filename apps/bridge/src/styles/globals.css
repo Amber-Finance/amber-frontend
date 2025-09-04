@@ -239,7 +239,10 @@ body {
     rgba(255, 115, 0, 0.08) 40%,
     transparent 80%
   );
-  border: 1px solid rgba(255, 115, 0, 0.2);
+  animation: navGlow 2s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 20px rgba(255, 115, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dark .nav-glow-active {
@@ -249,7 +252,36 @@ body {
     rgba(255, 120, 0, 0.12) 40%,
     transparent 80%
   );
-  border: 1px solid rgba(255, 120, 0, 0.3);
+  animation: navGlowDark 2s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 20px rgba(255, 120, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes navGlow {
+  0% {
+    box-shadow:
+      0 0 20px rgba(255, 115, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow:
+      0 0 30px rgba(255, 115, 0, 0.2),
+      0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes navGlowDark {
+  0% {
+    box-shadow:
+      0 0 20px rgba(255, 120, 0, 0.15),
+      0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 30px rgba(255, 120, 0, 0.25),
+      0 6px 16px rgba(0, 0, 0, 0.4);
+  }
 }
 
 input[type='number']::-webkit-inner-spin-button,

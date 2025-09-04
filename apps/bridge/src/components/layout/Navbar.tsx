@@ -51,9 +51,9 @@ export function Navbar() {
 
   return (
     <>
-      <header className='fixed left-0 right-0 top-0 z-50 bg-background/50 backdrop-blur-md'>
-        <nav className='mx-auto max-w-screen-2xl px-4 py-2 sm:px-6 lg:px-8'>
-          <div className='flex items-center justify-between py-1'>
+      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50'>
+        <nav className='px-4 py-2 mx-auto max-w-screen-2xl sm:px-6 lg:px-8'>
+          <div className='flex justify-between items-center py-1'>
             <Link href='/' className='group flex items-center space-x-2'>
               <div className='relative'>
                 <Image
@@ -79,7 +79,7 @@ export function Navbar() {
               </div>
             </Link>
 
-            <div className='hidden items-center justify-center rounded-full border border-border/80 bg-card/50 p-1 md:flex'>
+            <div className='hidden justify-center gap-2 items-center p-1 rounded-full md:flex'>
               {navigation.map((item, idx) => {
                 const isActive =
                   pathname === item.href || (item.name === 'Bridge' && pathname === '/')
@@ -89,10 +89,10 @@ export function Navbar() {
                     key={`nav-${item.name}-${idx}`}
                     href={item.href}
                     className={cn(
-                      'relative flex items-center rounded-full px-6 py-2 text-base tracking-wide transition-all duration-300',
+                      'relative tracking-wide flex items-center px-4 py-2 text-base rounded-full transition-all duration-500 ease-in-out',
                       isActive
-                        ? 'nav-glow-active text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
+                        ? 'text-foreground nav-glow-active scale-105 shadow-lg'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/20',
                     )}
                   >
                     {item.name}

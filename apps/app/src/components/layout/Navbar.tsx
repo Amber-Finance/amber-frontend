@@ -74,7 +74,7 @@ export function Navbar() {
               </div>
             </Link>
 
-            <div className='hidden justify-center items-center p-1 rounded-full border md:flex bg-card/50 border-border/80'>
+            <div className='hidden justify-center gap-2 items-center p-1 rounded-full md:flex'>
               {navigation.map((item, idx) => {
                 const isActive =
                   item.href === '/'
@@ -85,11 +85,10 @@ export function Navbar() {
                     key={`nav-${item.name}-${idx}`}
                     href={item.href}
                     className={cn(
-                      'relative tracking-wide flex items-center px-6 py-2 text-base rounded-full transition-all duration-300',
-                      'border border-transparent',
+                      'relative tracking-wide flex items-center px-4 py-2 text-base rounded-full transition-all duration-500 ease-in-out',
                       isActive
-                        ? 'text-foreground nav-glow-active border-border'
-                        : 'text-muted-foreground hover:text-foreground',
+                        ? 'text-foreground nav-glow-active scale-105 shadow-lg'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/20',
                     )}
                   >
                     {item.name}

@@ -20,7 +20,7 @@ export function useMaxBtcApy(): {
   error: Error | null
 } {
   const { data, error, isLoading } = useSWR<MaxBtcApiResponse>(
-    'https://api.amberfi.io/api/maxbtc',
+    'https://api.amberfi.io/api/btc',
     fetcher,
     {
       refreshInterval: 60000, // Refresh every minute

@@ -12,8 +12,7 @@ export const calculateMaxLeverage = (maxLTV: number): number => {
   return 1 / (1 - maxLTV)
 }
 
-export const calculateCappedMaxLeverage = (maxLeverage: number, cap: number = 10): number =>
-  Math.min(maxLeverage, cap)
+// Removed: calculateCappedMaxLeverage - now using pure 1/(1-LTV) calculation without caps
 
 export const calculateBorrowCapacity = (totalCollateral: string, totalDebt: string): BigNumber =>
   BigNumber.max(0, new BigNumber(totalCollateral).minus(totalDebt))
@@ -63,14 +62,12 @@ export const calculateStrategyMetrics = (
   const debtBorrowRate = safeParseNumber()(market.metrics.borrow_rate || '0')
   const baseNetApy = calculateBaseNetApy(maxBtcSupplyApy, debtBorrowRate)
   const maxLeverage = calculateMaxLeverage(maxLTV)
-  const cappedMaxLeverage = calculateCappedMaxLeverage(maxLeverage)
 
   return {
     debtBorrowRate,
     baseNetApy,
     maxLeverage,
-    cappedMaxLeverage,
-    maxROE: baseNetApy * cappedMaxLeverage,
+    maxROE: baseNetApy * maxLeverage,
   }
 }
 
@@ -92,7 +89,7 @@ export const createStrategyData = (
   isPositive: metrics.baseNetApy >= 0,
   hasPoints: false,
   rewards: '-',
-  multiplier: metrics.cappedMaxLeverage,
+  multiplier: metrics.maxLeverage,
   isCorrelated: market.asset.symbol.includes('BTC') || market.asset.symbol.includes('btc'),
   liquidity: borrowCapacityUsd,
   liquidityDisplay: formatLargeCurrency(borrowCapacityUsd),
@@ -102,7 +99,7 @@ export const createStrategyData = (
   netApy: metrics.baseNetApy,
   ltv: safeParseNumber()(market.params.max_loan_to_value || '0.8'),
   liquidationThreshold: safeParseNumber()(market.params.liquidation_threshold || '0.85'),
-  maxLeverage: metrics.cappedMaxLeverage,
+  maxLeverage: metrics.maxLeverage,
   maxBorrowCapacityUsd: borrowCapacityUsd,
   maxPositionSizeUsd: maxPositionUsd,
   collateralStakingApy: 0,
@@ -114,15 +111,31 @@ export const createStrategyData = (
 
 // Higher-order function for strategy generation
 export const createStrategyGenerator =
-  (collateralToken: any, tokens: any[], effectiveMaxBtcApy: number) =>
+  (collateralToken: any, tokens: any[], effectiveMaxBtcApy: number, markets: MarketData[]) =>
   (market: MarketData): StrategyData => {
     const tokenConfig = findTokenConfig(tokens, market)
     const collateralAsset = createAssetInfo(collateralToken)
     const debtAsset = createAssetInfo(market.asset, market, tokenConfig)
 
+    // Find the collateral market to get its LTV (this is what determines max leverage)
+    const collateralMarket = markets.find((m) => m.asset.denom === collateralToken.denom)
+
     const maxBtcSupplyApy = effectiveMaxBtcApy / 100
-    const maxLTV = safeParseNumber()(market.params.max_loan_to_value || '0.8')
+    // Use COLLATERAL asset's LTV for max leverage calculation, not debt asset's LTV
+    const maxLTV = safeParseNumber()(collateralMarket?.params?.max_loan_to_value || '0.8')
     const liquidationThreshold = safeParseNumber()(market.params.liquidation_threshold || '0.85')
+
+    // Console log strategy maxLTV values
+    console.log(`🔍 Strategy ${collateralAsset.symbol}-${debtAsset.symbol}:`, {
+      maxLTV,
+      collateralRawMaxLoanToValue: collateralMarket?.params?.max_loan_to_value,
+      debtRawMaxLoanToValue: market.params.max_loan_to_value,
+      calculatedMaxLeverage: maxLTV > 0 ? 1 / (1 - maxLTV) : 1,
+      collateralSymbol: collateralAsset.symbol,
+      collateralDenom: collateralToken.denom,
+      debtSymbol: market.asset.symbol,
+      debtDenom: market.asset.denom,
+    })
 
     const metrics = calculateStrategyMetrics(market, maxBtcSupplyApy, maxLTV, liquidationThreshold)
 
@@ -170,7 +183,12 @@ export const generateStrategies = (
   effectiveMaxBtcApy: number,
 ): StrategyData[] => {
   const debtMarkets = filterDebtMarkets(markets, collateralToken.symbol)
-  const strategyGenerator = createStrategyGenerator(collateralToken, tokens, effectiveMaxBtcApy)
+  const strategyGenerator = createStrategyGenerator(
+    collateralToken,
+    tokens,
+    effectiveMaxBtcApy,
+    markets,
+  )
 
   return debtMarkets.map(strategyGenerator)
 }
