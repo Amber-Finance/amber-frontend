@@ -5,15 +5,15 @@ const BRIDGE_CONFIG = {
   siteName: 'Amber Finance | Bridge',
   baseUrl: 'https://bridge.amberfi.io',
   twitterHandle: '@amberfi_io',
-  bannerImage: 'https://bridge.amberfi.io/twitter-banner/bridge.jpg',
+  bannerImage: 'https://bridge.amberfi.io/x-banner/bridge.jpg',
   locale: 'en_US',
 }
 
 // Bridge-specific social media image
 const BRIDGE_IMAGE = {
   url: BRIDGE_CONFIG.bannerImage,
-  width: 1280,
-  height: 720,
+  width: 1032,
+  height: 540,
   alt: 'Amber Finance | Bridge',
 }
 

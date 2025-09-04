@@ -66,25 +66,21 @@ const ASSET_CATEGORIES = {
     neutron: ['images/neutron/neutron-light.svg', 'images/neutron/neutron-dark.svg'],
     solv: ['images/solv/solvLight.png', 'images/solv/solvDark.png'],
   },
-  'social-media': [
-    'twitter-profile/banner.png',
-    'twitter-profile/avatar.png',
-    'twitter-profile/profile.jpg',
+  'social-media': ['x-profile/banner.png', 'x-profile/avatar.png', 'x-profile/profile.jpg'],
+  'x-banners': [
+    'x-banner/dafault.png',
+    'x-banner/eBTC.svg',
+    'x-banner/LBTC.png',
+    'x-banner/solvBTC.png',
+    'x-banner/uniBTC.png',
+    'x-banner/WBTC.png',
   ],
-  'twitter-banners': [
-    'twitter-banner/dafault.png',
-    'twitter-banner/eBTC.svg',
-    'twitter-banner/LBTC.png',
-    'twitter-banner/solvBTC.png',
-    'twitter-banner/uniBTC.png',
-    'twitter-banner/WBTC.png',
-  ],
-  'twitter-banner-deposits': [
-    'twitter-banner/deposit/eBTC.svg',
-    'twitter-banner/deposit/LBTC.png',
-    'twitter-banner/deposit/solvBTC.png',
-    'twitter-banner/deposit/uniBTC.png',
-    'twitter-banner/deposit/WBTC.png',
+  'x-banner-deposits': [
+    'x-banner/deposit/eBTC.svg',
+    'x-banner/deposit/LBTC.png',
+    'x-banner/deposit/solvBTC.png',
+    'x-banner/deposit/uniBTC.png',
+    'x-banner/deposit/WBTC.png',
   ],
   'additional-assets': [
     'images/Baby-Symbol-Mint.png',
@@ -156,8 +152,8 @@ All Amber Finance brand assets are available under a Creative Commons Attributio
 - \`protocols-infrastructure/\`: Layer 1 and infrastructure protocol logos
 - \`partner-logos/\`: Partner and protocol logos (organized by partner)
 - \`social-media/\`: Social media assets (banners, avatars)
-- \`twitter-banners/\`: Twitter banner variations
-- \`twitter-banner-deposits/\`: Deposit-specific banner variations
+- \`x-banners/\`: Twitter banner variations
+- \`x-banner-deposits/\`: Deposit-specific banner variations
 - \`additional-assets/\`: Supplementary brand assets
 - \`favicons/\`: Favicon and web app manifest files
 - \`fonts/\`: Brand font files
