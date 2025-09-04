@@ -28,7 +28,7 @@ export const getUserBalance = (
 }
 
 export const getAvailableDepositCapacity = () => {
-  return new BigNumber('100000000000') // 1000 wBTC.axl available capacity
+  return new BigNumber('100000000000') // 1000 WBTC.axl available capacity
 }
 
 export const calculateMaxLeverage = (

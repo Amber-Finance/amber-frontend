@@ -30,7 +30,6 @@ export function FirstBentoSection({ className }: { className?: string }) {
   const div1Ref = useRef<HTMLDivElement>(null)
   const div2Ref = useRef<HTMLDivElement>(null)
   const div3Ref = useRef<HTMLDivElement>(null)
-  const div4Ref = useRef<HTMLDivElement>(null)
   const div5Ref = useRef<HTMLDivElement>(null)
   const div6Ref = useRef<HTMLDivElement>(null)
   const div7Ref = useRef<HTMLDivElement>(null)
@@ -65,9 +64,6 @@ export function FirstBentoSection({ className }: { className?: string }) {
           <Circle ref={div3Ref}>
             <Icons.solvBTC />
           </Circle>
-          <Circle ref={div4Ref}>
-            <Icons.pumpBTC />
-          </Circle>
           <Circle ref={div5Ref}>
             <Icons.lbtc />
           </Circle>
@@ -81,7 +77,6 @@ export function FirstBentoSection({ className }: { className?: string }) {
       <AnimatedBeam containerRef={containerRef} fromRef={div1Ref} toRef={div7Ref} duration={3} />
       <AnimatedBeam containerRef={containerRef} fromRef={div2Ref} toRef={div7Ref} duration={3} />
       <AnimatedBeam containerRef={containerRef} fromRef={div3Ref} toRef={div7Ref} duration={3} />
-      <AnimatedBeam containerRef={containerRef} fromRef={div4Ref} toRef={div7Ref} duration={3} />
       <AnimatedBeam containerRef={containerRef} fromRef={div5Ref} toRef={div7Ref} duration={3} />
       <AnimatedBeam containerRef={containerRef} fromRef={div6Ref} toRef={div7Ref} duration={3} />
       <AnimatedBeam containerRef={containerRef} fromRef={div7Ref} toRef={div8Ref} duration={3} />
@@ -107,9 +102,6 @@ const Icons = {
   ),
   solvBTC: () => (
     <Image src='/images/solvBTC.svg' alt='solvBTC' width={24} height={24} className='w-6 h-6' />
-  ),
-  pumpBTC: () => (
-    <Image src='/images/pumpBTC.svg' alt='pumpBTC' width={24} height={24} className='w-6 h-6' />
   ),
   lbtc: () => (
     <Image src='/images/LBTC.svg' alt='LBTC' width={24} height={24} className='w-6 h-6' />

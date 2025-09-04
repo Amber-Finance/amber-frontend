@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Widget } from '@skip-go/widget'
 
@@ -29,6 +29,19 @@ export function SkipPage() {
   const { resolvedTheme } = useTheme()
   const [queryParamsString, setQueryParamsString] = useState<string>()
 
+  // Track the current source asset to detect changes
+  const [currentSourceAsset, setCurrentSourceAsset] = useState<{
+    chainId?: string
+    denom?: string
+  }>({})
+
+  // Force reset amounts when source changes
+  const [shouldResetAmounts, setShouldResetAmounts] = useState(false)
+
+  // Add a ref to prevent rapid updates
+  const lastUpdateRef = useRef<number>(0)
+  const updateThrottleMs = 100
+
   // State for auto-selected route
   const [autoSelectedRoute, setAutoSelectedRoute] = useState<{
     srcChainId?: string
@@ -38,6 +51,9 @@ export function SkipPage() {
   } | null>(null)
 
   const defaultRouteConfig = useMemo(() => {
+    // Force reset amounts to 0 when source changes
+    const resetAmounts = shouldResetAmounts ? { amountIn: 0, amountOut: 0 } : {}
+
     // If we have an auto-selected route, use that
     if (autoSelectedRoute) {
       return {
@@ -46,10 +62,11 @@ export function SkipPage() {
         destChainId: autoSelectedRoute.destChainId,
         destAssetDenom: autoSelectedRoute.destAssetDenom,
         destLocked: true, // Lock destination when auto-selecting
+        ...resetAmounts,
       }
     }
 
-    // If we have URL params, use them
+    // If we have URL params, use them (only for initial load)
     if (defaultRoute) {
       const shouldLockDest = Boolean(defaultRoute.destChainId && defaultRoute.destAssetDenom)
       return {
@@ -58,12 +75,17 @@ export function SkipPage() {
         destChainId: defaultRoute.destChainId || preselectedIfEmpty.destChainId,
         destAssetDenom: defaultRoute.destAssetDenom || preselectedIfEmpty.destAssetDenom,
         destLocked: shouldLockDest,
+        amountIn: shouldResetAmounts ? 0 : defaultRoute.amountIn,
+        amountOut: shouldResetAmounts ? 0 : defaultRoute.amountOut,
       }
     }
 
     // Otherwise, use defaults
-    return { ...preselectedIfEmpty }
-  }, [defaultRoute, autoSelectedRoute])
+    return {
+      ...preselectedIfEmpty,
+      ...resetAmounts,
+    }
+  }, [defaultRoute, autoSelectedRoute, shouldResetAmounts])
 
   const lastAutoSelectionRef = useRef<{
     type: 'source' | 'destination'
@@ -77,6 +99,33 @@ export function SkipPage() {
     destChainId?: string
     destAssetDenom?: string
   }>({})
+
+  // Hide Solana connect option inside the Skip widget wallet modal
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const ROOT_SELECTOR = '[data-root-id="amber-bridge"]'
+
+    function hideSolanaConnectButtons() {
+      const roots = document.querySelectorAll(ROOT_SELECTOR)
+      roots.forEach((root) => {
+        // Look for any button elements rendered by the wallet connect UI that contain "Solana"
+        const buttons = root.querySelectorAll('button')
+        buttons.forEach((button) => {
+          const text = (button.textContent || '').trim()
+          if (/solana/i.test(text)) {
+            ;(button as HTMLElement).style.display = 'none'
+          }
+        })
+      })
+    }
+
+    const observer = new MutationObserver(() => hideSolanaConnectButtons())
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true })
+    hideSolanaConnectButtons()
+
+    return () => observer.disconnect()
+  }, [])
 
   // Define allowed asset pairs. Populate this with your desired pairs.
   // Each entry restricts bridging from a specific source asset to a specific destination asset.
@@ -142,20 +191,20 @@ export function SkipPage() {
       },
     },
     // pumpBTC
-    {
-      source: {
-        chainId: 'neutron-1',
-        denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
-      },
-      destination: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
-    },
-    {
-      source: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
-      destination: {
-        chainId: 'neutron-1',
-        denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
-      },
-    },
+    // {
+    //   source: {
+    //     chainId: 'neutron-1',
+    //     denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
+    //   },
+    //   destination: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
+    // },
+    // {
+    //   source: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
+    //   destination: {
+    //     chainId: 'neutron-1',
+    //     denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
+    //   },
+    // },
     // uniBTC
     {
       source: {
@@ -288,12 +337,45 @@ export function SkipPage() {
     amountIn?: string
     amountOut?: string
   }) => {
+    // Throttle updates to prevent infinite loops
+    const now = Date.now()
+    if (now - lastUpdateRef.current < updateThrottleMs) {
+      return
+    }
+    lastUpdateRef.current = now
+
     // Track latest selection state for other callbacks
     currentSelectionRef.current = {
       srcChainId: props?.srcChainId,
       srcAssetDenom: props?.srcAssetDenom,
       destChainId: props?.destChainId,
       destAssetDenom: props?.destAssetDenom,
+    }
+
+    // Check if source asset has changed
+    const sourceAssetChanged =
+      currentSourceAsset.chainId !== props?.srcChainId ||
+      currentSourceAsset.denom !== props?.srcAssetDenom
+
+    // Update current source asset tracking only if it actually changed
+    if (sourceAssetChanged) {
+      setCurrentSourceAsset({
+        chainId: props?.srcChainId,
+        denom: props?.srcAssetDenom,
+      })
+
+      // Clear auto-selected route when source changes
+      if (autoSelectedRoute) {
+        setAutoSelectedRoute(null)
+      }
+
+      // Force reset both amounts when source changes
+      setShouldResetAmounts(true)
+
+      // Reset the flag after a brief delay to allow widget to process the reset
+      setTimeout(() => {
+        setShouldResetAmounts(false)
+      }, 50)
     }
 
     const params = new URLSearchParams({
@@ -370,56 +452,61 @@ export function SkipPage() {
       )}
     >
       <main className='relative flex min-h-[calc(100vh-500px)] flex-col'>
-        {/* Intro Section (mirror @app Hero) */}
-        <section className='overflow-hidden relative px-4 py-10 w-full sm:px-8 sm:py-20'>
-          <div className='flex flex-col gap-8 items-start lg:flex-row lg:items-end lg:gap-12'>
-            <div className='flex flex-col flex-1 gap-6 justify-between'>
-              <div className='space-y-3'>
-                <h1 className='text-3xl leading-tight lg:text-5xl font-funnel'>
-                  Bridge BRTs.
-                  <span className='block'>
-                    <AuroraText>Via Skip:Go</AuroraText>
-                  </span>
-                </h1>
-                <p className='max-w-lg text-sm leading-relaxed sm:text-base text-muted-foreground'>
-                  Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
-                </p>
-              </div>
-            </div>
+        {/* Intro Section (mirror Swap hero copy/center) */}
+        <section className='relative w-full py-8 sm:py-10 px-4'>
+          <div className='flex flex-col items-center gap-4'>
+            <h1 className='text-3xl lg:text-5xl font-funnel leading-tight text-center'>
+              Bridge <AuroraText>Bitcoin Related</AuroraText> Tokens
+            </h1>
+            <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
+              Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
+            </p>
           </div>
         </section>
 
-        <div className='flex flex-col flex-grow justify-center items-center'>
-          <div className='widget-container'>
-            <Widget
-              rootId='amber-bridge'
-              theme={resolvedTheme}
-              endpointOptions={endpointOptions}
-              apiUrl={apiURL}
-              defaultRoute={defaultRouteConfig}
-              onlyTestnet={false}
-              enableAmplitudeAnalytics
-              disableShadowDom
-              onRouteUpdated={onRouteUpdated}
-              onSourceAssetUpdated={onSourceAssetUpdated}
-              onDestinationAssetUpdated={onDestinationAssetUpdated}
-              routeConfig={{
-                experimentalFeatures: ['eureka'],
-              }}
-              settings={{
-                useUnlimitedApproval: true,
-              }}
-              filter={baseAllowedFilter}
-              hideAssetsUnlessWalletTypeConnected={false}
-            />
+        {/* Widget Card wrapper to mirror Swap card */}
+        <div className='w-full max-w-lg mx-auto pb-16 px-4'>
+          <div className='bg-card rounded-2xl shadow-xl border border-border/30 py-2 min-h-[295px]'>
+            <div className='sm:py-2 px-2'>
+              <div className='widget-container'>
+                <Widget
+                  rootId='amber-bridge'
+                  theme={resolvedTheme}
+                  endpointOptions={endpointOptions}
+                  apiUrl={apiURL}
+                  defaultRoute={defaultRouteConfig}
+                  onlyTestnet={false}
+                  enableAmplitudeAnalytics
+                  disableShadowDom
+                  onRouteUpdated={onRouteUpdated}
+                  onSourceAssetUpdated={onSourceAssetUpdated}
+                  onDestinationAssetUpdated={onDestinationAssetUpdated}
+                  routeConfig={{
+                    experimentalFeatures: ['eureka'],
+                  }}
+                  settings={{
+                    useUnlimitedApproval: true,
+                  }}
+                  filter={baseAllowedFilter}
+                  hideAssetsUnlessWalletTypeConnected={false}
+                />
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className='hidden flex-row justify-end items-center px-8 pt-24 w-full md:flex'>
-          <p
-            className={`text-center text-[13px] opacity-50 ${resolvedTheme === 'dark' ? 'text-white' : 'text-black'}`}
-          >
-            <u>bridge.amberfi.io</u> {' is powered by Cosmos Hub, IBC Eureka & Skip:Go'}
+        <div className='w-full max-w-lg mx-auto p-4'>
+          <p className='sm:text-base max-w-md text-center text-xs text-muted-foreground'>
+            If you hold your BRTs on any other chain than Ethereum or Neutron, you can bridge them
+            via the official{' '}
+            <a
+              href='https://go.skip.build'
+              className='text-amber-500 underline hover:no-underline'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Skip:Go bridge UI
+            </a>
+            .
           </p>
         </div>
       </main>

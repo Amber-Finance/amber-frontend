@@ -50,6 +50,10 @@ const tokens = [
     isLST: true,
     protocol: 'Lombard Finance',
     brandColor: '#22C55E', // Lombard green (vibrant green)
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
+    },
   },
   {
     chainId: 'neutron-1',
@@ -63,6 +67,10 @@ const tokens = [
     isLST: true,
     protocol: 'Solv Protocol',
     brandColor: '#EAB308', // Solv yellow
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x7a56e1c57c7475ccf742a1832b028f0456652f97',
+    },
   },
   {
     chainId: 'neutron-1',
@@ -102,11 +110,15 @@ const tokens = [
     isLST: true,
     protocol: 'Bedrock',
     brandColor: '#A855F7', // Bedrock purple (slightly different from Solv)
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568',
+    },
   },
   {
     chainId: 'neutron-1',
     denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-    symbol: 'wBTC',
+    symbol: 'WBTC',
     icon: '/images/WBTC.svg',
     description: 'Wrapped Bitcoin (Eureka)',
     protocolIconLight: '/images/eureka/eurekaLight.svg',
@@ -115,6 +127,10 @@ const tokens = [
     isLST: true,
     protocol: 'Eureka',
     brandColor: '#F97316', // Eureka orange (classic Bitcoin orange)
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    },
   },
 ]
 export default tokens

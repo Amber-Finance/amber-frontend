@@ -26,15 +26,15 @@ export default function StrategiesOverview() {
 
   const [strategies, setStrategies] = useState<Strategy[]>([])
 
-  // Use maxBTC (temporarily wBTC.eureka) for supply APY simulation
+  // Use maxBTC (temporarily WBTC.eureka) for supply APY simulation
   const wbtcEurekaToken = useMemo(
     () =>
-      tokens.find((token) => token.symbol === 'wBTC') || {
+      tokens.find((token) => token.symbol === 'WBTC') || {
         chainId: 'neutron-1',
         denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-        symbol: 'wBTC',
+        symbol: 'WBTC',
         icon: '/images/WBTC.svg',
-        description: 'maxBTC (temporarily wBTC.eureka)',
+        description: 'maxBTC (temporarily WBTC.eureka)',
         decimals: 8,
         isLST: true,
         protocol: 'Eureka',
@@ -77,8 +77,8 @@ export default function StrategiesOverview() {
       (market) =>
         market.params.red_bank.borrow_enabled &&
         market.params.credit_manager.whitelisted &&
-        // Include all assets that can be borrowed, but exclude wBTC since it's our collateral
-        market.asset.symbol !== 'wBTC',
+        // Include all assets that can be borrowed, but exclude WBTC since it's our collateral
+        market.asset.symbol !== 'WBTC',
     )
 
     const generatedStrategies = debtMarkets.map((market) => {
@@ -135,9 +135,9 @@ export default function StrategiesOverview() {
       const maxPositionUsd = collateralUsd.plus(maxBorrowUsd)
 
       return {
-        id: `wBTC-${market.asset.symbol}`,
+        id: `WBTC-${market.asset.symbol}`,
         type: 'Leverage Strategy',
-        collateralAsset: wbtcEurekaAsset, // wBTC.eureka is always collateral
+        collateralAsset: wbtcEurekaAsset, // WBTC.eureka is always collateral
         debtAsset: {
           denom: market.asset.denom,
           symbol: market.asset.symbol,
