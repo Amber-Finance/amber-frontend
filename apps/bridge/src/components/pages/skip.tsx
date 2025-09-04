@@ -29,6 +29,19 @@ export function SkipPage() {
   const { resolvedTheme } = useTheme()
   const [queryParamsString, setQueryParamsString] = useState<string>()
 
+  // Track the current source asset to detect changes
+  const [currentSourceAsset, setCurrentSourceAsset] = useState<{
+    chainId?: string
+    denom?: string
+  }>({})
+
+  // Force reset amounts when source changes
+  const [shouldResetAmounts, setShouldResetAmounts] = useState(false)
+
+  // Add a ref to prevent rapid updates
+  const lastUpdateRef = useRef<number>(0)
+  const updateThrottleMs = 100
+
   // State for auto-selected route
   const [autoSelectedRoute, setAutoSelectedRoute] = useState<{
     srcChainId?: string
@@ -38,6 +51,9 @@ export function SkipPage() {
   } | null>(null)
 
   const defaultRouteConfig = useMemo(() => {
+    // Force reset amounts to 0 when source changes
+    const resetAmounts = shouldResetAmounts ? { amountIn: 0, amountOut: 0 } : {}
+
     // If we have an auto-selected route, use that
     if (autoSelectedRoute) {
       return {
@@ -46,10 +62,11 @@ export function SkipPage() {
         destChainId: autoSelectedRoute.destChainId,
         destAssetDenom: autoSelectedRoute.destAssetDenom,
         destLocked: true, // Lock destination when auto-selecting
+        ...resetAmounts,
       }
     }
 
-    // If we have URL params, use them
+    // If we have URL params, use them (only for initial load)
     if (defaultRoute) {
       const shouldLockDest = Boolean(defaultRoute.destChainId && defaultRoute.destAssetDenom)
       return {
@@ -58,12 +75,17 @@ export function SkipPage() {
         destChainId: defaultRoute.destChainId || preselectedIfEmpty.destChainId,
         destAssetDenom: defaultRoute.destAssetDenom || preselectedIfEmpty.destAssetDenom,
         destLocked: shouldLockDest,
+        amountIn: shouldResetAmounts ? 0 : defaultRoute.amountIn,
+        amountOut: shouldResetAmounts ? 0 : defaultRoute.amountOut,
       }
     }
 
     // Otherwise, use defaults
-    return { ...preselectedIfEmpty }
-  }, [defaultRoute, autoSelectedRoute])
+    return {
+      ...preselectedIfEmpty,
+      ...resetAmounts,
+    }
+  }, [defaultRoute, autoSelectedRoute, shouldResetAmounts])
 
   const lastAutoSelectionRef = useRef<{
     type: 'source' | 'destination'
@@ -280,12 +302,45 @@ export function SkipPage() {
     amountIn?: string
     amountOut?: string
   }) => {
+    // Throttle updates to prevent infinite loops
+    const now = Date.now()
+    if (now - lastUpdateRef.current < updateThrottleMs) {
+      return
+    }
+    lastUpdateRef.current = now
+
     // Track latest selection state for other callbacks
     currentSelectionRef.current = {
       srcChainId: props?.srcChainId,
       srcAssetDenom: props?.srcAssetDenom,
       destChainId: props?.destChainId,
       destAssetDenom: props?.destAssetDenom,
+    }
+
+    // Check if source asset has changed
+    const sourceAssetChanged =
+      currentSourceAsset.chainId !== props?.srcChainId ||
+      currentSourceAsset.denom !== props?.srcAssetDenom
+
+    // Update current source asset tracking only if it actually changed
+    if (sourceAssetChanged) {
+      setCurrentSourceAsset({
+        chainId: props?.srcChainId,
+        denom: props?.srcAssetDenom,
+      })
+
+      // Clear auto-selected route when source changes
+      if (autoSelectedRoute) {
+        setAutoSelectedRoute(null)
+      }
+
+      // Force reset both amounts when source changes
+      setShouldResetAmounts(true)
+
+      // Reset the flag after a brief delay to allow widget to process the reset
+      setTimeout(() => {
+        setShouldResetAmounts(false)
+      }, 50)
     }
 
     const params = new URLSearchParams({
