@@ -1,5 +1,6 @@
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
 import { cn } from '@/lib/utils'
+import { formatLargeNumber } from '@/utils/format'
 
 interface ProgressCardProps {
   value: number
@@ -18,14 +19,17 @@ export default function ProgressCard({
   brandColor,
   max = 100,
   min = 0,
-  className = 'size-12 sm:size-16',
+  className = 'size-12 sm:size-18',
 }: ProgressCardProps) {
+  const formattedValue = formatLargeNumber(value)
+
   return (
     <div className='flex-1 flex flex-col items-center gap-2'>
       <AnimatedCircularProgressBar
         max={max}
         min={min}
         value={value}
+        formattedValue={formattedValue}
         gaugePrimaryColor={brandColor}
         gaugeSecondaryColor={`${brandColor}20`}
         className={cn(className, 'text-[8px] sm:text-xs')}
