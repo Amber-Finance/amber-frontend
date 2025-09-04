@@ -78,16 +78,25 @@ const tokens = [
     symbol: 'eBTC',
     icon: '/images/eBTC.svg',
     description: 'Ether.fi Bitcoin',
-    protocolIconLight: '/images/eBTC.svg',
-    protocolIconDark: '/images/eBTC.svg',
+    protocolIconLight: '/images/etherfi.svg',
+    protocolIconDark: '/images/etherfi.svg',
     decimals: 8,
     isLST: true,
     protocol: 'Ether.fi ',
-    brandColor: '#120370', // Ether.fi blue
-    origin: {
-      chainId: '1',
-      tokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
-    },
+    brandColor: '#6366F1', // Ether.fi blue
+  },
+  {
+    chainId: 'neutron-1',
+    denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
+    symbol: 'pumpBTC',
+    icon: '/images/pumpBTC.svg',
+    description: 'Pump Bitcoin',
+    protocolIconLight: '/images/pump.svg',
+    protocolIconDark: '/images/pump.svg',
+    decimals: 8,
+    isLST: true,
+    protocol: 'Pump Protocol',
+    brandColor: '#0891B2', // Pump blue
   },
   {
     chainId: 'neutron-1',
