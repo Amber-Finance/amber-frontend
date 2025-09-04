@@ -20,7 +20,7 @@ export default function StrategyDeployPage() {
   const { markets } = useStore()
 
   useEffect(() => {
-    // Parse strategy from URL params (e.g., ?strategy=wBTC-eBTC)
+    // Parse strategy from URL params (e.g., ?strategy=WBTC-eBTC)
     const strategyId = searchParams.get('strategy')
     if (!strategyId) {
       router.push('/strategies')
@@ -33,11 +33,11 @@ export default function StrategyDeployPage() {
       return
     }
 
-    // Find collateral token (wBTC.eureka has better liquidity than Axelar bridge)
+    // Find collateral token (WBTC.eureka has better liquidity than Axelar bridge)
     const collateralToken = tokens.find((token) => token.symbol === collateralSymbol) || {
       chainId: 'neutron-1',
       denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-      symbol: 'wBTC',
+      symbol: 'WBTC',
       icon: '/images/WBTC.svg',
       description: 'Wrapped Bitcoin (Eureka)',
       decimals: 8,
@@ -60,9 +60,9 @@ export default function StrategyDeployPage() {
       return
     }
 
-    // Use same approach as strategies page - mock values for wBTC.eureka
-    // wBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
-    const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for wBTC.eureka
+    // Use same approach as strategies page - mock values for WBTC.eureka
+    // WBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
+    const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for WBTC.eureka
 
     // Total supply APY (no staking - just supply APY)
     const collateralTotalApy = collateralSupplyApy
