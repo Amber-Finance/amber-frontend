@@ -4,11 +4,11 @@ import tokens from '@/config/tokens'
 
 // Token to share image mapping
 const TOKEN_SHARE_IMAGES = {
-  LBTC: 'https://app.amberfi.io/twitter-banner/deposit/LBTC.png',
-  solvBTC: 'https://app.amberfi.io/twitter-banner/deposit/solvBTC.png',
-  eBTC: 'https://app.amberfi.io/twitter-banner/deposit/eBTC.svg',
-  WBTC: 'https://app.amberfi.io/twitter-banner/deposit/wBTC.png',
-  uniBTC: 'https://app.amberfi.io/twitter-banner/deposit/uniBTC.png',
+  LBTC: 'https://app.amberfi.io/api/banner/LBTC',
+  solvBTC: 'https://app.amberfi.io/api/banner/solvBTC',
+  eBTC: 'https://app.amberfi.io/api/banner/eBTC',
+  WBTC: 'https://app.amberfi.io/api/banner/WBTC',
+  uniBTC: 'https://app.amberfi.io/api/banner/uniBTC',
 } as const
 
 export async function generateDepositMetadata(tokenSymbol: string | null): Promise<Metadata> {
