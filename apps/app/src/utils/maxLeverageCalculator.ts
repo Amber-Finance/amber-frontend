@@ -18,7 +18,7 @@ function generateCacheKey(markets: Market[]): string {
 
 /**
  * Calculates maximum leverage for all available denoms using a fake credit account
- * with 1 wBTC Eureka as collateral
+ * with 1 WBTC Eureka as collateral
  */
 export function maxLeverageCalculator(
   markets: Market[],
@@ -43,13 +43,13 @@ export function maxLeverageCalculator(
       return {}
     }
 
-    // Create fake credit account with 1 wBTC Eureka supply (8 decimals)
-    const oneWBTCMicro = (1 * 100_000_000).toString() // 1 wBTC = 100,000,000 micro units (8 decimals)
-    const wBTCEurekaDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // wBTC.eureka denom
+    // Create fake credit account with 1 WBTC Eureka supply (8 decimals)
+    const oneWBTCMicro = (1 * 100_000_000).toString() // 1 WBTC = 100,000,000 micro units (8 decimals)
+    const WBTCEurekaDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // WBTC.eureka denom
 
-    // Add 1 wBTC Eureka as collateral
+    // Add 1 WBTC Eureka as collateral
     testHealthComputer.positions.lends.push({
-      denom: wBTCEurekaDenom,
+      denom: WBTCEurekaDenom,
       amount: oneWBTCMicro,
     })
 
@@ -69,7 +69,7 @@ export function maxLeverageCalculator(
           const decimals = market.asset.decimals || 6
           const maxBorrowNormal = maxBorrowAmount.shiftedBy(-decimals).toNumber()
 
-          // Calculate max leverage: 1 + (maxBorrow / 1 wBTC)
+          // Calculate max leverage: 1 + (maxBorrow / 1 WBTC)
           const maxLeverage = 1 + maxBorrowNormal
 
           leverageResults[market.asset.denom] = maxLeverage

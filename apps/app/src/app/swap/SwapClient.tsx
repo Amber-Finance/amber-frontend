@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import React, { useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -208,7 +207,7 @@ export default function SwapClient() {
             Swap <AuroraText>Bitcoin Assets</AuroraText>
           </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-            Trade between BRTs, wBTC, and wBTC.axl with minimal slippage and competitive rates
+            Trade between BRTs, WBTC, and WBTC.axl with minimal slippage and competitive rates
           </p>
         </div>
       </div>

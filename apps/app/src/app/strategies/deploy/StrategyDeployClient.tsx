@@ -121,7 +121,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             denom: params.borrowDenom,
             amount: formattedBorrowAmount,
           },
-          denom_out: params.swapDestDenom, // wBTC.eureka collateral
+          denom_out: params.swapDestDenom, // WBTC.eureka collateral
           slippage: params.swapRoute.slippage || '0.5',
           route: params.swapRoute,
         },
@@ -349,12 +349,12 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
         .integerValue(BigNumber.ROUND_DOWN)
         .toString()
 
-      // Fetch swap route from debt asset back to wBTC.eureka (Eureka bridge has better liquidity)
+      // Fetch swap route from debt asset back to WBTC.eureka (Eureka bridge has better liquidity)
       const routeResult = await route({
         amount_in: formattedBorrowAmount,
         source_asset_denom: strategy.debtAsset.denom,
         source_asset_chain_id: chainConfig.id,
-        dest_asset_denom: strategy.collateralAsset.denom, // wBTC.eureka
+        dest_asset_denom: strategy.collateralAsset.denom, // WBTC.eureka
         dest_asset_chain_id: chainConfig.id,
         smart_relay: true,
         experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
@@ -381,7 +381,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
         borrowDenom: strategy.debtAsset.denom,
         borrowDecimals: strategy.debtAsset.decimals || 6,
         swapRoute: routeResult,
-        swapDestDenom: strategy.collateralAsset.denom, // wBTC.eureka
+        swapDestDenom: strategy.collateralAsset.denom, // WBTC.eureka
         multiplier,
         strategy,
         accountId: isModifying ? modifyingAccountId || undefined : undefined,

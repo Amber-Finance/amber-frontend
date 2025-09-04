@@ -60,13 +60,13 @@ export default function StrategiesOverview() {
     }
   }, [markets])
 
-  // Use wBTC.eureka for looping supply (better liquidity than Axelar bridge)
+  // Use WBTC.eureka for looping supply (better liquidity than Axelar bridge)
   const wbtcEurekaToken = useMemo(
     () =>
-      tokens.find((token) => token.symbol === 'wBTC') || {
+      tokens.find((token) => token.symbol === 'WBTC') || {
         chainId: 'neutron-1',
         denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-        symbol: 'wBTC',
+        symbol: 'WBTC',
         icon: '/images/WBTC.svg',
         description: 'Wrapped Bitcoin (Eureka)',
         decimals: 8,
@@ -97,7 +97,7 @@ export default function StrategiesOverview() {
     ],
   )
 
-  // Generate strategies: wBTC.eureka as collateral, all available tokens as debt assets
+  // Generate strategies: WBTC.eureka as collateral, all available tokens as debt assets
   useEffect(() => {
     if (!markets || markets.length === 0) {
       setStrategies([])
@@ -105,14 +105,14 @@ export default function StrategiesOverview() {
     }
 
     // Filter markets that can be used as debt assets (borrow_enabled and whitelisted)
-    // These will be all available tokens that we borrow against wBTC.eureka collateral
+    // These will be all available tokens that we borrow against WBTC.eureka collateral
     // This creates strategy cards for all deposit options
     const debtMarkets = markets.filter(
       (market) =>
         market.params.red_bank.borrow_enabled &&
         market.params.credit_manager.whitelisted &&
-        // Include all assets that can be borrowed, but exclude wBTC since it's our collateral
-        market.asset.symbol !== 'wBTC',
+        // Include all assets that can be borrowed, but exclude WBTC since it's our collateral
+        market.asset.symbol !== 'WBTC',
     )
 
     const generatedStrategies = debtMarkets.map((market) => {
@@ -121,9 +121,9 @@ export default function StrategiesOverview() {
         (token) => token.denom === market.asset.denom || token.symbol === market.asset.symbol,
       )
 
-      // Calculate base APY (1x leverage): wBTC.eureka Supply APY - Debt Asset Borrow APY
-      // wBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
-      const wbtcEurekaSupplyRate = 0.065 // 6.5% APY mock supply rate for wBTC.eureka
+      // Calculate base APY (1x leverage): WBTC.eureka Supply APY - Debt Asset Borrow APY
+      // WBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
+      const wbtcEurekaSupplyRate = 0.065 // 6.5% APY mock supply rate for WBTC.eureka
 
       const debtBorrowRate = parseFloat(market.metrics.borrow_rate || '0')
 
@@ -131,15 +131,15 @@ export default function StrategiesOverview() {
       const debtAssetStakingApyRaw = getTokenStakingApy(market.asset.symbol)
       const debtAssetStakingApy = debtAssetStakingApyRaw > 0 ? debtAssetStakingApyRaw / 100 : 0 // Convert percentage to decimal, hide if zero
 
-      // For wBTC.eureka collateral, use mock staking APY (since it's not in the API yet)
-      const wbtcEurekaStakingApy = 0.025 // 2.5% mock staking APY for wBTC.eureka
+      // For WBTC.eureka collateral, use mock staking APY (since it's not in the API yet)
+      const wbtcEurekaStakingApy = 0.025 // 2.5% mock staking APY for WBTC.eureka
 
-      // Calculate total supply APY for wBTC.eureka (lending + staking)
+      // Calculate total supply APY for WBTC.eureka (lending + staking)
       const wbtcEurekaTotalSupplyApy = wbtcEurekaSupplyRate + wbtcEurekaStakingApy
 
       // For looping strategy calculation at max leverage:
-      // At 8x leverage: 9 wBTC.eureka supplied, 8 XToken borrowed
-      // APY = 9 × wBTC.eureka(supply + staking) - 8 × XToken(borrow)
+      // At 8x leverage: 9 WBTC.eureka supplied, 8 XToken borrowed
+      // APY = 9 × WBTC.eureka(supply + staking) - 8 × XToken(borrow)
       // Normalized per 1 unit: (leverage + 1) × collateral_apy - leverage × debt_borrow_rate
 
       // Calculate base net APY for 1x leverage (no looping)
@@ -180,9 +180,9 @@ export default function StrategiesOverview() {
       const maxPositionUsd = mockCollateralUsd.plus(maxBorrowUsd)
 
       return {
-        id: `wBTC-${market.asset.symbol}`,
+        id: `WBTC-${market.asset.symbol}`,
         type: 'Leverage Strategy',
-        collateralAsset: wbtcEurekaAsset, // wBTC.eureka is always collateral
+        collateralAsset: wbtcEurekaAsset, // WBTC.eureka is always collateral
         debtAsset: {
           denom: market.asset.denom,
           symbol: market.asset.symbol,
@@ -200,7 +200,7 @@ export default function StrategiesOverview() {
         isCorrelated: market.asset.symbol.includes('BTC') || market.asset.symbol.includes('btc'), // BTC assets are correlated, others may not be
         liquidity: borrowCapacityUsd,
         liquidityDisplay: formatLargeCurrency(borrowCapacityUsd),
-        subText: `Supply wBTC.eureka, borrow ${market.asset.symbol}, and loop for amplified exposure`,
+        subText: `Supply WBTC.eureka, borrow ${market.asset.symbol}, and loop for amplified exposure`,
         supplyApy: wbtcEurekaSupplyRate,
         borrowApy: debtBorrowRate,
         netApy: baseNetApy, // Base APY for 1x leverage

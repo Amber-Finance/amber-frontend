@@ -58,7 +58,7 @@ export function useTokenPreselection(
       if (tokenWithHighestValue) return tokenWithHighestValue
     }
 
-    // Fallback to wBTC
+    // Fallback to WBTC
     return swapTokens.find((token) => token.denom === WBTC_EUREKA_DENOM) || null
   }, [swapTokens, address, walletBalances])
 

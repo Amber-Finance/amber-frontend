@@ -93,7 +93,7 @@ const tokens = [
   {
     chainId: 'neutron-1',
     denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-    symbol: 'wBTC',
+    symbol: 'WBTC',
     icon: '/images/WBTC.svg',
     description: 'Wrapped Bitcoin (Eureka)',
     protocolIconLight: '/images/eureka/eurekaLight.svg',

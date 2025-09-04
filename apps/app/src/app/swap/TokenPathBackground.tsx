@@ -1,5 +1,3 @@
-import React from 'react'
-
 import Image from 'next/image'
 
 const tokens = [
@@ -9,7 +7,7 @@ const tokens = [
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
   { symbol: 'bedrock', icon: '/images/bedrock.svg' },
-  { symbol: 'wBTC.axl', icon: '/images/WBTC.axl.svg' },
+  { symbol: 'WBTC.axl', icon: '/images/WBTC.axl.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
 ]
