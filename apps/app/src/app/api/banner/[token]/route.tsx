@@ -9,7 +9,6 @@ const TOKEN_BASE_IMAGES = {
   solvBTC: '/twitter-banner/deposit/solvBTC.png',
   eBTC: '/twitter-banner/deposit/eBTC.png',
   WBTC: '/twitter-banner/deposit/wBTC.png',
-  pumpBTC: '/twitter-banner/deposit/pumpBTC.png',
   uniBTC: '/twitter-banner/deposit/uniBTC.png',
 } as const
 
