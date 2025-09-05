@@ -88,8 +88,8 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
     }
   }
 
-  const title = `Amber Finance | Deposit ${tokenSymbol}`
-  const description = `Get yield on your ${tokenSymbol}. Preserve value. Generate wealth.`
+  const title = `Amber Finance | Deposit ${token.symbol}`
+  const description = `Get yield on your ${token.symbol}. Preserve value. Generate wealth.`
 
   return {
     title,
@@ -105,7 +105,7 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
           url: shareImage,
           width: 1200,
           height: 630,
-          alt: `${tokenSymbol} deposit yield on Amber`,
+          alt: `${token.symbol} deposit yield on Amber`,
         },
       ],
     },
@@ -118,7 +118,7 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
           url: shareImage,
           width: 1200,
           height: 630,
-          alt: `${tokenSymbol} deposit yield on Amber`,
+          alt: `${token.symbol} deposit yield on Amber`,
         },
       ],
       site: '@amberfi_io',
