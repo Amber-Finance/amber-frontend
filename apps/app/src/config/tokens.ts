@@ -83,7 +83,7 @@ const tokens = [
     decimals: 8,
     isLST: true,
     protocol: 'Ether.fi ',
-    brandColor: '#120370', // Ether.fi blue
+    brandColor: '#6366F1', // Ether.fi blue
     origin: {
       chainId: '1',
       tokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',

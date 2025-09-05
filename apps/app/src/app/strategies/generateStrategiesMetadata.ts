@@ -15,10 +15,10 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
   if (!tokenSymbol) {
     return {
       title: 'Amber Finance | Strategies',
-      description: 'Amplify your BRTs yields with leverage strategies.',
+      description: 'Amplify your BRTs yields with looping strategy on Amber.',
       openGraph: {
         title: 'Amber Finance | Strategies',
-        description: 'Amplify your BRTs yields with leverage strategies.',
+        description: 'Amplify your BRTs yields with looping strategy on Amber.',
         images: [
           {
             url: 'https://docs.amberfi.io/x-banner/strategies.jpg',
@@ -31,7 +31,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
       twitter: {
         card: 'summary_large_image',
         title: 'Amber Finance | Strategies',
-        description: 'Amplify your BRTs yields with leverage strategies.',
+        description: 'Amplify your BRTs yields with looping strategy on Amber.',
         images: [
           {
             url: 'https://docs.amberfi.io/x-banner/strategies.jpg',
@@ -56,10 +56,10 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
   if (!token || !shareImage) {
     return {
       title: 'Amber Finance | Strategies',
-      description: 'Amplify your BRTs yields with leverage strategies.',
+      description: 'Amplify your BRTs yields with looping strategy on Amber.',
       openGraph: {
         title: 'Amber Finance | Strategies',
-        description: 'Amplify your BRTs yields with leverage strategies.',
+        description: 'Amplify your BRTs yields with looping strategy on Amber.',
         images: [
           {
             url: 'https://docs.amberfi.io/x-banner/strategies.jpg',
@@ -72,7 +72,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
       twitter: {
         card: 'summary_large_image',
         title: 'Amber Finance | Strategies',
-        description: 'Amplify your BRTs yields with leverage strategies.',
+        description: 'Amplify your BRTs yields with looping strategy on Amber.',
         images: [
           {
             url: 'https://docs.amberfi.io/x-banner/strategies.jpg',
@@ -88,8 +88,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
   }
 
   const title = `Amber Finance | ${token.symbol} Leverage Strategies`
-  const description = `Amplify your ${token.symbol} yield with leverage strategies.`
-
+  const description = `Amplify your maxBTC yield via the ${token.symbol} looping strategy on Amber.`
   return {
     title,
     description,

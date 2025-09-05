@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest, NextResponse } from 'next/server'
 
+import tokens from '@/config/tokens'
+
 export const runtime = 'edge'
 
 // Token to base image mapping
@@ -14,6 +16,11 @@ const TOKEN_BASE_IMAGES = {
 
 // API endpoint for APY data
 const APY_API_URL = 'https://api.amberfi.io/api/btc'
+
+function getTokenBrandColor(tokenSymbol: string): string {
+  const token = tokens.find((t) => t.symbol === tokenSymbol)
+  return token?.brandColor || '#FF6B35'
+}
 
 export async function GET(
   request: NextRequest,
@@ -33,6 +40,8 @@ export async function GET(
     if (!baseImagePath) {
       return new NextResponse('Banner image not found', { status: 404 })
     }
+
+    const brandColor = getTokenBrandColor(tokenSymbol)
 
     let apyData = null
 
@@ -113,10 +122,10 @@ export async function GET(
                     {
                       fontSize: '120px',
                       fontWeight: '900',
-                      color: '#FF6B35',
+                      color: 'white',
                       lineHeight: '1',
                       letterSpacing: '0.1em',
-                      WebkitTextStroke: '8px #FF6B35',
+                      WebkitTextStroke: '8px white',
                     } as React.CSSProperties
                   }
                 >
@@ -127,9 +136,9 @@ export async function GET(
                     {
                       fontSize: '80px',
                       fontWeight: '900',
-                      color: '#FF6B35',
+                      color: brandColor,
                       lineHeight: '1',
-                      WebkitTextStroke: '5px #FF6B35',
+                      WebkitTextStroke: `5px ${brandColor}`,
                     } as React.CSSProperties
                   }
                 >
