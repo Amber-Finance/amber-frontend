@@ -46,8 +46,12 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
     }
   }
 
-  const token = tokens.find((t) => t.symbol === tokenSymbol)
-  const shareImage = TOKEN_SHARE_IMAGES[tokenSymbol as keyof typeof TOKEN_SHARE_IMAGES]
+  // Case-insensitive token lookup
+  const token = tokens.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase())
+  const validToken = Object.keys(TOKEN_SHARE_IMAGES).find(
+    (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),
+  ) as keyof typeof TOKEN_SHARE_IMAGES
+  const shareImage = validToken ? TOKEN_SHARE_IMAGES[validToken] : undefined
 
   // If token not found or no share image exists, return default deposit metadata
   if (!token || !shareImage) {

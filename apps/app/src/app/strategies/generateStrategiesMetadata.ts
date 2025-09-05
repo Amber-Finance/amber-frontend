@@ -47,10 +47,10 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
   }
 
   const token = tokens.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase())
-  const normalizedTokenSymbol = Object.keys(TOKEN_SHARE_IMAGES).find(
+  const validToken = Object.keys(TOKEN_SHARE_IMAGES).find(
     (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),
   ) as keyof typeof TOKEN_SHARE_IMAGES
-  const shareImage = normalizedTokenSymbol ? TOKEN_SHARE_IMAGES[normalizedTokenSymbol] : undefined
+  const shareImage = validToken ? TOKEN_SHARE_IMAGES[validToken] : undefined
 
   // If token not found or no share image exists, return default strategies metadata
   if (!token || !shareImage) {
