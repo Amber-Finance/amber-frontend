@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest, NextResponse } from 'next/server'
 
+import tokens from '@/config/tokens'
+
 export const runtime = 'edge'
 
 // Token to base image mapping for strategies
@@ -11,6 +13,11 @@ const TOKEN_BASE_IMAGES = {
   WBTC: '/x-banner/strategies/WBTC.png',
   uniBTC: '/x-banner/strategies/uniBTC.png',
 } as const
+
+function getTokenBrandColor(tokenSymbol: string): string {
+  const token = tokens.find((t) => t.symbol === tokenSymbol)
+  return token?.brandColor || '#FF6B35'
+}
 
 export async function GET(
   request: NextRequest,
@@ -38,6 +45,9 @@ export async function GET(
     if (!baseImagePath) {
       return new NextResponse('Banner image not found', { status: 404 })
     }
+
+    // Get the brand color for the token
+    const brandColor = getTokenBrandColor(validToken)
 
     return new ImageResponse(
       (
@@ -106,9 +116,9 @@ export async function GET(
                   {
                     fontSize: '80px',
                     fontWeight: '900',
-                    color: '#FF6B35',
+                    color: brandColor,
                     lineHeight: '1',
-                    WebkitTextStroke: '5px #FF6B35',
+                    WebkitTextStroke: `5px ${brandColor}`,
                   } as React.CSSProperties
                 }
               >
