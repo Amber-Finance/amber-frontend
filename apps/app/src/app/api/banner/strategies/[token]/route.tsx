@@ -14,6 +14,8 @@ const TOKEN_BASE_IMAGES = {
   uniBTC: '/x-banner/strategies/uniBTC.png',
 } as const
 
+const STRATEGIES_API_URL = 'https://api.amberfi.io/api/strategies'
+
 function getTokenBrandColor(tokenSymbol: string): string {
   const token = tokens.find((t) => t.symbol === tokenSymbol)
   return token?.brandColor || '#FF6B35'
@@ -49,6 +51,26 @@ export async function GET(
     // Get the brand color for the token
     const brandColor = getTokenBrandColor(validToken)
 
+    let maxYield = 0
+    try {
+      const response = await fetch(STRATEGIES_API_URL, {
+        next: { revalidate: 60 }, // Cache for 1 minute
+      })
+
+      if (response.ok) {
+        const apiData = await response.json()
+        const tokenKey = validToken?.toLowerCase() as keyof typeof apiData.yields
+
+        if (apiData.yields && apiData.yields[tokenKey]) {
+          maxYield = parseFloat(apiData.yields[tokenKey].max)
+        }
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch strategies yields data for ${tokenSymbol}.`)
+    }
+
+    const showApy = maxYield > 0
+
     return new ImageResponse(
       (
         <div
@@ -76,56 +98,73 @@ export async function GET(
               fontFamily: 'Funnel, system-ui, sans-serif',
             }}
           >
-            {/* UP TO */}
-            <div
-              style={{
-                fontSize: '38px',
-                fontWeight: 'bold',
-                color: 'white',
-                marginBottom: '5px',
-                display: 'flex',
-                letterSpacing: '0.2em',
-              }}
-            >
-              UP TO
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                marginBottom: '5px',
-              }}
-            >
-              <span
-                style={
-                  {
-                    fontSize: '125px',
-                    fontWeight: '900',
-                    color: 'white',
-                    lineHeight: '1',
-                    letterSpacing: '0.1em',
-                    WebkitTextStroke: '8px white',
-                  } as React.CSSProperties
-                }
+            {!showApy && (
+              <div
+                style={{
+                  fontSize: '58px',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  marginBottom: '5px',
+                  display: 'flex',
+                  letterSpacing: '0.2em',
+                }}
               >
-                14.37
-              </span>
-              <span
-                style={
-                  {
-                    fontSize: '80px',
-                    fontWeight: '900',
-                    color: brandColor,
-                    lineHeight: '1',
-                    WebkitTextStroke: `5px ${brandColor}`,
-                  } as React.CSSProperties
-                }
-              >
-                %
-              </span>
-            </div>
+                GET
+              </div>
+            )}
 
+            {showApy && (
+              <div
+                style={{
+                  fontSize: '38px',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  marginBottom: '5px',
+                  display: 'flex',
+                  letterSpacing: '0.2em',
+                }}
+              >
+                UP TO
+              </div>
+            )}
+
+            {showApy && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  marginBottom: '5px',
+                }}
+              >
+                <span
+                  style={
+                    {
+                      fontSize: '125px',
+                      fontWeight: '900',
+                      color: 'white',
+                      lineHeight: '1',
+                      letterSpacing: '0.1em',
+                      WebkitTextStroke: '8px white',
+                    } as React.CSSProperties
+                  }
+                >
+                  {maxYield.toFixed(2)}
+                </span>
+                <span
+                  style={
+                    {
+                      fontSize: '80px',
+                      fontWeight: '900',
+                      color: brandColor,
+                      lineHeight: '1',
+                      WebkitTextStroke: `5px ${brandColor}`,
+                    } as React.CSSProperties
+                  }
+                >
+                  %
+                </span>
+              </div>
+            )}
             <div
               style={{
                 fontSize: '38px',
