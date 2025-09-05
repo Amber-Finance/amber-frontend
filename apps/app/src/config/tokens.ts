@@ -109,7 +109,7 @@ const tokens = [
     decimals: 8,
     isLST: true,
     protocol: 'Bedrock',
-    brandColor: '#A855F7', // Bedrock purple (slightly different from Solv)
+    brandColor: '#b45afa ', // Bedrock purple (slightly different from Solv)
     origin: {
       chainId: '1',
       tokenAddress: '0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568',
