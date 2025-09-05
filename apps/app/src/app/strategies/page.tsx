@@ -5,19 +5,8 @@ import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ strategy?: string }>
-}): Promise<Metadata> {
-  const params = await searchParams
-  // Extract token from strategy parameter (e.g., "maxBTC-LBTC" -> "LBTC")
-  let tokenSymbol = null
-  if (params.strategy) {
-    const lastToken = params.strategy.split('-').pop()
-    tokenSymbol = lastToken || null
-  }
-  return generateStrategiesMetadata(tokenSymbol)
+export async function generateMetadata(): Promise<Metadata> {
+  return generateStrategiesMetadata(null)
 }
 
 export default function StrategiesOverview() {
