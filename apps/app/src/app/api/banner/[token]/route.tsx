@@ -22,8 +22,13 @@ export async function GET(
   try {
     const { token: tokenSymbol } = await params
 
+    // Case-insensitive
+    const validToken = Object.keys(TOKEN_BASE_IMAGES).find(
+      (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),
+    ) as keyof typeof TOKEN_BASE_IMAGES
+
     // Get base image path
-    const baseImagePath = TOKEN_BASE_IMAGES[tokenSymbol as keyof typeof TOKEN_BASE_IMAGES]
+    const baseImagePath = validToken ? TOKEN_BASE_IMAGES[validToken] : undefined
 
     if (!baseImagePath) {
       return new NextResponse('Banner image not found', { status: 404 })
@@ -38,7 +43,7 @@ export async function GET(
 
       if (response.ok) {
         const apiData = await response.json()
-        const tokenKey = tokenSymbol.toLowerCase() as keyof typeof apiData.apys
+        const tokenKey = validToken?.toLowerCase() as keyof typeof apiData.apys
 
         if (apiData.apys && apiData.apys[tokenKey]) {
           const apyValue = parseFloat(apiData.apys[tokenKey])
