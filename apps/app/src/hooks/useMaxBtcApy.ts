@@ -1,8 +1,8 @@
 import useSWR from 'swr'
 
 interface MaxBtcApiResponse {
-  maxBtcData: {
-    apy: number
+  apys: {
+    maxbtc: number
   }
 }
 
@@ -32,7 +32,7 @@ export function useMaxBtcApy(): {
   )
 
   return {
-    apy: data?.maxBtcData?.apy || 0,
+    apy: data?.apys?.maxbtc || 0,
     isLoading,
     error,
   }

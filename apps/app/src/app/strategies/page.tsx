@@ -33,7 +33,7 @@ export default function StrategiesOverview() {
   const { apy: maxBtcApy, error: maxBtcError } = useMaxBtcApy()
 
   // Fallback APY in case API fails
-  const effectiveMaxBtcApy = maxBtcError ? 6.5 : maxBtcApy
+  const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy
 
   // Use maxBTC (temporarily WBTC.eureka) for supply APY simulation
   const wbtcEurekaToken = useMemo(
