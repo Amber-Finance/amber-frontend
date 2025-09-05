@@ -83,7 +83,7 @@ export default function StrategyDeployPage() {
     const netApy = collateralTotalApy - debtBorrowApy
     // Use COLLATERAL asset's LTV for max leverage calculation, not debt asset's LTV
     const maxLTV = parseFloat(collateralMarket.params.max_loan_to_value || '0.8')
-    const maxLeverage = 1 / (1 - maxLTV)
+    const maxLeverage = 1 / (1 - maxLTV) - 1
     const liquidationThreshold = parseFloat(debtMarket.params.liquidation_threshold || '0.85')
 
     // Console log deploy page maxLTV values

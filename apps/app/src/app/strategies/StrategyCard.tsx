@@ -35,7 +35,10 @@ interface StrategyCardProps {
 }
 
 // Pure component for strategy icon display
-const StrategyIcon: React.FC<{ strategy: any; debtColor: string }> = ({ strategy, debtColor }) => (
+const StrategyIcon: React.FC<{ strategy: Strategy; debtColor: string }> = ({
+  strategy,
+  debtColor,
+}) => (
   <div className='relative'>
     {/* Gradient around token icon */}
     <div
@@ -68,7 +71,7 @@ const StrategyIcon: React.FC<{ strategy: any; debtColor: string }> = ({ strategy
 )
 
 // Pure component for strategy title
-const StrategyTitle: React.FC<{ strategy: any }> = ({ strategy }) => (
+const StrategyTitle: React.FC<{ strategy: Strategy }> = ({ strategy }) => (
   <div className='flex flex-col'>
     <h3 className='text-xl font-funnel text-foreground'>
       {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
@@ -83,7 +86,7 @@ const StrategyTitle: React.FC<{ strategy: any }> = ({ strategy }) => (
 const ApyDisplay: React.FC<{
   maxAPY: number
   leverage: string
-  strategy: any
+  strategy: Strategy
   debtColor: string
 }> = ({ maxAPY, leverage, strategy, debtColor }) => (
   <div className='flex justify-center'>

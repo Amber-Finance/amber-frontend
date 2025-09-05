@@ -1,11 +1,12 @@
 import React from 'react'
 
+import { Route } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
 
 // Helper function to get route type
-const getRouteType = (route: any): string => {
+const getRouteType = (route: Route): string => {
   if (!route || typeof route !== 'object') return ''
   const routeKeys = Object.keys(route)
   return routeKeys.length > 0 ? routeKeys[0] : ''
@@ -22,13 +23,13 @@ interface SwapRouteInfoProps {
   amountIn: string
   amountOut: BigNumber
   priceImpact: number
-  fromToken: any
-  toToken: any
+  fromToken: Token
+  toToken: Token
   slippage: number
   isRouteLoading?: boolean
-  route?: any
+  route?: Route
   isDebouncePending?: boolean
-  routeError?: any
+  routeError?: Error
 }
 
 export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({

@@ -1,4 +1,3 @@
-import MillionLint from '@million/lint'
 import type { NextConfig } from 'next'
 import TerserPlugin from 'terser-webpack-plugin'
 
@@ -47,7 +46,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default MillionLint.next({
-  enabled: true,
-  rsc: true,
-})(nextConfig)
+export default nextConfig

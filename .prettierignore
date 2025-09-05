@@ -13,8 +13,6 @@ build/
 # Cache directories
 .turbo/
 **/.turbo/
-.million/
-**/.million/
 
 # Generated files
 *.tsbuildinfo

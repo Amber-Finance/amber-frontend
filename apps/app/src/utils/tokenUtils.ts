@@ -21,53 +21,6 @@ export const calculateUsdValue = (
   return parsedAmount.multipliedBy(parsedPrice).toString()
 }
 
-// Pure function to create token data
-export const createTokenData = (
-  token: any,
-  market: MarketData | undefined,
-  walletBalance: TokenBalance | undefined,
-  isConnected: boolean,
-  chainId: string,
-): TokenData => {
-  const decimals = market?.asset?.decimals ?? token.decimals ?? 8
-  const rawBalance = isConnected && walletBalance?.amount ? Number(walletBalance.amount) : 0
-
-  const adjustedBalance = calculateAdjustedBalance(rawBalance, decimals)
-  const usdValue =
-    isConnected && walletBalance?.amount && market?.price?.price && rawBalance > 0
-      ? calculateUsdValue(walletBalance.amount, market.price.price, decimals)
-      : '0'
-
-  return {
-    symbol: token.symbol,
-    name: token.description,
-    icon: token.icon,
-    balance: adjustedBalance.toString(),
-    rawBalance,
-    price: market?.price?.price ? parseFloat(market.price.price) : 0,
-    denom: token.denom,
-    usdValue,
-    decimals,
-    chainId,
-  }
-}
-
-// Pure function to map tokens with market data
-export const mapTokensWithMarketData = (
-  tokens: any[],
-  markets: MarketData[],
-  walletBalances: TokenBalance[],
-  isConnected: boolean,
-  chainId: string,
-): TokenData[] => {
-  return tokens.map((token) => {
-    const market = markets.find((m) => m.asset.denom === token.denom)
-    const walletBalance = walletBalances.find((b) => b.denom === token.denom)
-
-    return createTokenData(token, market, walletBalance, isConnected, chainId)
-  })
-}
-
 // Pure function to filter tokens with balance
 export const filterTokensWithBalance = (tokens: TokenData[]): TokenData[] =>
   tokens.filter((token) => token.rawBalance > 0)

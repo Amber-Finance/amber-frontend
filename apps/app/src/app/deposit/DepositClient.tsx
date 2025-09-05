@@ -6,12 +6,13 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
-import { ArrowLeft, Coins, Wallet, Zap } from 'lucide-react'
+import { ArrowLeft, Coins, Wallet } from 'lucide-react'
 
-import { BalanceRow, InfoCard, MetricRow, ProgressCard } from '@/components/deposit'
+import { BalanceRow, InfoCard, MetricRow } from '@/components/deposit'
 import { AssetActions } from '@/components/deposit/AssetActions'
 import { DepositForm } from '@/components/deposit/DepositForm'
 import { DepositHeader } from '@/components/deposit/DepositHeader'
+import ProgressCard from '@/components/deposit/ProgressCard'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
@@ -264,8 +265,8 @@ export default function DepositClient() {
                   Get native yield in the form of {token.symbol}.
                 </div>
                 <MetricRow
-                  icon={Zap}
-                  label={`${token.protocol} Yield`}
+                  customIcon={token.icon}
+                  label={'Amber Finance Yield'}
                   value={`~${metrics.protocolApy}`}
                   suffix='%'
                   brandColor={token.brandColor}

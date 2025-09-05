@@ -41,7 +41,7 @@ const processDisplayValue = (value: string, isCurrency: boolean) => {
 
 // Helper function to render subscript notation
 const renderSubscriptNotation = (
-  formatData: any,
+  formatData: FormatMetadata,
   effectivePrefix: string,
   className: string,
   suffix: string,
@@ -120,7 +120,6 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
     return renderSubscriptNotation(formatData, effectivePrefix, className, suffix)
   }
 
-  // Fallback for any unhandled cases
   return (
     <span className={className}>
       {effectivePrefix || ''}
