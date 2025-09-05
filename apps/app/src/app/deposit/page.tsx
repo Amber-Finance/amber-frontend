@@ -4,7 +4,7 @@ import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
 
-import { generateDepositMetadata } from './generateMetadata'
+import { generateDepositMetadata } from './generateDepositMetadata'
 
 export async function generateMetadata({
   searchParams,
