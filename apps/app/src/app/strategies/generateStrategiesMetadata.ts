@@ -87,8 +87,8 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
     }
   }
 
-  const title = `Amber Finance | ${tokenSymbol} Leverage Strategies`
-  const description = `Amplify your ${tokenSymbol} yield with leverage strategies.`
+  const title = `Amber Finance | ${token.symbol} Leverage Strategies`
+  const description = `Amplify your ${token.symbol} yield with leverage strategies.`
 
   return {
     title,
@@ -104,7 +104,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
           url: shareImage,
           width: 1200,
           height: 630,
-          alt: `${tokenSymbol} strategies on Amber`,
+          alt: `${token.symbol} strategies on Amber`,
         },
       ],
     },
@@ -117,7 +117,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
           url: shareImage,
           width: 1200,
           height: 630,
-          alt: `${tokenSymbol} strategies on Amber`,
+          alt: `${token.symbol} strategies on Amber`,
         },
       ],
       site: '@amberfi_io',
