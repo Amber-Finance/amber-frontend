@@ -2,6 +2,9 @@
 
 import { useMemo } from 'react'
 
+import { Metadata } from 'next'
+
+import { generateStrategiesMetadata } from '@/app/strategies/generateStrategiesMetadata'
 import Hero from '@/components/layout/Hero'
 import { StrategiesContent } from '@/components/strategies/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
@@ -31,6 +34,21 @@ const createDefaultMaxBtcToken = () => ({
   protocolIconLight: '/images/structured/structuredLight.svg',
   protocolIconDark: '/images/structured/structuredDark.svg',
 })
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ strategy?: string }>
+}): Promise<Metadata> {
+  const params = await searchParams
+  // Extract token from strategy parameter (e.g., "maxBTC-LBTC" -> "LBTC")
+  let tokenSymbol = null
+  if (params.strategy) {
+    const lastToken = params.strategy.split('-').pop()
+    tokenSymbol = lastToken || null
+  }
+  return generateStrategiesMetadata(tokenSymbol)
+}
 
 export default function StrategiesOverview() {
   // Fetch markets data using the hook
