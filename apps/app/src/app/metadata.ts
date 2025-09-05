@@ -2,11 +2,9 @@ import { Metadata } from 'next'
 
 // Shared constants to match landing page
 const SHARED_CONFIG = {
-  siteName: 'Amber',
+  siteName: 'Amber Finance',
   baseUrl: 'https://app.amberfi.io',
   twitterHandle: '@amberfi_io',
-  bannerImage: 'https://app.amberfi.io/x-banner/default.jpg',
-  content: 'Liquid Staking. Solid Yields.',
   locale: 'en_US',
 }
 
