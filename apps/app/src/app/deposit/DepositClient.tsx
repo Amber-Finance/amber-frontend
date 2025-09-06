@@ -54,7 +54,7 @@ export default function DepositClient() {
     if (state.activeTab !== initialTab) {
       actions.setActiveTab(initialTab)
     }
-  }, [searchParams, state.activeTab, actions])
+  }, [searchParams])
 
   // Update URL when tab changes
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function DepositClient() {
       params.delete('action')
     }
     router.replace(`?${params.toString()}`)
-  }, [state.activeTab, router, searchParams])
+  }, [state.activeTab, router])
 
   useMarkets()
   const { markets } = useStore()

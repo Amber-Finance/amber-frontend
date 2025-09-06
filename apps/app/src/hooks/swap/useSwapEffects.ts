@@ -25,7 +25,7 @@ export const useSwapEffects = ({
       actions.setFromTokenDenom(null)
       actions.setToTokenDenom(null)
     }
-  }, [address, actions])
+  }, [address])
 
   // Handle URL params and token initialization
   useEffect(() => {
@@ -41,5 +41,5 @@ export const useSwapEffects = ({
       actions.setFromTokenDenom(bestToken.denom)
       markInitialized()
     }
-  }, [searchParams, swapTokens.length, shouldInitialize, bestToken, actions, markInitialized])
+  }, [searchParams, swapTokens.length, shouldInitialize, bestToken, markInitialized])
 }

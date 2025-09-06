@@ -128,7 +128,7 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
         actions.setFromAmount('')
       }
     }
-  }, [state.editingDirection, forwardRouteInfo, reverseRouteInfo, toToken, fromToken, actions])
+  }, [state.editingDirection, forwardRouteInfo, reverseRouteInfo, toToken, fromToken])
 
   const fromUsdValue =
     fromToken?.price && state.fromAmount ? fromToken.price * parseFloat(state.fromAmount) : 0
