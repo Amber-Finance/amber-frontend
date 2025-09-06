@@ -22,7 +22,7 @@ export const AssetActions = ({ tokenSymbol, tokenDenom }: AssetActionsProps) => 
       <div className='flex gap-3'>
         <Button
           variant='outline'
-          onClick={() => window.open('https://go.skip.build/', '_blank')}
+          onClick={() => window.open('https://bridge.amberfi.io/', '_blank')}
           className='flex-1 h-10 text-xs font-medium hover:bg-muted/30 transition-colors'
         >
           <div className='flex items-center gap-2'>

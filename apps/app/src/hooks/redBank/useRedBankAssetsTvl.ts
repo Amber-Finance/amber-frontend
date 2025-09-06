@@ -4,7 +4,7 @@ import getRedBankAssetsTvl from '@/api/redBank/getRedBankAssetsTvl'
 
 export default function useRedBankAssetsTvl() {
   return useSWR(
-    `chains/neutron/managedVaults/redBank`,
+    `chains/neutron/redBank`,
     async () => {
       const response = await getRedBankAssetsTvl()
 

@@ -10,7 +10,7 @@ export default function useRedBankDenomData(denom: string, days: number = 30) {
     isLoading,
     mutate,
   } = useSWR(
-    `chains/neutron/managedVaults/redBank/denomData?denom=${denom}&days=${days}`,
+    `chains/neutron/redBank/denomData?denom=${denom}&days=${days}`,
     async () => await getRedBankDenomData(denom, days),
     {
       revalidateOnFocus: false,
