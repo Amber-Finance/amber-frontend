@@ -51,7 +51,7 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
         </div>
 
         <div className='text-right'>
-          <div className='text-4xl font-bold text-primary'>
+          <div className='text-4xl font-bold' style={{ color: token.brandColor }}>
             <CountingNumber value={totalApy} decimalPlaces={2} />%
           </div>
         </div>
