@@ -114,8 +114,11 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
         const toAmountCalculated = new BigNumber(forwardRouteInfo.amountOut).shiftedBy(
           -toToken.decimals,
         )
-        actions.setToAmount(toAmountCalculated.toString())
-      } else if (!forwardRouteInfo) {
+        const newToAmount = toAmountCalculated.toString()
+        if (state.toAmount !== newToAmount) {
+          actions.setToAmount(newToAmount)
+        }
+      } else if (!forwardRouteInfo && state.toAmount !== '') {
         actions.setToAmount('')
       }
     } else if (state.editingDirection === 'to') {
@@ -123,12 +126,23 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
         const fromAmountCalculated = new BigNumber((reverseRouteInfo as any).amountIn).shiftedBy(
           -fromToken.decimals,
         )
-        actions.setFromAmount(fromAmountCalculated.toString())
-      } else if (!reverseRouteInfo) {
+        const newFromAmount = fromAmountCalculated.toString()
+        if (state.fromAmount !== newFromAmount) {
+          actions.setFromAmount(newFromAmount)
+        }
+      } else if (!reverseRouteInfo && state.fromAmount !== '') {
         actions.setFromAmount('')
       }
     }
-  }, [state.editingDirection, forwardRouteInfo, reverseRouteInfo, toToken, fromToken])
+  }, [
+    state.editingDirection,
+    forwardRouteInfo,
+    reverseRouteInfo,
+    toToken,
+    fromToken,
+    state.toAmount,
+    state.fromAmount,
+  ])
 
   const fromUsdValue =
     fromToken?.price && state.fromAmount ? fromToken.price * parseFloat(state.fromAmount) : 0

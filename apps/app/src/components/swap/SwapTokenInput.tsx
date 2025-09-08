@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
-import QuickAmountButtons from '@/app/swap/QuickAmountButtons'
 import FormattedValue from '@/components/common/FormattedValue'
+import QuickAmountButtons from '@/components/swap/QuickAmountButtons'
 import { cn } from '@/lib/utils'
 
 function formatWithThousandsSeparator(value: string) {

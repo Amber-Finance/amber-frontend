@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 const tokens = [
-  { symbol: 'wBTC', icon: '/images/WBTC.svg' },
+  { symbol: 'WBTC', icon: '/images/WBTC.svg' },
   { symbol: 'LBTC', icon: '/images/LBTC.svg' },
   { symbol: 'uniBTC', icon: '/images/uniBTC.svg' },
   { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
