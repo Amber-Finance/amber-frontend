@@ -80,22 +80,22 @@ const tokens = [
       tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     },
   },
-  {
-    chainId: 'neutron-1',
-    denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',
-    symbol: 'FBTC',
-    icon: '/images/FBTC.svg',
-    description: 'FBTC Ignition',
-    protocolIconLight: '/images/fbtc.svg',
-    protocolIconDark: '/images/fbtc.svg',
-    decimals: 8,
-    isLST: true,
-    protocol: 'FBTC Ignition',
-    brandColor: '#0066ff', // FBTC blue
-    origin: {
-      chainId: '1',
-      tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
-    },
-  },
+  // {
+  //   chainId: 'neutron-1',
+  //   denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',
+  //   symbol: 'FBTC',
+  //   icon: '/images/FBTC.svg',
+  //   description: 'FBTC Ignition',
+  //   protocolIconLight: '/images/fbtc.svg',
+  //   protocolIconDark: '/images/fbtc.svg',
+  //   decimals: 8,
+  //   isLST: true,
+  //   protocol: 'FBTC Ignition',
+  //   brandColor: '#0066ff', // FBTC blue
+  //   origin: {
+  //     chainId: '1',
+  //     tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  //   },
+  // },
 ]
 export default tokens
