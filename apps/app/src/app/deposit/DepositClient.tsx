@@ -57,7 +57,6 @@ export default function DepositClient() {
   }, [state.activeTab, router])
 
   useMarkets()
-  const { markets } = useStore()
   const { data: lstMarkets, isLoading: walletBalancesLoading } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
 
@@ -146,7 +145,9 @@ export default function DepositClient() {
     actions.setLastAction('withdraw')
   }
 
-  const maxAmount = computed.isDepositing ? metrics.balance : metrics.deposited
+  const maxAmount = computed.isDepositing
+    ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toNumber()
+    : new BigNumber(depositedAmount).shiftedBy(-tokenData!.decimals).toNumber()
 
   const hasValidAmount = () => {
     const amount = computed.currentAmount
@@ -313,7 +314,9 @@ export default function DepositClient() {
             token={token}
             currentAmount={computed.currentAmount.toString()}
             balance={
-              computed.isDepositing ? metrics.balance.toString() : metrics.deposited.toString()
+              computed.isDepositing
+                ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toString()
+                : new BigNumber(depositedAmount).shiftedBy(-tokenData!.decimals).toString()
             }
             sliderPercentage={state.sliderPercentage}
             isDepositing={computed.isDepositing}

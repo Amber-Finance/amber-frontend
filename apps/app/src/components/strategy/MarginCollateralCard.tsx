@@ -57,8 +57,8 @@ export function MarginCollateralCard({
           token={{
             symbol: strategy.collateralAsset.symbol,
             brandColor: strategy.collateralAsset.brandColor || '#F7931A',
+            denom: strategy.collateralAsset.denom,
           }}
-          usdValue={displayValues.usdValue(currentAmount || 0)}
           balance={userBalance.toString()}
         />
 

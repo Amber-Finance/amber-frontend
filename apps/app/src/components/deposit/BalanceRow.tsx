@@ -57,7 +57,7 @@ export default function BalanceRow({
       </div>
       <div className='text-right'>
         <div className={cn('transition-all duration-200', isAnimating && 'scale-110 transform')}>
-          <TokenBalance coin={coin} size='sm' />
+          <TokenBalance coin={coin} size='sm' textClassName={color} />
         </div>
       </div>
     </div>
