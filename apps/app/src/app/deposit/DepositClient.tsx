@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -20,13 +20,15 @@ import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
+import { useUserDeposit } from '@/hooks/useUserDeposit'
+import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import {
   getNeutronIcon,
   getProtocolPoints,
   getProtocolPointsIcon,
 } from '@/utils/depositCardHelpers'
-import { formatCompactCurrency, formatCurrencyLegacy } from '@/utils/format'
+import { formatCompactCurrency } from '@/utils/format'
 
 export default function DepositClient() {
   const router = useRouter()
@@ -65,11 +67,14 @@ export default function DepositClient() {
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
 
+  const { data: walletBalances } = useWalletBalances()
+  const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+  const walletBalanceAmount =
+    walletBalances?.find((balance) => balance.denom === tokenData?.denom)?.amount || '0'
+
   // Find the market data from lstMarkets for consistency
   const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
 
-  // Get market for price data (needed for DepositForm)
-  const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
   const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
 
@@ -104,56 +109,59 @@ export default function DepositClient() {
     )
   }
 
-  const { token, metrics, rawAmounts } = lstMarketData
+  const { token, metrics } = lstMarketData
 
   const availableToken = {
     denom: token.denom,
-    amount: rawAmounts.balance,
+    amount: walletBalanceAmount,
   }
   const depositedToken = {
     denom: token.denom,
-    amount: rawAmounts.deposited,
+    amount: depositedAmount,
   }
 
   const handleDeposit = async () => {
-    if (!computed.hasAmount()) return
-
-    const market = markets?.find((m) => m.asset.symbol === token.symbol)
-    if (!market) {
-      console.error('Market not found for token:', token.symbol)
-      return
-    }
+    if (!hasValidAmount()) return
 
     await deposit({
       amount: state.depositAmount,
-      denom: market.asset.denom,
+      denom: tokenData!.denom,
       symbol: token.symbol,
-      decimals: market.asset.decimals,
+      decimals: tokenData!.decimals,
     })
     actions.resetAmounts()
     actions.setLastAction('deposit')
   }
 
   const handleWithdraw = async () => {
-    if (!computed.hasAmount()) return
-
-    const market = markets?.find((m) => m.asset.symbol === token.symbol)
-    if (!market) {
-      console.error('Market not found for token:', token.symbol)
-      return
-    }
+    if (!hasValidAmount()) return
 
     await withdraw({
       amount: state.withdrawAmount,
-      denom: market.asset.denom,
+      denom: tokenData!.denom,
       symbol: token.symbol,
-      decimals: market.asset.decimals,
+      decimals: tokenData!.decimals,
     })
     actions.resetAmounts()
     actions.setLastAction('withdraw')
   }
 
   const maxAmount = computed.isDepositing ? metrics.balance : metrics.deposited
+
+  const hasValidAmount = () => {
+    const amount = computed.currentAmount
+    if (amount === '') return false
+
+    try {
+      const parsedAmount = new BigNumber(amount)
+      if (parsedAmount.isLessThanOrEqualTo(0) || !parsedAmount.isFinite()) return false
+
+      const maxAmountBN = new BigNumber(maxAmount)
+      return parsedAmount.isLessThanOrEqualTo(maxAmountBN)
+    } catch {
+      return false
+    }
+  }
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0]
@@ -311,7 +319,7 @@ export default function DepositClient() {
             isDepositing={computed.isDepositing}
             isWalletConnected={isWalletConnected}
             isPending={isPending}
-            hasAmount={computed.hasAmount()}
+            hasAmount={hasValidAmount()}
             onAmountChange={(value) => {
               if (computed.isDepositing) {
                 actions.setDepositAmount(value)

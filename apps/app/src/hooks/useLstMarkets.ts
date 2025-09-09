@@ -50,10 +50,6 @@ export interface LstMarketData {
     collateralTotalUsd: number
     depositCapUsd: number
   }
-  rawAmounts: {
-    balance: string
-    deposited: string
-  }
 }
 
 export function useLstMarkets(): {
@@ -172,10 +168,6 @@ export function useLstMarkets(): {
             optimalUtilizationRate,
             collateralTotalUsd,
             depositCapUsd,
-          },
-          rawAmounts: {
-            balance: rawBalance,
-            deposited: userDeposit,
           },
         }
       })

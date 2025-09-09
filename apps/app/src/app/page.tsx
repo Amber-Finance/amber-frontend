@@ -53,12 +53,7 @@ export default function Home() {
             style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}
           >
             {sortedMarkets.map((item) => (
-              <DepositCard
-                key={item.token.symbol}
-                token={item.token}
-                metrics={item.metrics}
-                rawAmounts={item.rawAmounts}
-              />
+              <DepositCard key={item.token.symbol} token={item.token} metrics={item.metrics} />
             ))}
           </div>
         ) : (

@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
+import { useUserDeposit } from '@/hooks/useUserDeposit'
+import useWalletBalances from '@/hooks/useWalletBalances'
 import {
   getNeutronIcon,
   getProtocolIcon,
@@ -53,16 +55,18 @@ interface DepositCardProps {
     collateralTotalUsd: number
     depositCapUsd: number
   }
-  rawAmounts: {
-    balance: string
-    deposited: string
-  }
 }
 
-export default function DepositCard({ token, metrics, rawAmounts }: DepositCardProps) {
+export default function DepositCard({ token, metrics }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
+
+  const { data: walletBalances } = useWalletBalances()
+  const { amount: depositedAmount } = useUserDeposit(token.denom)
+
+  const walletBalanceAmount =
+    walletBalances?.find((balance) => balance.denom === token.denom)?.amount || '0'
 
   const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
     (asset: any) => asset.denom === token.denom,
@@ -96,12 +100,12 @@ export default function DepositCard({ token, metrics, rawAmounts }: DepositCardP
 
   const depositedCoin = {
     denom: token.denom,
-    amount: rawAmounts.deposited,
+    amount: depositedAmount || '0',
   }
 
   const availableCoin = {
     denom: token.denom,
-    amount: rawAmounts.balance,
+    amount: walletBalanceAmount,
   }
 
   return (
