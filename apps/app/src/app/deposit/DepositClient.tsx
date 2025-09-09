@@ -78,47 +78,17 @@ export default function DepositClient() {
   )
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
-  const selectedToken = useMemo(() => {
-    if (!tokenSymbol || !tokenData || !lstMarketData) {
-      router.push('/')
-      return null
-    }
+  // Redirect if required data is missing
+  if (!tokenSymbol || !tokenData || !lstMarketData) {
+    router.push('/')
+    return null
+  }
 
-    return {
-      token: {
-        symbol: tokenData.symbol,
-        icon: tokenData.icon,
-        description: tokenData.description,
-        protocol: tokenData.protocol,
-        isLST: tokenData.isLST,
-        brandColor: tokenData.brandColor,
-      },
-      metrics: {
-        protocolApy: lstMarketData.metrics.lendingApy,
-        stakingApy: lstMarketData.metrics.stakingApy,
-        totalApy: lstMarketData.metrics.totalApy,
-        balance: lstMarketData.metrics.balance,
-        deposited: lstMarketData.metrics.deposited,
-      },
-      availableToken: {
-        denom: tokenData.denom,
-        amount: lstMarketData.rawAmounts.balance,
-      },
-      depositedToken: {
-        denom: tokenData.denom,
-        amount: lstMarketData.rawAmounts.deposited,
-      },
-    }
-  }, [tokenSymbol, tokenData, lstMarketData, router])
-
-  // Calculate theme-dependent values after all hooks are called
-  const protocolPoints = selectedToken ? getProtocolPoints(selectedToken.token.symbol) : null
-  const protocolPointsIcon = selectedToken
-    ? getProtocolPointsIcon(selectedToken.token.symbol, theme)
-    : null
+  const protocolPoints = getProtocolPoints(lstMarketData.token.symbol)
+  const protocolPointsIcon = getProtocolPointsIcon(lstMarketData.token.symbol, theme)
   const neutronIcon = getNeutronIcon(theme)
 
-  if (!selectedToken || walletBalancesLoading) {
+  if (walletBalancesLoading) {
     return (
       <div className='w-full lg:container mx-auto px-4 py-8'>
         <div className='text-center py-16'>
@@ -126,19 +96,24 @@ export default function DepositClient() {
             <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
-            <h3 className='text-lg font-bold text-foreground'>
-              {!selectedToken ? 'Loading Token Data' : 'Loading Wallet Balances'}
-            </h3>
-            <p className='text-muted-foreground'>
-              {!selectedToken ? 'Fetching token information...' : 'Fetching wallet balances...'}
-            </p>
+            <h3 className='text-lg font-bold text-foreground'>Loading Wallet Balances</h3>
+            <p className='text-muted-foreground'>Fetching wallet balances...</p>
           </div>
         </div>
       </div>
     )
   }
 
-  const { token, metrics, availableToken, depositedToken } = selectedToken
+  const { token, metrics, rawAmounts } = lstMarketData
+
+  const availableToken = {
+    denom: token.denom,
+    amount: rawAmounts.balance,
+  }
+  const depositedToken = {
+    denom: token.denom,
+    amount: rawAmounts.deposited,
+  }
 
   const handleDeposit = async () => {
     if (!computed.hasAmount()) return
@@ -235,7 +210,7 @@ export default function DepositClient() {
                 <MetricRow
                   customIcon={token.icon}
                   label={'Amber Finance Yield'}
-                  value={`~${metrics.protocolApy}`}
+                  value={`~${metrics.lendingApy}`}
                   suffix='%'
                   brandColor={token.brandColor}
                 />
@@ -329,10 +304,6 @@ export default function DepositClient() {
           <DepositForm
             token={token}
             currentAmount={computed.currentAmount.toString()}
-            usdValue={formatCurrencyLegacy(
-              (parseFloat(computed.currentAmount.toString()) || 0) *
-                (market?.price?.price ? parseFloat(market.price.price) : 0),
-            )}
             balance={
               computed.isDepositing ? metrics.balance.toString() : metrics.deposited.toString()
             }

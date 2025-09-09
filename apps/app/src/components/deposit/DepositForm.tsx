@@ -9,9 +9,9 @@ interface DepositFormProps {
   token: {
     symbol: string
     brandColor: string
+    denom: string
   }
   currentAmount: string
-  usdValue: string
   balance: string
   sliderPercentage: number
   isDepositing: boolean
@@ -53,7 +53,6 @@ const getButtonContent = (
 export const DepositForm = ({
   token,
   currentAmount,
-  usdValue,
   balance,
   sliderPercentage,
   isDepositing,
@@ -79,7 +78,6 @@ export const DepositForm = ({
           value={currentAmount}
           onChange={(e) => onAmountChange(e.target.value)}
           token={token}
-          usdValue={usdValue}
           balance={balance}
         />
 
