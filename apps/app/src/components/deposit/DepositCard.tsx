@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import BigNumber from 'bignumber.js'
 import { ArrowDownToLine, Wallet } from 'lucide-react'
 
+import TokenBalance from '@/components/common/TokenBalance'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
 import { Button } from '@/components/ui/Button'
@@ -21,7 +22,6 @@ import {
 import { Separator } from '@/components/ui/separator'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import {
-  formatBalance,
   getNeutronIcon,
   getProtocolIcon,
   getProtocolPoints,
@@ -53,12 +53,15 @@ interface DepositCardProps {
     collateralTotalUsd: number
     depositCapUsd: number
   }
+  rawAmounts: {
+    balance: string
+    deposited: string
+  }
 }
 
-export default function DepositCard({ token, metrics }: DepositCardProps) {
+export default function DepositCard({ token, metrics, rawAmounts }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
-
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
 
   const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
@@ -89,6 +92,16 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   const handleWithdrawClick = () => {
     router.push(`/deposit?token=${token.symbol}&action=withdraw`)
+  }
+
+  const depositedCoin = {
+    denom: token.denom,
+    amount: rawAmounts.deposited,
+  }
+
+  const availableCoin = {
+    denom: token.denom,
+    amount: rawAmounts.balance,
   }
 
   return (
@@ -258,9 +271,6 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           <div className='flex items-center gap-2'>
             <Wallet className='w-4 h-4 text-muted-foreground' />
             <span className='text-sm font-bold tracking-wider'>Your Balances</span>
-            {/* <span className='text-base font-bold tracking-wider text-foreground'>
-              Your Balances
-            </span> */}
           </div>
 
           <div className='space-y-2'>
@@ -268,18 +278,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='space-y-1'>
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-muted-foreground'>Deposited</span>
-                <span className='text-sm font-medium'>
-                  $
-                  {(
-                    metrics.deposited *
-                    (metrics.balance > 0 ? metrics.valueUsd / metrics.balance : 0)
-                  ).toFixed(2)}
-                </span>
-              </div>
-              <div className='flex justify-end'>
-                <span className='text-xs text-muted-foreground'>
-                  {formatBalance(metrics.deposited)} {token.symbol}
-                </span>
+                <TokenBalance coin={depositedCoin} size='sm' />
               </div>
             </div>
 
@@ -287,12 +286,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             <div className='space-y-1'>
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-muted-foreground'>Available</span>
-                <span className='text-sm font-medium'>${metrics.valueUsd.toFixed(2)}</span>
-              </div>
-              <div className='flex justify-end'>
-                <span className='text-xs text-muted-foreground'>
-                  {formatBalance(metrics.balance)} {token.symbol}
-                </span>
+                <TokenBalance coin={availableCoin} size='sm' />
               </div>
             </div>
           </div>

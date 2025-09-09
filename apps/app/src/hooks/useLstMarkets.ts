@@ -50,6 +50,10 @@ export interface LstMarketData {
     collateralTotalUsd: number
     depositCapUsd: number
   }
+  rawAmounts: {
+    balance: string
+    deposited: string
+  }
 }
 
 export function useLstMarkets(): {
@@ -90,7 +94,6 @@ export function useLstMarkets(): {
       .map((market) => {
         // Find token info from tokens.ts
         const tokenData = tokens.find((token) => token.denom === market.asset.denom)
-
         // Skip if token not found or not an LST
         if (!tokenData?.isLST) {
           return null
@@ -169,6 +172,10 @@ export function useLstMarkets(): {
             optimalUtilizationRate,
             collateralTotalUsd,
             depositCapUsd,
+          },
+          rawAmounts: {
+            balance: rawBalance,
+            deposited: userDeposit,
           },
         }
       })

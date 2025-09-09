@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react'
 
 import { LucideIcon } from 'lucide-react'
 
+import TokenBalance from '@/components/common/TokenBalance'
 import { cn } from '@/lib/utils'
 
 interface BalanceRowProps {
   icon: LucideIcon
   label: string
-  value: string
-  usdValue?: string
+  coin: {
+    denom: string
+    amount: string
+  }
   brandColor?: string
   actionType?: 'deposit' | 'withdraw' | null
 }
@@ -16,8 +19,7 @@ interface BalanceRowProps {
 export default function BalanceRow({
   icon: Icon,
   label,
-  value,
-  usdValue,
+  coin,
   brandColor,
   actionType = null,
 }: BalanceRowProps) {
@@ -54,25 +56,9 @@ export default function BalanceRow({
         <span className='text-xs sm:text-sm font-medium'>{label}</span>
       </div>
       <div className='text-right'>
-        <div
-          className={cn(
-            'text-xs sm:text-sm font-funnel transition-all duration-200',
-            color,
-            isAnimating && 'scale-110 transform',
-          )}
-        >
-          {value}
+        <div className={cn('transition-all duration-200', isAnimating && 'scale-110 transform')}>
+          <TokenBalance coin={coin} size='sm' />
         </div>
-        {usdValue && (
-          <div
-            className={cn(
-              'text-xs text-muted-foreground/80 transition-all duration-200',
-              isAnimating && 'scale-110 transform',
-            )}
-          >
-            {usdValue}
-          </div>
-        )}
       </div>
     </div>
   )

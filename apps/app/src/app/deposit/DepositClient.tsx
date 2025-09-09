@@ -16,13 +16,7 @@ import ProgressCard from '@/components/deposit/ProgressCard'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
-import {
-  useLstMarkets,
-  useMarkets,
-  useTransactions,
-  useUserDeposit,
-  useWalletBalances,
-} from '@/hooks'
+import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
@@ -32,18 +26,11 @@ import {
   getProtocolPoints,
   getProtocolPointsIcon,
 } from '@/utils/depositCardHelpers'
-import { convertAprToApy } from '@/utils/finance'
-import {
-  formatCompactCurrency,
-  formatCurrencyLegacy,
-  formatTokenAmountLegacy,
-} from '@/utils/format'
+import { formatCompactCurrency, formatCurrencyLegacy } from '@/utils/format'
 
 export default function DepositClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  // Use functional state management
   const depositState = useDepositState()
   const { state, actions, computed } = depositState
 
@@ -69,18 +56,20 @@ export default function DepositClient() {
 
   useMarkets()
   const { markets } = useStore()
-  const { getTokenStakingApy } = useLstMarkets()
+  const { data: lstMarkets, isLoading: walletBalancesLoading } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
 
-  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { isWalletConnected, connect } = useChain(chainConfig.name)
   const { theme } = useTheme()
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
-  const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
-  const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
 
+  // Find the market data from lstMarkets for consistency
+  const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
+
+  // Get market for price data (needed for DepositForm)
+  const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
   const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
 
@@ -90,29 +79,10 @@ export default function DepositClient() {
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
   const selectedToken = useMemo(() => {
-    if (!tokenSymbol || !tokenData || !market) {
+    if (!tokenSymbol || !tokenData || !lstMarketData) {
       router.push('/')
       return null
     }
-
-    const protocolApy = parseFloat(
-      convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
-    )
-
-    // Get real-time staking APY from consolidated hook
-    const stakingApy = getTokenStakingApy(tokenData.symbol)
-    // Calculate total APY: protocol APY + staking APY
-    const totalApy = parseFloat((protocolApy + stakingApy).toFixed(2))
-
-    const walletBalance =
-      walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
-    const depositedNumber = new BigNumber(depositedAmount || '0')
-      .shiftedBy(-market.asset.decimals)
-      .toNumber()
-    const balanceNumber = new BigNumber(walletBalance).shiftedBy(-market.asset.decimals).toNumber()
-    const price = parseFloat(market.price?.price || '0')
-    const valueUsd = balanceNumber * price
-    const depositedValueUsd = depositedNumber * price
 
     return {
       token: {
@@ -124,16 +94,22 @@ export default function DepositClient() {
         brandColor: tokenData.brandColor,
       },
       metrics: {
-        protocolApy,
-        stakingApy,
-        totalApy,
-        balance: balanceNumber,
-        deposited: depositedNumber,
-        valueUsd,
-        depositedValueUsd,
+        protocolApy: lstMarketData.metrics.lendingApy,
+        stakingApy: lstMarketData.metrics.stakingApy,
+        totalApy: lstMarketData.metrics.totalApy,
+        balance: lstMarketData.metrics.balance,
+        deposited: lstMarketData.metrics.deposited,
+      },
+      availableToken: {
+        denom: tokenData.denom,
+        amount: lstMarketData.rawAmounts.balance,
+      },
+      depositedToken: {
+        denom: tokenData.denom,
+        amount: lstMarketData.rawAmounts.deposited,
       },
     }
-  }, [tokenSymbol, tokenData, market, router, getTokenStakingApy, walletBalances, depositedAmount])
+  }, [tokenSymbol, tokenData, lstMarketData, router])
 
   // Calculate theme-dependent values after all hooks are called
   const protocolPoints = selectedToken ? getProtocolPoints(selectedToken.token.symbol) : null
@@ -162,7 +138,7 @@ export default function DepositClient() {
     )
   }
 
-  const { token, metrics } = selectedToken
+  const { token, metrics, availableToken, depositedToken } = selectedToken
 
   const handleDeposit = async () => {
     if (!computed.hasAmount()) return
@@ -209,8 +185,6 @@ export default function DepositClient() {
     actions.updateAmountFromSlider(percentage, maxAmount)
   }
 
-  // const estimatedApyEarnings = parseFloat(computed.currentAmount.toString()) * (metrics.totalApy / 100)
-
   return (
     <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
       <button
@@ -236,20 +210,14 @@ export default function DepositClient() {
               <BalanceRow
                 icon={Coins}
                 label='Deposited'
-                value={formatTokenAmountLegacy(metrics.deposited, token.symbol)}
-                usdValue={
-                  metrics.depositedValueUsd > 0
-                    ? formatCurrencyLegacy(metrics.depositedValueUsd)
-                    : undefined
-                }
+                coin={depositedToken}
                 brandColor={token.brandColor}
                 actionType={state.lastAction}
               />
               <BalanceRow
                 icon={Wallet}
                 label='Available in Wallet'
-                value={formatTokenAmountLegacy(metrics.balance, token.symbol)}
-                usdValue={formatCurrencyLegacy(metrics.valueUsd)}
+                coin={availableToken}
                 brandColor={token.brandColor}
                 actionType={null}
               />
@@ -363,7 +331,7 @@ export default function DepositClient() {
             currentAmount={computed.currentAmount.toString()}
             usdValue={formatCurrencyLegacy(
               (parseFloat(computed.currentAmount.toString()) || 0) *
-                (metrics.valueUsd / metrics.balance || 0),
+                (market?.price?.price ? parseFloat(market.price.price) : 0),
             )}
             balance={
               computed.isDepositing ? metrics.balance.toString() : metrics.deposited.toString()
