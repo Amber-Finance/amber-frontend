@@ -26,6 +26,7 @@ import {
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
+import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
 import { useStore } from '@/store/useStore'
 import {
   getNeutronIcon,
@@ -89,6 +90,17 @@ export default function DepositClient() {
   )
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
+  // Calculate simulated APY based on user input - must be called at top level
+  const simulatedApys = useDepositSimulatedApy(
+    computed.currentAmount.toString(),
+    computed.isDepositing ? 'deposit' : 'withdraw',
+    market?.asset.decimals || 8,
+    market?.metrics || null,
+    market?.metrics
+      ? convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString())
+      : '0',
+  )
+
   const selectedToken = useMemo(() => {
     if (!tokenSymbol || !tokenData || !market) {
       router.push('/')
@@ -101,8 +113,13 @@ export default function DepositClient() {
 
     // Get real-time staking APY from consolidated hook
     const stakingApy = getTokenStakingApy(tokenData.symbol)
-    // Calculate total APY: protocol APY + staking APY
-    const totalApy = parseFloat((protocolApy + stakingApy).toFixed(2))
+
+    // Use simulated APY if user has input, otherwise use current APY
+    const hasValidInput = computed.currentAmount && parseFloat(computed.currentAmount) > 0
+    const currentProtocolApy = hasValidInput ? parseFloat(simulatedApys.lend) : protocolApy
+
+    // Calculate total APY: dynamic protocol APY + staking APY
+    const totalApy = parseFloat((currentProtocolApy + stakingApy).toFixed(2))
 
     const walletBalance =
       walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
@@ -124,7 +141,7 @@ export default function DepositClient() {
         brandColor: tokenData.brandColor,
       },
       metrics: {
-        protocolApy,
+        protocolApy: currentProtocolApy,
         stakingApy,
         totalApy,
         balance: balanceNumber,
@@ -133,7 +150,18 @@ export default function DepositClient() {
         depositedValueUsd,
       },
     }
-  }, [tokenSymbol, tokenData, market, router, getTokenStakingApy, walletBalances, depositedAmount])
+  }, [
+    tokenSymbol,
+    tokenData,
+    market,
+    router,
+    getTokenStakingApy,
+    walletBalances,
+    depositedAmount,
+    computed.currentAmount,
+    computed.isDepositing,
+    simulatedApys,
+  ])
 
   // Calculate theme-dependent values after all hooks are called
   const protocolPoints = selectedToken ? getProtocolPoints(selectedToken.token.symbol) : null

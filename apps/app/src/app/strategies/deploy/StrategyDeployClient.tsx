@@ -23,12 +23,9 @@ import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { usePrices } from '@/hooks/usePrices'
-import {
-  useMarketData,
-  usePositionCalculations,
-  useWalletData,
-} from '@/hooks/useStrategyCalculations'
+import { useMarketData, useWalletData } from '@/hooks/useStrategyCalculations'
 import { useStrategyDeployment } from '@/hooks/useStrategyDeployment'
+import { usePositionCalculationsWithSimulatedApy } from '@/hooks/useStrategySimulatedApy'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { useBroadcast } from '@/utils/broadcast'
@@ -71,11 +68,21 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   // Custom hooks
   const marketData = useMarketData(strategy, markets)
   const walletData = useWalletData(strategy, walletBalances || [], address)
-  const positionCalcs = usePositionCalculations(
-    currentAmount,
+
+  // Use simulated APY calculations that update based on user input
+  const positionCalcs = usePositionCalculationsWithSimulatedApy(
+    collateralAmount,
     multiplier,
-    collateralSupplyApy,
-    marketData.debtBorrowApy,
+    marketData.collateralMarket?.metrics || null,
+    marketData.debtMarket?.metrics || null,
+    {
+      collateralSupplyApy,
+      debtBorrowApy: marketData.debtBorrowApy,
+    },
+    {
+      collateral: strategy.collateralAsset.decimals || 6,
+      debt: strategy.debtAsset.decimals || 6,
+    },
   )
   const { deployStrategy, fetchSwapRoute } = useStrategyDeployment({
     strategy,
@@ -98,8 +105,8 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     walletData.userBalance,
     strategy,
     marketData.currentPrice,
-    effectiveMaxBtcApy,
-    marketData.debtBorrowApy,
+    effectiveMaxBtcApy, // Keep static supply APY
+    positionCalcs.debtBorrowApy, // Use dynamic borrow APY
   )
 
   // Risk styles
@@ -299,7 +306,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             positionCalcs={positionCalcs}
             marketData={marketData}
             collateralSupplyApy={collateralSupplyApy}
-            debtBorrowApy={marketData.debtBorrowApy}
+            debtBorrowApy={positionCalcs.debtBorrowApy}
           />
         </div>
 
@@ -315,7 +322,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             strategy={strategy}
             positionCalcs={positionCalcs}
             collateralSupplyApy={collateralSupplyApy}
-            debtBorrowApy={marketData.debtBorrowApy}
+            debtBorrowApy={positionCalcs.debtBorrowApy}
             riskStyles={riskStyles}
             strategyRiskStyles={strategyRiskStyles}
           />
