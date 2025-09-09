@@ -464,6 +464,7 @@ export function SkipPage() {
                   onDestinationAssetUpdated={onDestinationAssetUpdated}
                   routeConfig={{
                     experimentalFeatures: ['eureka'],
+                    goFast: false,
                   }}
                   settings={{
                     useUnlimitedApproval: true,
