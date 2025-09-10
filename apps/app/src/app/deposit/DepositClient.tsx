@@ -22,7 +22,7 @@ import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
-import { useStore } from '@/store/useStore'
+import { useWithdrawValidation } from '@/hooks/useWithdrawValidation'
 import {
   getNeutronIcon,
   getProtocolPoints,
@@ -71,7 +71,12 @@ export default function DepositClient() {
   const walletBalanceAmount =
     walletBalances?.find((balance) => balance.denom === tokenData?.denom)?.amount || '0'
 
-  // Find the market data from lstMarkets for consistency
+  const withdrawValidation = useWithdrawValidation(
+    state.withdrawAmount,
+    tokenData?.denom || '',
+    depositedAmount,
+  )
+
   const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
 
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
@@ -100,7 +105,7 @@ export default function DepositClient() {
             <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
-            <h3 className='text-lg font-bold text-foreground'>Loading Wallet Balances</h3>
+            <h3 className='text-lg font-bold text-foreground'>Loading</h3>
             <p className='text-muted-foreground'>Fetching wallet balances...</p>
           </div>
         </div>
@@ -135,6 +140,11 @@ export default function DepositClient() {
   const handleWithdraw = async () => {
     if (!hasValidAmount()) return
 
+    if (!withdrawValidation.isValid) {
+      console.error('Withdrawal validation failed:', withdrawValidation.errorMessage)
+      return
+    }
+
     await withdraw({
       amount: state.withdrawAmount,
       denom: tokenData!.denom,
@@ -158,7 +168,14 @@ export default function DepositClient() {
       if (parsedAmount.isLessThanOrEqualTo(0) || !parsedAmount.isFinite()) return false
 
       const maxAmountBN = new BigNumber(maxAmount)
-      return parsedAmount.isLessThanOrEqualTo(maxAmountBN)
+      const isWithinBalance = parsedAmount.isLessThanOrEqualTo(maxAmountBN)
+
+      // For withdrawals, also check liquidity validation
+      if (computed.isWithdrawing) {
+        return isWithinBalance && withdrawValidation.isValid
+      }
+
+      return isWithinBalance
     } catch {
       return false
     }
@@ -316,13 +333,14 @@ export default function DepositClient() {
             balance={
               computed.isDepositing
                 ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toString()
-                : new BigNumber(depositedAmount).shiftedBy(-tokenData!.decimals).toString()
+                : withdrawValidation.maxWithdrawable
             }
             sliderPercentage={state.sliderPercentage}
             isDepositing={computed.isDepositing}
             isWalletConnected={isWalletConnected}
             isPending={isPending}
             hasAmount={hasValidAmount()}
+            validationError={computed.isWithdrawing ? withdrawValidation.errorMessage : undefined}
             onAmountChange={(value) => {
               if (computed.isDepositing) {
                 actions.setDepositAmount(value)

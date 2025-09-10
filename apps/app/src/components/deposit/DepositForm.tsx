@@ -18,6 +18,7 @@ interface DepositFormProps {
   isWalletConnected: boolean
   isPending: boolean
   hasAmount: boolean
+  validationError?: string
   onAmountChange: (value: string) => void
   onSliderChange: (value: number[]) => void
   onConnect: () => void
@@ -59,6 +60,7 @@ export const DepositForm = ({
   isWalletConnected,
   isPending,
   hasAmount,
+  validationError,
   onAmountChange,
   onSliderChange,
   onConnect,
@@ -108,6 +110,13 @@ export const DepositForm = ({
         >
           {getButtonContent(isWalletConnected, isPending, isDepositing, token.symbol)}
         </Button>
+
+        {/* Validation Error Display */}
+        {validationError && (
+          <div className='mt-3 p-3 bg-red-50 dark:bg-red-900/20 border rounded-lg'>
+            <p className='text-sm text-red-600 dark:text-red-400'>{validationError}</p>
+          </div>
+        )}
       </div>
     </InfoCard>
   )
