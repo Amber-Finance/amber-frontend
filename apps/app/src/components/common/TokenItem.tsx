@@ -65,7 +65,7 @@ const TokenBalance: React.FC<{
       )}
       {showBalance && (
         <div className='text-xs text-muted-foreground truncate'>
-          {token.balance} {token.symbol}
+          <FormattedValue value={token.balance} maxDecimals={8} suffix={` ${token.symbol}`} />
         </div>
       )}
     </div>
