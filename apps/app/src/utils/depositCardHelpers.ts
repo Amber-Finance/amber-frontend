@@ -42,7 +42,7 @@ export const getProtocolPoints = (symbol: string) => {
     },
     unibtc: {
       multiplier: '3x',
-      protocolPoint: 'Bedrock Points',
+      protocolPoint: 'Bedrock Diamonds',
       protocolIconLight: '/images/bedrock.svg',
       protocolIconDark: '/images/bedrock.svg', // Same icon for both themes
     },
