@@ -183,9 +183,9 @@ export function StrategyFlowCard({
                   {strategy.collateralAsset.symbol} ({multiplier.toFixed(2)}x exposure)
                 </div>
                 <div>
-                  • Net APY: {(positionCalcs.leveragedApy * 100).toFixed(2)}% (
-                  {(collateralSupplyApy * 100).toFixed(2)}% × {multiplier.toFixed(2)}x -{' '}
-                  {(debtBorrowApy * (multiplier - 1) * 100).toFixed(2)}%)
+                  • Net APY: {(positionCalcs.leveragedApy * 100).toFixed(2)}% ( (
+                  {(collateralSupplyApy * 100).toFixed(2)}% - {(debtBorrowApy * 100).toFixed(2)}% )
+                  × {multiplier.toFixed(2)}x)
                 </div>
                 <Separator />
                 <div className='text-xs text-blue-600/80 dark:text-blue-400/80'>

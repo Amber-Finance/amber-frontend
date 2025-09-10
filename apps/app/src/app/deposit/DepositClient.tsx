@@ -20,14 +20,17 @@ import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
+import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useWithdrawValidation } from '@/hooks/useWithdrawValidation'
+import { useStore } from '@/store/useStore'
 import {
   getNeutronIcon,
   getProtocolPoints,
   getProtocolPointsIcon,
 } from '@/utils/depositCardHelpers'
+import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency } from '@/utils/format'
 
 export default function DepositClient() {
@@ -57,7 +60,8 @@ export default function DepositClient() {
   }, [state.activeTab, router])
 
   useMarkets()
-  const { data: lstMarkets, isLoading: walletBalancesLoading } = useLstMarkets()
+  const { markets } = useStore()
+  const { data: lstMarkets, isLoading: walletBalancesLoading, getTokenStakingApy } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
 
   const { isWalletConnected, connect } = useChain(chainConfig.name)
@@ -65,6 +69,7 @@ export default function DepositClient() {
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
+  const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
 
   const { data: walletBalances } = useWalletBalances()
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
@@ -87,11 +92,36 @@ export default function DepositClient() {
   )
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
+  // Calculate simulated APY based on user input - must be called at top level
+  const simulatedApys = useDepositSimulatedApy(
+    computed.currentAmount.toString(),
+    computed.isDepositing ? 'deposit' : 'withdraw',
+    market?.asset.decimals || 8,
+    market?.metrics || null,
+    market?.metrics
+      ? convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString())
+      : '0',
+  )
+
   // Redirect if required data is missing
-  if (!tokenSymbol || !tokenData || !lstMarketData) {
+  if (!tokenSymbol || !tokenData || !lstMarketData || !market) {
     router.push('/')
     return null
   }
+
+  const protocolApy = parseFloat(
+    convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
+  )
+
+  // Get real-time staking APY from consolidated hook
+  const stakingApy = getTokenStakingApy(tokenData.symbol)
+
+  // Use simulated APY if user has input, otherwise use current APY
+  const hasValidInput = computed.currentAmount && parseFloat(computed.currentAmount) > 0
+  const currentProtocolApy = hasValidInput ? parseFloat(simulatedApys.lend) : protocolApy
+
+  // Calculate total APY: dynamic protocol APY + staking APY
+  const totalApy = parseFloat((currentProtocolApy + stakingApy).toFixed(2))
 
   const protocolPoints = getProtocolPoints(lstMarketData.token.symbol)
   const protocolPointsIcon = getProtocolPointsIcon(lstMarketData.token.symbol, theme)
@@ -198,7 +228,7 @@ export default function DepositClient() {
 
       <DepositHeader
         token={token}
-        totalApy={metrics.totalApy}
+        totalApy={totalApy}
         activeTab={state.activeTab}
         onTabChange={(value) => actions.setActiveTab(value)}
       />
@@ -236,7 +266,7 @@ export default function DepositClient() {
                 <MetricRow
                   customIcon={token.icon}
                   label={'Amber Finance Yield'}
-                  value={`~${metrics.lendingApy}`}
+                  value={`~${currentProtocolApy}`}
                   suffix='%'
                   brandColor={token.brandColor}
                 />
