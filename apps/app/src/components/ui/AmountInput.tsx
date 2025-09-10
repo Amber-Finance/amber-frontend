@@ -1,10 +1,15 @@
 import React from 'react'
 
+import { BigNumber } from 'bignumber.js'
+
+import FormattedValue from '@/components/common/FormattedValue'
+import { useStore } from '@/store/useStore'
+import { calculateUsdValueLegacy } from '@/utils/format'
+
 interface AmountInputProps {
   value: string
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  token: { symbol: string; brandColor: string }
-  usdValue: string
+  token: { symbol: string; brandColor: string; denom: string }
   balance?: string
   placeholder?: string
   disabled?: boolean
@@ -14,20 +19,34 @@ export function AmountInput({
   value,
   onChange,
   token,
-  usdValue,
   balance = '0',
   placeholder = '0.000000',
   disabled = false,
 }: AmountInputProps) {
+  const { markets } = useStore()
+
+  const usdValue = (() => {
+    if (!markets || !value) return '0'
+
+    const market = markets.find((market) => market.asset.denom === token.denom)
+    if (!market?.price?.price) return '0'
+
+    const decimals = market.asset.decimals || 6
+    const rawAmount = new BigNumber(value).shiftedBy(decimals).toString()
+    const usdValue = calculateUsdValueLegacy(rawAmount, market.price.price, decimals)
+    return usdValue.toString()
+  })()
+
   const handleMaxClick = () => {
+    const formattedBalance = new BigNumber(balance).toString()
     const event = {
-      target: { value: balance },
+      target: { value: formattedBalance },
     } as React.ChangeEvent<HTMLInputElement>
     onChange(event)
   }
 
   const handleHalfClick = () => {
-    const halfValue = (parseFloat(balance) / 2).toString()
+    const halfValue = new BigNumber(balance).dividedBy(2).toString()
     const event = {
       target: { value: halfValue },
     } as React.ChangeEvent<HTMLInputElement>
@@ -52,7 +71,11 @@ export function AmountInput({
       <div className='absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-3'>
         <div className='flex flex-col items-end gap-1'>
           <span className='text-xs text-muted-foreground'>{token.symbol}</span>
-          <span className='text-xs text-muted-foreground'>{usdValue}</span>
+          <FormattedValue
+            value={usdValue}
+            isCurrency={true}
+            className='text-xs text-muted-foreground'
+          />
         </div>
         <div className='flex flex-col items-center gap-1'>
           <button

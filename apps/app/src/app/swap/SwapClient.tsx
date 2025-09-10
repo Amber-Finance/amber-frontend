@@ -132,8 +132,10 @@ export default function SwapClient() {
                 actions.setTokenModalOpen(true)
               }}
               onQuickAmountSelect={(percent) => {
-                if (logic.fromToken && parseFloat(logic.fromToken.balance) > 0) {
-                  const calculatedAmount = parseFloat(logic.fromToken.balance) * percent
+                if (logic.fromToken && new BigNumber(logic.fromToken.balance).isGreaterThan(0)) {
+                  const calculatedAmount = new BigNumber(logic.fromToken.balance).multipliedBy(
+                    percent,
+                  )
                   actions.setFromAmount(calculatedAmount.toFixed(8))
                   actions.setEditingDirection('from')
                 }

@@ -98,7 +98,9 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
   )
 
   const hasInsufficientBalance =
-    fromToken && state.fromAmount && parseFloat(state.fromAmount) > parseFloat(fromToken.balance)
+    fromToken &&
+    state.fromAmount &&
+    new BigNumber(state.fromAmount).isGreaterThan(fromToken.balance)
 
   const isDebouncePending = false // Simplified for now
 

@@ -5,6 +5,7 @@ import React from 'react'
 import { BigNumber } from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
+import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
 
@@ -16,6 +17,7 @@ interface TokenBalanceProps {
   size?: Size
   align?: Align
   className?: string
+  textClassName?: string
 }
 
 /**
@@ -28,6 +30,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   size = 'md',
   align = 'right',
   className = '',
+  textClassName = '',
 }) => {
   // Get markets data from the store
   const { markets } = useStore()
@@ -77,12 +80,22 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   const showUsdValue = usdValue !== '0'
 
   return (
-    <div className={`${alignmentClass} ${className}`}>
-      <div className={`${amountTextSize} text-gray-900 dark:text-white font-medium truncate`}>
+    <div className={cn(alignmentClass, className)}>
+      <div
+        className={cn(
+          amountTextSize,
+          textClassName ? textClassName : 'text-gray-900 dark:text-white font-medium truncate',
+        )}
+      >
         <FormattedValue value={adjustedAmount} isCurrency={false} />
       </div>
       {showUsdValue && (
-        <div className={`${valueTextSize} text-gray-500 dark:text-gray-400 opacity-50 truncate`}>
+        <div
+          className={cn(
+            valueTextSize,
+            textClassName ? textClassName : 'text-gray-500 dark:text-gray-400 opacity-50 truncate',
+          )}
+        >
           <FormattedValue value={usdValue} isCurrency={true} />
         </div>
       )}

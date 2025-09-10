@@ -1,5 +1,7 @@
 import Image from 'next/image'
 
+import { BigNumber } from 'bignumber.js'
+
 import FormattedValue from '@/components/common/FormattedValue'
 import QuickAmountButtons from '@/components/swap/QuickAmountButtons'
 import { cn } from '@/lib/utils'
@@ -50,7 +52,7 @@ export const SwapTokenInput = ({
       {type === 'from' && onQuickAmountSelect && (
         <QuickAmountButtons
           onSelect={onQuickAmountSelect}
-          disabled={!token || parseFloat(token.balance) <= 0}
+          disabled={!token || new BigNumber(token.balance).isLessThanOrEqualTo(0)}
           className='hidden group-hover:flex group-focus-within:flex'
         />
       )}

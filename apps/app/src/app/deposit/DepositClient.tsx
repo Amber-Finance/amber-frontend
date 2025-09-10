@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -16,17 +16,14 @@ import ProgressCard from '@/components/deposit/ProgressCard'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
-import {
-  useLstMarkets,
-  useMarkets,
-  useTransactions,
-  useUserDeposit,
-  useWalletBalances,
-} from '@/hooks'
+import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
 import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
+import { useUserDeposit } from '@/hooks/useUserDeposit'
+import useWalletBalances from '@/hooks/useWalletBalances'
+import { useWithdrawValidation } from '@/hooks/useWithdrawValidation'
 import { useStore } from '@/store/useStore'
 import {
   getNeutronIcon,
@@ -34,17 +31,11 @@ import {
   getProtocolPointsIcon,
 } from '@/utils/depositCardHelpers'
 import { convertAprToApy } from '@/utils/finance'
-import {
-  formatCompactCurrency,
-  formatCurrencyLegacy,
-  formatTokenAmountLegacy,
-} from '@/utils/format'
+import { formatCompactCurrency } from '@/utils/format'
 
 export default function DepositClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  // Use functional state management
   const depositState = useDepositState()
   const { state, actions, computed } = depositState
 
@@ -70,17 +61,28 @@ export default function DepositClient() {
 
   useMarkets()
   const { markets } = useStore()
-  const { getTokenStakingApy } = useLstMarkets()
+  const { data: lstMarkets, isLoading: walletBalancesLoading, getTokenStakingApy } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
 
-  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { isWalletConnected, connect } = useChain(chainConfig.name)
   const { theme } = useTheme()
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
+
+  const { data: walletBalances } = useWalletBalances()
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+  const walletBalanceAmount =
+    walletBalances?.find((balance) => balance.denom === tokenData?.denom)?.amount || '0'
+
+  const withdrawValidation = useWithdrawValidation(
+    state.withdrawAmount,
+    tokenData?.denom || '',
+    depositedAmount,
+  )
+
+  const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
 
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
   const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
@@ -101,76 +103,31 @@ export default function DepositClient() {
       : '0',
   )
 
-  const selectedToken = useMemo(() => {
-    if (!tokenSymbol || !tokenData || !market) {
-      router.push('/')
-      return null
-    }
+  // Redirect if required data is missing
+  if (!tokenSymbol || !tokenData || !lstMarketData || !market) {
+    router.push('/')
+    return null
+  }
 
-    const protocolApy = parseFloat(
-      convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
-    )
+  const protocolApy = parseFloat(
+    convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
+  )
 
-    // Get real-time staking APY from consolidated hook
-    const stakingApy = getTokenStakingApy(tokenData.symbol)
+  // Get real-time staking APY from consolidated hook
+  const stakingApy = getTokenStakingApy(tokenData.symbol)
 
-    // Use simulated APY if user has input, otherwise use current APY
-    const hasValidInput = computed.currentAmount && parseFloat(computed.currentAmount) > 0
-    const currentProtocolApy = hasValidInput ? parseFloat(simulatedApys.lend) : protocolApy
+  // Use simulated APY if user has input, otherwise use current APY
+  const hasValidInput = computed.currentAmount && parseFloat(computed.currentAmount) > 0
+  const currentProtocolApy = hasValidInput ? parseFloat(simulatedApys.lend) : protocolApy
 
-    // Calculate total APY: dynamic protocol APY + staking APY
-    const totalApy = parseFloat((currentProtocolApy + stakingApy).toFixed(2))
+  // Calculate total APY: dynamic protocol APY + staking APY
+  const totalApy = parseFloat((currentProtocolApy + stakingApy).toFixed(2))
 
-    const walletBalance =
-      walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
-    const depositedNumber = new BigNumber(depositedAmount || '0')
-      .shiftedBy(-market.asset.decimals)
-      .toNumber()
-    const balanceNumber = new BigNumber(walletBalance).shiftedBy(-market.asset.decimals).toNumber()
-    const price = parseFloat(market.price?.price || '0')
-    const valueUsd = balanceNumber * price
-    const depositedValueUsd = depositedNumber * price
-
-    return {
-      token: {
-        symbol: tokenData.symbol,
-        icon: tokenData.icon,
-        description: tokenData.description,
-        protocol: tokenData.protocol,
-        isLST: tokenData.isLST,
-        brandColor: tokenData.brandColor,
-      },
-      metrics: {
-        protocolApy: currentProtocolApy,
-        stakingApy,
-        totalApy,
-        balance: balanceNumber,
-        deposited: depositedNumber,
-        valueUsd,
-        depositedValueUsd,
-      },
-    }
-  }, [
-    tokenSymbol,
-    tokenData,
-    market,
-    router,
-    getTokenStakingApy,
-    walletBalances,
-    depositedAmount,
-    computed.currentAmount,
-    computed.isDepositing,
-    simulatedApys,
-  ])
-
-  // Calculate theme-dependent values after all hooks are called
-  const protocolPoints = selectedToken ? getProtocolPoints(selectedToken.token.symbol) : null
-  const protocolPointsIcon = selectedToken
-    ? getProtocolPointsIcon(selectedToken.token.symbol, theme)
-    : null
+  const protocolPoints = getProtocolPoints(lstMarketData.token.symbol)
+  const protocolPointsIcon = getProtocolPointsIcon(lstMarketData.token.symbol, theme)
   const neutronIcon = getNeutronIcon(theme)
 
-  if (!selectedToken || walletBalancesLoading) {
+  if (walletBalancesLoading) {
     return (
       <div className='w-full lg:container mx-auto px-4 py-8'>
         <div className='text-center py-16'>
@@ -178,66 +135,86 @@ export default function DepositClient() {
             <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
-            <h3 className='text-lg font-bold text-foreground'>
-              {!selectedToken ? 'Loading Token Data' : 'Loading Wallet Balances'}
-            </h3>
-            <p className='text-muted-foreground'>
-              {!selectedToken ? 'Fetching token information...' : 'Fetching wallet balances...'}
-            </p>
+            <h3 className='text-lg font-bold text-foreground'>Loading</h3>
+            <p className='text-muted-foreground'>Fetching wallet balances...</p>
           </div>
         </div>
       </div>
     )
   }
 
-  const { token, metrics } = selectedToken
+  const { token, metrics } = lstMarketData
+
+  const availableToken = {
+    denom: token.denom,
+    amount: walletBalanceAmount,
+  }
+  const depositedToken = {
+    denom: token.denom,
+    amount: depositedAmount,
+  }
 
   const handleDeposit = async () => {
-    if (!computed.hasAmount()) return
-
-    const market = markets?.find((m) => m.asset.symbol === token.symbol)
-    if (!market) {
-      console.error('Market not found for token:', token.symbol)
-      return
-    }
+    if (!hasValidAmount()) return
 
     await deposit({
       amount: state.depositAmount,
-      denom: market.asset.denom,
+      denom: tokenData!.denom,
       symbol: token.symbol,
-      decimals: market.asset.decimals,
+      decimals: tokenData!.decimals,
     })
     actions.resetAmounts()
     actions.setLastAction('deposit')
   }
 
   const handleWithdraw = async () => {
-    if (!computed.hasAmount()) return
+    if (!hasValidAmount()) return
 
-    const market = markets?.find((m) => m.asset.symbol === token.symbol)
-    if (!market) {
-      console.error('Market not found for token:', token.symbol)
+    if (!withdrawValidation.isValid) {
+      console.error('Withdrawal validation failed:', withdrawValidation.errorMessage)
       return
     }
 
     await withdraw({
       amount: state.withdrawAmount,
-      denom: market.asset.denom,
+      denom: tokenData!.denom,
       symbol: token.symbol,
-      decimals: market.asset.decimals,
+      decimals: tokenData!.decimals,
     })
     actions.resetAmounts()
     actions.setLastAction('withdraw')
   }
 
-  const maxAmount = computed.isDepositing ? metrics.balance : metrics.deposited
+  const maxAmount = computed.isDepositing
+    ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toNumber()
+    : new BigNumber(depositedAmount).shiftedBy(-tokenData!.decimals).toNumber()
+
+  const hasValidAmount = () => {
+    const amount = computed.currentAmount
+    if (amount === '') return false
+
+    try {
+      const parsedAmount = new BigNumber(amount)
+      if (parsedAmount.isLessThanOrEqualTo(0) || !parsedAmount.isFinite()) return false
+
+      const maxAmountBN = new BigNumber(maxAmount)
+      const isWithinBalance = parsedAmount.isLessThanOrEqualTo(maxAmountBN)
+
+      // For withdrawals, also check liquidity validation
+      if (computed.isWithdrawing) {
+        return isWithinBalance && withdrawValidation.isValid
+      }
+
+      return isWithinBalance
+    } catch {
+      return false
+    }
+  }
 
   const handleSliderChange = (value: number[]) => {
     const percentage = value[0]
     actions.updateAmountFromSlider(percentage, maxAmount)
   }
-
-  // const estimatedApyEarnings = parseFloat(computed.currentAmount.toString()) * (metrics.totalApy / 100)
 
   return (
     <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
@@ -251,7 +228,7 @@ export default function DepositClient() {
 
       <DepositHeader
         token={token}
-        totalApy={metrics.totalApy}
+        totalApy={totalApy}
         activeTab={state.activeTab}
         onTabChange={(value) => actions.setActiveTab(value)}
       />
@@ -264,20 +241,14 @@ export default function DepositClient() {
               <BalanceRow
                 icon={Coins}
                 label='Deposited'
-                value={formatTokenAmountLegacy(metrics.deposited, token.symbol)}
-                usdValue={
-                  metrics.depositedValueUsd > 0
-                    ? formatCurrencyLegacy(metrics.depositedValueUsd)
-                    : undefined
-                }
+                coin={depositedToken}
                 brandColor={token.brandColor}
                 actionType={state.lastAction}
               />
               <BalanceRow
                 icon={Wallet}
                 label='Available in Wallet'
-                value={formatTokenAmountLegacy(metrics.balance, token.symbol)}
-                usdValue={formatCurrencyLegacy(metrics.valueUsd)}
+                coin={availableToken}
                 brandColor={token.brandColor}
                 actionType={null}
               />
@@ -295,7 +266,7 @@ export default function DepositClient() {
                 <MetricRow
                   customIcon={token.icon}
                   label={'Amber Finance Yield'}
-                  value={`~${metrics.protocolApy}`}
+                  value={`~${currentProtocolApy}`}
                   suffix='%'
                   brandColor={token.brandColor}
                 />
@@ -389,18 +360,17 @@ export default function DepositClient() {
           <DepositForm
             token={token}
             currentAmount={computed.currentAmount.toString()}
-            usdValue={formatCurrencyLegacy(
-              (parseFloat(computed.currentAmount.toString()) || 0) *
-                (metrics.valueUsd / metrics.balance || 0),
-            )}
             balance={
-              computed.isDepositing ? metrics.balance.toString() : metrics.deposited.toString()
+              computed.isDepositing
+                ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toString()
+                : withdrawValidation.maxWithdrawable
             }
             sliderPercentage={state.sliderPercentage}
             isDepositing={computed.isDepositing}
             isWalletConnected={isWalletConnected}
             isPending={isPending}
-            hasAmount={computed.hasAmount()}
+            hasAmount={hasValidAmount()}
+            validationError={computed.isWithdrawing ? withdrawValidation.errorMessage : undefined}
             onAmountChange={(value) => {
               if (computed.isDepositing) {
                 actions.setDepositAmount(value)
