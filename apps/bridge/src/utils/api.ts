@@ -97,6 +97,7 @@ export function getPrivateAuthHeader() {
 }
 
 export const edgeConfigResponse = z.record(
+  z.string(),
   z.object({
     clientName: z.string().optional(),
     apiKey: z.string().optional(),

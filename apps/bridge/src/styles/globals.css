@@ -521,7 +521,7 @@ input[type='number'] {
   color: var(--muted-foreground); /* placeholder:text-muted-foreground */
 }
 
-.widget-container .sc-kCuUfV.sc-MHKXp.NBJYI.NNxUM path,
+.widget-container .sc-kCuUfV.sc-fYRIQK > svg:first-child > path,
 .widget-container .sc-kCuUfV.sc-MHKXp.ctjPgz.NNxUM path {
   fill: transparent !important;
 }
