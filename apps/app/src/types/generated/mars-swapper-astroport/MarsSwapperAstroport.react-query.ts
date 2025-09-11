@@ -4,38 +4,29 @@
  * DO NOT MODIFY IT BY HAND. Instead, modify the source JSONSchema file,
  * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
  */
-
-import { UseQueryOptions, useQuery, useMutation, UseMutationOptions } from '@tanstack/react-query'
-import { ExecuteResult } from '@cosmjs/cosmwasm-stargate'
 import { StdFee } from '@cosmjs/amino'
+import { ExecuteResult } from '@cosmjs/cosmwasm-stargate'
+import { UseMutationOptions, UseQueryOptions, useMutation, useQuery } from '@tanstack/react-query'
+
 import {
-  InstantiateMsg,
-  ExecuteMsg,
-  OwnerUpdate,
-  SwapOperation,
-  AssetInfo,
+  MarsSwapperAstroportClient,
+  MarsSwapperAstroportQueryClient,
+} from './MarsSwapperAstroport.client'
+import {
   Addr,
-  Uint128,
-  SwapperRoute,
+  ArrayOfRouteResponseForEmpty,
+  AstroportConfig,
   AstroportRoute,
   Coin,
-  AstroRoute,
-  AstroSwap,
-  DualityRoute,
-  OsmoRoute,
-  OsmoSwap,
-  AstroportConfig,
-  QueryMsg,
   Empty,
   EstimateExactInSwapResponse,
   OwnerResponse,
+  OwnerUpdate,
   RouteResponseForEmpty,
-  ArrayOfRouteResponseForEmpty,
+  SwapperRoute,
+  Uint128,
 } from './MarsSwapperAstroport.types'
-import {
-  MarsSwapperAstroportQueryClient,
-  MarsSwapperAstroportClient,
-} from './MarsSwapperAstroport.client'
+
 export const marsSwapperAstroportQueryKeys = {
   contract: [
     {

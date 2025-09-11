@@ -22,6 +22,13 @@ const createDefaultWbtcToken = () => ({
   isLST: true,
   protocol: 'Eureka',
   brandColor: '#F97316',
+  origin: {
+    chainId: 'neutron-1',
+    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  },
+  comingSoon: false,
+  protocolIconLight: '/images/eureka/eurekaLight.svg',
+  protocolIconDark: '/images/eureka/eurekaDark.svg',
 })
 
 export default function StrategiesOverview() {
@@ -37,7 +44,9 @@ export default function StrategiesOverview() {
 
   // Use maxBTC (temporarily WBTC.eureka) for supply APY simulation
   const wbtcEurekaToken = useMemo(
-    () => tokens.find((token) => token.symbol === 'WBTC') || createDefaultWbtcToken(),
+    () =>
+      tokens.find((token) => token.symbol.toLocaleLowerCase() === 'wbtc') ||
+      createDefaultWbtcToken(),
     [],
   )
 
