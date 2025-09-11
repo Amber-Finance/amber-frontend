@@ -13,6 +13,7 @@ import { AssetActions } from '@/components/deposit/AssetActions'
 import { DepositForm } from '@/components/deposit/DepositForm'
 import { DepositHeader } from '@/components/deposit/DepositHeader'
 import ProgressCard from '@/components/deposit/ProgressCard'
+import { TvlChart } from '@/components/deposit/TvlChart'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
@@ -308,55 +309,10 @@ export default function DepositClient() {
               </div>
             </div>
           </InfoCard>
-
-          {/* Market Status Section */}
-          <InfoCard title='Market Status'>
-            <div className='flex flex-row gap-4'>
-              <ProgressCard
-                value={tvlGrowth30d}
-                label='TVL Growth (30d)'
-                subtitle={`${tvlGrowth30d.toFixed(2)}%`}
-                brandColor={token.brandColor}
-              />
-              <ProgressCard
-                value={currentTokenTvlData?.tvl_share ?? 0}
-                label='TVL Share'
-                subtitle={`${(currentTokenTvlData?.tvl_share ?? 0).toFixed(2)}% of platform deposits`}
-                brandColor={token.brandColor}
-              />
-            </div>
-          </InfoCard>
-
-          {/* Protocol Details Section */}
-          <InfoCard title='Protocol Details'>
-            <div className='flex flex-wrap gap-2'>
-              <MetricRow
-                label='Total Value Locked'
-                value={formatCompactCurrency(parseFloat(currentTokenTvlAmount))}
-                variant='compact'
-              />
-              <MetricRow
-                label='Unique Wallets'
-                value={redBankDenomData?.unique_wallets}
-                variant='compact'
-              />
-              <MetricRow
-                label='Average Lending APY (30d)'
-                value={`${redBankDenomData?.average_lending_apy.toFixed(2)}%`}
-                variant='compact'
-              />
-              <MetricRow
-                label='Withdrawal Conditions'
-                value='Instant'
-                brandColor={token.brandColor}
-                variant='compact'
-              />
-            </div>
-          </InfoCard>
         </div>
 
         {/* Right Column - Input Form */}
-        <div className='flex-1 order-1 lg:order-2'>
+        <div className='flex-1 order-1 lg:order-2 flex flex-col'>
           <DepositForm
             token={token}
             currentAmount={computed.currentAmount.toString()}
@@ -387,9 +343,69 @@ export default function DepositClient() {
 
           {/* Asset Actions Section */}
           {computed.isDepositing && (
-            <AssetActions tokenSymbol={token.symbol} tokenDenom={tokenData?.denom} />
+            <div className='flex-1 flex flex-col'>
+              <AssetActions tokenSymbol={token.symbol} tokenDenom={tokenData?.denom} />
+            </div>
           )}
         </div>
+      </div>
+
+      {/* Market Status and Protocol Details Row */}
+      <div className='flex flex-col lg:flex-row gap-4 lg:gap-8 mt-4 '>
+        {/* Market Status Section */}
+        <div className='flex-1'>
+          <InfoCard title='Market Status'>
+            <div className='flex flex-row gap-4'>
+              <ProgressCard
+                value={tvlGrowth30d}
+                label='TVL Growth (30d)'
+                subtitle={`${tvlGrowth30d.toFixed(2)}%`}
+                brandColor={token.brandColor}
+              />
+              <ProgressCard
+                value={currentTokenTvlData?.tvl_share ?? 0}
+                label='TVL Share'
+                subtitle={`${(currentTokenTvlData?.tvl_share ?? 0).toFixed(2)}% of platform deposits`}
+                brandColor={token.brandColor}
+              />
+            </div>
+          </InfoCard>
+        </div>
+
+        {/* Protocol Details Section */}
+        <div className='flex-1'>
+          <InfoCard title='Protocol Details'>
+            <div className='flex flex-wrap gap-2 py-[20px]'>
+              <MetricRow
+                label='Total Value Locked'
+                value={formatCompactCurrency(parseFloat(currentTokenTvlAmount))}
+                variant='compact'
+              />
+              <MetricRow
+                label='Unique Wallets'
+                value={redBankDenomData?.unique_wallets}
+                variant='compact'
+              />
+              <MetricRow
+                label='Average Lending APY (30d)'
+                value={`${redBankDenomData?.average_lending_apy.toFixed(2)}%`}
+                variant='compact'
+              />
+              <MetricRow
+                label='Withdrawal Conditions'
+                value='Instant'
+                brandColor={token.brandColor}
+                variant='compact'
+              />
+            </div>
+          </InfoCard>
+        </div>
+      </div>
+
+      <div className='mt-4'>
+        {redBankDenomData?.tvl_historical && (
+          <TvlChart data={redBankDenomData.tvl_historical} brandColor={token.brandColor} />
+        )}
       </div>
     </div>
   )
