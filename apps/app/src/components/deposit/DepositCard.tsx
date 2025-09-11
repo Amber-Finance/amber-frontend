@@ -318,7 +318,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             className='flex-1'
             disabled={token.comingSoon}
           >
-            {token.comingSoon ? 'Temporary Disabled' : 'Deposit'}
+            {token.comingSoon ? 'Temporary Disabled' : metrics.deposited > 0 ? 'Modify' : 'Deposit'}
           </Button>
 
           {/* Withdraw Button */}

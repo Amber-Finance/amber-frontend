@@ -1,8 +1,8 @@
-import { Info, Wallet } from 'lucide-react'
+import { Info } from 'lucide-react'
 
+import { InfoCard } from '@/components/deposit'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 
@@ -38,14 +38,8 @@ export function MarginCollateralCard({
   positionCalcs,
 }: MarginCollateralCardProps) {
   return (
-    <Card>
-      <CardHeader className='pb-1'>
-        <CardTitle className='flex items-center gap-2 text-sm font-semibold'>
-          <Wallet className='w-4 h-4 text-accent-foreground' />
-          Margin Collateral
-        </CardTitle>
-      </CardHeader>
-      <CardContent className='space-y-2'>
+    <InfoCard title='Margin Collateral'>
+      <div className='space-y-2'>
         <div className='flex justify-between items-center text-xs'>
           <span className='text-muted-foreground'>Wallet balance</span>
           <span className='font-medium text-foreground'>{displayValues.walletBalance}</span>
@@ -154,7 +148,7 @@ export function MarginCollateralCard({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </InfoCard>
   )
 }

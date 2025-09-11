@@ -33,10 +33,11 @@ const depositReducer = (state: DepositState, action: DepositAction): DepositStat
       return {
         ...state,
         activeTab: action.payload,
-        // Reset amounts when switching tabs to avoid confusion
+        // Reset deposit amount when switching tabs, but keep withdraw amount if switching to withdraw
+        // (it will be populated by the component)
         depositAmount: '',
-        withdrawAmount: '',
-        sliderPercentage: 0,
+        withdrawAmount: action.payload === 'deposit' ? '' : state.withdrawAmount,
+        sliderPercentage: action.payload === 'deposit' ? 0 : state.sliderPercentage,
       }
 
     case 'SET_DEPOSIT_AMOUNT':

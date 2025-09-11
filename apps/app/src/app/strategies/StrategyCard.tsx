@@ -59,8 +59,15 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         walletBalancesLoading,
         walletBalances,
         strategy.collateralAsset.denom,
+        markets,
       ),
-    [isWalletConnected, walletBalancesLoading, walletBalances, strategy.collateralAsset.denom],
+    [
+      isWalletConnected,
+      walletBalancesLoading,
+      walletBalances,
+      strategy.collateralAsset.denom,
+      markets,
+    ],
   )
   const netApy = useMemo(() => calculateNetApy(strategy), [strategy])
   const leverage = useMemo(
@@ -197,7 +204,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               <p
                 className={`font-semibold text-sm ${netApy >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
               >
-                {netApy >= 0 ? '+' : ''}
+                {netApy >= 0 ? '+' : '-'}
                 {Math.abs(netApy * 100).toFixed(2)}%
               </p>
             </div>
@@ -321,7 +328,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                             : 'text-red-600 dark:text-red-400'
                         }`}
                       >
-                        {activeStrategy.netApy > 0 ? '+' : ''}
+                        {activeStrategy.netApy > 0 ? '+' : '-'}
                         {(activeStrategy.netApy * 100).toFixed(2)}% APY
                       </span>
                     </div>
@@ -348,45 +355,16 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         )}
 
         {isWalletConnected && activeStrategy && (
-          <div className='w-full flex gap-2'>
-            <Button
-              onClick={
-                isComingSoon
-                  ? undefined
-                  : () =>
-                      (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}&modify=true&accountId=${activeStrategy.accountId}`)
-              }
-              variant='default'
-              size='sm'
-              className='flex-1'
-              disabled={isWithdrawing || isComingSoon}
-            >
-              {isComingSoon ? 'Temporary Disabled' : 'Manage'}
-            </Button>
-            <Button
-              onClick={async () => {
-                try {
-                  await withdrawFullStrategy({
-                    accountId: activeStrategy.accountId,
-                    collateralDenom: activeStrategy.collateralAsset.denom,
-                    collateralAmount: activeStrategy.collateralAsset.amount,
-                    collateralDecimals: strategy.collateralAsset.decimals || 8,
-                    debtDenom: activeStrategy.debtAsset.denom,
-                    debtAmount: activeStrategy.debtAsset.amount,
-                    debtDecimals: strategy.debtAsset.decimals || 8,
-                  })
-                } catch (error) {
-                  console.error('Withdrawal failed:', error)
-                }
-              }}
-              variant='outline'
-              size='sm'
-              className='flex-1'
-              disabled={isWithdrawing}
-            >
-              {isWithdrawing ? 'Withdrawing...' : 'Close'}
-            </Button>
-          </div>
+          <Button
+            onClick={() =>
+              (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}&modify=true&accountId=${activeStrategy.accountId}`)
+            }
+            variant='outline'
+            className='w-full'
+            disabled={isComingSoon}
+          >
+            {isComingSoon ? 'Temporary Disabled' : 'Close Position'}
+          </Button>
         )}
 
         {isWalletConnected && !activeStrategy && (

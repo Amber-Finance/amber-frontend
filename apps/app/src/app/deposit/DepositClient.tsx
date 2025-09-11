@@ -230,7 +230,21 @@ export default function DepositClient() {
         token={token}
         totalApy={totalApy}
         activeTab={state.activeTab}
-        onTabChange={(value) => actions.setActiveTab(value)}
+        onTabChange={(value) => {
+          actions.setActiveTab(value)
+          // Pre-populate withdraw amount with deposited amount when switching to withdraw
+          if (value === 'withdraw' && depositedAmount) {
+            const depositedAmountFormatted = new BigNumber(depositedAmount)
+              .shiftedBy(-tokenData!.decimals)
+              .toString()
+            actions.setWithdrawAmount(depositedAmountFormatted)
+            // Update slider to match the deposited amount
+            const maxWithdrawAmount = new BigNumber(depositedAmount)
+              .shiftedBy(-tokenData!.decimals)
+              .toNumber()
+            actions.updateSliderFromAmount(depositedAmountFormatted, maxWithdrawAmount)
+          }
+        }}
       />
 
       <div className='flex flex-col lg:flex-row gap-4 lg:gap-8'>
