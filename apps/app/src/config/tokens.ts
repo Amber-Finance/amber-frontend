@@ -1,4 +1,4 @@
-const tokens = [
+const tokens: TokenInfo[] = [
   {
     chainId: 'neutron-1',
     denom: 'ibc/B7BF60BB54433071B49D586F54BD4DED5E20BEFBBA91958E87488A761115106B',
@@ -15,6 +15,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
     },
+    comingSoon: true,
   },
   {
     chainId: 'neutron-1',
@@ -32,6 +33,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x7a56e1c57c7475ccf742a1832b028f0456652f97',
     },
+    comingSoon: false,
   },
   {
     chainId: 'neutron-1',
@@ -45,6 +47,11 @@ const tokens = [
     isLST: true,
     protocol: 'Ether.fi ',
     brandColor: '#6366F1', // Ether.fi blue
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
+    },
+    comingSoon: false,
   },
   {
     chainId: 'neutron-1',
@@ -62,6 +69,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568',
     },
+    comingSoon: false,
   },
   {
     chainId: 'neutron-1',
@@ -79,6 +87,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     },
+    comingSoon: false,
   },
   // {
   //   chainId: 'neutron-1',

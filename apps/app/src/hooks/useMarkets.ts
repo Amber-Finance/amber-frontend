@@ -11,19 +11,7 @@ import { useStore } from '@/store/useStore'
 // Create initial markets from params data and token data
 const createInitialMarkets = (
   paramsData: AssetParamsResponse,
-  tokensData: Array<{
-    chainId: string
-    denom: string
-    symbol: string
-    icon: string
-    description: string
-    protocolIconLight: string
-    protocolIconDark: string
-    decimals: number
-    isLST: boolean
-    protocol: string
-    brandColor: string
-  }>,
+  tokensData: TokenInfo[],
 ): Market[] => {
   // First filter params to only include deposit-enabled assets
   // Convert to proper Market objects and filter out nulls
@@ -40,13 +28,22 @@ const createInitialMarkets = (
 
       if (matchedToken) {
         // Create asset object with matched data
-        const asset: Asset = {
+        const asset: TokenInfo = matchedToken ?? {
           denom: param.denom,
-          symbol: matchedToken.symbol || '',
-          name: matchedToken.description || '',
-          description: matchedToken.description || '',
-          decimals: matchedToken.decimals || 6,
-          icon: matchedToken.icon || '',
+          symbol: '',
+          description: '',
+          decimals: 6,
+          icon: '',
+          protocolIconLight: '',
+          protocolIconDark: '',
+          isLST: false,
+          protocol: '',
+          brandColor: '',
+          origin: {
+            chainId: '',
+            tokenAddress: '',
+          },
+          comingSoon: false,
         }
 
         // Create params object from MarketResponse
