@@ -24,6 +24,7 @@ const XIcon = ({ className }: { className?: string }) => {
     </svg>
   )
 }
+
 export const HeroContent = () => {
   return (
     <motion.div

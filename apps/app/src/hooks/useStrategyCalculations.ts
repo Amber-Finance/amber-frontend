@@ -43,21 +43,6 @@ export const useMarketData = (strategy: Strategy, markets: Market[] | null) =>
     const maxLTV = parseFloat(collateralMarket?.params?.max_loan_to_value || '0.8')
     const dynamicMaxLeverage = calculateMaxLeverage(maxLTV)
 
-    // Console log useStrategyCalculations maxLTV values
-    console.log(
-      `⚙️ useStrategyCalculations ${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}:`,
-      {
-        maxLTV,
-        collateralRawMaxLoanToValue: collateralMarket?.params?.max_loan_to_value,
-        debtRawMaxLoanToValue: debtMarket?.params?.max_loan_to_value,
-        calculatedMaxLeverage: dynamicMaxLeverage,
-        collateralMarketSymbol: collateralMarket?.asset?.symbol,
-        collateralMarketDenom: collateralMarket?.asset?.denom,
-        debtMarketSymbol: debtMarket?.asset?.symbol,
-        debtMarketDenom: debtMarket?.asset?.denom,
-      },
-    )
-
     return {
       collateralMarket,
       debtMarket,

@@ -1,12 +1,42 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
+import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
+import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
+
+// Create a CosmWasm client with fallback RPC endpoints
+const createCosmWasmClientWithFallback = async (): Promise<any> => {
+  const primaryRpc = chainConfig.endpoints.rpcUrl
+  const fallbackRpcs = chainConfig.endpoints.fallbackRpcs || []
+  const allRpcs = [primaryRpc, ...fallbackRpcs]
+
+  for (const rpc of allRpcs) {
+    try {
+      console.log(`Attempting to connect to RPC: ${rpc}`)
+      const client = await CosmWasmClient.connect(rpc)
+      console.log(`Successfully connected to RPC: ${rpc}`)
+      return client
+    } catch (error) {
+      console.warn(`Failed to connect to RPC ${rpc}:`, error)
+      if (rpc === allRpcs[allRpcs.length - 1]) {
+        // If this is the last RPC, throw the error
+        throw new Error(
+          `Failed to connect to any RPC endpoint. Last error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
+      }
+      // Continue to next RPC
+    }
+  }
+
+  throw new Error('No RPC endpoints available')
+}
 
 export function useActiveStrategies() {
   const { address, getCosmWasmClient } = useChain(chainConfig.name)
@@ -15,38 +45,61 @@ export function useActiveStrategies() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Use price and APY hooks
+  usePrices() // Ensures prices are fetched and updated
+  const { apy: maxBtcApy } = useMaxBtcApy()
+
   // Get WBTC.eureka denom (temporarily using WBTC.eureka as mentioned in requirements)
   const wbtcDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // WBTC.eureka for now
 
-  const getAllTokens = async (client: any) => {
-    const allTokensQuery = { all_tokens: {} }
-    const response = await client.queryContractSmart(
-      chainConfig.contracts.accountNft,
-      allTokensQuery,
-    )
-
-    if (Array.isArray(response)) return response
-    if (response?.data && Array.isArray(response.data)) return response.data
-    if (response?.tokens && Array.isArray(response.tokens)) return response.tokens
-    return []
+  // Get all credit accounts for the user
+  const getUserCreditAccounts = async (client: any) => {
+    try {
+      const accountsQuery = {
+        accounts: {
+          owner: address,
+          limit: 100, // Get up to 100 accounts
+        },
+      }
+      const response = await client.queryContractSmart(
+        chainConfig.contracts.creditManager,
+        accountsQuery,
+      )
+      // Response structure: [...] (direct array)
+      return response || []
+    } catch (error) {
+      console.error('Failed to fetch credit accounts:', error)
+      throw new Error(
+        `Failed to fetch credit accounts: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
+    }
   }
 
-  const getTokenOwner = async (client: any, tokenId: string) => {
-    const ownerQuery = { owner_of: { token_id: tokenId } }
-    const response = await client.queryContractSmart(chainConfig.contracts.accountNft, ownerQuery)
-    return response?.owner
-  }
-
-  const getTokenPositions = async (client: any, tokenId: string) => {
-    const positionsQuery = { positions: { account_id: tokenId } }
-    return await client.queryContractSmart(chainConfig.contracts.creditManager, positionsQuery)
+  // Get positions for a specific account
+  const getAccountPositions = async (client: any, accountId: string) => {
+    try {
+      const positionsQuery = {
+        positions: {
+          account_id: accountId,
+        },
+      }
+      const response = await client.queryContractSmart(
+        chainConfig.contracts.creditManager,
+        positionsQuery,
+      )
+      // Response structure: { account_id, deposits, debts, ... } (direct object)
+      return response || null
+    } catch (error) {
+      console.error(`Failed to fetch positions for account ${accountId}:`, error)
+      throw error
+    }
   }
 
   const hasActivePositions = (positions: any) => {
-    return positions && (positions.lends?.length > 0 || positions.debts?.length > 0)
+    return positions && (positions.deposits?.length > 0 || positions.debts?.length > 0)
   }
 
-  const createStrategy = (account: any, wbtcCollateral: any, debt: any) => {
+  const createStrategy = (account: any, wbtcCollateral: any, debt: any, maxBtcApyValue: number) => {
     const collateralToken = tokens.find((t) => t.denom === wbtcCollateral.denom)
     const debtToken = tokens.find((t) => t.denom === debt.denom)
     const collateralMarket = markets?.find((m) => m.asset.denom === wbtcCollateral.denom)
@@ -70,10 +123,16 @@ export function useActiveStrategies() {
       debtToken.decimals,
     )
 
-    const leverage = collateralUsd > 0 ? (collateralUsd + debtUsd) / collateralUsd : 1
-    const collateralSupplyApy = parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
+    // Calculate leverage as debt/equity ratio: debt/(collateral-debt)
+    const equity = collateralUsd - debtUsd
+    const leverage = equity > 0 ? debtUsd / equity : 0
+
+    // Use maxBTC APY for collateral supply APY, fallback to market metrics
+    const collateralSupplyApy =
+      maxBtcApyValue / 100 || parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
     const debtBorrowApy = parseFloat(debtMarket.metrics?.borrow_rate || '0')
-    const netApy = collateralSupplyApy * leverage - debtBorrowApy * (leverage - 1)
+    // Net APY = Supply APY × (1 + leverage) - Borrow APY × leverage
+    const netApy = collateralSupplyApy * (1 + leverage) - debtBorrowApy * leverage
 
     return {
       accountId: account.id,
@@ -83,6 +142,8 @@ export function useActiveStrategies() {
         amount: wbtcCollateral.amount,
         amountFormatted: collateralAmount,
         usdValue: collateralUsd,
+        decimals: collateralToken.decimals, // Add decimals for proper handling
+        icon: collateralToken.icon, // Add icon for display
       },
       debtAsset: {
         denom: debt.denom,
@@ -90,35 +151,66 @@ export function useActiveStrategies() {
         amount: debt.amount,
         amountFormatted: debtAmount,
         usdValue: debtUsd,
+        decimals: debtToken.decimals, // Add decimals for proper handling
+        icon: debtToken.icon, // Add icon for display
       },
       leverage,
-      netApy,
+      netApy: netApy * 100, // Convert to percentage for display (same as StrategyCard expects)
       isPositive: netApy > 0,
       strategyId: `${collateralToken.symbol}-${debtToken.symbol}`,
     }
   }
 
-  const getUserAccounts = async (client: any, tokensToCheck: string[]) => {
-    const accounts = []
-    for (const tokenId of tokensToCheck) {
-      try {
-        const tokenOwner = await getTokenOwner(client, tokenId)
-        if (tokenOwner !== address) continue
+  // Get all user accounts with their positions
+  const getUserAccountsWithPositions = async (client: any) => {
+    // First, get all credit accounts for the user
+    const creditAccounts = await getUserCreditAccounts(client)
 
-        const positions = await getTokenPositions(client, tokenId)
-        if (hasActivePositions(positions)) {
-          accounts.push({ id: tokenId, kind: 'default', positions })
-        }
-      } catch (error) {
-        console.warn(`Failed to query token ${tokenId}:`, error)
-      }
+    if (creditAccounts.length === 0) {
+      return []
     }
-    return accounts
+
+    // Then, query positions for each account in parallel with timeout
+    const accountsWithPositions = await Promise.allSettled(
+      creditAccounts.map(async (account: any) => {
+        try {
+          // Add timeout to prevent hanging
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Query timeout')), 10000),
+          )
+
+          const positions = await Promise.race([
+            getAccountPositions(client, account.id),
+            timeoutPromise,
+          ])
+
+          if (hasActivePositions(positions)) {
+            return {
+              id: account.id,
+              kind: account.kind || 'default',
+              positions,
+            }
+          }
+          return null
+        } catch (error) {
+          console.warn(`Failed to query positions for account ${account.id}:`, error)
+          return null
+        }
+      }),
+    )
+
+    // Filter out failed queries and null results
+    return accountsWithPositions
+      .filter(
+        (result): result is PromiseFulfilledResult<any> =>
+          result.status === 'fulfilled' && result.value !== null,
+      )
+      .map((result) => result.value)
   }
 
   const processAccount = (account: any) => {
-    const { lends = [], debts = [] } = account.positions
-    const wbtcCollateral = lends.find((lend: any) => lend.denom === wbtcDenom)
+    const { deposits = [], debts = [] } = account.positions
+    const wbtcCollateral = deposits.find((deposit: any) => deposit.denom === wbtcDenom)
 
     if (!wbtcCollateral) return []
 
@@ -128,7 +220,7 @@ export function useActiveStrategies() {
     })
 
     return btcDebts
-      .map((debt: any) => createStrategy(account, wbtcCollateral, debt))
+      .map((debt: any) => createStrategy(account, wbtcCollateral, debt, maxBtcApy))
       .filter(Boolean)
   }
 
@@ -139,19 +231,29 @@ export function useActiveStrategies() {
     setError(null)
 
     try {
-      const client = await getCosmWasmClient()
-      if (!client) throw new Error('Failed to get CosmWasm client')
+      // Try our custom client with fallback RPC endpoints first
+      let client: any
+      try {
+        client = await createCosmWasmClientWithFallback()
+      } catch (fallbackError) {
+        console.warn('Fallback client failed, trying CosmosKit client:', fallbackError)
+        // Fallback to CosmosKit client if our custom client fails
+        const cosmosKitClient = await getCosmWasmClient()
+        if (!cosmosKitClient)
+          throw new Error('Failed to get CosmWasm client from both custom and CosmosKit')
+        client = cosmosKitClient
+      }
 
-      const allTokens = await getAllTokens(client).catch(() => [])
-      const tokensToCheck = allTokens.slice(0, Math.min(allTokens.length, 20))
+      // Get all user accounts with their positions using the optimized approach
+      const accountsWithPositions = await getUserAccountsWithPositions(client)
 
-      if (tokensToCheck.length === 0) {
+      if (accountsWithPositions.length === 0) {
         setActiveStrategies([])
         return
       }
 
-      const defaultAccounts = await getUserAccounts(client, tokensToCheck)
-      const strategies = defaultAccounts.flatMap(processAccount)
+      // Process each account to extract strategies
+      const strategies = accountsWithPositions.flatMap(processAccount)
 
       setActiveStrategies(strategies)
     } catch (err) {
@@ -160,7 +262,7 @@ export function useActiveStrategies() {
     } finally {
       setIsLoading(false)
     }
-  }, [address, getCosmWasmClient, wbtcDenom, markets])
+  }, [address, getCosmWasmClient, wbtcDenom, markets, maxBtcApy])
 
   // Scan accounts when wallet connects (only on initial load and address changes)
   useEffect(() => {

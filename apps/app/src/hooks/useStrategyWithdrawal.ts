@@ -6,6 +6,7 @@ import getNeutronRouteInfo from '@/api/swap/getNeutronRouteInfo'
 import chainConfig from '@/config/chain'
 import { useStore } from '@/store/useStore'
 import { useBroadcast } from '@/utils/broadcast'
+import { getMinAmountOutFromRouteInfo } from '@/utils/swap'
 
 export function useStrategyWithdrawal() {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -51,6 +52,10 @@ export function useStrategyWithdrawal() {
         }
 
         console.log('Swap route found:', routeResult)
+        console.log('Route object:', routeResult.route)
+
+        // Calculate minimum receive amount with slippage
+        const minReceive = getMinAmountOutFromRouteInfo(routeResult, 0.5).integerValue().toString()
 
         // Build withdrawal actions
         const actions = [
@@ -58,7 +63,7 @@ export function useStrategyWithdrawal() {
           {
             withdraw: {
               denom: params.collateralDenom,
-              amount: collateralForSwap,
+              amount: { exact: collateralForSwap },
             },
           },
           // 2. Swap collateral to debt asset
@@ -66,11 +71,11 @@ export function useStrategyWithdrawal() {
             swap_exact_in: {
               coin_in: {
                 denom: params.collateralDenom,
-                amount: collateralForSwap,
+                amount: { exact: collateralForSwap },
               },
               denom_out: params.debtDenom,
-              slippage: '0.5',
-              route: routeResult,
+              min_receive: minReceive,
+              route: routeResult.route,
             },
           },
           // 3. Repay debt
@@ -78,7 +83,7 @@ export function useStrategyWithdrawal() {
             repay: {
               coin: {
                 denom: params.debtDenom,
-                amount: debtAmountFormatted,
+                amount: { exact: debtAmountFormatted },
               },
             },
           },

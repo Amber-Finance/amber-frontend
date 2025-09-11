@@ -62,7 +62,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>
           <CollaborativeEditingProvider>
-            <div className='relative min-h-screen w-full'>
+            <div className='relative w-full' style={{ minHeight: '100vh' }}>
               <Background />
               <ThemedParticles
                 className='absolute inset-0 z-0'

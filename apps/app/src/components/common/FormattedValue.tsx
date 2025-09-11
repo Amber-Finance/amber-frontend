@@ -13,6 +13,7 @@ interface FormattedValueProps {
   suffix?: string // Suffix to add after the value (e.g., "%")
   useCompactNotation?: boolean // Whether to use compact notation (K, M, B) for large values
   smallValueThreshold?: number // Threshold for using subscript notation (default 0.00001)
+  tokenDecimals?: number // Token decimals for zero value formatting
 }
 
 /**
@@ -86,6 +87,7 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
   suffix = '',
   useCompactNotation = true,
   smallValueThreshold,
+  tokenDecimals = 6,
 }) => {
   // Handle currency prefix - if isCurrency is true and no prefix is provided, use "$"
   const effectivePrefix = isCurrency && !prefix ? '$' : prefix
@@ -101,6 +103,7 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
       if (maxDecimals !== undefined) return maxDecimals
       return isCurrency ? 2 : 4
     })(),
+    tokenDecimals,
   })
 
   // Render based on format type
@@ -119,11 +122,11 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
   if (formatData.type === 'subscript') {
     return renderSubscriptNotation(formatData, effectivePrefix, className, suffix)
   }
-
+  console.log(value)
   return (
     <span className={className}>
       {effectivePrefix || ''}
-      {value || '0'}
+      {value || '0.' + '0'.repeat(tokenDecimals)}
       {suffix}
     </span>
   )

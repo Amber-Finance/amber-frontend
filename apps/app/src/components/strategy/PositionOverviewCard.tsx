@@ -97,6 +97,7 @@ export function PositionOverviewCard({
                 Est. Annual Earnings
               </div>
               <div className='font-semibold text-sm text-emerald-600 dark:text-emerald-300'>
+                {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : '-'}
                 {Math.abs(positionCalcs.estimatedYearlyEarnings).toFixed(6)}{' '}
                 {strategy.collateralAsset.symbol}
               </div>

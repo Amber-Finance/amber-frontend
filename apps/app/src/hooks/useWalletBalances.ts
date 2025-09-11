@@ -32,7 +32,7 @@ export default function useWalletBalances() {
 }
 
 async function getWalletBalances(chainConfig: ChainConfig, address: string): Promise<Coin[]> {
-  const url = getUrl(chainConfig.endpoints.restUrl, `/cosmos/bank/v1beta1/balances/${address}`)
+  const url = getUrl(chainConfig.endpoints.restUrl, `cosmos/bank/v1beta1/balances/${address}`)
   return fetch(url)
     .catch(() => {
       return new Response(null, {

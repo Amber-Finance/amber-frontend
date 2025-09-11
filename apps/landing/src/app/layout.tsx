@@ -51,7 +51,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='en' className='dark h-full prevent-overscroll'>
       <body className='font-sans h-full overflow-x-hidden prevent-overscroll'>
-        <div className='relative min-h-full h-full w-full max-w-full bg-background overflow-x-hidden flex flex-col prevent-overscroll'>
+        <div
+          className='relative w-full max-w-full bg-background overflow-x-hidden flex flex-col prevent-overscroll'
+          style={{ minHeight: '100vh' }}
+        >
           <main className='relative flex-1 w-full no-scrollbar'>
             <Background />
             {children}

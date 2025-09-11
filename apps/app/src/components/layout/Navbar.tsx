@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 const navigation = [
   { name: 'Deposit', href: '/' },
   { name: 'Strategies', href: '/strategies' },
+  { name: 'Portfolio', href: '/portfolio' },
   { name: 'Swap', href: '/swap' },
   { name: 'Bridge', href: 'https://bridge.amberfi.io' },
 ]
@@ -46,7 +47,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50'>
+      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50 border-b border-border/50'>
         <nav className='px-4 py-2 mx-auto max-w-screen-2xl sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center py-1'>
             <Link href='/' className='flex items-center space-x-2 group'>
@@ -99,10 +100,10 @@ export function Navbar() {
 
             {/* Desktop Actions */}
             <div className='hidden md:flex md:items-center md:space-x-3'>
-              <div className='hidden p-1 rounded-full border md:flex md:items-center bg-card/50 border-border/80'>
+              <div className='hidden p-1 rounded-full border md:flex md:items-center bg-card/20 border-border/80'>
                 <ThemeToggle />
               </div>
-              <div className='hidden p-2 text-base rounded-full border md:flex md:items-center md:space-x-3 bg-card/50 border-border/80'>
+              <div className='hidden p-2 text-base rounded-full border md:flex md:items-center md:space-x-3 bg-card/20 border-border/80'>
                 <ConnectButton />
               </div>
             </div>

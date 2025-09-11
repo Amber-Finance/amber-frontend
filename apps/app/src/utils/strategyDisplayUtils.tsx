@@ -60,6 +60,7 @@ export const CreateButtonContent = (
   isBalancesLoading: boolean,
   hasInsufficientBalance: boolean,
   hasValidAmount: boolean,
+  hasInsufficientLiquidity?: boolean,
 ) => {
   if (isProcessing) {
     return (
@@ -72,6 +73,7 @@ export const CreateButtonContent = (
   if (!isWalletConnected) return <>Connect Wallet</>
   if (isBalancesLoading) return <>Loading Balance...</>
   if (hasInsufficientBalance) return <>Insufficient Balance</>
+  if (hasInsufficientLiquidity) return <>Insufficient Liquidity</>
   if (!hasValidAmount) return <>Enter Amount</>
 
   return (

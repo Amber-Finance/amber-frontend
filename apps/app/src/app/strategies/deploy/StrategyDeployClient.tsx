@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -117,6 +117,29 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   const hasValidAmount = Boolean(collateralAmount && currentAmount > 0)
   const hasInsufficientBalance = currentAmount > walletData.userBalance
 
+  // Check available liquidity
+  const hasInsufficientLiquidity = useMemo(() => {
+    if (!marketData.debtMarket?.metrics || !hasValidAmount) return false
+
+    const borrowAmount = positionCalcs.borrowAmount
+    const totalCollateral = new BigNumber(
+      marketData.debtMarket.metrics.collateral_total_amount || '0',
+    )
+    const totalDebt = new BigNumber(marketData.debtMarket.metrics.debt_total_amount || '0')
+    const availableLiquidity = totalCollateral.minus(totalDebt)
+
+    const borrowAmountRaw = new BigNumber(borrowAmount)
+      .shiftedBy(strategy.debtAsset.decimals || 6)
+      .integerValue()
+
+    return borrowAmountRaw.gt(availableLiquidity)
+  }, [
+    marketData.debtMarket,
+    hasValidAmount,
+    positionCalcs.borrowAmount,
+    strategy.debtAsset.decimals,
+  ])
+
   // Button content
   const buttonContent = CreateButtonContent(
     isProcessing,
@@ -125,6 +148,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     isBalancesLoading,
     hasInsufficientBalance,
     hasValidAmount,
+    hasInsufficientLiquidity,
   )
 
   // Effects
@@ -154,17 +178,52 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     if (isBalancesLoading) return
     if (!collateralAmount || currentAmount <= 0) return
     if (hasInsufficientBalance) return
+    if (hasInsufficientLiquidity) return
+
+    // Check available liquidity for borrowing
+    const borrowAmount = positionCalcs.borrowAmount
+    if (marketData.debtMarket) {
+      const totalCollateral = new BigNumber(
+        marketData.debtMarket.metrics?.collateral_total_amount || '0',
+      )
+      const totalDebt = new BigNumber(marketData.debtMarket.metrics?.debt_total_amount || '0')
+      const availableLiquidity = totalCollateral.minus(totalDebt)
+
+      // Convert borrow amount to the same units as available liquidity (raw units)
+      const borrowAmountRaw = new BigNumber(borrowAmount)
+        .shiftedBy(strategy.debtAsset.decimals || 6)
+        .integerValue()
+
+      console.log('Liquidity check:', {
+        borrowAmount,
+        borrowAmountRaw: borrowAmountRaw.toString(),
+        totalCollateral: totalCollateral.toString(),
+        totalDebt: totalDebt.toString(),
+        availableLiquidity: availableLiquidity.toString(),
+        debtAsset: strategy.debtAsset.symbol,
+      })
+
+      if (borrowAmountRaw.gt(availableLiquidity)) {
+        const availableLiquidityFormatted = availableLiquidity
+          .shiftedBy(-(strategy.debtAsset.decimals || 6))
+          .toFixed(2)
+
+        toast.error(
+          `Insufficient liquidity. You're trying to borrow ${borrowAmount.toFixed(2)} ${strategy.debtAsset.symbol}, but only ${availableLiquidityFormatted} ${strategy.debtAsset.symbol} is available.`,
+        )
+        return
+      }
+    }
 
     setIsProcessing(true)
 
     try {
-      const borrowAmount = positionCalcs.borrowAmount
-      const swapRoute = await fetchSwapRoute(borrowAmount)
+      const swapRouteInfo = await fetchSwapRoute(borrowAmount)
 
       await deployStrategy({
         collateralAmount: currentAmount,
         multiplier,
-        swapRoute,
+        swapRouteInfo,
       })
 
       // All success/error handling is done by the broadcast system via toast notifications
@@ -181,17 +240,22 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   }
 
   const getAvailableLiquidityDisplay = () => {
-    if (marketData.debtMarket?.metrics?.collateral_total_amount) {
-      return new BigNumber(marketData.debtMarket.metrics.collateral_total_amount)
-        .shiftedBy(-(strategy.debtAsset.decimals || 6))
-        .toFixed(2)
+    if (
+      marketData.debtMarket?.metrics?.collateral_total_amount &&
+      marketData.debtMarket?.metrics?.debt_total_amount
+    ) {
+      const totalCollateral = new BigNumber(marketData.debtMarket.metrics.collateral_total_amount)
+      const totalDebt = new BigNumber(marketData.debtMarket.metrics.debt_total_amount)
+      const availableLiquidity = totalCollateral.minus(totalDebt)
+
+      return availableLiquidity.shiftedBy(-(strategy.debtAsset.decimals || 6)).toFixed(2)
     }
     return strategy.liquidityDisplay || 'N/A'
   }
 
   const getEstimatedEarningsUsd = () => {
     if (marketData.currentPrice > 0) {
-      return `~${formatCurrency(Math.abs(positionCalcs.estimatedYearlyEarnings) * marketData.currentPrice)}`
+      return `~${formatCurrency()(Math.abs(positionCalcs.estimatedYearlyEarnings) * marketData.currentPrice)}`
     }
     return 'N/A'
   }
@@ -335,7 +399,8 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
               !walletData.isWalletConnected ||
               isBalancesLoading ||
               !hasValidAmount ||
-              hasInsufficientBalance
+              hasInsufficientBalance ||
+              hasInsufficientLiquidity
             }
             variant='default'
             className='w-full'

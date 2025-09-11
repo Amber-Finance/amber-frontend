@@ -19,8 +19,16 @@ const chainConfig: ChainConfig = {
     restUrl: process.env.NEXT_PUBLIC_REST || 'https://rest-lb.neutron.org',
     // Base URL for RPC Node
     rpcUrl: process.env.NEXT_PUBLIC_RPC || 'https://rpc-lb.neutron.org',
-    // Fallback RPC for Skip API
-    fallbackRpc: 'https://neutron-rpc.cosmos-apis.com',
+    // Fallback RPC endpoints for better reliability
+    fallbackRpcs: [
+      'https://neutron-rpc.cosmos-apis.com',
+      'https://neutron-rpc.publicnode.com',
+      'https://rpc-neutron.ecostake.com',
+      'https://neutron-rpc.validatorwallet.net',
+      'https://neutron-rpc.kingnodes.com',
+      'https://rpc.neutron.validatrium.club',
+      'https://neutron-rpc.lavenderfive.com',
+    ],
   },
 
   // Base64 encoded queries

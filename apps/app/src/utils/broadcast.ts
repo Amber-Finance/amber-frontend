@@ -8,6 +8,7 @@ import { mutate } from 'swr'
 
 import chainConfig from '@/config/chain'
 import { track } from '@/utils/analytics'
+import { getMinAmountOutFromRouteInfo } from '@/utils/swap'
 
 const formatAmount = (amount: number, decimals: number): string => {
   return new BigNumber(amount).shiftedBy(decimals).integerValue(BigNumber.ROUND_DOWN).toString()
@@ -21,14 +22,23 @@ const createSwapAction = (config: {
   coinIn: { denom: string; amount: string }
   denomOut: string
   slippage: string
-  route: any
-}) =>
-  createAction('swap_exact_in', {
-    coin_in: config.coinIn,
+  routeInfo: SwapRouteInfo
+}) => {
+  const slippageNum = parseFloat(config.slippage)
+  const minReceive = getMinAmountOutFromRouteInfo(config.routeInfo, slippageNum)
+    .integerValue()
+    .toString()
+
+  return createAction('swap_exact_in', {
+    coin_in: {
+      denom: config.coinIn.denom,
+      amount: { exact: config.coinIn.amount },
+    },
     denom_out: config.denomOut,
-    slippage: config.slippage || '0.5',
-    route: config.route,
+    min_receive: minReceive,
+    route: config.routeInfo.route,
   })
+}
 
 const createDepositAction = (denom: string, amount: string) =>
   createAction('deposit', { denom, amount })
@@ -36,7 +46,14 @@ const createDepositAction = (denom: string, amount: string) =>
 const createBorrowAction = (denom: string, amount: string) =>
   createAction('borrow', { denom, amount })
 
-const createRepayAction = (accountId: string) => createAction('repay', { on_behalf_of: accountId })
+const createRepayAction = (accountId: string, denom: string) =>
+  createAction('repay', {
+    coin: {
+      denom: denom,
+      amount: 'account_balance',
+    },
+    recipient_account_id: accountId,
+  })
 
 const createRefundAction = () => createAction('refund_all_coin_balances', {})
 
@@ -51,7 +68,7 @@ const buildDeployActions = (config: DeployStrategyConfig) => {
       coinIn: { denom: config.debt.denom, amount: formattedDebt },
       denomOut: config.swap.destDenom,
       slippage: config.swap.slippage || '0.5',
-      route: config.swap.route,
+      routeInfo: config.swap.routeInfo,
     }),
   ]
 }
@@ -64,9 +81,9 @@ const buildManageActions = (config: ManageStrategyConfig) => {
       coinIn: { denom: config.collateral.denom, amount: formattedCollateral },
       denomOut: config.debt.denom,
       slippage: config.swap.slippage || '0.5',
-      route: config.swap.route,
+      routeInfo: config.swap.routeInfo,
     }),
-    createRepayAction(config.accountId),
+    createRepayAction(config.accountId, config.debt.denom),
     createRefundAction(),
   ]
 }
@@ -175,6 +192,7 @@ export function useBroadcast() {
         actions,
       },
     }
+    console.log('executeDeployStrategy', msg)
 
     await client.execute(
       address!,
@@ -265,6 +283,7 @@ export function useBroadcast() {
       undefined,
       funds,
     )
+    console.log('result', result)
 
     return {
       result,

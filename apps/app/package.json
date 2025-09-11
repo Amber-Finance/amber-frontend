@@ -23,6 +23,7 @@
     "@cosmos-kit/station": "^2.13.3",
     "@cosmos-kit/vectis": "^2.14.3",
     "@cosmos-kit/xdefi": "^2.12.0",
+    "@eslint/compat": "^1.3.2",
     "@interchain-kit/core": "^0.3.46",
     "@interchain-kit/react": "^0.3.46",
     "@interchain-ui/react": "^1.26.3",

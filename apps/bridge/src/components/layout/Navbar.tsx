@@ -51,7 +51,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50'>
+      <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50 border-b border-border/50'>
         <nav className='px-4 py-2 mx-auto max-w-screen-2xl sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center py-1'>
             <Link href='/' className='group flex items-center space-x-2'>
@@ -103,7 +103,7 @@ export function Navbar() {
 
             {/* Desktop Actions */}
             <div className='hidden md:flex md:items-center md:space-x-3'>
-              <div className='hidden rounded-full border border-border/80 bg-card/50 p-1 md:flex md:items-center'>
+              <div className='hidden rounded-full border border-border/80 bg-card/20 p-1 md:flex md:items-center'>
                 <ThemeToggle />
               </div>
             </div>

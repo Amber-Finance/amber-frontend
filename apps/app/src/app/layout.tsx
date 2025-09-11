@@ -25,13 +25,13 @@ export default function RootLayout({
       <head />
       <body
         className='antialiased overflow-x-hidden font-sans'
-        style={{ overscrollBehavior: 'none' }}
+        // style={{ overscrollBehavior: 'none' }}
       >
         <ThemeProvider defaultTheme='dark' storageKey='amberfi-theme'>
           <SWRProvider>
             <CosmosKitProvider>
               <SkipProvider>
-                <div className='relative min-h-screen flex flex-col w-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
+                <div className='relative flex flex-col w-full h-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
                   <Background />
                   <ThemedParticles
                     className='absolute inset-0 z-0'
@@ -41,11 +41,13 @@ export default function RootLayout({
                     staticity={30}
                     refresh={false}
                   />
-                  <main className='relative z-10 flex-1 w-full max-w-screen-2xl mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
-                    <Navbar />
-                    {children}
-                  </main>
-                  <Footer />
+                  <div className='relative z-10 flex-1 flex flex-col'>
+                    <main className='flex-1 w-full max-w-screen-2xl mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
+                      <Navbar />
+                      {children}
+                    </main>
+                    <Footer />
+                  </div>
 
                   <ToastContainer
                     position='bottom-right'

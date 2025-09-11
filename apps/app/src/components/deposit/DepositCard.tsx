@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 import BigNumber from 'bignumber.js'
-import { ArrowDownToLine, Wallet } from 'lucide-react'
+import { ArrowDownToLine } from 'lucide-react'
 
 import TokenBalance from '@/components/common/TokenBalance'
 import { useTheme } from '@/components/providers/ThemeProvider'
@@ -109,9 +109,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   }
 
   return (
-    <Card className='group relative w-full h-full flex flex-col transition-all duration-200 hover:shadow-lg hover:shadow-muted/25 border-border/50 hover:border-border overflow-hidden'>
+    <Card className='group relative w-full h-full flex flex-col bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* FlickeringGrid in header area only */}
-      <div className='absolute inset-x-0 top-0 h-32 z-0 flex justify-center items-center self-center'>
+      <div className='absolute inset-x-0 top-0 h-32 z-0 flex justify-center items-center self-center overflow-hidden rounded-t-lg'>
         <FlickeringGrid
           className='w-full h-full'
           color={token.brandColor}
@@ -147,7 +147,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
               {/* Protocol Icon Badge */}
               {protocolIcon && (
-                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-lg bg-background border shadow-sm p-0.5'>
+                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-lg bg-card/20 border shadow-sm p-0.5'>
                   <Image
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
@@ -168,54 +168,65 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
           </div>
 
-          <div className='text-4xl font-bold' style={{ color: token.brandColor }}>
-            <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
+          <div className='text-center'>
+            <div className='text-5xl font-funnel font-bold' style={{ color: token.brandColor }}>
+              <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
+            </div>
+            <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>
+              APY
+            </p>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className='flex-1 space-y-5'>
         {/* TVL and Metrics Section */}
-        <div className='space-y-4'>
+        <div className='space-y-6'>
           {/* Progress Bars Section */}
           <div className='grid grid-cols-2 gap-4'>
             {/* Utilization Rate */}
-            <div className='flex flex-col items-center space-y-2'>
+            <div
+              className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
+              title='The percentage of total available liquidity that is currently being borrowed'
+            >
+              <div className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
+                UTILIZATION
+              </div>
               <AnimatedCircularProgressBar
                 value={metrics.utilizationRate}
                 max={100}
                 min={0}
                 gaugePrimaryColor={token.brandColor}
-                gaugeSecondaryColor={`${token.brandColor}10`}
+                gaugeSecondaryColor='rgba(255, 255, 255, 0.1)'
                 className='size-16 text-xs'
               />
-              <div className='text-center'>
-                <div className='text-xs font-medium text-muted-foreground'>Utilization</div>
-                <div className='text-xs text-muted-foreground'>Rate</div>
-              </div>
             </div>
 
             {/* TVL Share */}
-            <div className='flex flex-col items-center space-y-2'>
+            <div
+              className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
+              title="This asset's percentage share of the total value locked in the protocol"
+            >
+              <div className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
+                TVL SHARE
+              </div>
               <AnimatedCircularProgressBar
                 value={tvlPercentage > 0 ? tvlPercentage : 0}
                 max={100}
                 min={0}
                 gaugePrimaryColor={token.brandColor}
-                gaugeSecondaryColor={`${token.brandColor}10`}
+                gaugeSecondaryColor='rgba(255, 255, 255, 0.1)'
                 className='size-16 text-xs'
               />
-              <div className='text-center'>
-                <div className='text-xs font-medium text-muted-foreground'>TVL Share</div>
-                <div className='text-xs text-muted-foreground'>of Protocol</div>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Points Section */}
         <div className='space-y-3'>
-          <h4 className='text-sm font-bold tracking-wider'>Earning Points</h4>
+          <div className='flex items-center gap-2'>
+            <span className='text-sm font-semibold text-foreground'>Earning Points</span>
+          </div>
           <div className='flex flex-wrap gap-2'>
             {/* Protocol Points - Show first if they exist */}
             {protocolPoints.protocolPoint && protocolPointsIcon && (
@@ -273,8 +284,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         {/* Balances Section */}
         <div className='space-y-3'>
           <div className='flex items-center gap-2'>
-            <Wallet className='w-4 h-4 text-muted-foreground' />
-            <span className='text-sm font-bold tracking-wider'>Your Balances</span>
+            <span className='text-sm font-semibold text-foreground'>Your Balances</span>
           </div>
 
           <div className='space-y-2'>

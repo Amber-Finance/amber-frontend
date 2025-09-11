@@ -86,18 +86,6 @@ export default function StrategyDeployPage() {
     const maxLeverage = 1 / (1 - maxLTV) - 1
     const liquidationThreshold = parseFloat(debtMarket.params.liquidation_threshold || '0.85')
 
-    // Console log deploy page maxLTV values
-    console.log(`🚀 Deploy Page Strategy ${strategyId}:`, {
-      maxLTV,
-      collateralRawMaxLoanToValue: collateralMarket.params.max_loan_to_value,
-      debtRawMaxLoanToValue: debtMarket.params.max_loan_to_value,
-      calculatedMaxLeverage: maxLeverage,
-      collateralSymbol: collateralSymbol,
-      collateralDenom: collateralToken.denom,
-      debtSymbol: debtSymbol,
-      debtDenom: debtMarket.asset.denom,
-    })
-
     // Calculate available liquidity
     const totalCollateral = new BigNumber(debtMarket.metrics.collateral_total_amount || '0')
     const totalDebt = new BigNumber(debtMarket.metrics.debt_total_amount || '0')

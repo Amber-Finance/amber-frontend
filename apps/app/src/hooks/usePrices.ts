@@ -38,6 +38,7 @@ export const usePrices = () => {
         }
 
         const data: PriceResponse = await response.json()
+
         const decimalDifferenceToOracle = market.asset.decimals - 6
 
         if (data?.data?.price) {
@@ -61,7 +62,7 @@ export const usePrices = () => {
   }
 
   // Use SWR with a key that depends on whether we have markets with asset denoms
-  const shouldFetch = markets && markets.some((market) => market.asset?.denom)
+  const shouldFetch = markets?.some((market) => market.asset?.denom)
 
   const { error, isLoading } = useSWR(shouldFetch && 'oraclePrices', fetchAllPrices, {
     refreshInterval: 20000,

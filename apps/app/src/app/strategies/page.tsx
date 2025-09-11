@@ -63,13 +63,13 @@ export default function StrategiesOverview() {
             value: 0,
             label: 'Total Borrow',
             isCurrency: true,
-            prefix: '$',
+            prefix: '$ ',
           },
           {
             value: 0,
             label: 'Total Supply',
             isCurrency: true,
-            prefix: '$',
+            prefix: '$ ',
           },
         ]}
       />

@@ -89,6 +89,7 @@ export const formatUserTokenAmount = (
   walletBalances: any[] | undefined,
   collateralDenom: string,
   collateralSymbol: string,
+  decimals: number = 8, // Add decimals parameter with fallback
 ): string => {
   if (!isWalletConnected || isLoading) {
     return `0.000000 ${collateralSymbol}`
@@ -103,7 +104,7 @@ export const formatUserTokenAmount = (
     return `0.000000 ${collateralSymbol}`
   }
 
-  const amount = new BigNumber(balance.amount).shiftedBy(-8).toNumber() // Assuming 8 decimals
+  const amount = new BigNumber(balance.amount).shiftedBy(-decimals).toNumber()
   return `${amount.toFixed(6)} ${collateralSymbol}`
 }
 

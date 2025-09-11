@@ -75,7 +75,7 @@ export function Footer() {
   const { resolvedTheme } = useTheme()
 
   return (
-    <footer className='mt-20 border-t border-border/50 bg-background/50 backdrop-blur-md'>
+    <footer className='mt-auto border-t border-border/50 bg-background/50 backdrop-blur-md'>
       {/* Main Footer Content */}
       <div className='mx-auto max-w-6xl px-8 py-12 md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
@@ -116,7 +116,7 @@ export function Footer() {
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label={icon.label}
-                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/50 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
+                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/20 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
                 >
                   {icon.icon}
                 </a>

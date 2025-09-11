@@ -24,7 +24,7 @@ export function StatCard({
     if (isCurrency && value > 0) {
       // For currency, we need to separate the dollar sign and number for different colors
       const formattedValue = formatLargeCurrency(value)
-      const dollarSign = formattedValue.startsWith('-$') ? '-$' : '$'
+      const dollarSign = formattedValue.startsWith('-$') ? '-$ ' : '$ '
       const numberPart = formattedValue.replace(/^(-\$|\$)/, '')
 
       return (
@@ -71,7 +71,7 @@ export function StatCard({
 
   return (
     <div
-      className={`${getDynamicWidth()} bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/70 transition-all duration-300 group`}
+      className={`${getDynamicWidth()} bg-card/20 backdrop-blur-xl border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/50 transition-all duration-300 group`}
     >
       <div className='space-y-1'>
         <div className='text-base font-funnel sm:text-lg lg:text-2xl text-foreground group-hover:scale-110 transition-transform duration-300'>

@@ -41,7 +41,7 @@ const tokens = [
     description: 'Ether.fi Bitcoin',
     protocolIconLight: '/images/etherfiDark.svg',
     protocolIconDark: '/images/etherfi.svg',
-    decimals: 8,
+    decimals: 8, // eBTC uses 8 decimals like other BTC tokens
     isLST: true,
     protocol: 'Ether.fi ',
     brandColor: '#6366F1', // Ether.fi blue

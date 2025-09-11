@@ -9,6 +9,33 @@ interface Asset {
   brandColor?: string
 }
 
+// Active strategy interface for portfolio components
+interface ActiveStrategy {
+  accountId: string
+  collateralAsset: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+    decimals: number
+    icon: string
+  }
+  debtAsset: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+    decimals: number
+    icon: string
+  }
+  leverage: number
+  netApy: number
+  isPositive: boolean
+  strategyId: string
+}
+
 // AssetInfo interface for strategy assets
 interface AssetInfo {
   denom: string
@@ -195,6 +222,7 @@ interface ChainConfig {
     restUrl: string
     rpcUrl: string
     fallbackRpc?: string
+    fallbackRpcs?: string[]
     routes?: string
   }
   queries: {
@@ -234,6 +262,8 @@ interface FormatValueOptions {
   smallValueThreshold?: number
   /** Threshold for using compact notation */
   largeValueThreshold?: number
+  /** Token decimals for zero value formatting */
+  tokenDecimals?: number
 }
 
 /**
@@ -676,7 +706,7 @@ interface StrategyAsset {
 }
 
 interface SwapConfig {
-  route: any
+  routeInfo: SwapRouteInfo
   slippage?: string
 }
 
@@ -815,7 +845,7 @@ type SwapAction =
 interface StrategyDeploymentParams {
   collateralAmount: number
   multiplier: number
-  swapRoute: any
+  swapRouteInfo: SwapRouteInfo
 }
 
 interface UseStrategyDeploymentProps {

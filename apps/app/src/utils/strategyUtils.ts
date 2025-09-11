@@ -125,18 +125,6 @@ export const createStrategyGenerator =
     const maxLTV = safeParseNumber()(collateralMarket?.params?.max_loan_to_value || '0.8')
     const liquidationThreshold = safeParseNumber()(market.params.liquidation_threshold || '0.85')
 
-    // Console log strategy maxLTV values
-    console.log(`🔍 Strategy ${collateralAsset.symbol}-${debtAsset.symbol}:`, {
-      maxLTV,
-      collateralRawMaxLoanToValue: collateralMarket?.params?.max_loan_to_value,
-      debtRawMaxLoanToValue: market.params.max_loan_to_value,
-      calculatedMaxLeverage: maxLTV > 0 ? 1 / (1 - maxLTV) : 1,
-      collateralSymbol: collateralAsset.symbol,
-      collateralDenom: collateralToken.denom,
-      debtSymbol: market.asset.symbol,
-      debtDenom: market.asset.denom,
-    })
-
     const metrics = calculateStrategyMetrics(market, maxBtcSupplyApy, maxLTV, liquidationThreshold)
 
     // Calculate borrow capacity
