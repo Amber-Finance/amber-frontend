@@ -1,14 +1,3 @@
-// Define the Asset interface
-interface Asset {
-  denom: string
-  symbol: string
-  name: string
-  description: string
-  decimals: number
-  icon: string
-  brandColor?: string
-}
-
 // Active strategy interface for portfolio components
 interface ActiveStrategy {
   accountId: string

@@ -56,7 +56,7 @@ function createDualityRoute(denomIn: string, denomOut: string, swapOperations: a
   }
 }
 
-function createSwapDescription(denomIn: string, denomOut: string, assets: Asset[]): string {
+function createSwapDescription(denomIn: string, denomOut: string, assets: TokenInfo[]): string {
   return [
     assets.find(byDenom(denomIn))?.symbol || denomIn,
     assets.find(byDenom(denomOut))?.symbol || denomOut,
@@ -99,7 +99,7 @@ function buildSwapRouteInfo(
 async function getNeutronRouteInfoInternal(
   denomIn: string,
   denomOut: string,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
   routeParams: any,
   isReverse: boolean = false,
@@ -156,7 +156,7 @@ export async function getNeutronRouteInfoReverse(
   denomIn: string,
   denomOut: string,
   amountOut: BigNumber,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
   slippage?: number, // Will use default from settings if not provided
 ): Promise<SwapRouteInfo | null> {
@@ -232,7 +232,7 @@ async function binarySearchReverseRouting(
   denomIn: string,
   denomOut: string,
   targetAmountOut: BigNumber,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
   slippage: number,
 ): Promise<SwapRouteInfo | null> {
@@ -305,7 +305,7 @@ export default async function getNeutronRouteInfo(
   denomIn: string,
   denomOut: string,
   amount: BigNumber,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
 ): Promise<SwapRouteInfo | null> {
   return getNeutronRouteInfoInternal(
