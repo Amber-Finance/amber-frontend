@@ -31,17 +31,17 @@ interface Icon {
 const icons: Icon[] = [
   {
     icon: <TwitterLogoIcon className='h-5 w-5' />,
-    url: 'https://twitter.com/amberfi_io',
+    url: 'https://x.amberfi.io',
     label: 'X',
   },
   {
     icon: <GitHubLogoIcon className='h-5 w-5' />,
-    url: 'https://github.com/amber-finance',
+    url: 'https://github.amberfi.io',
     label: 'GitHub',
   },
   {
     icon: <TelegramIcon className='h-5 w-5' />,
-    url: 'https://t.me/mars_protocol',
+    url: 'https://telegram.amberfi.io',
     label: 'Mars Telegram',
   },
 ]
@@ -66,7 +66,7 @@ const footerSections = [
     title: 'Resources',
     links: [
       { title: 'Documentation', url: 'https://docs.amberfi.io' },
-      { title: 'Amber GitHub', url: 'https://github.com/amber-finance' },
+      { title: 'Amber GitHub', url: 'https://github.amberfi.io' },
     ],
   },
 ]
