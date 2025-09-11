@@ -256,8 +256,8 @@ importers:
         specifier: ^1.3.2
         version: 1.3.2(react@18.3.1)
       '@skip-go/widget':
-        specifier: ^3.14.7
-        version: 3.14.7(5523299b3ac41fe0d2bdce7d22262967)
+        specifier: ^3.14.10
+        version: 3.14.10(44ab0780490970f20ac303b69668d4f5)
       '@tailwindcss/forms':
         specifier: ^0.5.7
         version: 0.5.10(tailwindcss@4.1.12)
@@ -3826,8 +3826,14 @@ packages:
       '@solana/web3.js': ^1.95.8
       viem: 2.x
 
-  '@skip-go/widget@3.14.7':
-    resolution: {integrity: sha512-3q1YqywYIXQCdWYizM443aMX7kLaDjAs6RwcWwqAyi6rdpguG9rhU/iunzDvSFT3dXzlD7rtkDRm84oJI9cIFw==}
+  '@skip-go/client@1.5.6':
+    resolution: {integrity: sha512-pVxJpfOknoJEpW4rNieh+fZRXGnHhHcpTEJUJLMm8yXqme3XHSjFgtOv0UCYC1zX3BjPxeLU5/GnaYTfwxbPqg==}
+    peerDependencies:
+      '@solana/web3.js': ^1.95.8
+      viem: 2.x
+
+  '@skip-go/widget@3.14.10':
+    resolution: {integrity: sha512-55EF+Auv2euXZDSq7Vw7JHHJNGjrvmOBLTBYdBCcOOCuHqPMVlg3qP17r0d5hP+KXfoa3HHFX8K9fAi/UxVWIQ==}
     peerDependencies:
       '@tanstack/react-query': ^5.51.21
       react: '>=17.0.0'
@@ -15068,10 +15074,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@keplr-wallet/common@0.12.156':
+  '@keplr-wallet/common@0.12.156(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/crypto': 0.12.156
-      '@keplr-wallet/types': 0.12.156
+      '@keplr-wallet/crypto': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
       buffer: 6.0.3
       delay: 4.4.1
     transitivePeerDependencies:
@@ -15085,15 +15091,15 @@ snapshots:
       delay: 4.4.1
       mobx: 6.13.7
 
-  '@keplr-wallet/cosmos@0.12.156':
+  '@keplr-wallet/cosmos@0.12.156(starknet@7.6.4)':
     dependencies:
       '@ethersproject/address': 5.8.0
-      '@keplr-wallet/common': 0.12.156
-      '@keplr-wallet/crypto': 0.12.156
+      '@keplr-wallet/common': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/crypto': 0.12.156(starknet@7.6.4)
       '@keplr-wallet/proto-types': 0.12.156
       '@keplr-wallet/simple-fetch': 0.12.156
-      '@keplr-wallet/types': 0.12.156
-      '@keplr-wallet/unit': 0.12.156
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/unit': 0.12.156(starknet@7.6.4)
       bech32: 1.1.4
       buffer: 6.0.3
       long: 4.0.0
@@ -15115,7 +15121,7 @@ snapshots:
       long: 4.0.0
       protobufjs: 6.11.4
 
-  '@keplr-wallet/crypto@0.12.156':
+  '@keplr-wallet/crypto@0.12.156(starknet@7.6.4)':
     dependencies:
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
@@ -15123,6 +15129,7 @@ snapshots:
       bip39: 3.1.0
       bs58check: 2.1.2
       buffer: 6.0.3
+      starknet: 7.6.4
 
   '@keplr-wallet/crypto@0.12.28':
     dependencies:
@@ -15177,9 +15184,10 @@ snapshots:
     dependencies:
       long: 4.0.0
 
-  '@keplr-wallet/types@0.12.156':
+  '@keplr-wallet/types@0.12.156(starknet@7.6.4)':
     dependencies:
       long: 4.0.0
+      starknet: 7.6.4
 
   '@keplr-wallet/types@0.12.269(starknet@7.6.4)':
     dependencies:
@@ -15190,9 +15198,9 @@ snapshots:
     dependencies:
       long: 4.0.0
 
-  '@keplr-wallet/unit@0.12.156':
+  '@keplr-wallet/unit@0.12.156(starknet@7.6.4)':
     dependencies:
-      '@keplr-wallet/types': 0.12.156
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
       big-integer: 1.6.52
       utility-types: 3.11.0
     transitivePeerDependencies:
@@ -18013,7 +18021,29 @@ snapshots:
       - starknet
       - utf-8-validate
 
-  '@skip-go/widget@3.14.7(5523299b3ac41fe0d2bdce7d22262967)':
+  '@skip-go/client@1.5.6(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.37.3(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))':
+    dependencies:
+      '@cosmjs/amino': 0.33.1
+      '@cosmjs/cosmwasm-stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@cosmjs/encoding': 0.33.1
+      '@cosmjs/math': 0.33.1
+      '@cosmjs/proto-signing': 0.33.1
+      '@cosmjs/stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@keplr-wallet/unit': 0.12.269(starknet@7.6.4)
+      '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))
+      '@solana/web3.js': 1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)
+      bech32: 2.0.0
+      cosmjs-types: 0.9.0
+      keccak: 3.0.4
+      uuid: 11.1.0
+      viem: 2.37.3(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - starknet
+      - utf-8-validate
+
+  '@skip-go/widget@3.14.10(44ab0780490970f20ac303b69668d4f5)':
     dependencies:
       '@amplitude/analytics-browser': 2.23.5
       '@amplitude/plugin-session-replay-browser': 1.22.10(@amplitude/rrweb@2.0.0-alpha.32)
@@ -18030,7 +18060,7 @@ snapshots:
       '@penumbra-zone/protobuf': 7.2.0(@bufbuild/protobuf@1.10.1)
       '@penumbra-zone/transport-dom': 7.5.2
       '@r2wc/react-to-web-component': 2.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@skip-go/client': 1.5.4(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.37.3(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@skip-go/client': 1.5.6(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(starknet@7.6.4)(utf-8-validate@5.0.10)(viem@2.37.3(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76))
       '@solana/spl-token': 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.2)(utf-8-validate@5.0.10)
       '@solana/wallet-adapter-ledger': 0.9.29(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))
       '@solana/wallet-adapter-react': 0.15.39(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))(bs58@5.0.0)(react-native@0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10))(react@18.3.1)
@@ -18043,7 +18073,7 @@ snapshots:
       '@walletconnect/solana-adapter': 0.0.8(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@solana/wallet-adapter-base@0.9.27(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)))(@solana/web3.js@1.98.4(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10))(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
       add: 2.0.6
       bech32: 2.0.0
-      graz: 0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.9(react@18.3.1))(@types/react@19.1.12)(bufferutil@4.0.9)(immer@10.1.3)(react@18.3.1)(typescript@5.9.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.76)
+      graz: 0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.9(react@18.3.1))(@types/react@19.1.12)(bufferutil@4.0.9)(immer@10.1.3)(react@18.3.1)(starknet@7.6.4)(typescript@5.9.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.76)
       jotai: 2.13.1(@babel/core@7.28.3)(@babel/template@7.27.2)(@types/react@19.1.12)(react@18.3.1)
       jotai-effect: 1.1.6(jotai@2.13.1(@babel/core@7.28.3)(@babel/template@7.27.2)(@types/react@19.1.12)(react@18.3.1))
       jotai-tanstack-query: 0.8.8(@tanstack/query-core@5.85.9)(jotai@2.13.1(@babel/core@7.28.3)(@babel/template@7.27.2)(@types/react@19.1.12)(react@18.3.1))
@@ -25003,7 +25033,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graz@0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.9(react@18.3.1))(@types/react@19.1.12)(bufferutil@4.0.9)(immer@10.1.3)(react@18.3.1)(typescript@5.9.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.76):
+  graz@0.3.3(@cosmjs/amino@0.33.1)(@cosmjs/cosmwasm-stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@cosmjs/encoding@0.33.1)(@cosmjs/proto-signing@0.33.1)(@cosmjs/stargate@0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))(@react-native-async-storage/async-storage@1.24.0(react-native@0.81.1(@babel/core@7.28.3)(@types/react@19.1.12)(bufferutil@4.0.9)(react@18.3.1)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.85.9(react@18.3.1))(@types/react@19.1.12)(bufferutil@4.0.9)(immer@10.1.3)(react@18.3.1)(starknet@7.6.4)(typescript@5.9.2)(use-sync-external-store@1.4.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.25.76):
     dependencies:
       '@cosmjs/amino': 0.33.1
       '@cosmjs/cosmwasm-stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -25012,8 +25042,8 @@ snapshots:
       '@cosmjs/stargate': 0.33.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@cosmsnap/snapper': 0.2.7
       '@dao-dao/cosmiframe': 1.0.0(@cosmjs/amino@0.33.1)(@cosmjs/proto-signing@0.33.1)
-      '@keplr-wallet/cosmos': 0.12.156
-      '@keplr-wallet/types': 0.12.156
+      '@keplr-wallet/cosmos': 0.12.156(starknet@7.6.4)
+      '@keplr-wallet/types': 0.12.156(starknet@7.6.4)
       '@metamask/providers': 12.0.0
       '@tanstack/react-query': 5.85.9(react@18.3.1)
       '@vectis/extension-client': 0.7.2
@@ -27982,7 +28012,7 @@ snapshots:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/node': 20.19.12
-      long: 5.2.5
+      long: 5.3.2
 
   proxy-compare@2.5.1: {}
 
