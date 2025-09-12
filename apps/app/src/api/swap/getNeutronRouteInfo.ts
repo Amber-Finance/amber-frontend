@@ -115,6 +115,8 @@ async function getNeutronRouteInfoInternal(
       destAssetChainId: chainConfig.id,
       allowUnsafe: true,
       swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
+      experimentalFeatures: ['stargate', 'eureka'],
+      smartRelay: true,
       amountIn: amountInWithDecimals,
     }
 
@@ -171,6 +173,8 @@ export async function getNeutronRouteInfoReverse(
       destAssetChainId: chainConfig.id,
       allowUnsafe: true,
       swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
+      experimentalFeatures: ['stargate', 'eureka'],
+      smartRelay: true,
       // Use reverse routing parameters
       amountOut: toIntegerString(amountOut),
     }
