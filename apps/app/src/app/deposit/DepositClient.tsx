@@ -13,13 +13,14 @@ import { AssetActions } from '@/components/deposit/AssetActions'
 import { DepositForm } from '@/components/deposit/DepositForm'
 import { DepositHeader } from '@/components/deposit/DepositHeader'
 import ProgressCard from '@/components/deposit/ProgressCard'
-import { TvlChart } from '@/components/deposit/TvlChart'
+import { ApyChart } from '@/components/deposit/charts/ApyChart'
+import { TvlChart } from '@/components/deposit/charts/TvlChart'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
-import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
-import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
+import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
+import useDenomData from '@/hooks/redBank/useDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
 import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
@@ -85,10 +86,10 @@ export default function DepositClient() {
 
   const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
 
-  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
-  const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
+  const { data: assetsTvl } = useAssetsTvl()
+  const { data: assetMetrics, tvlGrowth30d } = useDenomData(tokenData?.denom || '')
 
-  const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
+  const currentTokenTvlData = assetsTvl?.assets?.find(
     (asset: any) => asset.denom === tokenData?.denom,
   )
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
@@ -397,12 +398,12 @@ export default function DepositClient() {
               />
               <MetricRow
                 label='Unique Wallets'
-                value={redBankDenomData?.unique_wallets}
+                value={assetMetrics?.unique_wallets}
                 variant='compact'
               />
               <MetricRow
                 label='Average Lending APY (30d)'
-                value={`${redBankDenomData?.average_lending_apy.toFixed(2)}%`}
+                value={`${assetMetrics?.average_lending_apy.toFixed(2)}%`}
                 variant='compact'
               />
               <MetricRow
@@ -418,6 +419,9 @@ export default function DepositClient() {
 
       <div className='mt-4'>
         {tokenData?.denom && <TvlChart denom={tokenData.denom} brandColor={token.brandColor} />}
+      </div>
+      <div className='mt-4'>
+        {tokenData?.denom && <ApyChart denom={tokenData.denom} brandColor={token.brandColor} />}
       </div>
     </div>
   )

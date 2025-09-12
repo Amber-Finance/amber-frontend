@@ -20,7 +20,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
+import useRedBankAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'

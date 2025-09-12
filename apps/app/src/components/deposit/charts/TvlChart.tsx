@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
+import useDenomData from '@/hooks/redBank/useDenomData'
 import { cn } from '@/lib/utils'
 
 interface TvlChartProps {
@@ -32,23 +32,27 @@ const chartConfig = {
 }
 
 export function TvlChart({ denom, brandColor, className }: TvlChartProps) {
-  const [timeRange, setTimeRange] = useState('90')
+  const [timeRange, setTimeRange] = useState('7')
 
-  const { data: redBankDenomData, isLoading } = useRedBankDenomData(denom, parseInt(timeRange))
-  const data = redBankDenomData?.tvl_historical
+  const { data: assetMetrics, isLoading } = useDenomData(denom, parseInt(timeRange))
+  const data = assetMetrics?.tvl_historical
 
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return []
 
     return data
-      .map((point) => ({
+      .map((point: { date: string; value: string }) => ({
         date: new Date(point.date),
         tvl: new BigNumber(point.value).shiftedBy(-6).toNumber(), // Convert from micro units
         formattedDate: moment(point.date).format('MMM DD'),
         formattedValue: new BigNumber(point.value).toFixed(2),
       }))
-      .sort((a, b) => a.date.getTime() - b.date.getTime()) // Sort by date ascending
+      .sort((a: any, b: any) => a.date.getTime() - b.date.getTime()) // Sort by date ascending
   }, [data])
+
+  if (!isLoading && (!data || data.length === 0)) {
+    return null
+  }
 
   return (
     <Card className='bg-card/20 pt-0'>
@@ -64,14 +68,14 @@ export function TvlChart({ denom, brandColor, className }: TvlChartProps) {
             <SelectValue placeholder='Last 3 months' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>
-            <SelectItem value='90' className='rounded-lg'>
-              Last 3 months
+            <SelectItem value='7' className='rounded-lg'>
+              Last 7 days
             </SelectItem>
             <SelectItem value='30' className='rounded-lg'>
               Last 30 days
             </SelectItem>
-            <SelectItem value='7' className='rounded-lg'>
-              Last 7 days
+            <SelectItem value='90' className='rounded-lg'>
+              Last 3 months
             </SelectItem>
           </SelectContent>
         </Select>
