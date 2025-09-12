@@ -95,7 +95,7 @@ export default function SwapClient() {
           </p>
         </div>
       </div>
-      <div className='w-full max-w-lg mx-auto pb-0 sm:pb-16'>
+      <div className='w-full max-w-lg mx-auto sm:pb-16'>
         <Card className='bg-card rounded-2xl shadow-xl border border-border/30 py-2'>
           <CardContent className='sm:py-2 px-2'>
             <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
