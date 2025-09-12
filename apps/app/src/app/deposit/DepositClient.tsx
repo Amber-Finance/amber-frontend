@@ -13,8 +13,7 @@ import { AssetActions } from '@/components/deposit/AssetActions'
 import { DepositForm } from '@/components/deposit/DepositForm'
 import { DepositHeader } from '@/components/deposit/DepositHeader'
 import ProgressCard from '@/components/deposit/ProgressCard'
-import { ApyChart } from '@/components/deposit/charts/ApyChart'
-import { TvlChart } from '@/components/deposit/charts/TvlChart'
+import { Chart } from '@/components/deposit/charts/Chart'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
@@ -416,12 +415,8 @@ export default function DepositClient() {
           </InfoCard>
         </div>
       </div>
-
       <div className='mt-4'>
-        {tokenData?.denom && <TvlChart denom={tokenData.denom} brandColor={token.brandColor} />}
-      </div>
-      <div className='mt-4'>
-        {tokenData?.denom && <ApyChart denom={tokenData.denom} brandColor={token.brandColor} />}
+        {tokenData?.denom && <Chart denom={tokenData.denom} brandColor={token.brandColor} />}
       </div>
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 
+import BigNumber from 'bignumber.js'
 import moment from 'moment'
 import { Area, AreaChart, XAxis, YAxis } from 'recharts'
 
@@ -15,10 +16,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import useAssetsApr from '@/hooks/redBank/useAssetsApr'
+import useDenomData from '@/hooks/redBank/useDenomData'
 import { cn } from '@/lib/utils'
 import { convertAprToApy } from '@/utils/finance'
 
-interface ApyChartProps {
+interface ChartProps {
   denom: string
   brandColor?: string
   className?: string
@@ -27,57 +29,61 @@ interface ApyChartProps {
 const chartConfig = {
   supplyApr: {
     label: 'Supply APY',
-    color: '#f57136',
+    color: '#6B7289',
   },
-  borrowApr: {
-    label: 'Borrow APY',
-    color: '#6B7280',
+  tvl: {
+    label: 'TVL',
+    color: '#f57136',
   },
 }
 
-export function ApyChart({ denom, brandColor, className }: ApyChartProps) {
+export function Chart({ denom, brandColor, className }: ChartProps) {
   const [timeRange, setTimeRange] = useState('7')
 
-  const { data: assetsApr, isLoading } = useAssetsApr(denom, parseInt(timeRange))
+  const { data: assetMetrics, isLoading: tvlLoading } = useDenomData(denom, parseInt(timeRange))
+  const { data: assetsApr, isLoading: aprLoading } = useAssetsApr(denom, parseInt(timeRange))
+  const tvlData = assetMetrics?.tvl_historical
+  const aprData = assetsApr?.[0]?.supply_apr || []
+
+  const isLoading = tvlLoading || aprLoading
 
   const chartData = useMemo(() => {
-    if (!assetsApr || assetsApr.length === 0) return []
+    if (!aprData || aprData.length === 0 || !tvlData || tvlData.length === 0) return []
 
-    // Get the first asset's data (assuming single asset for now)
-    const assetData = assetsApr[0]
-    if (!assetData || !assetData.supply_apr || !assetData.borrow_apr) return []
-
-    // Create a map to combine supply and borrow data by date
     const dataMap = new Map()
 
-    // Process supply APR data
-    assetData.supply_apr.forEach((point: { date: string; value: string }) => {
-      const date = point.date
-      if (!dataMap.has(date)) {
-        dataMap.set(date, {
-          date: new Date(date),
-          formattedDate: moment(date).format('MMM DD'),
+    // APR
+    aprData.forEach((point: { date: string; value: string }) => {
+      const dateKey = moment(point.date).format('YYYY-MM-DD')
+      if (!dataMap.has(dateKey)) {
+        dataMap.set(dateKey, {
+          date: new Date(point.date),
+          formattedDate: moment(point.date).format('MMM DD'),
+          supplyApr: 0,
+          tvl: 0,
         })
       }
-      dataMap.get(date).supplyApr = parseFloat(convertAprToApy(point.value))
+      dataMap.get(dateKey).supplyApr = parseFloat(convertAprToApy(point.value))
     })
 
-    // Process borrow APR data
-    assetData.borrow_apr.forEach((point: { date: string; value: string }) => {
-      const date = point.date
-      if (!dataMap.has(date)) {
-        dataMap.set(date, {
-          date: new Date(date),
-          formattedDate: moment(date).format('MMM DD'),
+    // TVL
+    tvlData.forEach((point: { date: string; value: string }) => {
+      const dateKey = moment(point.date).format('YYYY-MM-DD')
+      if (!dataMap.has(dateKey)) {
+        dataMap.set(dateKey, {
+          date: new Date(point.date),
+          formattedDate: moment(point.date).format('MMM DD'),
+          supplyApr: 0,
+          tvl: 0,
         })
       }
-      dataMap.get(date).borrowApr = parseFloat(convertAprToApy(point.value))
+      dataMap.get(dateKey).tvl = new BigNumber(point.value).shiftedBy(-6).toNumber()
     })
 
     return Array.from(dataMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime())
-  }, [assetsApr])
+  }, [aprData, tvlData])
 
-  if (!isLoading && (!assetsApr || assetsApr.length === 0)) {
+  if (!isLoading && (!aprData || aprData.length === 0 || !tvlData || tvlData.length === 0)) {
     return null
   }
 
@@ -85,7 +91,9 @@ export function ApyChart({ denom, brandColor, className }: ApyChartProps) {
     <Card className='bg-card/20 pt-0'>
       <CardHeader className='flex items-center gap-2 space-y-0 border-b border-border/40 py-5 sm:flex-row'>
         <div className='grid flex-1 gap-1'>
-          <CardTitle className='text-sm font-bold text-foreground'>Supply & Borrow APY</CardTitle>
+          <CardTitle className='text-sm font-bold text-foreground'>
+            Total Value Locked & Supply APY
+          </CardTitle>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger
@@ -118,20 +126,20 @@ export function ApyChart({ denom, brandColor, className }: ApyChartProps) {
             className={cn(className, 'w-full h-[350px]')}
             style={
               {
-                '--color-supplyApr': brandColor || '#f57136',
-                '--color-borrowApr': '#6B7280',
+                '--color-supplyApr': '#6B7280',
+                '--color-tvl': brandColor || '#f57136',
               } as React.CSSProperties
             }
           >
-            <AreaChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 10 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: -10, left: -10, bottom: 10 }}>
               <defs>
                 <linearGradient id='supplyAprGradient' x1='0' y1='0' x2='0' y2='1'>
                   <stop offset='5%' stopColor='var(--color-supplyApr)' stopOpacity={0.3} />
                   <stop offset='95%' stopColor='var(--color-supplyApr)' stopOpacity={0} />
                 </linearGradient>
-                <linearGradient id='borrowAprGradient' x1='0' y1='0' x2='0' y2='1'>
-                  <stop offset='5%' stopColor='var(--color-borrowApr)' stopOpacity={0.3} />
-                  <stop offset='95%' stopColor='var(--color-borrowApr)' stopOpacity={0} />
+                <linearGradient id='tvlGradient' x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='5%' stopColor='var(--color-tvl)' stopOpacity={0.3} />
+                  <stop offset='95%' stopColor='var(--color-tvl)' stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis
@@ -143,16 +151,28 @@ export function ApyChart({ denom, brandColor, className }: ApyChartProps) {
                 stroke='rgba(255, 255, 255, 0.06)'
                 interval='preserveStartEnd'
               />
-              {/* <YAxis
+              <YAxis
+                yAxisId='apy'
+                orientation='left'
                 axisLine={false}
                 tickLine={false}
                 fontSize={10}
                 stroke='rgba(255, 255, 255, 0.06)'
                 tickFormatter={(value) => `${value}%`}
-              /> */}
+              />
+              <YAxis
+                yAxisId='tvl'
+                orientation='right'
+                axisLine={false}
+                tickLine={false}
+                fontSize={10}
+                stroke='rgba(255, 255, 255, 0.06)'
+                tickFormatter={(value) => `$${value.toLocaleString()}`}
+              />
 
-              <ChartTooltip content={<ChartTooltipContent indicator='line' isPercentage />} />
+              <ChartTooltip content={<ChartTooltipContent indicator='line' />} />
               <Area
+                yAxisId='apy'
                 type='monotone'
                 dataKey='supplyApr'
                 stroke='var(--color-supplyApr)'
@@ -161,12 +181,13 @@ export function ApyChart({ denom, brandColor, className }: ApyChartProps) {
                 name='Supply APY'
               />
               <Area
+                yAxisId='tvl'
                 type='monotone'
-                dataKey='borrowApr'
-                stroke='var(--color-borrowApr)'
+                dataKey='tvl'
+                stroke='var(--color-tvl)'
                 strokeWidth={2}
-                fill='url(#borrowAprGradient)'
-                name='Borrow APY'
+                fill='url(#tvlGradient)'
+                name='TVL'
               />
             </AreaChart>
           </ChartContainer>
