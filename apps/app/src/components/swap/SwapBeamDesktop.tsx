@@ -90,10 +90,7 @@ export default function SwapBeamDesktop({ fromToken, toToken }: SwapBeamDesktopP
   }, [toToken, fromToken])
 
   return (
-    <div
-      className='select-none absolute left-1/2 z-0 w-full md:top-[80%] xl:top-[65%]'
-      style={{ transform: 'translateX(-50%)', zIndex: -10 }}
-    >
+    <div style={{ zIndex: -10 }}>
       <svg
         width={svgWidth}
         height={svgHeight}
