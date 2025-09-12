@@ -28,7 +28,7 @@ interface ChartProps {
 
 const chartConfig = {
   supplyApr: {
-    label: 'Supply APY',
+    label: 'Deposit APY',
     color: '#6B7289',
   },
   tvl: {
@@ -92,7 +92,7 @@ export function Chart({ denom, brandColor, className }: ChartProps) {
       <CardHeader className='flex items-center gap-2 space-y-0 border-b border-border/40 py-5 sm:flex-row'>
         <div className='grid flex-1 gap-1'>
           <CardTitle className='text-sm font-bold text-foreground'>
-            Total Value Locked & Supply APY
+            Total Value Locked & Deposit APY
           </CardTitle>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
@@ -178,7 +178,7 @@ export function Chart({ denom, brandColor, className }: ChartProps) {
                 stroke='var(--color-supplyApr)'
                 strokeWidth={2}
                 fill='url(#supplyAprGradient)'
-                name='Supply APY'
+                name='Deposit APY'
               />
               <Area
                 yAxisId='tvl'
