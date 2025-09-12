@@ -100,7 +100,7 @@ export function Chart({ denom, brandColor, className }: ChartProps) {
             className='hidden w-[160px] rounded-lg sm:ml-auto sm:flex'
             aria-label='Select a value'
           >
-            <SelectValue placeholder='Last 3 months' />
+            <SelectValue placeholder='Last 7 days' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>
             <SelectItem value='7' className='rounded-lg'>
