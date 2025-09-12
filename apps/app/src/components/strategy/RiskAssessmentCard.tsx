@@ -1,7 +1,8 @@
 import { Info } from 'lucide-react'
 
+import { InfoCard } from '@/components/deposit'
+import { InfoAlert } from '@/components/ui/InfoAlert'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
 interface RiskAssessmentCardProps {
@@ -33,14 +34,8 @@ export function RiskAssessmentCard({
   strategyRiskStyles,
 }: RiskAssessmentCardProps) {
   return (
-    <Card>
-      <CardHeader className='pb-1'>
-        <CardTitle className='text-sm font-semibold flex items-center gap-2'>
-          <Info className='w-4 h-4 text-muted-foreground' />
-          Risk Assessment
-        </CardTitle>
-      </CardHeader>
-      <CardContent className='space-y-3 text-xs'>
+    <InfoCard title='Risk Assessment'>
+      <div className='space-y-3 text-xs'>
         {/* Yield Spread - Primary Risk Metric */}
         <div className={`p-3 rounded-lg border ${riskStyles.colorClasses}`}>
           <div className='flex justify-between items-center mb-2'>
@@ -58,7 +53,7 @@ export function RiskAssessmentCard({
             </Tooltip>
           </div>
           <div className={`text-lg font-bold ${riskStyles.textColor}`}>
-            {positionCalcs.yieldSpread >= 0 ? '+' : ''}
+            {positionCalcs.yieldSpread >= 0 ? '+' : '-'}
             {(positionCalcs.yieldSpread * 100).toFixed(2)}%
           </div>
           <div className={`text-xs mt-1 ${riskStyles.subtextColor}`}>{riskStyles.description}</div>
@@ -110,17 +105,15 @@ export function RiskAssessmentCard({
         <Separator />
 
         {/* Strategy Risk Info */}
-        <div className={`p-2 rounded-lg border ${strategyRiskStyles.colorClasses}`}>
-          <div className={`font-medium text-xs mb-1 ${strategyRiskStyles.textColor}`}>
-            {strategy.isCorrelated ? 'Correlated Asset Strategy' : 'Risk Warning'}
-          </div>
-          <div className={`text-xs ${strategyRiskStyles.subtextColor}`}>
-            {strategy.isCorrelated
-              ? 'Liquidation occurs when borrow rate > supply rate. Negative yield spread erodes collateral over time, increasing leverage. At max leverage, partial liquidation occurs.'
-              : 'Leveraged positions amplify both gains and losses. Monitor your position carefully.'}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        <InfoAlert
+          title={strategy.isCorrelated ? 'Correlated Asset Strategy' : 'Risk Warning'}
+          variant={strategy.isCorrelated ? 'blue' : 'yellow'}
+        >
+          {strategy.isCorrelated
+            ? 'Liquidation occurs when borrow rate > supply rate. Negative yield spread erodes collateral over time, increasing leverage. At max leverage, partial liquidation occurs.'
+            : 'Leveraged positions amplify both gains and losses. Monitor your position carefully.'}
+        </InfoAlert>
+      </div>
+    </InfoCard>
   )
 }

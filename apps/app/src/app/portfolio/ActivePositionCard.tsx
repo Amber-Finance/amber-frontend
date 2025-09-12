@@ -241,7 +241,7 @@ export function ActivePositionCard({
             <p
               className={`font-semibold text-sm ${pnl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
             >
-              {pnl >= 0 ? '+' : ''}
+              {pnl >= 0 ? '+' : '-'}
               {formatUsdValue(Math.abs(pnl))}
             </p>
           </div>

@@ -27,7 +27,7 @@ export const formatApy = (value: number): string => {
   if (value === 0 || value === undefined) return '-'
   // Convert decimal to percentage for display
   const percentageValue = value * 100
-  return `${percentageValue > 0 ? '+' : ''}${percentageValue.toFixed(2)}%`
+  return `${percentageValue > 0 ? '+' : '-'}${percentageValue.toFixed(2)}%`
 }
 
 // Higher-order function for creating APY formatters
@@ -35,7 +35,7 @@ export const createApyFormatter =
   (showSign: boolean = true) =>
   (value: number): string => {
     if (value === 0 || value === undefined) return '-'
-    const sign = showSign && value > 0 ? '+' : ''
+    const sign = showSign && value > 0 ? '+' : '-'
     return `${sign}${value.toFixed(2)}%`
   }
 

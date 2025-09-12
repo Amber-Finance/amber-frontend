@@ -6,23 +6,23 @@ import Link from 'next/link'
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { TelegramLogo, XLogo } from '@/components/utils/SocialIcons'
 import { cn } from '@/lib/utils'
-import { TelegramLogo, XLogo } from '@/utils/SocialIcons'
 
 const icons: Icon[] = [
   {
     icon: <XLogo className='w-5 h-5' />,
-    url: 'https://twitter.com/amberfi_io',
+    url: 'https://x.amberfi.io',
     label: 'X',
   },
   {
     icon: <GitHubLogoIcon className='w-5 h-5' />,
-    url: 'https://github.com/amber-finance',
+    url: 'https://github.amberfi.io',
     label: 'GitHub',
   },
   {
     icon: <TelegramLogo className='w-5 h-5' />,
-    url: 'https://t.me/mars_protocol',
+    url: 'https://telegram.amberfi.io',
     label: 'Mars Telegram',
   },
 ]
@@ -41,7 +41,7 @@ const footerSections = [
     title: 'Resources',
     links: [
       { title: 'Documentation', url: 'https://docs.amberfi.io' },
-      { title: 'Amber GitHub', url: 'https://github.com/amber-finance' },
+      { title: 'Amber GitHub', url: 'https://github.amberfi.io' },
     ],
   },
 ]

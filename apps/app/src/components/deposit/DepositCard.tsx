@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator'
 import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
+import { cn } from '@/lib/utils'
 import {
   getNeutronIcon,
   getProtocolIcon,
@@ -31,17 +32,7 @@ import {
 } from '@/utils/depositCardHelpers'
 
 interface DepositCardProps {
-  token: {
-    symbol: string
-    icon: string
-    description: string
-    protocol: string
-    isLST: boolean
-    brandColor: string
-    protocolIconLight?: string
-    protocolIconDark?: string
-    denom: string
-  }
+  token: TokenInfo
   metrics: {
     lendingApy: number
     stakingApy: number
@@ -179,144 +170,165 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className='flex-1 space-y-5'>
-        {/* TVL and Metrics Section */}
-        <div className='space-y-6'>
-          {/* Progress Bars Section */}
-          <div className='grid grid-cols-2 gap-4'>
-            {/* Utilization Rate */}
-            <div
-              className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
-              title='The percentage of total available liquidity that is currently being borrowed'
-            >
-              <div className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
-                UTILIZATION
+      <div className='relative w-full'>
+        {token.comingSoon && (
+          <div className='absolute inset-0 flex flex-wrap gap-4 items-center content-center z-10'>
+            <h2 className='text-lg md:text-2xl font-funnel text-center w-full'>
+              Temporary Disabled
+            </h2>
+            <p className='text-sm text-muted-foreground text-center w-full px-4 md:px-8'>
+              Deposits and withdrawals will be disabled for the time being due to a bridge upgrade
+              for {token.symbol}. Please check back soon.
+            </p>
+          </div>
+        )}
+        <CardContent className={cn('flex-1 space-y-5', token.comingSoon && 'blur-sm')}>
+          {/* TVL and Metrics Section */}
+          <div className='space-y-6'>
+            {/* Progress Bars Section */}
+            <div className='grid grid-cols-2 gap-4'>
+              {/* Utilization Rate */}
+              <div
+                className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
+                title='The percentage of total available liquidity that is currently being borrowed'
+              >
+                <div className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
+                  UTILIZATION
+                </div>
+                <AnimatedCircularProgressBar
+                  value={metrics.utilizationRate}
+                  max={100}
+                  min={0}
+                  gaugePrimaryColor={token.brandColor}
+                  gaugeSecondaryColor='rgba(255, 255, 255, 0.1)'
+                  className='size-16 text-xs'
+                />
               </div>
-              <AnimatedCircularProgressBar
-                value={metrics.utilizationRate}
-                max={100}
-                min={0}
-                gaugePrimaryColor={token.brandColor}
-                gaugeSecondaryColor='rgba(255, 255, 255, 0.1)'
-                className='size-16 text-xs'
-              />
-            </div>
 
-            {/* TVL Share */}
-            <div
-              className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
-              title="This asset's percentage share of the total value locked in the protocol"
-            >
-              <div className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
-                TVL SHARE
+              {/* TVL Share */}
+              <div
+                className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
+                title="This asset's percentage share of the total value locked in the protocol"
+              >
+                <div className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
+                  TVL SHARE
+                </div>
+                <AnimatedCircularProgressBar
+                  value={tvlPercentage > 0 ? tvlPercentage : 0}
+                  max={100}
+                  min={0}
+                  gaugePrimaryColor={token.brandColor}
+                  gaugeSecondaryColor='rgba(255, 255, 255, 0.1)'
+                  className='size-16 text-xs'
+                />
               </div>
-              <AnimatedCircularProgressBar
-                value={tvlPercentage > 0 ? tvlPercentage : 0}
-                max={100}
-                min={0}
-                gaugePrimaryColor={token.brandColor}
-                gaugeSecondaryColor='rgba(255, 255, 255, 0.1)'
-                className='size-16 text-xs'
-              />
             </div>
           </div>
-        </div>
 
-        {/* Points Section */}
-        <div className='space-y-3'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm font-semibold text-foreground'>Earning Points</span>
-          </div>
-          <div className='flex flex-wrap gap-2'>
-            {/* Protocol Points - Show first if they exist */}
-            {protocolPoints.protocolPoint && protocolPointsIcon && (
+          {/* Points Section */}
+          <div className='space-y-3'>
+            <div className='flex items-center gap-2'>
+              <span className='text-sm font-semibold text-foreground'>Earning Points</span>
+            </div>
+            <div className='flex flex-wrap gap-2'>
+              {/* Protocol Points - Show first if they exist */}
+              {protocolPoints.protocolPoint && protocolPointsIcon && (
+                <Badge variant='secondary' className='text-xs gap-1.5'>
+                  <div className='w-3 h-3 flex-shrink-0'>
+                    <Image
+                      src={protocolPointsIcon}
+                      alt={protocolPoints.protocolPoint}
+                      width={12}
+                      height={12}
+                      className='object-contain w-full h-full'
+                      unoptimized={true}
+                    />
+                  </div>
+                  <span>{protocolPoints.protocolPoint}</span>
+                  <span className='font-semibold'>{protocolPoints.multiplier}</span>
+                </Badge>
+              )}
+
+              {/* Neutron Points */}
               <Badge variant='secondary' className='text-xs gap-1.5'>
                 <div className='w-3 h-3 flex-shrink-0'>
                   <Image
-                    src={protocolPointsIcon}
-                    alt={protocolPoints.protocolPoint}
+                    src={neutronIcon}
+                    alt='Neutron'
                     width={12}
                     height={12}
                     className='object-contain w-full h-full'
-                    unoptimized={true}
                   />
                 </div>
-                <span>{protocolPoints.protocolPoint}</span>
-                <span className='font-semibold'>{protocolPoints.multiplier}</span>
+                <span>Neutron</span>
               </Badge>
-            )}
 
-            {/* Neutron Points */}
-            <Badge variant='secondary' className='text-xs gap-1.5'>
-              <div className='w-3 h-3 flex-shrink-0'>
-                <Image
-                  src={neutronIcon}
-                  alt='Neutron'
-                  width={12}
-                  height={12}
-                  className='object-contain w-full h-full'
-                />
-              </div>
-              <span>Neutron</span>
-            </Badge>
-
-            {/* Mars Fragments */}
-            <Badge variant='secondary' className='text-xs gap-1.5'>
-              <div className='w-3 h-3 flex-shrink-0'>
-                <Image
-                  src='/points/mars-fragments.svg'
-                  alt='Mars Fragments'
-                  width={12}
-                  height={12}
-                  className='object-contain w-full h-full'
-                />
-              </div>
-              <span>Mars Fragments</span>
-            </Badge>
-          </div>
-        </div>
-
-        {/* Flexible spacer to push content to bottom */}
-        <div className='flex-1' />
-
-        <Separator />
-
-        {/* Balances Section */}
-        <div className='space-y-3'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm font-semibold text-foreground'>Your Balances</span>
+              {/* Mars Fragments */}
+              <Badge variant='secondary' className='text-xs gap-1.5'>
+                <div className='w-3 h-3 flex-shrink-0'>
+                  <Image
+                    src='/points/mars-fragments.svg'
+                    alt='Mars Fragments'
+                    width={12}
+                    height={12}
+                    className='object-contain w-full h-full'
+                  />
+                </div>
+                <span>Mars Fragments</span>
+              </Badge>
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            {/* Deposited Balance */}
-            <div className='space-y-1'>
-              <div className='flex justify-between items-center'>
-                <span className='text-sm text-muted-foreground'>Deposited</span>
-                <TokenBalance coin={depositedCoin} size='sm' />
-              </div>
+          {/* Flexible spacer to push content to bottom */}
+          <div className='flex-1' />
+
+          <Separator />
+
+          {/* Balances Section */}
+          <div className='space-y-3'>
+            <div className='flex items-center gap-2'>
+              <span className='text-sm font-semibold text-foreground'>Your Balances</span>
             </div>
 
-            {/* Available Balance */}
-            <div className='space-y-1'>
-              <div className='flex justify-between items-center'>
-                <span className='text-sm text-muted-foreground'>Available</span>
-                <TokenBalance coin={availableCoin} size='sm' />
+            <div className='space-y-2'>
+              {/* Deposited Balance */}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-muted-foreground'>Deposited</span>
+                  <TokenBalance coin={depositedCoin} size='sm' />
+                </div>
+              </div>
+
+              {/* Available Balance */}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-muted-foreground'>Available</span>
+                  <TokenBalance coin={availableCoin} size='sm' />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-
+        </CardContent>
+      </div>
       <CardFooter className='pt-4'>
         <div className='flex gap-2 w-full'>
           {/* Deposit Button */}
-          <Button onClick={handleDepositClick} className='flex-1'>
-            Deposit
+          <Button
+            onClick={token.comingSoon ? undefined : handleDepositClick}
+            className='flex-1'
+            disabled={token.comingSoon}
+          >
+            {token.comingSoon ? 'Temporary Disabled' : metrics.deposited > 0 ? 'Modify' : 'Deposit'}
           </Button>
 
           {/* Withdraw Button */}
           {metrics.deposited > 0 && (
-            <Button onClick={handleWithdrawClick} variant='outline' size='icon'>
+            <Button
+              onClick={token.comingSoon ? undefined : handleWithdrawClick}
+              variant='outline'
+              size='icon'
+              disabled={token.comingSoon}
+            >
               <ArrowDownToLine className='w-4 h-4' />
             </Button>
           )}

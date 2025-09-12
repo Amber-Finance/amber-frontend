@@ -63,11 +63,11 @@ export type SwapOperation =
     }
   | {
       astro_swap: {
-        ask_asset_info: AssetInfo
-        offer_asset_info: AssetInfo
+        ask_asset_info: TokenInfo
+        offer_asset_info: TokenInfo
       }
     }
-export type AssetInfo =
+export type TokenInfo =
   | {
       token: {
         contract_addr: Addr

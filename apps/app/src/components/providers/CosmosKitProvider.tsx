@@ -19,31 +19,36 @@ import { getCosmosKitTheme } from '@/theme/cosmosKitTheme'
 const chainNames = [chainConfig.name]
 const chainAssets = assetLists.filter((asset) => asset.chainName === chainConfig.name)
 
-// Utility to check wallet availability
+// Utility to check wallet availability safely
 const isWalletAvailable = (walletName: string): boolean => {
   if (typeof window === 'undefined') return false
 
-  const windowAny = window as any
+  try {
+    const windowAny = window as any
 
-  switch (walletName) {
-    case 'keplr':
-      return !!windowAny.keplr
-    case 'leap':
-      return !!windowAny.leap
-    case 'cosmostation':
-      return !!windowAny.cosmostation
-    case 'xdefi':
-      return !!windowAny.xfi?.cosmos
-    case 'okx':
-      return !!windowAny.okxwallet
-    case 'vectis':
-      return !!windowAny.vectis
-    default:
-      return false
+    switch (walletName) {
+      case 'keplr':
+        return !!(windowAny.keplr || windowAny.getKeplr)
+      case 'leap':
+        return !!windowAny?.leap?.getCosmosSigner
+      case 'cosmostation':
+        return !!windowAny?.cosmostation?.providers
+      case 'xdefi':
+        return !!windowAny?.xfi?.cosmos?.getCosmosSigner
+      case 'okx':
+        return !!windowAny?.okxwallet?.cosmos
+      case 'vectis':
+        return !!windowAny?.vectis?.getCosmosSigner
+      default:
+        return false
+    }
+  } catch (error) {
+    console.warn(`Error checking wallet ${walletName}:`, error)
+    return false
   }
 }
 
-// Filter wallets based on availability
+// Get only available wallets to prevent initialization errors
 const getAvailableWallets = () => {
   const allWallets = [
     { wallets: keplrWallets, name: 'keplr' },
@@ -58,7 +63,7 @@ const getAvailableWallets = () => {
     .filter(({ name }) => isWalletAvailable(name))
     .flatMap(({ wallets }) => wallets)
 
-  // Always include Keplr as fallback since it's the most common
+  // Always include Keplr as fallback
   if (availableWallets.length === 0) {
     return keplrWallets
   }
@@ -72,17 +77,29 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // State to track available wallets
   const [availableWallets, setAvailableWallets] = useState(() => {
-    // Initial state with Keplr as fallback for SSR
+    // Start with Keplr as fallback for SSR
     return keplrWallets
   })
 
   // Update available wallets after component mounts
   useEffect(() => {
-    // Small delay to ensure wallet extensions are loaded
-    const timer = setTimeout(() => {
-      const wallets = getAvailableWallets()
-      setAvailableWallets(wallets)
-    }, 100)
+    const checkWallets = () => {
+      try {
+        const wallets = getAvailableWallets()
+        setAvailableWallets(wallets)
+        console.log('Available wallets loaded:', wallets.length)
+      } catch (error) {
+        console.error('Error loading wallets:', error)
+        // Fallback to Keplr on error
+        setAvailableWallets(keplrWallets)
+      }
+    }
+
+    // Check immediately
+    checkWallets()
+
+    // Also check after a delay to catch wallets that load later
+    const timer = setTimeout(checkWallets, 1000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -92,7 +109,7 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       chains={chainNames}
       assetLists={chainAssets as any}
       wallets={availableWallets}
-      throwErrors={'connect_only'}
+      throwErrors={false}
       walletConnectOptions={{
         signClient: {
           projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',

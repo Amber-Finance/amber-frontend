@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react'
 import { InfoCard } from '@/components/deposit'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { Button } from '@/components/ui/Button'
+import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 
 interface DepositFormProps {
@@ -76,12 +77,17 @@ export const DepositForm = ({
   return (
     <InfoCard title={isDepositing ? 'Deposit Amount' : 'Withdraw Amount'}>
       <div className='space-y-2'>
+        <div className='flex justify-between items-center text-xs'>
+          <span className='text-muted-foreground'>Wallet balance</span>
+          <span className='font-medium text-foreground'>{balance}</span>
+        </div>
         <AmountInput
           value={currentAmount}
           onChange={(e) => onAmountChange(e.target.value)}
           token={token}
           balance={balance}
         />
+        <Separator />
 
         <div className='flex flex-col gap-4 mb-8'>
           <div className='flex justify-between items-center'>

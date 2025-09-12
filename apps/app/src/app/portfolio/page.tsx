@@ -108,12 +108,23 @@ const Portfolio = () => {
   // Calculate P&L percentage
   const pnlPercentage = totalPositionValue > 0 ? (totalPnL / totalPositionValue) * 100 : 0
 
+  // Helper functions for formatting
+  const formatPercentage = (value: number) =>
+    value === 0 ? '0.00%' : `${value >= 0 ? '+' : '-'}${value.toFixed(2)}%`
+  const formatCurrency = (value: number) =>
+    value === 0
+      ? '$0.00'
+      : `${value >= 0 ? '+' : '-'}${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+  const getChangeType = (value: number) =>
+    value === 0 ? 'neutral' : value >= 0 ? 'positive' : 'negative'
+
   const stats = [
     {
       title: 'Total Assets',
       value: `$${totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      change: `${pnlPercentage >= 0 ? '+' : ''}${pnlPercentage.toFixed(2)}%`,
-      changeType: pnlPercentage === 0 ? 'neutral' : pnlPercentage >= 0 ? 'positive' : 'negative',
+      change: formatPercentage(pnlPercentage),
+      changeType: getChangeType(pnlPercentage),
     },
     {
       title: 'Active Positions',
@@ -123,15 +134,15 @@ const Portfolio = () => {
     },
     {
       title: 'Unrealized P&L',
-      value: `${totalPnL >= 0 ? '+' : ''}$${Math.abs(totalPnL).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      change: `${pnlPercentage >= 0 ? '+' : ''}${pnlPercentage.toFixed(2)}%`,
-      changeType: totalPnL === 0 ? 'neutral' : totalPnL >= 0 ? 'positive' : 'negative',
+      value: formatCurrency(totalPnL),
+      change: formatPercentage(pnlPercentage),
+      changeType: getChangeType(totalPnL),
     },
     {
       title: 'Weighted APY',
-      value: `${weightedApy >= 0 ? '+' : ''}${weightedApy.toFixed(2)}%`,
-      change: `${Math.abs(weightedApy).toFixed(2)}%`,
-      changeType: weightedApy === 0 ? 'neutral' : weightedApy >= 0 ? 'positive' : 'negative',
+      value: formatPercentage(weightedApy),
+      change: weightedApy === 0 ? '0.00%' : `${Math.abs(weightedApy).toFixed(2)}%`,
+      changeType: getChangeType(weightedApy),
     },
   ]
 

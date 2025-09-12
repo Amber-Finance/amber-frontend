@@ -68,11 +68,23 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   // Custom hooks
   const marketData = useMarketData(strategy, markets)
   const walletData = useWalletData(strategy, walletBalances || [], address)
+  // Find active strategy - for modify mode, find by accountId
+  const activeStrategy =
+    isModifying && modifyingAccountId
+      ? activeStrategies.find((active) => active.accountId === modifyingAccountId)
+      : activeStrategies.find(
+          (active) =>
+            active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
+            active.debtAsset.symbol === strategy.debtAsset.symbol,
+        )
 
   // Use simulated APY calculations that update based on user input
+  // For modify mode, use existing position data
   const positionCalcs = usePositionCalculationsWithSimulatedApy(
-    collateralAmount,
-    multiplier,
+    isModifying && activeStrategy
+      ? activeStrategy.collateralAsset.amountFormatted.toString()
+      : collateralAmount,
+    isModifying && activeStrategy ? activeStrategy.leverage : multiplier,
     marketData.collateralMarket?.metrics || null,
     marketData.debtMarket?.metrics || null,
     {
@@ -91,13 +103,6 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     modifyingAccountId,
   })
 
-  // Find active strategy
-  const activeStrategy = activeStrategies.find(
-    (active) =>
-      active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
-      active.debtAsset.symbol === strategy.debtAsset.symbol,
-  )
-
   // Display values
   const displayValues = createDisplayValues(
     isBalancesLoading,
@@ -114,8 +119,10 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   const strategyRiskStyles = createStrategyRiskStyles(strategy.isCorrelated)
 
   // Validation states
-  const hasValidAmount = Boolean(collateralAmount && currentAmount > 0)
-  const hasInsufficientBalance = currentAmount > walletData.userBalance
+  const hasValidAmount = isModifying
+    ? Boolean(activeStrategy)
+    : Boolean(collateralAmount && currentAmount > 0)
+  const hasInsufficientBalance = isModifying ? false : currentAmount > walletData.userBalance
 
   // Check available liquidity
   const hasInsufficientLiquidity = useMemo(() => {
@@ -141,19 +148,25 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   ])
 
   // Button content
-  const buttonContent = CreateButtonContent(
-    isProcessing,
-    isModifying,
-    walletData.isWalletConnected,
-    isBalancesLoading,
-    hasInsufficientBalance,
-    hasValidAmount,
-    hasInsufficientLiquidity,
-  )
+  const buttonContent = isModifying
+    ? isProcessing
+      ? 'Closing Position...'
+      : 'Close Position'
+    : CreateButtonContent(
+        isProcessing,
+        isModifying,
+        walletData.isWalletConnected,
+        isBalancesLoading,
+        hasInsufficientBalance,
+        hasValidAmount,
+        hasInsufficientLiquidity,
+      )
 
   // Effects
   useEffect(() => {
     if (isModifying && activeStrategy) {
+      // Pre-fill data from existing position
+      setCollateralAmount(activeStrategy.collateralAsset.amountFormatted.toString())
       setMultiplier(activeStrategy.leverage)
     }
   }, [isModifying, activeStrategy])
@@ -261,7 +274,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   }
 
   return (
-    <div className='w-full max-w-7xl mx-auto px-4 py-4'>
+    <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
       {/* Back button */}
       <button
         onClick={() => router.back()}
@@ -272,23 +285,23 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       </button>
 
       {/* Header with FlickeringGrid */}
-      <div className='relative mb-4'>
-        <div className='absolute inset-0 z-10 w-full overflow-hidden rounded-lg'>
+      <div className='relative mb-4 sm:mb-6'>
+        <div className='absolute inset-0 z-10 w-full overflow-hidden'>
           <FlickeringGrid
             className='w-full h-full'
             color={strategy.debtAsset.brandColor}
             squareSize={8}
             gridGap={2}
             flickerChance={0.2}
-            maxOpacity={0.2}
+            maxOpacity={0.3}
             gradientDirection='top-to-bottom'
-            height={80}
+            height={140}
           />
         </div>
 
-        <div className='relative z-20 p-3 rounded-lg border border-border/50 bg-card/80 backdrop-blur-sm'>
-          <div className='flex justify-between items-start'>
-            <div className='flex items-center gap-3'>
+        <div className='relative z-20'>
+          <div className='flex justify-between p-4'>
+            <div className='flex items-center justify-start gap-3'>
               <div className='relative'>
                 <div className='w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
                   <Image
@@ -308,53 +321,41 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   />
                 </div>
               </div>
-
               <div>
-                <h1 className='text-lg font-semibold text-foreground'>
-                  {isModifying ? 'Modify' : 'Deploy'} {strategy.collateralAsset.symbol}/
+                <h2 className='text-lg sm:text-xl font-bold text-foreground'>
+                  {isModifying ? 'Close' : 'Deploy'} {strategy.collateralAsset.symbol}/
                   {strategy.debtAsset.symbol} Strategy
-                </h1>
-                <p className='text-xs text-muted-foreground'>
+                </h2>
+                <p className='text-xs sm:text-sm text-muted-foreground'>
                   {isModifying
-                    ? `Modify your existing position - increase/decrease leverage or collateral`
+                    ? `Close your existing position and withdraw all collateral`
                     : `Supply ${strategy.collateralAsset.symbol}, borrow ${strategy.debtAsset.symbol}, leverage your position`}
                 </p>
               </div>
             </div>
 
             <div className='text-right'>
-              <div className='text-lg font-semibold text-accent-foreground'>
-                <CountingNumber value={positionCalcs.leveragedApy * 100} decimalPlaces={2} />%
+              <div
+                className='text-4xl font-bold'
+                style={{ color: strategy.collateralAsset.brandColor }}
+              >
+                <CountingNumber
+                  value={
+                    isModifying && activeStrategy
+                      ? activeStrategy.netApy * 100
+                      : positionCalcs.leveragedApy * 100
+                  }
+                  decimalPlaces={2}
+                />
+                %
               </div>
-              <div className='text-xs text-muted-foreground'>Current APY</div>
-            </div>
-          </div>
-
-          <div className='mt-2'>
-            <div className='flex items-center gap-2 text-xs font-medium text-muted-foreground'>
-              <Target className='w-3 h-3 text-accent-foreground' />
-              Multiply Strategy
             </div>
           </div>
         </div>
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
-        {/* Left Column - Strategy Input */}
-        <div className='lg:col-span-2 space-y-4'>
-          <MarginCollateralCard
-            strategy={strategy}
-            collateralAmount={collateralAmount}
-            setCollateralAmount={setCollateralAmount}
-            multiplier={multiplier}
-            handleMultiplierChange={handleMultiplierChange}
-            dynamicMaxLeverage={marketData.dynamicMaxLeverage}
-            displayValues={displayValues}
-            userBalance={walletData.userBalance}
-            currentAmount={currentAmount}
-            positionCalcs={positionCalcs}
-          />
-
+      <div className='flex flex-col lg:flex-row gap-4 lg:gap-8'>
+        <div className='flex-1 space-y-4 order-2 lg:order-1'>
           <PositionOverviewCard
             strategy={strategy}
             displayValues={displayValues}
@@ -374,8 +375,77 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
           />
         </div>
 
-        {/* Right Column - Market Details */}
-        <div className='space-y-4'>
+        {/* Right Column - Input Form */}
+        <div className='flex-1 order-1 lg:order-2 space-y-4'>
+          {/* Only show input form for deploy mode, not modify mode */}
+          {!isModifying && (
+            <MarginCollateralCard
+              strategy={strategy}
+              collateralAmount={collateralAmount}
+              setCollateralAmount={setCollateralAmount}
+              multiplier={multiplier}
+              handleMultiplierChange={handleMultiplierChange}
+              dynamicMaxLeverage={marketData.dynamicMaxLeverage}
+              displayValues={displayValues}
+              userBalance={walletData.userBalance}
+              currentAmount={currentAmount}
+              positionCalcs={positionCalcs}
+            />
+          )}
+
+          {/* Show current position summary for modify mode */}
+          {isModifying && activeStrategy && (
+            <div className='bg-card/20 backdrop-blur-sm border rounded-lg p-3 sm:p-4'>
+              <h3 className='text-sm font-bold text-foreground mb-3'>Current Position</h3>
+              <div className='space-y-3'>
+                <div className='grid grid-cols-2 gap-4 text-xs'>
+                  <div>
+                    <div className='text-muted-foreground'>Collateral</div>
+                    <div className='font-semibold'>
+                      {activeStrategy.collateralAsset.amountFormatted.toFixed(6)}{' '}
+                      {activeStrategy.collateralAsset.symbol}
+                    </div>
+                    <div className='text-muted-foreground'>
+                      ${activeStrategy.collateralAsset.usdValue.toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className='text-muted-foreground'>Debt</div>
+                    <div className='font-semibold'>
+                      {activeStrategy.debtAsset.amountFormatted.toFixed(6)}{' '}
+                      {activeStrategy.debtAsset.symbol}
+                    </div>
+                    <div className='text-muted-foreground'>
+                      ${activeStrategy.debtAsset.usdValue.toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className='text-muted-foreground'>Leverage</div>
+                    <div className='font-semibold text-lg'>
+                      {activeStrategy.leverage.toFixed(2)}x
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className='text-muted-foreground'>Current APY</div>
+                    <div
+                      className={`font-semibold text-lg ${
+                        activeStrategy.isPositive
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-red-600 dark:text-red-400'
+                      }`}
+                    >
+                      {activeStrategy.netApy > 0 ? '+' : ''}
+                      {(activeStrategy.netApy * 100).toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <MarketInfoCard
             strategy={strategy}
             displayValues={displayValues}
@@ -391,7 +461,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             strategyRiskStyles={strategyRiskStyles}
           />
 
-          {/* Open Position Button */}
+          {/* Action Button */}
           <Button
             onClick={handleDeploy}
             disabled={
@@ -403,7 +473,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
               hasInsufficientLiquidity
             }
             variant='default'
-            className='w-full'
+            className={`w-full ${isModifying ? 'bg-red-600 hover:bg-red-700 text-white' : ''}`}
           >
             {buttonContent}
           </Button>

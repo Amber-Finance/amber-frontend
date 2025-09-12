@@ -120,10 +120,10 @@ export function DepositPositionCard({
               YTD Earnings
             </p>
             <p className='text-2xl font-funnel font-bold text-green-500'>
-              {deposit.ytdEarnings >= 0 ? '+' : ''}${Math.abs(deposit.ytdEarnings || 0).toFixed(2)}
+              {deposit.ytdEarnings >= 0 ? '+' : '-'}${Math.abs(deposit.ytdEarnings || 0).toFixed(2)}
             </p>
             <p className='text-sm text-green-500 font-medium mt-1'>
-              {(deposit.ytdEarningsPercent || 0) >= 0 ? '+' : ''}
+              {(deposit.ytdEarningsPercent || 0) >= 0 ? '+' : '-'}
               {typeof deposit.ytdEarningsPercent === 'number' && !isNaN(deposit.ytdEarningsPercent)
                 ? deposit.ytdEarningsPercent.toFixed(2)
                 : '0.00'}

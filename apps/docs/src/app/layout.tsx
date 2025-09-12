@@ -17,7 +17,7 @@ import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingCon
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const navbar = (
-    <Navbar logo={<Logo />} projectLink='https://github.com/amber-finance'>
+    <Navbar logo={<Logo />} projectLink='https://github.amberfi.io'>
       <div className='flex items-center gap-3'>
         <ThemeToggle />
         <LaunchAppButton />

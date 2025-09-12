@@ -1,7 +1,7 @@
 import { Info, Target } from 'lucide-react'
 
+import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
 interface PositionOverviewCardProps {
@@ -25,14 +25,8 @@ export function PositionOverviewCard({
   getEstimatedEarningsUsd,
 }: PositionOverviewCardProps) {
   return (
-    <Card>
-      <CardHeader className='pb-1'>
-        <CardTitle className='flex items-center gap-2 text-sm font-semibold'>
-          <Target className='w-4 h-4 text-accent-foreground' />
-          Position Overview
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <InfoCard title='Position Overview'>
+      <div>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
           <div className='space-y-2'>
             <div className='space-y-1'>
@@ -108,18 +102,6 @@ export function PositionOverviewCard({
 
             <div className='space-y-1 text-xs'>
               <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>ROE</span>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <span className='font-medium text-foreground cursor-help'>0.00%</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className='text-xs'>Current return on equity based on price change</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-
-              <div className='flex justify-between items-center'>
                 <span className='text-muted-foreground'>Your LTV (LLTV)</span>
                 <span className='font-medium text-foreground'>∞ (-%)</span>
               </div>
@@ -131,7 +113,7 @@ export function PositionOverviewCard({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </InfoCard>
   )
 }

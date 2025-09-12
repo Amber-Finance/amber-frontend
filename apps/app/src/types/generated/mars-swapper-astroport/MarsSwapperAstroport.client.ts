@@ -4,33 +4,24 @@
  * DO NOT MODIFY IT BY HAND. Instead, modify the source JSONSchema file,
  * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
  */
-
-import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from '@cosmjs/cosmwasm-stargate'
 import { StdFee } from '@cosmjs/amino'
+import { CosmWasmClient, ExecuteResult, SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+
 import {
-  InstantiateMsg,
-  ExecuteMsg,
-  OwnerUpdate,
-  SwapOperation,
-  AssetInfo,
   Addr,
-  Uint128,
-  SwapperRoute,
+  ArrayOfRouteResponseForEmpty,
+  AstroportConfig,
   AstroportRoute,
   Coin,
-  AstroRoute,
-  AstroSwap,
-  DualityRoute,
-  OsmoRoute,
-  OsmoSwap,
-  AstroportConfig,
-  QueryMsg,
   Empty,
   EstimateExactInSwapResponse,
   OwnerResponse,
+  OwnerUpdate,
   RouteResponseForEmpty,
-  ArrayOfRouteResponseForEmpty,
+  SwapperRoute,
+  Uint128,
 } from './MarsSwapperAstroport.types'
+
 export interface MarsSwapperAstroportReadOnlyInterface {
   contractAddress: string
   owner: () => Promise<OwnerResponse>
