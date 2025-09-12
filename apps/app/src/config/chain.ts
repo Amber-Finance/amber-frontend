@@ -28,6 +28,7 @@ const chainConfig: ChainConfig = {
       'https://rpc.neutron.validatrium.club',
       'https://neutron-rpc.lavenderfive.com',
     ],
+    redBank: 'https://amberfi-backend.prod.mars-dev.net/v2',
   },
 
   // Base64 encoded queries

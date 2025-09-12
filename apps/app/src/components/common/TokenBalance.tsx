@@ -63,6 +63,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   let usdValue = '0.00'
   let adjustedAmount: string
   let assetDecimals = 6
+  let symbol = ''
 
   if (markets && coin.denom) {
     // Find the matching market for this coin
@@ -70,6 +71,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
 
     if (market?.asset) {
       assetDecimals = market.asset.decimals || 6
+      symbol = market.asset.symbol || ''
     }
 
     if (coin.amount && market?.price?.price) {
@@ -100,7 +102,12 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
           textClassName || 'text-gray-500 dark:text-gray-400 opacity-50 truncate',
         )}
       >
-        <FormattedValue value={adjustedAmount} isCurrency={false} tokenDecimals={assetDecimals} />
+        <FormattedValue
+          value={adjustedAmount}
+          isCurrency={false}
+          tokenDecimals={assetDecimals}
+          suffix={` ${symbol}`}
+        />
       </div>
     </div>
   )
