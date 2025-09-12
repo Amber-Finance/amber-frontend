@@ -403,9 +403,7 @@ export default function DepositClient() {
       </div>
 
       <div className='mt-4'>
-        {redBankDenomData?.tvl_historical && (
-          <TvlChart data={redBankDenomData.tvl_historical} brandColor={token.brandColor} />
-        )}
+        {tokenData?.denom && <TvlChart denom={tokenData.denom} brandColor={token.brandColor} />}
       </div>
     </div>
   )
