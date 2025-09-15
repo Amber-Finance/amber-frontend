@@ -74,8 +74,9 @@ export const useStrategyDeployment = ({
             split_routes: true,
             evm_swaps: true,
           },
+          // Force only Duality swaps for Mars strategies
+          swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
           go_fast: false,
-          cumulative_affiliate_fee_bps: '0',
         }
 
         const skipRouteResponse = await route(skipRouteParams as any)

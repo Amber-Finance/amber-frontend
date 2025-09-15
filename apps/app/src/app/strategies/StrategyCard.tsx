@@ -266,7 +266,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                       ? `${activeStrategy.collateralAsset.amountFormatted.toFixed(
                           Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
                         )} ${strategy.collateralAsset.symbol}`
-                      : `0.${'0'.repeat(strategy.collateralAsset.decimals || 6)} ${strategy.collateralAsset.symbol}`}
+                      : `0.${'0'.repeat(strategy.collateralAsset.decimals || 8)} ${strategy.collateralAsset.symbol}`}
                   </span>
                 </div>
               </div>
