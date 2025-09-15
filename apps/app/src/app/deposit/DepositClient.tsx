@@ -32,7 +32,7 @@ import {
   getProtocolPointsIcon,
 } from '@/utils/depositCardHelpers'
 import { convertAprToApy } from '@/utils/finance'
-import { formatCompactCurrency } from '@/utils/format'
+import { formatCompactCurrency, formatNumber } from '@/utils/format'
 
 export default function DepositClient() {
   const router = useRouter()
@@ -373,7 +373,7 @@ export default function DepositClient() {
               <ProgressCard
                 value={tvlGrowth30d}
                 label='TVL Growth (30d)'
-                subtitle={`${tvlGrowth30d.toFixed(2)}%`}
+                subtitle={`${formatNumber(2)(tvlGrowth30d)}%`}
                 brandColor={token.brandColor}
               />
               <ProgressCard
