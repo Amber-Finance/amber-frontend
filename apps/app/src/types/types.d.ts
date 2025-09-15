@@ -1047,3 +1047,22 @@ interface SwapActions {
   resetAmounts: () => void
   swapTokens: () => void
 }
+
+interface ChartData {
+  date: Date
+  formattedDate: string
+  [key: string]: any
+}
+
+interface ChartConfig {
+  [key: string]: {
+    label: string
+    color: string
+  }
+}
+
+interface YAxisConfig {
+  yAxisId: string
+  orientation: 'left' | 'right'
+  tickFormatter: (value: any) => string
+}

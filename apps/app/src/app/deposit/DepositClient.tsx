@@ -10,10 +10,10 @@ import { ArrowLeft, Coins, Wallet } from 'lucide-react'
 
 import { BalanceRow, InfoCard, MetricRow } from '@/components/deposit'
 import { AssetActions } from '@/components/deposit/AssetActions'
+import { DepositChart } from '@/components/deposit/DepositChart'
 import { DepositForm } from '@/components/deposit/DepositForm'
 import { DepositHeader } from '@/components/deposit/DepositHeader'
 import ProgressCard from '@/components/deposit/ProgressCard'
-import { Chart } from '@/components/deposit/charts/Chart'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
@@ -416,7 +416,7 @@ export default function DepositClient() {
         </div>
       </div>
       <div className='mt-4'>
-        {tokenData?.denom && <Chart denom={tokenData.denom} brandColor={token.brandColor} />}
+        {tokenData?.denom && <DepositChart denom={tokenData.denom} brandColor={token.brandColor} />}
       </div>
     </div>
   )
