@@ -41,10 +41,10 @@ const createSwapAction = (config: {
 }
 
 const createDepositAction = (denom: string, amount: string) =>
-  createAction('deposit', { denom, amount })
+  createAction('deposit', { denom, amount: { exact: amount } })
 
 const createBorrowAction = (denom: string, amount: string) =>
-  createAction('borrow', { denom, amount })
+  createAction('borrow', { denom, amount: { exact: amount } })
 
 const createRepayAction = (accountId: string, denom: string) =>
   createAction('repay', {

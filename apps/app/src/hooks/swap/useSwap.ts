@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+import { GasPrice } from '@cosmjs/stargate'
 import { useChain } from '@cosmos-kit/react'
 import BigNumber from 'bignumber.js'
 import { toast } from 'react-toastify'
@@ -10,7 +12,7 @@ import { getSwapExactInAction } from '@/utils/swap'
 
 export function useSwap() {
   const [isExecuting, setIsExecuting] = useState(false)
-  const { address, getSigningCosmWasmClient } = useChain(chainConfig.name)
+  const { address, getOfflineSigner } = useChain(chainConfig.name)
 
   const executeSwap = async (
     routeInfo: SwapRouteInfo,
@@ -39,11 +41,19 @@ export function useSwap() {
     const pendingToastId = toast.loading('Swapping...', { autoClose: false })
 
     try {
-      const client = await getSigningCosmWasmClient()
-      if (!client) {
-        toast.error('Failed to connect to wallet', { autoClose: 5000 })
+      const offlineSigner = getOfflineSigner()
+      if (!offlineSigner) {
+        toast.error('Wallet not connected. Please connect your wallet first.', { autoClose: 5000 })
         return
       }
+
+      const client = await SigningCosmWasmClient.connectWithSigner(
+        chainConfig.endpoints.rpcUrl,
+        offlineSigner,
+        {
+          gasPrice: GasPrice.fromString('0.025untrn'),
+        },
+      )
 
       // Create the swap action using the helper function
       const swapAction = getSwapExactInAction(

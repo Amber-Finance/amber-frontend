@@ -121,73 +121,118 @@ export function useStrategyWithdrawal() {
 
       try {
         // For full withdrawal, we need to repay all debt and withdraw all collateral
+        // Note: params amounts are already in human-readable format, so we need to convert to raw units
         const debtAmountFormatted = new BigNumber(params.debtAmount)
           .shiftedBy(params.debtDecimals)
           .integerValue(BigNumber.ROUND_UP)
           .toString()
 
-        // Use most of collateral for swap, leaving some for gas/fees
-        const collateralForSwap = new BigNumber(params.collateralAmount)
-          .multipliedBy(0.98) // Use 98% of collateral
+        // Use 50% of total collateral as initial estimate for swap (this should be more than enough)
+        const totalCollateralRaw = new BigNumber(params.collateralAmount)
           .shiftedBy(params.collateralDecimals)
-          .integerValue(BigNumber.ROUND_DOWN)
+          .integerValue()
+
+        // Start with 50% of collateral for the swap, we can adjust if needed
+        const initialCollateralForSwap = totalCollateralRaw
+          .multipliedBy(0.5)
+          .integerValue()
           .toString()
 
-        console.log('Fetching swap route for full strategy withdrawal:', {
-          collateralDenom: params.collateralDenom,
-          debtDenom: params.debtDenom,
-          collateralAmount: collateralForSwap,
-          debtAmountNeeded: debtAmountFormatted,
-        })
-
-        // Fetch swap route using existing Neutron API
-        const routeResult = await getNeutronRouteInfo(
+        // Fetch swap route using the initial estimate
+        let routeResult = await getNeutronRouteInfo(
           params.collateralDenom,
           params.debtDenom,
-          new BigNumber(collateralForSwap),
+          new BigNumber(initialCollateralForSwap),
           markets?.map((m) => m.asset) || [],
           chainConfig,
         )
 
         if (!routeResult) {
-          throw new Error('Could not find swap route for full withdrawal')
+          // If 50% doesn't work, try with 75% of collateral
+          const largerCollateralForSwap = totalCollateralRaw
+            .multipliedBy(0.75)
+            .integerValue()
+            .toString()
+
+          routeResult = await getNeutronRouteInfo(
+            params.collateralDenom,
+            params.debtDenom,
+            new BigNumber(largerCollateralForSwap),
+            markets?.map((m) => m.asset) || [],
+            chainConfig,
+          )
+
+          if (!routeResult) {
+            throw new Error('Could not find swap route for debt repayment')
+          }
         }
 
-        // Build full withdrawal actions
+        // Check if the route will give us enough debt tokens to repay
+        const routeAmountOut = new BigNumber(routeResult.amountOut || '0')
+        const debtAmountNeeded = new BigNumber(debtAmountFormatted)
+
+        // If the route doesn't give us enough, we need to adjust the collateral amount
+        let finalCollateralForSwap = new BigNumber(initialCollateralForSwap)
+
+        if (routeAmountOut.lt(debtAmountNeeded)) {
+          // Calculate how much more collateral we need
+          const ratio = debtAmountNeeded.dividedBy(routeAmountOut)
+          finalCollateralForSwap = finalCollateralForSwap.multipliedBy(ratio.multipliedBy(1.05)) // 5% buffer
+
+          // Fetch new route with adjusted amount
+          routeResult = await getNeutronRouteInfo(
+            params.collateralDenom,
+            params.debtDenom,
+            finalCollateralForSwap,
+            markets?.map((m) => m.asset) || [],
+            chainConfig,
+          )
+
+          if (!routeResult) {
+            throw new Error('Could not find swap route with adjusted collateral amount')
+          }
+        }
+
+        const collateralAmountForSwap = finalCollateralForSwap.integerValue().toString()
+
+        // Calculate minimum receive amount with slippage
+        const minReceive = getMinAmountOutFromRouteInfo(routeResult, 0.5).integerValue().toString()
+
+        // Build full withdrawal actions using calculated amounts
         const actions = [
-          // 1. Withdraw collateral for swap
+          // 1. Withdraw the calculated amount of collateral needed for the swap
           {
             withdraw: {
               denom: params.collateralDenom,
-              amount: collateralForSwap,
+              amount: { exact: collateralAmountForSwap },
             },
           },
-          // 2. Swap to debt asset
+          // 2. Swap the withdrawn collateral to debt asset
           {
             swap_exact_in: {
               coin_in: {
                 denom: params.collateralDenom,
-                amount: collateralForSwap,
+                amount: { exact: collateralAmountForSwap },
               },
               denom_out: params.debtDenom,
-              slippage: '0.5',
-              route: routeResult,
+              min_receive: minReceive,
+              route: routeResult.route,
             },
           },
-          // 3. Repay all debt (this should close the debt position)
+          // 3. Repay all debt using the exact amount
           {
             repay: {
               coin: {
                 denom: params.debtDenom,
-                amount: debtAmountFormatted,
+                amount: { exact: debtAmountFormatted },
               },
             },
           },
-          // 4. Withdraw remaining collateral
+          // 4. Withdraw any remaining collateral
           {
             withdraw: {
               denom: params.collateralDenom,
-              amount: 'all', // Withdraw all remaining collateral
+              amount: 'account_balance',
             },
           },
         ]
@@ -215,7 +260,7 @@ export function useStrategyWithdrawal() {
         setIsProcessing(false)
       }
     },
-    [executeTransaction],
+    [executeTransaction, markets],
   )
 
   const deleteAccount = useCallback(

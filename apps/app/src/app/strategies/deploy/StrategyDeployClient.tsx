@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
-import { ArrowLeft, Target } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { toast } from 'react-toastify'
 
 import { MarginCollateralCard } from '@/components/strategy/MarginCollateralCard'
@@ -26,6 +26,7 @@ import { usePrices } from '@/hooks/usePrices'
 import { useMarketData, useWalletData } from '@/hooks/useStrategyCalculations'
 import { useStrategyDeployment } from '@/hooks/useStrategyDeployment'
 import { usePositionCalculationsWithSimulatedApy } from '@/hooks/useStrategySimulatedApy'
+import { useStrategyWithdrawal } from '@/hooks/useStrategyWithdrawal'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { useBroadcast } from '@/utils/broadcast'
@@ -92,7 +93,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       debtBorrowApy: marketData.debtBorrowApy,
     },
     {
-      collateral: strategy.collateralAsset.decimals || 6,
+      collateral: strategy.collateralAsset.decimals || 8,
       debt: strategy.debtAsset.decimals || 6,
     },
   )
@@ -102,6 +103,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     isModifying,
     modifyingAccountId,
   })
+
+  // Add withdrawal hook for position closing
+  const { withdrawFullStrategy, isProcessing: isWithdrawing } = useStrategyWithdrawal()
 
   // Display values
   const displayValues = createDisplayValues(
@@ -189,6 +193,37 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     // Validation checks
     if (!walletData.isWalletConnected) return
     if (isBalancesLoading) return
+
+    // For position closing, use different logic
+    if (isModifying && activeStrategy) {
+      setIsProcessing(true)
+
+      try {
+        const withdrawParams = {
+          accountId: activeStrategy.accountId,
+          collateralDenom: activeStrategy.collateralAsset.denom,
+          collateralAmount: activeStrategy.collateralAsset.amountFormatted.toString(),
+          collateralDecimals: activeStrategy.collateralAsset.decimals || 8,
+          debtDenom: activeStrategy.debtAsset.denom,
+          debtAmount: activeStrategy.debtAsset.amountFormatted.toString(),
+          debtDecimals: activeStrategy.debtAsset.decimals || 6,
+        }
+
+        await withdrawFullStrategy(withdrawParams)
+
+        // Success handling is done by the withdrawal hook
+        // Navigate back to strategies page after successful closure
+        router.push('/strategies')
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Position closure failed')
+        console.error(error)
+      } finally {
+        setIsProcessing(false)
+      }
+      return
+    }
+
+    // Original deployment logic for creating/modifying positions
     if (!collateralAmount || currentAmount <= 0) return
     if (hasInsufficientBalance) return
     if (hasInsufficientLiquidity) return
@@ -206,15 +241,6 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       const borrowAmountRaw = new BigNumber(borrowAmount)
         .shiftedBy(strategy.debtAsset.decimals || 6)
         .integerValue()
-
-      console.log('Liquidity check:', {
-        borrowAmount,
-        borrowAmountRaw: borrowAmountRaw.toString(),
-        totalCollateral: totalCollateral.toString(),
-        totalDebt: totalDebt.toString(),
-        availableLiquidity: availableLiquidity.toString(),
-        debtAsset: strategy.debtAsset.symbol,
-      })
 
       if (borrowAmountRaw.gt(availableLiquidity)) {
         const availableLiquidityFormatted = availableLiquidity
@@ -402,7 +428,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   <div>
                     <div className='text-muted-foreground'>Collateral</div>
                     <div className='font-semibold'>
-                      {activeStrategy.collateralAsset.amountFormatted.toFixed(6)}{' '}
+                      {activeStrategy.collateralAsset.amountFormatted.toFixed(
+                        Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
+                      )}{' '}
                       {activeStrategy.collateralAsset.symbol}
                     </div>
                     <div className='text-muted-foreground'>
@@ -413,7 +441,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                   <div>
                     <div className='text-muted-foreground'>Debt</div>
                     <div className='font-semibold'>
-                      {activeStrategy.debtAsset.amountFormatted.toFixed(6)}{' '}
+                      {activeStrategy.debtAsset.amountFormatted.toFixed(
+                        Math.min(activeStrategy.debtAsset.decimals || 6, 6),
+                      )}{' '}
                       {activeStrategy.debtAsset.symbol}
                     </div>
                     <div className='text-muted-foreground'>
@@ -466,6 +496,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             onClick={handleDeploy}
             disabled={
               isProcessing ||
+              isWithdrawing ||
               !walletData.isWalletConnected ||
               isBalancesLoading ||
               !hasValidAmount ||
