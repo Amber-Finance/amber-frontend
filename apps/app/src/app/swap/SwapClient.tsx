@@ -136,7 +136,12 @@ export default function SwapClient() {
                   const calculatedAmount = new BigNumber(logic.fromToken.balance).multipliedBy(
                     percent,
                   )
-                  actions.setFromAmount(calculatedAmount.toString())
+                  const maxDecimals = Math.min(logic.fromToken.decimals || 8, 18)
+                  const limitedAmount = calculatedAmount.decimalPlaces(
+                    maxDecimals,
+                    BigNumber.ROUND_DOWN,
+                  )
+                  actions.setFromAmount(limitedAmount.toString())
                   actions.setEditingDirection('from')
                 }
               }}
