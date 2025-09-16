@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-const WBTC_EUREKA_DENOM = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E'
+import { MAXBTC_DENOM } from '@/constants/query'
 
 export function useTokenPreselection(
   swapTokens: Token[],
@@ -35,8 +35,8 @@ export function useTokenPreselection(
       if (tokenWithHighestValue) return tokenWithHighestValue
     }
 
-    // Fallback to WBTC
-    return swapTokens.find((token) => token.denom === WBTC_EUREKA_DENOM) || null
+    // Fallback to maxBTC
+    return swapTokens.find((token) => token.denom === MAXBTC_DENOM) || null
   }, [swapTokens, address, walletBalances])
 
   const shouldInitialize =

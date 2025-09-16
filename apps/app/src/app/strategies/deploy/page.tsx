@@ -8,6 +8,7 @@ import { BigNumber } from 'bignumber.js'
 
 import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
+import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks'
 import { useStore } from '@/store/useStore'
 
@@ -20,7 +21,7 @@ export default function StrategyDeployPage() {
   const { markets } = useStore()
 
   useEffect(() => {
-    // Parse strategy from URL params (e.g., ?strategy=WBTC-eBTC)
+    // Parse strategy from URL params (e.g., ?strategy=maxBTC-eBTC)
     const strategyId = searchParams.get('strategy')
     if (!strategyId) {
       router.push('/strategies')
@@ -33,17 +34,24 @@ export default function StrategyDeployPage() {
       return
     }
 
-    // Find collateral token (WBTC.eureka has better liquidity than Axelar bridge)
+    // Find collateral token (maxBTC for looping strategies)
     const collateralToken = tokens.find((token) => token.symbol === collateralSymbol) || {
       chainId: 'neutron-1',
-      denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-      symbol: 'WBTC',
-      icon: '/images/WBTC.svg',
-      description: 'Wrapped Bitcoin (Eureka)',
+      denom: MAXBTC_DENOM,
+      symbol: 'maxBTC',
+      icon: '/images/maxBTC.png',
+      description: 'Structured Bitcoin',
       decimals: 8,
       isLST: true,
-      protocol: 'Eureka',
+      protocol: 'Structured Finance',
       brandColor: '#F97316',
+      protocolIconLight: '/images/structured/structuredLight.svg',
+      protocolIconDark: '/images/structured/structuredDark.svg',
+      origin: {
+        chainId: '1',
+        tokenAddress: '0x0000000000000000000000000000000000000000',
+      },
+      comingSoon: false,
     }
 
     // Find debt token
@@ -94,24 +102,8 @@ export default function StrategyDeployPage() {
     const strategyData: Strategy = {
       id: strategyId,
       type: 'multiply',
-      collateralAsset: {
-        denom: collateralToken.denom,
-        symbol: collateralToken.symbol,
-        name: collateralToken.description,
-        description: collateralToken.description,
-        decimals: collateralToken.decimals,
-        icon: collateralToken.icon,
-        brandColor: collateralToken.brandColor,
-      },
-      debtAsset: {
-        denom: debtToken.denom,
-        symbol: debtToken.symbol,
-        name: debtToken.description,
-        description: debtToken.description,
-        decimals: debtToken.decimals,
-        icon: debtToken.icon,
-        brandColor: debtToken.brandColor,
-      },
+      collateralAsset: collateralToken,
+      debtAsset: debtToken,
       maxROE: netApy * 100,
       isPositive: netApy > 0,
       hasPoints: false,

@@ -16,99 +16,96 @@ import { assetLists } from 'chain-registry'
 import chainConfig from '@/config/chain'
 import { getCosmosKitTheme } from '@/theme/cosmosKitTheme'
 
+// Extend the Window interface to include wallet properties
+declare global {
+  interface Window {
+    keplr?: any
+    leap?: any
+    cosmostation?: any
+    xfi?: any
+    okxwallet?: any
+    vectis?: any
+  }
+}
+
 const chainNames = [chainConfig.name]
 const chainAssets = assetLists.filter((asset) => asset.chainName === chainConfig.name)
 
-// Utility to check wallet availability safely
-const isWalletAvailable = (walletName: string): boolean => {
-  if (typeof window === 'undefined') return false
+// Regex for wallet name extraction
+const WALLET_NAME_REGEX = /(Leap|Cosmostation|XDEFI|OKX|Vectis|Keplr)/i
 
-  try {
-    const windowAny = window as any
-
-    switch (walletName) {
-      case 'keplr':
-        return !!(windowAny.keplr || windowAny.getKeplr)
-      case 'leap':
-        return !!windowAny?.leap?.getCosmosSigner
-      case 'cosmostation':
-        return !!windowAny?.cosmostation?.providers
-      case 'xdefi':
-        return !!windowAny?.xfi?.cosmos?.getCosmosSigner
-      case 'okx':
-        return !!windowAny?.okxwallet?.cosmos
-      case 'vectis':
-        return !!windowAny?.vectis?.getCosmosSigner
-      default:
-        return false
-    }
-  } catch (error) {
-    console.warn(`Error checking wallet ${walletName}:`, error)
-    return false
-  }
-}
-
-// Get only available wallets to prevent initialization errors
-const getAvailableWallets = () => {
-  const allWallets = [
-    { wallets: keplrWallets, name: 'keplr' },
-    { wallets: leapWallets, name: 'leap' },
-    { wallets: cosmostationWallets, name: 'cosmostation' },
-    { wallets: xdefiWallets, name: 'xdefi' },
-    { wallets: okxWallets, name: 'okx' },
-    { wallets: vectisWallets, name: 'vectis' },
-  ]
-
-  const availableWallets = allWallets
-    .filter(({ name }) => isWalletAvailable(name))
-    .flatMap(({ wallets }) => wallets)
-
-  // Always include Keplr as fallback
-  if (availableWallets.length === 0) {
-    return keplrWallets
-  }
-
-  return availableWallets
-}
+// Combine all wallets (like before)
+const wallets = [
+  ...keplrWallets,
+  ...leapWallets,
+  ...cosmostationWallets,
+  ...xdefiWallets,
+  ...okxWallets,
+  ...vectisWallets,
+]
 
 export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isClient, setIsClient] = useState(false)
+
   // Get the theme configuration
   const modalTheme = getCosmosKitTheme()
 
-  // State to track available wallets
-  const [availableWallets, setAvailableWallets] = useState(() => {
-    // Start with Keplr as fallback for SSR
-    return keplrWallets
-  })
-
-  // Update available wallets after component mounts
+  // Ensure we're on the client side before checking for wallets
   useEffect(() => {
-    const checkWallets = () => {
-      try {
-        const wallets = getAvailableWallets()
-        setAvailableWallets(wallets)
-        console.log('Available wallets loaded:', wallets.length)
-      } catch (error) {
-        console.error('Error loading wallets:', error)
-        // Fallback to Keplr on error
-        setAvailableWallets(keplrWallets)
+    setIsClient(true)
+  }, [])
+
+  // Use all wallets like before
+  const availableWallets = wallets
+
+  // Enhanced error handling for wallet initialization
+  useEffect(() => {
+    if (!isClient) return
+
+    // Override console.error to handle wallet initialization errors gracefully
+    const originalError = console.error
+
+    console.error = (...args) => {
+      const message = args.join(' ')
+
+      // Handle specific wallet client initialization errors
+      if (
+        message.includes('initClientError: Client Not Exist!') ||
+        message.includes('Client Not Exist')
+      ) {
+        // Extract wallet name from the error message
+        const walletMatch = WALLET_NAME_REGEX.exec(message)
+        const walletName = walletMatch ? walletMatch[1] : 'Unknown wallet'
+        console.warn(
+          `${walletName} wallet extension not installed - this is normal if you don't have it installed`,
+        )
+        return
       }
+
+      // Handle other wallet-related errors more gracefully
+      if (
+        message.toLowerCase().includes('wallet') &&
+        (message.includes('not found') || message.includes('undefined'))
+      ) {
+        console.warn('Wallet initialization warning:', message)
+        return
+      }
+
+      // Log other errors normally
+      originalError(...args)
     }
 
-    // Check immediately
-    checkWallets()
-
-    // Also check after a delay to catch wallets that load later
-    const timer = setTimeout(checkWallets, 1000)
-
-    return () => clearTimeout(timer)
-  }, [])
+    // Cleanup function to restore original console methods
+    return () => {
+      console.error = originalError
+    }
+  }, [isClient])
 
   return (
     <ChainProvider
       chains={chainNames}
       assetLists={chainAssets as any}
-      wallets={availableWallets}
+      wallets={availableWallets as any}
       throwErrors={false}
       walletConnectOptions={{
         signClient: {
@@ -135,7 +132,6 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
       }}
       modalTheme={modalTheme}
-      logLevel={'ERROR'}
     >
       {children}
     </ChainProvider>

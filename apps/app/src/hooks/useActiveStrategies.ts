@@ -6,6 +6,7 @@ import { BigNumber } from 'bignumber.js'
 
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
+import { MAXBTC_DENOM } from '@/constants/query'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
@@ -49,8 +50,8 @@ export function useActiveStrategies() {
   usePrices() // Ensures prices are fetched and updated
   const { apy: maxBtcApy } = useMaxBtcApy()
 
-  // Get WBTC.eureka denom (temporarily using WBTC.eureka as mentioned in requirements)
-  const wbtcDenom = 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E' // WBTC.eureka for now
+  // Get maxBTC denom for looping strategies
+  const maxBtcDenom = MAXBTC_DENOM
 
   // Get all credit accounts for the user
   const getUserCreditAccounts = async (client: any) => {
@@ -210,17 +211,17 @@ export function useActiveStrategies() {
 
   const processAccount = (account: any) => {
     const { deposits = [], debts = [] } = account.positions
-    const wbtcCollateral = deposits.find((deposit: any) => deposit.denom === wbtcDenom)
+    const maxBtcCollateral = deposits.find((deposit: any) => deposit.denom === maxBtcDenom)
 
-    if (!wbtcCollateral) return []
+    if (!maxBtcCollateral) return []
 
     const btcDebts = debts.filter((debt: any) => {
       const token = tokens.find((t) => t.denom === debt.denom)
-      return token && token.symbol.includes('BTC') && token.symbol !== 'WBTC'
+      return token && token.symbol.includes('BTC') && token.symbol !== 'maxBTC'
     })
 
     return btcDebts
-      .map((debt: any) => createStrategy(account, wbtcCollateral, debt, maxBtcApy))
+      .map((debt: any) => createStrategy(account, maxBtcCollateral, debt, maxBtcApy))
       .filter(Boolean)
   }
 
@@ -262,7 +263,7 @@ export function useActiveStrategies() {
     } finally {
       setIsLoading(false)
     }
-  }, [address, getCosmWasmClient, wbtcDenom, markets, maxBtcApy])
+  }, [address, getCosmWasmClient, maxBtcDenom, markets, maxBtcApy])
 
   // Scan accounts when wallet connects (only on initial load and address changes)
   useEffect(() => {

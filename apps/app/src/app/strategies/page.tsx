@@ -6,29 +6,30 @@ import Hero from '@/components/layout/Hero'
 import { StrategiesContent } from '@/components/strategies/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
+import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { useStore } from '@/store/useStore'
 import { generateStrategies, processStrategies } from '@/utils/strategyUtils'
 
-// Pure function to create default WBTC token
-const createDefaultWbtcToken = () => ({
+// Pure function to create default maxBTC token
+const createDefaultMaxBtcToken = () => ({
   chainId: 'neutron-1',
-  denom: 'ibc/0E293A7622DC9A6439DB60E6D234B5AF446962E27CA3AB44D0590603DFF6968E',
-  symbol: 'WBTC',
-  icon: '/images/WBTC.svg',
-  description: 'maxBTC (temporarily WBTC.eureka)',
+  denom: MAXBTC_DENOM,
+  symbol: 'maxBTC',
+  icon: '/images/maxBTC.png',
+  description: 'Structured Bitcoin',
   decimals: 8,
   isLST: true,
-  protocol: 'Eureka',
+  protocol: 'Structured Finance',
   brandColor: '#F97316',
   origin: {
-    chainId: 'neutron-1',
-    tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    chainId: '1',
+    tokenAddress: '0x0000000000000000000000000000000000000000', // Factory token on Neutron
   },
   comingSoon: false,
-  protocolIconLight: '/images/eureka/eurekaLight.svg',
-  protocolIconDark: '/images/eureka/eurekaDark.svg',
+  protocolIconLight: '/images/structured/structuredLight.svg',
+  protocolIconDark: '/images/structured/structuredDark.svg',
 })
 
 export default function StrategiesOverview() {
@@ -42,11 +43,10 @@ export default function StrategiesOverview() {
   // Fallback APY in case API fails
   const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy
 
-  // Use maxBTC (temporarily WBTC.eureka) for supply APY simulation
-  const wbtcEurekaToken = useMemo(
+  // Use maxBTC for supply APY simulation
+  const maxBtcToken = useMemo(
     () =>
-      tokens.find((token) => token.symbol.toLocaleLowerCase() === 'wbtc') ||
-      createDefaultWbtcToken(),
+      tokens.find((token) => token.symbol.toLowerCase() === 'maxbtc') || createDefaultMaxBtcToken(),
     [],
   )
 
@@ -56,17 +56,17 @@ export default function StrategiesOverview() {
       return []
     }
 
-    const rawStrategies = generateStrategies(markets, wbtcEurekaToken, tokens, effectiveMaxBtcApy)
+    const rawStrategies = generateStrategies(markets, maxBtcToken, tokens, effectiveMaxBtcApy)
 
     return processStrategies(rawStrategies)
-  }, [markets, wbtcEurekaToken, effectiveMaxBtcApy])
+  }, [markets, maxBtcToken, effectiveMaxBtcApy])
 
   return (
     <>
       <Hero
         title={<AuroraText>Looping</AuroraText>}
-        subtitle='BRT Strategies'
-        description='Effortlessly leverage arbitrage rates and more - all with just a few clicks'
+        subtitle='maxBTC Strategies'
+        description='Amplify your maxBTC yields with leverage strategies - all with just a few clicks'
         stats={[
           {
             value: 0,

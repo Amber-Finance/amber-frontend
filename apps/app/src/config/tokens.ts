@@ -1,3 +1,5 @@
+import { MAXBTC_DENOM } from '@/constants/query'
+
 const tokens: TokenInfo[] = [
   {
     chainId: 'neutron-1',
@@ -68,6 +70,24 @@ const tokens: TokenInfo[] = [
     origin: {
       chainId: '1',
       tokenAddress: '0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568',
+    },
+    comingSoon: false,
+  },
+  {
+    chainId: 'neutron-1',
+    denom: MAXBTC_DENOM,
+    symbol: 'maxBTC',
+    icon: '/images/maxBTC.png',
+    description: 'Structured Bitcoin',
+    protocolIconLight: '/images/structured/structuredLight.svg',
+    protocolIconDark: '/images/structured/structuredDark.svg',
+    decimals: 8,
+    isLST: true,
+    protocol: 'Structured Finance',
+    brandColor: '#F97316', // Bitcoin orange
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x0000000000000000000000000000000000000000', // Factory token on Neutron
     },
     comingSoon: false,
   },
