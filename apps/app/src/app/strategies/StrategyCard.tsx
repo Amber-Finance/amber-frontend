@@ -374,9 +374,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             }
             variant='default'
             className='w-full'
-            disabled={activeStrategiesLoading}
+            disabled={activeStrategiesLoading || isComingSoon}
           >
-            {activeStrategiesLoading ? 'Loading...' : 'Deploy'}
+            {activeStrategiesLoading
+              ? 'Loading...'
+              : isComingSoon
+                ? 'Temporary Disabled'
+                : 'Deploy'}
           </Button>
         )}
       </CardFooter>

@@ -95,7 +95,7 @@ export default function SwapClient() {
           </p>
         </div>
       </div>
-      <div className='w-full max-w-lg mx-auto'>
+      <div className='w-full max-w-lg mx-auto sm:pb-16'>
         <Card className='bg-card rounded-2xl shadow-xl border border-border/30 py-2'>
           <CardContent className='sm:py-2 px-2'>
             <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
@@ -136,7 +136,12 @@ export default function SwapClient() {
                   const calculatedAmount = new BigNumber(logic.fromToken.balance).multipliedBy(
                     percent,
                   )
-                  actions.setFromAmount(calculatedAmount.toString())
+                  const maxDecimals = Math.min(logic.fromToken.decimals || 8, 18)
+                  const limitedAmount = calculatedAmount.decimalPlaces(
+                    maxDecimals,
+                    BigNumber.ROUND_DOWN,
+                  )
+                  actions.setFromAmount(limitedAmount.toString())
                   actions.setEditingDirection('from')
                 }
               }}

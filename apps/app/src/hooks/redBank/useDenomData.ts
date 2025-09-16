@@ -1,9 +1,9 @@
 import { BigNumber } from 'bignumber.js'
 import useSWR from 'swr'
 
-import getRedBankDenomData from '@/api/redBank/getRedBankDenomData'
+import getDenomData from '@/api/redBank/getDenomData'
 
-export default function useRedBankDenomData(denom: string, days: number = 30) {
+export default function useDenomData(denom: string, days: number = 30) {
   const {
     data: denomData,
     error,
@@ -11,7 +11,7 @@ export default function useRedBankDenomData(denom: string, days: number = 30) {
     mutate,
   } = useSWR(
     `chains/neutron/redBank/denomData?denom=${denom}&days=${days}`,
-    async () => await getRedBankDenomData(denom, days),
+    async () => await getDenomData(denom, days),
     {
       revalidateOnFocus: false,
     },

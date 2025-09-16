@@ -10,6 +10,7 @@ import { BigNumber } from 'bignumber.js'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'react-toastify'
 
+import { StrategyChart } from '@/components/strategies/StrategyChart'
 import { MarginCollateralCard } from '@/components/strategy/MarginCollateralCard'
 import { MarketInfoCard } from '@/components/strategy/MarketInfoCard'
 import { PositionOverviewCard } from '@/components/strategy/PositionOverviewCard'
@@ -388,7 +389,6 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             positionCalcs={positionCalcs}
             getEstimatedEarningsUsd={getEstimatedEarningsUsd}
           />
-
           <StrategyFlowCard
             strategy={strategy}
             activeStrategy={activeStrategy}
@@ -509,6 +509,14 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             {buttonContent}
           </Button>
         </div>
+      </div>
+      {/* Chart Section */}
+      <div className='mt-4'>
+        <StrategyChart
+          denom={strategy.debtAsset.denom}
+          symbol={strategy.debtAsset.symbol}
+          brandColor={strategy.debtAsset.brandColor}
+        />
       </div>
     </div>
   )
