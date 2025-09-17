@@ -281,13 +281,27 @@ export const sortStrategiesByApy =
       return direction === 'asc' ? comparison : -comparison
     })
 
+// Pure function for sorting strategies with coming soon assets at the end
+export const sortStrategiesWithComingSoonAtEnd =
+  (direction: 'asc' | 'desc' = 'desc') =>
+  (strategies: StrategyData[]): StrategyData[] =>
+    [...strategies].sort((a, b) => {
+      // First, sort by coming soon status (coming soon goes to the end)
+      if (a.debtAsset.comingSoon && !b.debtAsset.comingSoon) return 1
+      if (!a.debtAsset.comingSoon && b.debtAsset.comingSoon) return -1
+      
+      // If both have the same coming soon status, sort by maxROE
+      const comparison = a.maxROE - b.maxROE
+      return direction === 'asc' ? comparison : -comparison
+    })
+
 // Composition functions
 export const processStrategies = pipe(
   (strategies: StrategyData[]) => strategies,
-  sortStrategiesByApy('desc'),
+  sortStrategiesWithComingSoonAtEnd('desc'),
 )
 
 export const getHighYieldStrategies = pipe(
   (strategies: StrategyData[]) => strategies.filter((s) => s.maxROE > 0.05), // > 5% APY
-  sortStrategiesByApy('desc'),
+  sortStrategiesWithComingSoonAtEnd('desc'),
 )
