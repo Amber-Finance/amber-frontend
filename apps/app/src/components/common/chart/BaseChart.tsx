@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 import { Area, AreaChart, XAxis, YAxis } from 'recharts'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -52,7 +50,7 @@ export function BaseChart({
   }
 
   return (
-    <Card className='bg-card/20 pt-0'>
+    <Card className='bg-card/20 pt-0 w-full min-w-0'>
       <CardHeader className='flex items-center gap-2 space-y-0 border-b border-border/40 py-5 sm:flex-row'>
         <div className='grid flex-1 gap-1'>
           <CardTitle className='text-sm font-bold text-foreground'>{title}</CardTitle>
@@ -78,88 +76,94 @@ export function BaseChart({
         </Select>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        {isLoading ? (
-          <div className='flex items-center justify-center h-[350px] text-muted-foreground'>
-            Loading...
-          </div>
-        ) : (
-          <ChartContainer
-            config={chartConfig}
-            className={cn(className, 'w-full h-[350px]')}
-            style={Object.keys(chartConfig).reduce(
-              (acc, key) => {
-                // First area gets brand color, second area gets gray color
-                const isFirstArea = areas.length > 0 && areas[0].dataKey === key
-                if (isFirstArea) {
-                  acc[`--color-${key}`] = brandColor || '#f57136'
-                } else {
-                  acc[`--color-${key}`] = '#6B7280'
-                }
-                return acc
-              },
-              {} as Record<string, string>,
-            )}
-          >
-            <AreaChart data={chartData} margin={{ top: 10, right: -10, left: -10, bottom: 10 }}>
-              <defs>
-                {areas.map((area) => (
-                  <linearGradient
-                    key={area.gradientId}
-                    id={area.gradientId}
-                    x1='0'
-                    y1='0'
-                    x2='0'
-                    y2='1'
-                  >
-                    <stop
-                      offset='5%'
-                      stopColor={`var(--color-${area.dataKey})`}
-                      stopOpacity={0.3}
-                    />
-                    <stop offset='95%' stopColor={`var(--color-${area.dataKey})`} stopOpacity={0} />
-                  </linearGradient>
-                ))}
-              </defs>
-              <XAxis
-                dataKey='formattedDate'
-                axisLine={true}
-                tickLine={false}
-                fontSize={10}
-                dy={10}
-                stroke='rgba(255, 255, 255, 0.06)'
-                interval='preserveStartEnd'
-              />
-              {yAxes.map((yAxis) => (
-                <YAxis
-                  key={yAxis.yAxisId}
-                  yAxisId={yAxis.yAxisId}
-                  orientation={yAxis.orientation}
-                  axisLine={false}
+        <div className='w-full h-[350px] max-w-[540px] overflow-hidden'>
+          {isLoading ? (
+            <div className='flex items-center justify-center w-full h-full text-muted-foreground'>
+              Loading...
+            </div>
+          ) : (
+            <ChartContainer
+              config={chartConfig}
+              className={cn(className, 'w-full h-full min-w-0')}
+              style={Object.keys(chartConfig).reduce(
+                (acc, key) => {
+                  // First area gets brand color, second area gets gray color
+                  const isFirstArea = areas.length > 0 && areas[0].dataKey === key
+                  if (isFirstArea) {
+                    acc[`--color-${key}`] = brandColor || '#f57136'
+                  } else {
+                    acc[`--color-${key}`] = '#6B7280'
+                  }
+                  return acc
+                },
+                {} as Record<string, string>,
+              )}
+            >
+              <AreaChart data={chartData} margin={{ top: 10, right: -10, left: -10, bottom: 10 }}>
+                <defs>
+                  {areas.map((area) => (
+                    <linearGradient
+                      key={area.gradientId}
+                      id={area.gradientId}
+                      x1='0'
+                      y1='0'
+                      x2='0'
+                      y2='1'
+                    >
+                      <stop
+                        offset='5%'
+                        stopColor={`var(--color-${area.dataKey})`}
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset='95%'
+                        stopColor={`var(--color-${area.dataKey})`}
+                        stopOpacity={0}
+                      />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <XAxis
+                  dataKey='formattedDate'
+                  axisLine={true}
                   tickLine={false}
                   fontSize={10}
+                  dy={10}
                   stroke='rgba(255, 255, 255, 0.06)'
-                  tickFormatter={yAxis.tickFormatter}
+                  interval='preserveStartEnd'
                 />
-              ))}
+                {yAxes.map((yAxis) => (
+                  <YAxis
+                    key={yAxis.yAxisId}
+                    yAxisId={yAxis.yAxisId}
+                    orientation={yAxis.orientation}
+                    axisLine={false}
+                    tickLine={false}
+                    fontSize={10}
+                    stroke='rgba(255, 255, 255, 0.06)'
+                    tickFormatter={yAxis.tickFormatter}
+                  />
+                ))}
 
-              <ChartTooltip
-                content={<ChartTooltipContent indicator='line' isPercentage={isPercentage} />}
-              />
-              {areas.map((area) => (
-                <Area
-                  key={area.dataKey}
-                  yAxisId={area.yAxisId}
-                  type='monotone'
-                  dataKey={area.dataKey}
-                  stroke={`var(--color-${area.dataKey})`}
-                  strokeWidth={2}
-                  fill={`url(#${area.gradientId})`}
-                  name={area.name}
+                <ChartTooltip
+                  content={<ChartTooltipContent indicator='line' isPercentage={isPercentage} />}
                 />
-              ))}
-            </AreaChart>
-          </ChartContainer>
-        )}
+                {areas.map((area) => (
+                  <Area
+                    key={area.dataKey}
+                    yAxisId={area.yAxisId}
+                    type='monotone'
+                    dataKey={area.dataKey}
+                    stroke={`var(--color-${area.dataKey})`}
+                    strokeWidth={2}
+                    fill={`url(#${area.gradientId})`}
+                    name={area.name}
+                  />
+                ))}
+              </AreaChart>
+            </ChartContainer>
+          )}
+        </div>
       </CardContent>
     </Card>
   )
