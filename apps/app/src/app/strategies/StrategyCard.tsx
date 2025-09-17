@@ -13,7 +13,6 @@ import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import useHealthComputer from '@/hooks/useHealthComputer'
-import { useStrategyWithdrawal } from '@/hooks/useStrategyWithdrawal'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
@@ -38,7 +37,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
   const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
-  const { withdrawFullStrategy, isProcessing: isWithdrawing } = useStrategyWithdrawal()
 
   // Find active strategy for this collateral/debt pair
   const activeStrategy = activeStrategies.find(
@@ -329,7 +327,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                         }`}
                       >
                         {activeStrategy.netApy > 0 ? '+' : '-'}
-                        {(activeStrategy.netApy * 100).toFixed(2)}% APY
+                        {activeStrategy.netApy.toFixed(2)}% APY
                       </span>
                     </div>
                   </div>

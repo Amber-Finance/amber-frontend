@@ -217,8 +217,8 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
         // Navigate back to strategies page after successful closure
         router.push('/strategies')
       } catch (error) {
+        console.error('❌ Strategy close failed:', error)
         toast.error(error instanceof Error ? error.message : 'Position closure failed')
-        console.error(error)
       } finally {
         setIsProcessing(false)
       }

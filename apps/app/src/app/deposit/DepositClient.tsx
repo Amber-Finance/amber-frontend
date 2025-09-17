@@ -21,6 +21,7 @@ import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
+import { usePrices } from '@/hooks/usePrices'
 import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
@@ -58,8 +59,12 @@ export default function DepositClient() {
 
   useMarkets()
   const { markets } = useStore()
+  usePrices() // Automatically fetches prices on mount
   const { data: lstMarkets, isLoading: walletBalancesLoading, getTokenStakingApy } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
+
+  // Prices are automatically fetched by usePrices hook with revalidateOnMount: true
+  // No need for manual refetching here
 
   const { isWalletConnected, connect } = useChain(chainConfig.name)
   const { theme } = useTheme()

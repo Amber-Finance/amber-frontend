@@ -4,7 +4,6 @@ import { BigNumber } from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValueLegacy } from '@/utils/format'
 
 interface AmountInputProps {
   value: string
@@ -26,14 +25,17 @@ export function AmountInput({
   const { markets } = useStore()
 
   const usdValue = (() => {
-    if (!markets || !value) return '0'
+    if (!markets || !value || value === '0') return '0'
 
     const market = markets.find((market) => market.asset.denom === token.denom)
     if (!market?.price?.price) return '0'
 
-    const decimals = market.asset.decimals || 6
-    const rawAmount = new BigNumber(value).shiftedBy(decimals).toString()
-    const usdValue = calculateUsdValueLegacy(rawAmount, market.price.price, decimals)
+    // Convert human-readable amount directly to USD
+    // The value is already in human format (e.g. "1.5"), so we multiply by price directly
+    const humanAmount = new BigNumber(value)
+    const priceInUsd = new BigNumber(market.price.price)
+    const usdValue = humanAmount.multipliedBy(priceInUsd).toNumber()
+
     return usdValue.toString()
   })()
 
