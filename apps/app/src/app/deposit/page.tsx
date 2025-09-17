@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 
-import { generateDepositMetadata } from '@/app/deposit/generateMetadata'
+import { generateDepositMetadata } from '@/app/deposit/generateDepositMetadata'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
