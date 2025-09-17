@@ -398,7 +398,8 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             denom={strategy.debtAsset.denom}
             symbol={strategy.debtAsset.symbol}
             brandColor={strategy.debtAsset.brandColor}
-            supplyApy={strategy.supplyApy}
+            supplyApy={effectiveMaxBtcApy / 100}
+            currentBorrowApy={positionCalcs.debtBorrowApy}
             className='w-[494px] h-[350px]'
           />
           <StrategyFlowCard

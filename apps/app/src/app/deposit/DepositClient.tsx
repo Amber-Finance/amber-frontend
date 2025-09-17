@@ -306,10 +306,10 @@ export default function DepositClient() {
                     suffix=''
                     brandColor={token.brandColor}
                   />
-                  {/* Neutron Points */}
+                  {/* Neutron Rewards */}
                   <MetricRow
                     customIcon='/images/neutron/neutron.svg'
-                    label='Neutron Points'
+                    label='Neutron Rewards'
                     value=''
                     suffix=''
                     brandColor={token.brandColor}
