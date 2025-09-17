@@ -26,11 +26,7 @@ import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useWithdrawValidation } from '@/hooks/useWithdrawValidation'
 import { useStore } from '@/store/useStore'
-import {
-  getNeutronIcon,
-  getProtocolPoints,
-  getProtocolPointsIcon,
-} from '@/utils/depositCardHelpers'
+import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
 import { convertAprToApy } from '@/utils/finance'
 import { formatCompactCurrency, formatNumber } from '@/utils/format'
 
@@ -126,7 +122,6 @@ export default function DepositClient() {
 
   const protocolPoints = getProtocolPoints(lstMarketData.token.symbol)
   const protocolPointsIcon = getProtocolPointsIcon(lstMarketData.token.symbol, theme)
-  const neutronIcon = getNeutronIcon(theme)
 
   if (walletBalancesLoading) {
     return (
@@ -313,7 +308,7 @@ export default function DepositClient() {
                   />
                   {/* Neutron Points */}
                   <MetricRow
-                    customIcon={neutronIcon}
+                    customIcon='/images/neutron/neutron.svg'
                     label='Neutron Points'
                     value=''
                     suffix=''

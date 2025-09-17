@@ -63,7 +63,7 @@ const ASSET_CATEGORIES = {
       'images/lombard/lombardIconOnly.svg',
       'images/lombard/lombardIconOnlyDark.svg',
     ],
-    neutron: ['images/neutron/neutron-light.svg', 'images/neutron/neutron-dark.svg'],
+    neutron: ['images/neutron/neutron.svg'],
     solv: ['images/solv/solvLight.png', 'images/solv/solvDark.png'],
   },
   'social-media': ['x-profile/banner.jpg', 'x-profile/avatar.png', 'x-profile/profile.jpg'],

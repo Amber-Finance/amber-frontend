@@ -25,7 +25,6 @@ import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import {
-  getNeutronIcon,
   getProtocolIcon,
   getProtocolPoints,
   getProtocolPointsIcon,
@@ -77,7 +76,6 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   // Helper function calls
   const protocolPoints = getProtocolPoints(token.symbol)
-  const neutronIcon = getNeutronIcon(theme)
   const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
   const protocolIcon = getProtocolIcon(token.protocolIconLight, token.protocolIconDark, theme)
 
@@ -253,7 +251,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <Badge variant='secondary' className='text-xs gap-1.5'>
                 <div className='w-3 h-3 flex-shrink-0'>
                   <Image
-                    src={neutronIcon}
+                    src='/images/neutron/neutron.svg'
                     alt='Neutron'
                     width={12}
                     height={12}

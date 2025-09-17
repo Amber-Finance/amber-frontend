@@ -52,11 +52,6 @@ export const getProtocolPoints = (symbol: string) => {
   return pointsMap[symbolLower] || { multiplier: '1X' }
 }
 
-// Get Neutron icon based on theme
-export const getNeutronIcon = (theme: string) => {
-  return theme === 'dark' ? '/images/neutron/neutron-dark.svg' : '/images/neutron/neutron-light.svg'
-}
-
 // Get protocol points icon based on theme
 export const getProtocolPointsIcon = (symbol: string, theme: string) => {
   const protocolPoints = getProtocolPoints(symbol)
