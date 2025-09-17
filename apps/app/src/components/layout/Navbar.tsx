@@ -234,11 +234,10 @@ export function Navbar() {
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        'relative block px-6 py-4 text-base font-semibold rounded-2xl transition-all duration-300',
-                        'border-2 border-transparent',
+                        'relative block px-6 py-4 text-base tracking-wide rounded-full transition-all duration-500',
                         isActive
-                          ? 'text-foreground nav-glow-active border-border'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
+                          ? 'text-foreground nav-glow-active scale-105 shadow-lg'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/20',
                       )}
                       onClick={() => setMobileMenuOpen(false)}
                     >
