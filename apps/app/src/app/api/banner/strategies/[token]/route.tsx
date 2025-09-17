@@ -7,17 +7,17 @@ export const runtime = 'edge'
 
 // Token to base image mapping for strategies
 const TOKEN_BASE_IMAGES = {
-  LBTC: '/x-banner/strategies/LBTC.png',
-  solvBTC: '/x-banner/strategies/solvBTC.png',
-  eBTC: '/x-banner/strategies/eBTC.png',
-  WBTC: '/x-banner/strategies/WBTC.png',
-  uniBTC: '/x-banner/strategies/uniBTC.png',
+  lbtc: '/x-banner/strategies/lbtc.png',
+  solvbtc: '/x-banner/strategies/solvbtc.png',
+  ebtc: '/x-banner/strategies/ebtc.png',
+  wbtc: '/x-banner/strategies/wbtc.png',
+  unibtc: '/x-banner/strategies/unibtc.png',
 } as const
 
 const STRATEGIES_API_URL = 'https://api.amberfi.io/api/strategies'
 
 function getTokenBrandColor(tokenSymbol: string): string {
-  const token = tokens.find((t) => t.symbol === tokenSymbol)
+  const token = tokens.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase())
   return token?.brandColor || '#FF6B35'
 }
 
