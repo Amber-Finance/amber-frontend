@@ -30,7 +30,7 @@ export async function GET(
     const { searchParams } = new URL(request.url)
     const strategy = searchParams.get('strategy')
 
-    // Extract the last token from strategy parameter (e.g., "WBTC-uniBTC" -> "uniBTC")
+    // Extract the last token from strategy parameter (e.g., "maxBTC-uniBTC" -> "uniBTC")
     let targetToken = tokenSymbol
     if (strategy) {
       const lastToken = strategy.split('-').pop()
