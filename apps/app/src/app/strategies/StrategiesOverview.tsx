@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react'
 
+import { BigNumber } from 'bignumber.js'
+
 import Hero from '@/components/layout/Hero'
 import { StrategiesContent } from '@/components/strategies/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
@@ -10,6 +12,7 @@ import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { useStore } from '@/store/useStore'
+import { calculateUsdValueLegacy } from '@/utils/format'
 import { generateStrategies, processStrategies } from '@/utils/strategyUtils'
 
 // Pure function to create default maxBTC token
@@ -31,6 +34,48 @@ const createDefaultMaxBtcToken = () => ({
   protocolIconLight: '/images/structured/structuredLight.svg',
   protocolIconDark: '/images/structured/structuredDark.svg',
 })
+
+const calculateMarketTotals = (markets: Market[] | null) => {
+  if (!markets || markets.length === 0) {
+    return {
+      totalSupplyUsd: 0,
+      totalBorrowUsd: 0,
+    }
+  }
+
+  let totalSupplyUsd = new BigNumber(0)
+  let totalBorrowUsd = new BigNumber(0)
+
+  markets.forEach((market) => {
+    // Skip markets without required data
+    if (!market.price?.price || !market.metrics) return
+
+    // Calculate total supply (collateral) in USD
+    if (market.metrics.collateral_total_amount) {
+      const supplyUsd = calculateUsdValueLegacy(
+        market.metrics.collateral_total_amount,
+        market.price.price,
+        market.asset.decimals,
+      )
+      totalSupplyUsd = totalSupplyUsd.plus(supplyUsd)
+    }
+
+    // Calculate total borrows (debt) in USD
+    if (market.metrics.debt_total_amount) {
+      const borrowUsd = calculateUsdValueLegacy(
+        market.metrics.debt_total_amount,
+        market.price.price,
+        market.asset.decimals,
+      )
+      totalBorrowUsd = totalBorrowUsd.plus(borrowUsd)
+    }
+  })
+
+  return {
+    totalSupplyUsd: totalSupplyUsd.toNumber(),
+    totalBorrowUsd: totalBorrowUsd.toNumber(),
+  }
+}
 
 export default function StrategiesOverview() {
   // Fetch markets data using the hook
@@ -61,6 +106,9 @@ export default function StrategiesOverview() {
     return processStrategies(rawStrategies)
   }, [markets, maxBtcToken, effectiveMaxBtcApy])
 
+  // Calculate market totals for Hero stats
+  const marketTotals = useMemo(() => calculateMarketTotals(markets), [markets])
+
   return (
     <>
       <Hero
@@ -69,13 +117,13 @@ export default function StrategiesOverview() {
         description='Amplify your maxBTC yields with leverage strategies - all with just a few clicks'
         stats={[
           {
-            value: 0,
+            value: marketTotals.totalBorrowUsd,
             label: 'Total Borrow',
             isCurrency: true,
             prefix: '$ ',
           },
           {
-            value: 0,
+            value: marketTotals.totalSupplyUsd,
             label: 'Total Supply',
             isCurrency: true,
             prefix: '$ ',
