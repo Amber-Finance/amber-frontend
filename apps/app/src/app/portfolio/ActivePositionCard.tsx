@@ -1,10 +1,13 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
+import { Info } from 'lucide-react'
+
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useStore } from '@/store/useStore'
@@ -16,8 +19,8 @@ interface ActivePositionCardProps {
 
 // Helper function to determine health factor color
 const getHealthFactorColor = (healthFactor: number): string => {
-  if (healthFactor > 2) return 'text-green-500'
-  if (healthFactor > 1.5) return 'text-amber-500'
+  if (healthFactor > 1.1) return 'text-green-500'
+  if (healthFactor > 1.05) return 'text-amber-500'
   return 'text-red-500'
 }
 
@@ -278,7 +281,20 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
             </div>
           </div>
           <div className='flex justify-between items-center'>
-            <span className='text-muted-foreground text-sm'>Health Factor</span>
+            <div className='flex items-center gap-2'>
+              <span className='text-muted-foreground text-sm'>Health Factor</span>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className='text-xs max-w-xs'>
+                    Monitor your Health Factor regularly. If it falls below 1, your position will
+                    become eligible for liquidation.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <span className={`font-medium ${getHealthFactorColor(healthFactor)}`}>
               {healthFactor.toFixed(2)}
             </span>
