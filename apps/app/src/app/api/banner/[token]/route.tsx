@@ -5,11 +5,11 @@ export const runtime = 'edge'
 
 // Token to base image mapping
 const TOKEN_BASE_IMAGES = {
-  LBTC: '/x-banner/deposit/LBTC.jpg',
-  solvBTC: '/x-banner/deposit/solvBTC.jpg',
-  eBTC: '/x-banner/deposit/eBTC.jpg',
-  WBTC: '/x-banner/deposit/WBTC.jpg',
-  uniBTC: '/x-banner/deposit/uniBTC.jpg',
+  lbtc: '/x-banner/deposit/LBTC.jpg',
+  solvbtc: '/x-banner/deposit/solvBTC.jpg',
+  ebtc: '/x-banner/deposit/eBTC.jpg',
+  wbtc: '/x-banner/deposit/WBTC.jpg',
+  unibtc: '/x-banner/deposit/uniBTC.jpg',
 } as const
 
 // API endpoint for APY data
@@ -23,7 +23,8 @@ export async function GET(
     const { token: tokenSymbol } = await params
 
     // Get base image path
-    const baseImagePath = TOKEN_BASE_IMAGES[tokenSymbol as keyof typeof TOKEN_BASE_IMAGES]
+    const baseImagePath =
+      TOKEN_BASE_IMAGES[tokenSymbol.toLowerCase() as keyof typeof TOKEN_BASE_IMAGES]
 
     if (!baseImagePath) {
       return new NextResponse('Banner image not found', { status: 404 })
