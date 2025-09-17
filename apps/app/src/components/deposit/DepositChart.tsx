@@ -7,7 +7,9 @@ import moment from 'moment'
 
 import { BaseChart } from '@/components/common/chart/BaseChart'
 import useAssetsApr from '@/hooks/redBank/useAssetsApr'
+import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
+import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/finance'
 
 interface ChartProps {
@@ -32,8 +34,18 @@ export function DepositChart({ denom, brandColor, className }: ChartProps) {
 
   const { data: assetMetrics, isLoading: tvlLoading } = useDenomData(denom, parseInt(timeRange))
   const { data: assetsApr, isLoading: aprLoading } = useAssetsApr(denom, parseInt(timeRange))
+  const { data: assetsTvl } = useAssetsTvl()
   const tvlData = assetMetrics?.tvl_historical
   const aprData = assetsApr?.[0]?.supply_apr || []
+
+  // Get live market data from store
+  const { markets } = useStore()
+  const currentMarket = markets?.find((market) => market.asset.denom === denom)
+  
+  // Get live TVL data from API
+  const currentTokenTvlData = assetsTvl?.assets?.find(
+    (asset: any) => asset.denom === denom,
+  )
 
   const isLoading = tvlLoading || aprLoading
 
@@ -70,8 +82,37 @@ export function DepositChart({ denom, brandColor, className }: ChartProps) {
       dataMap.get(dateKey).tvl = new BigNumber(point.value).shiftedBy(-6).toNumber()
     })
 
-    return Array.from(dataMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime())
-  }, [aprData, tvlData])
+    // Sort the data by date
+    const sortedData = Array.from(dataMap.values()).sort(
+      (a, b) => a.date.getTime() - b.date.getTime(),
+    )
+
+    // Replace the last data point with live data if available
+    if (sortedData.length > 0 && currentMarket) {
+      const lastIndex = sortedData.length - 1
+      const today = new Date()
+
+      // Get live APY from current market
+      const liveSupplyApr = currentMarket.metrics?.liquidity_rate
+        ? parseFloat(convertAprToApy(parseFloat(currentMarket.metrics.liquidity_rate)))
+        : sortedData[lastIndex].supplyApr
+
+      // Get live TVL from API data (same as DepositCard and DepositClient)
+      const liveTvl = currentTokenTvlData?.tvl
+        ? new BigNumber(currentTokenTvlData.tvl).shiftedBy(-6).toNumber()
+        : sortedData[lastIndex].tvl
+
+      // Update the last data point with live data
+      sortedData[lastIndex] = {
+        date: today,
+        formattedDate: moment(today).format('MMM DD'),
+        supplyApr: liveSupplyApr,
+        tvl: liveTvl,
+      }
+    }
+
+    return sortedData
+  }, [aprData, tvlData, currentMarket, currentTokenTvlData])
 
   const yAxes = [
     {
