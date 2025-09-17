@@ -289,7 +289,7 @@ export const sortStrategiesWithComingSoonAtEnd =
       // First, sort by coming soon status (coming soon goes to the end)
       if (a.debtAsset.comingSoon && !b.debtAsset.comingSoon) return 1
       if (!a.debtAsset.comingSoon && b.debtAsset.comingSoon) return -1
-      
+
       // If both have the same coming soon status, sort by maxROE
       const comparison = a.maxROE - b.maxROE
       return direction === 'asc' ? comparison : -comparison
