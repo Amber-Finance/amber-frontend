@@ -48,11 +48,11 @@ export function DepositPositionCard({ deposit, index }: DepositPositionCardProps
   }
 
   const formatUsdValue = (value: number): string => {
-    if (typeof value !== 'number' || isNaN(value) || value === 0) return '$0'
+    if (typeof value !== 'number' || isNaN(value) || value === 0) return '$0.00'
     if (value < 0.01) return '<$0.01'
     return `$${value.toLocaleString('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     })}`
   }
 
@@ -104,7 +104,7 @@ export function DepositPositionCard({ deposit, index }: DepositPositionCardProps
               Position Value
             </p>
             <p className='text-2xl font-funnel font-bold text-foreground'>
-              {formatUsdValue(deposit.usdValue)}
+              {formatUsdValue(Number(deposit.usdValue.toFixed(2)))}
             </p>
             <p className='text-sm text-muted-foreground font-medium mt-1'>
               {formatAmount(deposit.amountFormatted, token?.decimals)} {deposit.symbol}
