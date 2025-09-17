@@ -7,11 +7,11 @@ export const runtime = 'edge'
 
 // Token to base image mapping for strategies
 const TOKEN_BASE_IMAGES = {
-  lbtc: '/x-banner/strategies/lbtc.png',
-  solvbtc: '/x-banner/strategies/solvbtc.png',
-  ebtc: '/x-banner/strategies/ebtc.png',
-  wbtc: '/x-banner/strategies/wbtc.png',
-  unibtc: '/x-banner/strategies/unibtc.png',
+  lbtc: '/x-banner/strategies/lbtc.jpg',
+  solvbtc: '/x-banner/strategies/solvbtc.jpg',
+  ebtc: '/x-banner/strategies/ebtc.jpg',
+  wbtc: '/x-banner/strategies/wbtc.jpg',
+  unibtc: '/x-banner/strategies/unibtc.jpg',
 } as const
 
 const STRATEGIES_API_URL = 'https://api.amberfi.io/api/strategies'
@@ -39,7 +39,7 @@ export async function GET(
 
     // Case-insensitive
     const validToken = Object.keys(TOKEN_BASE_IMAGES).find(
-      (key) => key.toLowerCase() === targetToken.toLowerCase(),
+      (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),
     ) as keyof typeof TOKEN_BASE_IMAGES
 
     const baseImagePath = validToken ? TOKEN_BASE_IMAGES[validToken] : undefined
