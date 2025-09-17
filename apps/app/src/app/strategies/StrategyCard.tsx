@@ -6,11 +6,11 @@ import Image from 'next/image'
 
 import { useChain } from '@cosmos-kit/react'
 
+import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import { Button } from '@/components/ui/Button'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import useHealthComputer from '@/hooks/useHealthComputer'
@@ -221,10 +221,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
           {/* Earning Points Section */}
           <div className='pt-3'>
-            <EarningPointsRow 
-              assetSymbol={strategy.collateralAsset.symbol} 
-              variant='full' 
-              type='strategy' 
+            <EarningPointsRow
+              assetSymbol={strategy.collateralAsset.symbol}
+              variant='full'
+              type='strategy'
             />
           </div>
 
