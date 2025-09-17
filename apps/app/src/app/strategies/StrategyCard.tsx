@@ -241,57 +241,33 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
           <Separator />
 
-          {/* Balances Section */}
-          <div className='space-y-2 pt-2'>
-            <div className='flex items-center gap-2'>
-              <span className='text-sm font-semibold text-foreground'>Balances</span>
-            </div>
-
-            <div className='space-y-2'>
-              {/* Deposited Balance */}
-              <div className='space-y-1'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-xs text-muted-foreground'>Deposited</span>
-                  <span className='text-sm font-medium text-foreground'>
-                    {activeStrategy
-                      ? `$${activeStrategy.collateralAsset.usdValue.toFixed(2)}`
-                      : '$0.00'}
-                  </span>
-                </div>
-                <div className='flex justify-end'>
-                  <span className='text-xs text-muted-foreground'>
-                    {activeStrategy
-                      ? `${activeStrategy.collateralAsset.amountFormatted.toFixed(
-                          Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
-                        )} ${strategy.collateralAsset.symbol}`
-                      : `0.${'0'.repeat(strategy.collateralAsset.decimals || 8)} ${strategy.collateralAsset.symbol}`}
-                  </span>
+          {/* Conditional Section: Active Strategy or Balances */}
+          {activeStrategy ? (
+            /* Active Strategy Details */
+            <div className='space-y-2 pt-2 flex-1'>
+              <div className='flex items-center gap-2'>
+                <span className='text-sm font-semibold text-foreground'>Active Position</span>
+                <div className='px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full'>
+                  Live
                 </div>
               </div>
-              {/* Available Balance */}
-              <div className='space-y-1'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-xs text-muted-foreground'>Available</span>
-                  <span className='text-sm font-medium text-foreground'>
-                    {userBalanceUsd.gt(0) ? `$${userBalanceUsd.toFormat(2)}` : '$0.00'}
-                  </span>
-                </div>
-                <div className='flex justify-end'>
-                  <span className='text-xs text-muted-foreground'>{userTokenAmount}</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Active Strategy Details */}
-          {activeStrategy && (
-            <>
-              <Separator />
-              <div className='space-y-2 pt-2'>
-                <div className='flex items-center gap-2'>
-                  <span className='text-sm font-semibold text-foreground'>Active Position</span>
-                  <div className='px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full'>
-                    Live
+              <div className='space-y-2'>
+                {/* Deposited Balance */}
+                <div className='space-y-1'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-xs text-muted-foreground'>Deposited</span>
+                    <span className='text-sm font-medium text-foreground'>
+                      ${activeStrategy.collateralAsset.usdValue.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className='flex justify-end'>
+                    <span className='text-xs text-muted-foreground'>
+                      {activeStrategy.collateralAsset.amountFormatted.toFixed(
+                        Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
+                      )}{' '}
+                      {strategy.collateralAsset.symbol}
+                    </span>
                   </div>
                 </div>
 
@@ -333,7 +309,42 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   </div>
                 </div>
               </div>
-            </>
+            </div>
+          ) : (
+            /* Balances Section */
+            <div className='space-y-2 pt-2 flex-1'>
+              <div className='flex items-center gap-2'>
+                <span className='text-sm font-semibold text-foreground'>Balances</span>
+              </div>
+
+              <div className='space-y-2'>
+                {/* Deposited Balance */}
+                <div className='space-y-1'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-xs text-muted-foreground'>Deposited</span>
+                    <span className='text-sm font-medium text-foreground'>$0.00</span>
+                  </div>
+                  <div className='flex justify-end'>
+                    <span className='text-xs text-muted-foreground'>
+                      0.{'0'.repeat(strategy.collateralAsset.decimals || 8)}{' '}
+                      {strategy.collateralAsset.symbol}
+                    </span>
+                  </div>
+                </div>
+                {/* Available Balance */}
+                <div className='space-y-1'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-xs text-muted-foreground'>Available</span>
+                    <span className='text-sm font-medium text-foreground'>
+                      {userBalanceUsd.gt(0) ? `$${userBalanceUsd.toFormat(2)}` : '$0.00'}
+                    </span>
+                  </div>
+                  <div className='flex justify-end'>
+                    <span className='text-xs text-muted-foreground'>{userTokenAmount}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Flexible spacer to push content to bottom */}
@@ -374,11 +385,11 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             className='w-full'
             disabled={activeStrategiesLoading || isComingSoon}
           >
-            {activeStrategiesLoading
-              ? 'Loading...'
-              : isComingSoon
-                ? 'Temporary Disabled'
-                : 'Deploy'}
+            {(() => {
+              if (activeStrategiesLoading) return 'Loading...'
+              if (isComingSoon) return 'Temporary Disabled'
+              return 'Deploy'
+            })()}
           </Button>
         )}
       </CardFooter>

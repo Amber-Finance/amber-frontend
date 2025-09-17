@@ -197,22 +197,24 @@ const Portfolio = () => {
           {/* Active Strategies Section - Only show when wallet is connected */}
           {address && (
             <div className='mb-16'>
-              <div className='flex items-center justify-between mb-8'>
-                <div>
-                  <h2 className='text-2xl font-funnel font-bold text-foreground mb-1'>
-                    Active Strategies
-                  </h2>
-                  <p className='text-muted-foreground'>Leveraged yield optimization positions</p>
+              {activeStrategies.length > 0 && (
+                <div className='flex items-center justify-between mb-8'>
+                  <div>
+                    <h2 className='text-2xl font-funnel font-bold text-foreground mb-1'>
+                      Active Strategies
+                    </h2>
+                    <p className='text-muted-foreground'>Leveraged yield optimization positions</p>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <Badge
+                      variant='secondary'
+                      className='px-3 py-1 bg-foreground/10 text-foreground border-border/20 font-medium'
+                    >
+                      {activeStrategies.length} Position{activeStrategies.length !== 1 ? 's' : ''}
+                    </Badge>
+                  </div>
                 </div>
-                <div className='flex items-center gap-4'>
-                  <Badge
-                    variant='secondary'
-                    className='px-3 py-1 bg-foreground/10 text-foreground border-border/20 font-medium'
-                  >
-                    {activeStrategies.length} Position{activeStrategies.length !== 1 ? 's' : ''}
-                  </Badge>
-                </div>
-              </div>
+              )}
 
               {/* Loading State */}
               {strategiesLoading && (
@@ -251,20 +253,19 @@ const Portfolio = () => {
               {/* Strategy Cards */}
               {!strategiesLoading && !strategiesError && (
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20'>
-                  {activeStrategies.length === 0 ? (
+                  {activeStrategies.length === 0 && deposits.length > 0 ? (
                     <div className='col-span-full'>
-                      <div className='flex flex-col items-center justify-center py-20 px-8 text-center'>
-                        <div className='space-y-6 max-w-lg mx-auto'>
+                      <div className='flex flex-col items-center justify-center py-12 px-8 text-center'>
+                        <div className='space-y-4 max-w-lg mx-auto'>
                           {/* Title */}
-                          <h3 className='text-2xl font-funnel font-semibold text-foreground'>
+                          <h3 className='text-xl font-funnel font-semibold text-foreground'>
                             <AuroraText>No Active Strategies</AuroraText>
                           </h3>
 
                           {/* Description */}
                           <p className='text-muted-foreground leading-relaxed'>
-                            {!address
-                              ? 'Connect your wallet to view your active strategy positions and start earning leveraged yield.'
-                              : "You don't have any active strategy positions yet. Deploy your first strategy to start earning leveraged yield on your assets."}
+                            You don't have any active strategy positions yet. Deploy your first
+                            strategy to start earning leveraged yield on your assets.
                           </p>
 
                           {/* Action Button */}
@@ -287,14 +288,6 @@ const Portfolio = () => {
                         key={strategy.accountId}
                         strategy={strategy}
                         index={index}
-                        onManage={(strategy) => {
-                          // Handle manage action
-                          console.log('Manage strategy:', strategy)
-                        }}
-                        onClose={(strategy) => {
-                          // Handle close action
-                          console.log('Close strategy:', strategy)
-                        }}
                       />
                     ))
                   )}
@@ -328,7 +321,7 @@ const Portfolio = () => {
             </div>
           )}
 
-          {/* Show empty state when wallet connected but no positions */}
+          {/* Show empty state when wallet connected but no positions at all */}
           {address &&
             activeStrategies.length === 0 &&
             deposits.length === 0 &&
@@ -348,8 +341,8 @@ const Portfolio = () => {
                     strategy or make a deposit to start earning yield on your assets.
                   </p>
 
-                  {/* Action Button */}
-                  <div className='pt-2'>
+                  {/* Action Buttons */}
+                  <div className='pt-2 flex flex-col sm:flex-row gap-3 justify-center items-center'>
                     <Button
                       variant='default'
                       size='lg'
@@ -358,32 +351,42 @@ const Portfolio = () => {
                     >
                       View Strategies
                     </Button>
+                    <Button
+                      variant='outline'
+                      size='lg'
+                      onClick={() => router.push('/')}
+                      className='px-8'
+                    >
+                      View Deposits
+                    </Button>
                   </div>
                 </div>
               </div>
             )}
 
-          {/* Fixed Yield Deposits Section - Only show when wallet is connected and deposits exist */}
-          {address && deposits.length > 0 && (
+          {/* Fixed Yield Deposits Section - Only show when wallet is connected */}
+          {address && (
             <div className='border-t border-border/20 pt-20'>
-              <div className='flex items-center justify-between mb-12'>
-                <div>
-                  <h2 className='text-2xl font-funnel font-bold text-foreground mb-2'>
-                    Active Deposits
-                  </h2>
-                  <p className='text-muted-foreground font-medium'>
-                    Traditional yield-bearing positions
-                  </p>
+              {deposits.length > 0 && (
+                <div className='flex items-center justify-between mb-12'>
+                  <div>
+                    <h2 className='text-2xl font-funnel font-bold text-foreground mb-2'>
+                      Active Deposits
+                    </h2>
+                    <p className='text-muted-foreground font-medium'>
+                      Traditional yield-bearing positions
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-4'>
+                    <Badge
+                      variant='secondary'
+                      className='px-4 py-2 bg-foreground/10 text-foreground border-border/20 font-medium'
+                    >
+                      {deposits.length} Position{deposits.length !== 1 ? 's' : ''}
+                    </Badge>
+                  </div>
                 </div>
-                <div className='flex items-center gap-4'>
-                  <Badge
-                    variant='secondary'
-                    className='px-4 py-2 bg-foreground/10 text-foreground border-border/20 font-medium'
-                  >
-                    {deposits.length} Position{deposits.length !== 1 ? 's' : ''}
-                  </Badge>
-                </div>
-              </div>
+              )}
 
               {/* Loading State */}
               {(depositsLoading || positionsLoading) && (
@@ -402,22 +405,41 @@ const Portfolio = () => {
 
               {/* Deposit Cards */}
               {!depositsLoading && !positionsLoading && (
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-                  {deposits.map((deposit, index) => (
-                    <DepositPositionCard
-                      key={deposit.denom}
-                      deposit={deposit}
-                      index={index}
-                      onModify={(deposit) => {
-                        // Handle modify action
-                        console.log('Modify deposit:', deposit)
-                      }}
-                      onWithdraw={(deposit) => {
-                        // Handle withdraw action
-                        console.log('Withdraw deposit:', deposit)
-                      }}
-                    />
-                  ))}
+                <div>
+                  {deposits.length === 0 && activeStrategies.length > 0 ? (
+                    <div className='flex flex-col items-center justify-center py-12 px-8 text-center'>
+                      <div className='space-y-4 max-w-lg mx-auto'>
+                        {/* Title */}
+                        <h3 className='text-xl font-funnel font-semibold text-foreground'>
+                          <AuroraText>No Active Deposits</AuroraText>
+                        </h3>
+
+                        {/* Description */}
+                        <p className='text-muted-foreground leading-relaxed'>
+                          You don't have any deposit positions yet. Make a deposit to start earning
+                          traditional yield on your assets.
+                        </p>
+
+                        {/* Action Button */}
+                        <div className='pt-2'>
+                          <Button
+                            variant='default'
+                            size='lg'
+                            onClick={() => router.push('/')}
+                            className='px-8'
+                          >
+                            View Deposits
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : deposits.length > 0 ? (
+                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+                      {deposits.map((deposit, index) => (
+                        <DepositPositionCard key={deposit.denom} deposit={deposit} index={index} />
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
