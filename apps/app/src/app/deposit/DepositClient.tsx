@@ -6,9 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
-import { ArrowLeft, Coins, Wallet } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
-import { BalanceRow, InfoCard, MetricRow } from '@/components/deposit'
+import TokenBalance from '@/components/common/TokenBalance'
+import { InfoCard, MetricRow } from '@/components/deposit'
 import { AssetActions } from '@/components/deposit/AssetActions'
 import { DepositChart } from '@/components/deposit/DepositChart'
 import { DepositForm } from '@/components/deposit/DepositForm'
@@ -252,21 +253,22 @@ export default function DepositClient() {
         <div className='flex-1 space-y-4 order-2 lg:order-1'>
           {/* Balances Section */}
           <InfoCard title='Your Balances'>
-            <div className='flex flex-col gap-2'>
-              <BalanceRow
-                icon={Coins}
-                label='Deposited'
-                coin={depositedToken}
-                brandColor={token.brandColor}
-                actionType={state.lastAction}
-              />
-              <BalanceRow
-                icon={Wallet}
-                label='Available in Wallet'
-                coin={availableToken}
-                brandColor={token.brandColor}
-                actionType={null}
-              />
+            <div className='space-y-2'>
+              {/* Deposited Balance */}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-muted-foreground'>Deposited</span>
+                  <TokenBalance coin={depositedToken} size='sm' />
+                </div>
+              </div>
+
+              {/* Available Balance */}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-muted-foreground'>Available in Wallet</span>
+                  <TokenBalance coin={availableToken} size='sm' />
+                </div>
+              </div>
             </div>
           </InfoCard>
 
