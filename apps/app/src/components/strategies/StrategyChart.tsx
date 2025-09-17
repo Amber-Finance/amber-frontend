@@ -58,7 +58,8 @@ export function StrategyChart({ denom, brandColor, className, symbol }: Strategy
           maxBtcBorrowApr: 0,
         })
       }
-      dataMap.get(dateKey).borrowApr = parseFloat(convertAprToApy(point.value))
+
+      dataMap.get(dateKey).borrowApr = parseFloat(convertAprToApy(parseFloat(point.value) / 100))
     })
 
     // MaxBTC Borrow APR
@@ -72,7 +73,9 @@ export function StrategyChart({ denom, brandColor, className, symbol }: Strategy
           maxBtcBorrowApr: 0,
         })
       }
-      dataMap.get(dateKey).maxBtcBorrowApr = parseFloat(convertAprToApy(point.value))
+      dataMap.get(dateKey).maxBtcBorrowApr = parseFloat(
+        convertAprToApy(parseFloat(point.value) / 100),
+      )
     })
 
     return Array.from(dataMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime())

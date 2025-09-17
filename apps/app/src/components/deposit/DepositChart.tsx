@@ -53,7 +53,7 @@ export function DepositChart({ denom, brandColor, className }: ChartProps) {
           tvl: 0,
         })
       }
-      dataMap.get(dateKey).supplyApr = parseFloat(convertAprToApy(point.value))
+      dataMap.get(dateKey).supplyApr = convertAprToApy(parseFloat(point.value) / 100)
     })
 
     // TVL
