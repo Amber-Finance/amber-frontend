@@ -185,6 +185,7 @@ export function useActiveStrategies() {
         usdValue: collateralUsd,
         decimals: collateralToken.decimals, // Add decimals for proper handling
         icon: collateralToken.icon, // Add icon for display
+        brandColor: collateralToken.brandColor, // Add brandColor for styling
       },
       debtAsset: {
         denom: debt.denom,
@@ -194,6 +195,7 @@ export function useActiveStrategies() {
         usdValue: debtUsd,
         decimals: debtToken.decimals, // Add decimals for proper handling
         icon: debtToken.icon, // Add icon for display
+        brandColor: debtToken.brandColor, // Add brandColor for styling
       },
       leverage,
       netApy: netApy * 100, // Convert to percentage for display (same as StrategyCard expects)

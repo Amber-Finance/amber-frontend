@@ -215,8 +215,12 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
       <CardContent className='relative space-y-6'>
         <div className='text-center py-4'>
           <div className='text-6xl font-funnel font-bold text-foreground mb-2'>
+            {!strategy.isPositive ? '-' : ''}
             {Math.abs(strategy.netApy).toFixed(2)}
-            <span className={`text-3xl ${strategy.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+            <span
+              className={`text-3xl`}
+              style={{ color: strategy.debtAsset?.brandColor || '#F97316' }}
+            >
               %
             </span>
           </div>

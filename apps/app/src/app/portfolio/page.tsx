@@ -109,7 +109,7 @@ const Portfolio = () => {
 
   // Helper functions for formatting
   const formatPercentage = (value: number) =>
-    value === 0 ? '0.00%' : `${value >= 0 ? '+' : '-'}${value.toFixed(2)}%`
+    value === 0 ? '0.00%' : `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
   const formatCurrency = (value: number) =>
     value === 0
       ? '$0.00'

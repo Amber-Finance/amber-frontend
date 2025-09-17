@@ -183,8 +183,12 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           {/* Main APY Display */}
           <div className='text-center'>
             <div className='text-6xl font-funnel font-bold text-foreground mb-2'>
+              {netApy < 0 ? '-' : ''}
               {Math.abs(maxAPY * 100).toFixed(2)}
-              <span className={`text-2xl ${netApy >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <span
+                className={`text-2xl`}
+                style={{ color: strategy.debtAsset?.brandColor || '#F97316' }}
+              >
                 %
               </span>
             </div>
