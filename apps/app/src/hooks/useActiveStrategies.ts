@@ -41,14 +41,49 @@ const createCosmWasmClientWithFallback = async (): Promise<any> => {
 
 export function useActiveStrategies() {
   const { address, getCosmWasmClient } = useChain(chainConfig.name)
-  const { markets } = useStore()
+  const { markets, updateMarketPrice } = useStore()
   const [activeStrategies, setActiveStrategies] = useState<ActiveStrategy[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Use price and APY hooks
   usePrices() // Ensures prices are fetched and updated
   const { apy: maxBtcApy } = useMaxBtcApy()
+
+  // Fetch missing prices for strategy tokens that aren't in markets
+  const fetchMissingPrice = useCallback(
+    async (denom: string, decimals: number) => {
+      try {
+        const query = btoa(JSON.stringify({ price: { denom } }))
+        const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.oracle}/smart/${query}`
+
+        const response = await fetch(url)
+        if (!response.ok) {
+          console.error(`Failed to fetch price for ${denom}: ${response.statusText}`)
+          return null
+        }
+
+        const data = await response.json()
+        const decimalDifferenceToOracle = decimals - 6
+
+        if (data?.data?.price) {
+          const priceData: PriceData = {
+            denom,
+            price: new BigNumber(data.data.price).shiftedBy(decimalDifferenceToOracle).toString(),
+          }
+
+          // Update the market price in the store
+          updateMarketPrice(denom, priceData)
+          return priceData
+        }
+      } catch (error) {
+        console.error(`Error fetching price for ${denom}:`, error)
+      }
+      return null
+    },
+    [updateMarketPrice],
+  )
 
   // Get maxBTC denom for looping strategies
   const maxBtcDenom = MAXBTC_DENOM
@@ -113,16 +148,21 @@ export function useActiveStrategies() {
       .toNumber()
     const debtAmount = new BigNumber(debt.amount).shiftedBy(-debtToken.decimals).toNumber()
 
+    // Ensure we have valid price data before calculating USD values
+    const collateralPrice = collateralMarket.price?.price || '0'
+    const debtPrice = debtMarket.price?.price || '0'
+
+    // Only skip if BOTH prices are zero (indicating initial loading state)
+    if (collateralPrice === '0' && debtPrice === '0') {
+      return null
+    }
+
     const collateralUsd = calculateUsdValueLegacy(
       wbtcCollateral.amount,
-      collateralMarket.price?.price || '0',
+      collateralPrice,
       collateralToken.decimals,
     )
-    const debtUsd = calculateUsdValueLegacy(
-      debt.amount,
-      debtMarket.price?.price || '0',
-      debtToken.decimals,
-    )
+    const debtUsd = calculateUsdValueLegacy(debt.amount, debtPrice, debtToken.decimals)
 
     // Calculate leverage as debt/equity ratio: debt/(collateral-debt)
     const equity = collateralUsd - debtUsd
@@ -227,9 +267,21 @@ export function useActiveStrategies() {
 
   const scanCreditAccounts = useCallback(async () => {
     if (!address || !markets?.length) return
-
     setIsLoading(true)
     setError(null)
+    setHasAttemptedLoad(true)
+
+    // Check if maxBTC price is missing and fetch it
+    const maxBtcMarket = markets.find((m) => m.asset.denom === maxBtcDenom)
+    const maxBtcToken = tokens.find((t) => t.denom === maxBtcDenom)
+
+    if (maxBtcToken) {
+      if (!maxBtcMarket) {
+        await fetchMissingPrice(maxBtcDenom, maxBtcToken.decimals)
+      } else if (!maxBtcMarket.price?.price || maxBtcMarket.price.price === '0') {
+        await fetchMissingPrice(maxBtcDenom, maxBtcToken.decimals)
+      }
+    }
 
     try {
       // Try our custom client with fallback RPC endpoints first
@@ -265,14 +317,15 @@ export function useActiveStrategies() {
     }
   }, [address, getCosmWasmClient, maxBtcDenom, markets, maxBtcApy])
 
-  // Scan accounts when wallet connects (only on initial load and address changes)
+  // Scan accounts when wallet connects or when markets/prices update
   useEffect(() => {
     if (address) {
       scanCreditAccounts()
     } else {
       setActiveStrategies([])
+      setHasAttemptedLoad(false) // Reset when wallet disconnects
     }
-  }, [address]) // Only depend on address, not markets
+  }, [address, markets, scanCreditAccounts]) // Also depend on markets to trigger when prices load
 
   // Manual refresh function
   const refreshActiveStrategies = useCallback(() => {
@@ -284,6 +337,7 @@ export function useActiveStrategies() {
   return {
     activeStrategies,
     isLoading,
+    isInitialLoading: !hasAttemptedLoad && !!address, // Show initial loading when connected but haven't attempted load yet
     error,
     refreshActiveStrategies,
     hasActiveStrategies: activeStrategies.length > 0,
