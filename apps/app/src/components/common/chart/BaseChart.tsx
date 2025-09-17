@@ -76,7 +76,7 @@ export function BaseChart({
         </Select>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        <div className='w-full h-[350px] max-w-[540px] overflow-hidden'>
+        <div className='w-full h-[350px] max-w-[494px] overflow-hidden'>
           {isLoading ? (
             <div className='flex items-center justify-center w-full h-full text-muted-foreground'>
               Loading...
@@ -84,7 +84,7 @@ export function BaseChart({
           ) : (
             <ChartContainer
               config={chartConfig}
-              className={cn(className, 'w-full h-full min-w-0')}
+              className={cn(className, 'w-full h-full min-w-0 max-w-[494px]')}
               style={Object.keys(chartConfig).reduce(
                 (acc, key) => {
                   // First area gets brand color, second area gets gray color
