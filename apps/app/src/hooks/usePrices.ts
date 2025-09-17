@@ -65,9 +65,15 @@ export const usePrices = () => {
   const shouldFetch = markets?.some((market) => market.asset?.denom)
 
   const { error, isLoading } = useSWR(shouldFetch && 'oraclePrices', fetchAllPrices, {
-    refreshInterval: 20000,
+    // Only fetch once on mount, no constant polling
     revalidateOnMount: true,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    refreshWhenOffline: false,
+    refreshWhenHidden: false,
+    dedupingInterval: 300000, // 5 minutes - prevent unnecessary refetching
+    errorRetryCount: 2,
+    errorRetryInterval: 3000,
   })
 
   return {

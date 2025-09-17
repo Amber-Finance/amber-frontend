@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 import { mutate } from 'swr'
 
 import chainConfig from '@/config/chain'
+import type { Action } from '@/types/generated/mars-credit-manager/MarsCreditManager.types'
 import { track } from '@/utils/analytics'
 import { getMinAmountOutFromRouteInfo } from '@/utils/swap'
 
@@ -14,9 +15,10 @@ const formatAmount = (amount: number, decimals: number): string => {
   return new BigNumber(amount).shiftedBy(decimals).integerValue(BigNumber.ROUND_DOWN).toString()
 }
 
-const createAction = (actionType: string, payload: any) => ({
-  [actionType]: payload,
-})
+const createAction = (actionType: string, payload: any): Action =>
+  ({
+    [actionType]: payload,
+  }) as Action
 
 const createSwapAction = (config: {
   coinIn: { denom: string; amount: string }
@@ -41,10 +43,10 @@ const createSwapAction = (config: {
 }
 
 const createDepositAction = (denom: string, amount: string) =>
-  createAction('deposit', { denom, amount: { exact: amount } })
+  createAction('deposit', { denom, amount })
 
 const createBorrowAction = (denom: string, amount: string) =>
-  createAction('borrow', { denom, amount: { exact: amount } })
+  createAction('borrow', { denom, amount })
 
 const createRepayAction = (accountId: string, denom: string) =>
   createAction('repay', {
@@ -296,7 +298,12 @@ export function useBroadcast() {
     const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
-    const msg = { deposit: {} }
+    const msg = {
+      deposit: {
+        account_id: null,
+        on_behalf_of: null,
+      },
+    }
     const funds = [{ amount: formattedAmount, denom: config.denom }]
 
     await client.execute(address!, chainConfig.contracts.redBank, msg, 'auto', undefined, funds)
@@ -311,7 +318,15 @@ export function useBroadcast() {
     const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
-    const msg = { withdraw: { amount: formattedAmount, denom: config.denom } }
+    const msg = {
+      withdraw: {
+        account_id: null,
+        amount: formattedAmount,
+        denom: config.denom,
+        liquidation_related: null,
+        recipient: null,
+      },
+    }
 
     await client.execute(address!, chainConfig.contracts.redBank, msg, 'auto')
 
@@ -329,7 +344,7 @@ export function useBroadcast() {
       borrow: {
         amount: formattedAmount,
         denom: config.denom,
-        recipient: config.recipient,
+        recipient: config.recipient || null,
       },
     }
 
@@ -345,7 +360,11 @@ export function useBroadcast() {
     const client = await getWalletClient()
 
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
-    const msg = { repay: { on_behalf_of: config.onBehalfOf } }
+    const msg = {
+      repay: {
+        on_behalf_of: config.onBehalfOf || null,
+      },
+    }
     const funds = [{ amount: formattedAmount, denom: config.denom }]
 
     await client.execute(address!, chainConfig.contracts.redBank, msg, 'auto', undefined, funds)

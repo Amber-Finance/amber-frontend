@@ -1,9 +1,13 @@
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+
+import { Info } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useStore } from '@/store/useStore'
@@ -11,14 +15,12 @@ import { useStore } from '@/store/useStore'
 interface ActivePositionCardProps {
   strategy: ActiveStrategy
   index: number
-  onManage?: (strategy: ActiveStrategy) => void
-  onClose?: (strategy: ActiveStrategy) => void
 }
 
 // Helper function to determine health factor color
 const getHealthFactorColor = (healthFactor: number): string => {
-  if (healthFactor > 2) return 'text-green-500'
-  if (healthFactor > 1.5) return 'text-amber-500'
+  if (healthFactor > 1.1) return 'text-green-500'
+  if (healthFactor > 1.05) return 'text-amber-500'
   return 'text-red-500'
 }
 
@@ -29,12 +31,8 @@ const getLeverageColor = (leverage: number): string => {
   return 'text-red-600 dark:text-red-400'
 }
 
-export function ActivePositionCard({
-  strategy,
-  index,
-  onManage,
-  onClose,
-}: ActivePositionCardProps) {
+export function ActivePositionCard({ strategy, index }: ActivePositionCardProps) {
+  const router = useRouter()
   const { markets } = useStore()
 
   // Token decimals are now included in the strategy object from useActiveStrategies
@@ -283,30 +281,40 @@ export function ActivePositionCard({
             </div>
           </div>
           <div className='flex justify-between items-center'>
-            <span className='text-muted-foreground text-sm'>Health Factor</span>
+            <div className='flex items-center gap-2'>
+              <span className='text-muted-foreground text-sm'>Health Factor</span>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className='text-xs max-w-xs'>
+                    Monitor your Health Factor regularly. If it falls below 1, your position will
+                    become eligible for liquidation.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <span className={`font-medium ${getHealthFactorColor(healthFactor)}`}>
               {healthFactor.toFixed(2)}
             </span>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className='flex gap-3 pt-4'>
+        {/* Action Button */}
+        <div className='flex pt-4'>
           <Button
             variant='default'
             size='sm'
-            className='flex-1'
-            onClick={() => onManage?.(strategy)}
+            className='w-full'
+            onClick={() => {
+              const strategyId = `${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`
+              router.push(
+                `/strategies/deploy?strategy=${strategyId}&modify=true&accountId=${strategy.accountId}`,
+              )
+            }}
           >
             Manage
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            className='flex-1'
-            onClick={() => onClose?.(strategy)}
-          >
-            Close
           </Button>
         </div>
       </CardContent>

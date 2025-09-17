@@ -10,6 +10,7 @@ interface StatCardProps {
   decimalPlaces?: number
   prefix?: string
   suffix?: string
+  abbreviated?: boolean
 }
 
 export function StatCard({
@@ -19,9 +20,10 @@ export function StatCard({
   decimalPlaces = 0,
   prefix = '',
   suffix = '',
+  abbreviated = true,
 }: StatCardProps) {
   const renderValue = () => {
-    if (isCurrency && value > 0) {
+    if (isCurrency && value > 0 && abbreviated) {
       // For currency, we need to separate the dollar sign and number for different colors
       const formattedValue = formatLargeCurrency(value)
       const dollarSign = formattedValue.startsWith('-$') ? '-$ ' : '$ '
@@ -36,7 +38,7 @@ export function StatCard({
     }
 
     // Use abbreviated formatting for large numbers
-    if (value >= 1000) {
+    if (value >= 1000 && abbreviated) {
       return formatLargeNumber(decimalPlaces)(value)
     }
 
@@ -51,7 +53,7 @@ export function StatCard({
 
   // Calculate dynamic width based on content length
   const getDynamicWidth = () => {
-    if (isCurrency && value > 0) {
+    if (isCurrency && value > 0 && abbreviated) {
       const formattedValue = formatLargeCurrency(value)
       if (formattedValue.includes('B')) return 'min-w-[120px]'
       if (formattedValue.includes('M')) return 'min-w-[100px]'
@@ -59,7 +61,7 @@ export function StatCard({
       return 'min-w-[90px]'
     }
 
-    if (value >= 1000) {
+    if (value >= 1000 && abbreviated) {
       const formattedValue = formatLargeNumber(decimalPlaces)(value)
       if (formattedValue.includes('B')) return 'min-w-[110px]'
       if (formattedValue.includes('M')) return 'min-w-[90px]'

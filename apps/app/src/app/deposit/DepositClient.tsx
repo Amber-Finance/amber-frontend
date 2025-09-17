@@ -6,9 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
-import { ArrowLeft, Coins, Wallet } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
-import { BalanceRow, InfoCard, MetricRow } from '@/components/deposit'
+import TokenBalance from '@/components/common/TokenBalance'
+import { InfoCard, MetricRow } from '@/components/deposit'
 import { AssetActions } from '@/components/deposit/AssetActions'
 import { DepositChart } from '@/components/deposit/DepositChart'
 import { DepositForm } from '@/components/deposit/DepositForm'
@@ -21,6 +22,7 @@ import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
+import { usePrices } from '@/hooks/usePrices'
 import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
@@ -58,8 +60,12 @@ export default function DepositClient() {
 
   useMarkets()
   const { markets } = useStore()
+  usePrices() // Automatically fetches prices on mount
   const { data: lstMarkets, isLoading: walletBalancesLoading, getTokenStakingApy } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
+
+  // Prices are automatically fetched by usePrices hook with revalidateOnMount: true
+  // No need for manual refetching here
 
   const { isWalletConnected, connect } = useChain(chainConfig.name)
   const { theme } = useTheme()
@@ -247,21 +253,22 @@ export default function DepositClient() {
         <div className='flex-1 space-y-4 order-2 lg:order-1'>
           {/* Balances Section */}
           <InfoCard title='Your Balances'>
-            <div className='flex flex-col gap-2'>
-              <BalanceRow
-                icon={Coins}
-                label='Deposited'
-                coin={depositedToken}
-                brandColor={token.brandColor}
-                actionType={state.lastAction}
-              />
-              <BalanceRow
-                icon={Wallet}
-                label='Available in Wallet'
-                coin={availableToken}
-                brandColor={token.brandColor}
-                actionType={null}
-              />
+            <div className='space-y-2'>
+              {/* Deposited Balance */}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-muted-foreground'>Deposited</span>
+                  <TokenBalance coin={depositedToken} size='sm' />
+                </div>
+              </div>
+
+              {/* Available Balance */}
+              <div className='space-y-1'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-muted-foreground'>Available in Wallet</span>
+                  <TokenBalance coin={availableToken} size='sm' />
+                </div>
+              </div>
             </div>
           </InfoCard>
 
@@ -306,10 +313,10 @@ export default function DepositClient() {
                     suffix=''
                     brandColor={token.brandColor}
                   />
-                  {/* Neutron Points */}
+                  {/* Neutron Rewards */}
                   <MetricRow
                     customIcon='/images/neutron/neutron.svg'
-                    label='Neutron Points'
+                    label='Neutron Rewards'
                     value=''
                     suffix=''
                     brandColor={token.brandColor}

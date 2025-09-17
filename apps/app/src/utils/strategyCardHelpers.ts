@@ -228,14 +228,6 @@ export const isValidStrategy = (strategy: any): boolean => {
 export const filterValidStrategies = (strategies: any[]): any[] =>
   strategies.filter(isValidStrategy)
 
-// Pure function to sort strategies by APY
-export const sortStrategiesByApy = (strategies: any[], direction: 'asc' | 'desc' = 'desc'): any[] =>
-  [...strategies].sort((a, b) => {
-    const aApy = a.maxROE || 0
-    const bApy = b.maxROE || 0
-    return direction === 'asc' ? aApy - bApy : bApy - aApy
-  })
-
 // Pure function to group strategies by risk level
 export const groupStrategiesByRisk = (strategies: any[]): Record<string, any[]> => {
   return strategies.reduce(

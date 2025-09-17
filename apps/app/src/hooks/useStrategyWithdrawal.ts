@@ -198,16 +198,12 @@ export function useStrategyWithdrawal() {
         // Calculate minimum receive amount with slippage
         const minReceive = getMinAmountOutFromRouteInfo(routeResult, 0.5).integerValue().toString()
 
-        // Build full withdrawal actions using calculated amounts
+        // Build full withdrawal actions using correct order:
+        // 1. Swap exact in from collateral to debt asset
+        // 2. Repay the debt
+        // 3. Refund all balances (withdraw remaining collateral)
         const actions = [
-          // 1. Withdraw the calculated amount of collateral needed for the swap
-          {
-            withdraw: {
-              denom: params.collateralDenom,
-              amount: { exact: collateralAmountForSwap },
-            },
-          },
-          // 2. Swap the withdrawn collateral to debt asset
+          // 1. Swap exact in from collateral to debt asset
           {
             swap_exact_in: {
               coin_in: {
@@ -219,7 +215,7 @@ export function useStrategyWithdrawal() {
               route: routeResult.route,
             },
           },
-          // 3. Repay all debt using the exact amount
+          // 2. Repay all debt using the exact amount
           {
             repay: {
               coin: {
@@ -228,12 +224,9 @@ export function useStrategyWithdrawal() {
               },
             },
           },
-          // 4. Withdraw any remaining collateral
+          // 3. Refund all balances (withdraw remaining collateral and any leftover debt tokens)
           {
-            withdraw: {
-              denom: params.collateralDenom,
-              amount: 'account_balance',
-            },
+            refund_all_coin_balances: {},
           },
         ]
 

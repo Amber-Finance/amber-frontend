@@ -247,7 +247,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                 </Badge>
               )}
 
-              {/* Neutron Points */}
+              {/* Neutron Rewards */}
               <Badge variant='secondary' className='text-xs gap-1.5'>
                 <div className='w-3 h-3 flex-shrink-0'>
                   <Image

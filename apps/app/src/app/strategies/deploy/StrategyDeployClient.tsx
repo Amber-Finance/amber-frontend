@@ -217,8 +217,8 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
         // Navigate back to strategies page after successful closure
         router.push('/strategies')
       } catch (error) {
+        console.error('❌ Strategy close failed:', error)
         toast.error(error instanceof Error ? error.message : 'Position closure failed')
-        console.error(error)
       } finally {
         setIsProcessing(false)
       }
@@ -261,11 +261,16 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     try {
       const swapRouteInfo = await fetchSwapRoute(borrowAmount)
 
-      await deployStrategy({
+      const result = await deployStrategy({
         collateralAmount: currentAmount,
         multiplier,
         swapRouteInfo,
       })
+
+      // Redirect to portfolio page on successful deployment
+      if (result.success) {
+        router.push('/portfolio')
+      }
 
       // All success/error handling is done by the broadcast system via toast notifications
       // No need for custom console.logs or manual error handling
@@ -372,7 +377,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                     isModifying && activeStrategy
                       ? isNaN(activeStrategy.netApy)
                         ? 0
-                        : activeStrategy.netApy * 100
+                        : activeStrategy.netApy
                       : isNaN(positionCalcs.leveragedApy)
                         ? 0
                         : positionCalcs.leveragedApy * 100
@@ -398,8 +403,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             denom={strategy.debtAsset.denom}
             symbol={strategy.debtAsset.symbol}
             brandColor={strategy.debtAsset.brandColor}
-            supplyApy={strategy.supplyApy}
-            className='w-full h-full'
+            supplyApy={effectiveMaxBtcApy / 100}
+            currentBorrowApy={positionCalcs.debtBorrowApy}
+            className='w-[494px] h-[350px]'
           />
           <StrategyFlowCard
             strategy={strategy}
@@ -480,7 +486,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                       }`}
                     >
                       {activeStrategy.netApy > 0 ? '+' : ''}
-                      {(activeStrategy.netApy * 100).toFixed(2)}%
+                      {activeStrategy.netApy.toFixed(2)}%
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 import React from 'react'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
@@ -21,16 +22,10 @@ interface DepositPosition {
 interface DepositPositionCardProps {
   deposit: DepositPosition
   index: number
-  onModify?: (deposit: DepositPosition) => void
-  onWithdraw?: (deposit: DepositPosition) => void
 }
 
-export function DepositPositionCard({
-  deposit,
-  index,
-  onModify,
-  onWithdraw,
-}: DepositPositionCardProps) {
+export function DepositPositionCard({ deposit, index }: DepositPositionCardProps) {
+  const router = useRouter()
   const gradientVariants: ('purple' | 'blue' | 'secondary')[] = ['purple', 'blue', 'secondary']
   const gradientClass = gradientVariants[index % gradientVariants.length]
 
@@ -53,11 +48,11 @@ export function DepositPositionCard({
   }
 
   const formatUsdValue = (value: number): string => {
-    if (typeof value !== 'number' || isNaN(value) || value === 0) return '$0'
+    if (typeof value !== 'number' || isNaN(value) || value === 0) return '$0.00'
     if (value < 0.01) return '<$0.01'
     return `$${value.toLocaleString('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     })}`
   }
 
@@ -109,7 +104,7 @@ export function DepositPositionCard({
               Position Value
             </p>
             <p className='text-2xl font-funnel font-bold text-foreground'>
-              {formatUsdValue(deposit.usdValue)}
+              {formatUsdValue(Number(deposit.usdValue.toFixed(2)))}
             </p>
             <p className='text-sm text-muted-foreground font-medium mt-1'>
               {formatAmount(deposit.amountFormatted, token?.decimals)} {deposit.symbol}
@@ -132,21 +127,14 @@ export function DepositPositionCard({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className='flex gap-3 pt-4 border-t border-border/20'>
+        {/* Action Button */}
+        <div className='flex pt-4 border-t border-border/20'>
           <Button
             variant='default'
-            className='flex-1 border-border/40 hover:bg-foreground/5 font-medium'
-            onClick={() => onModify?.(deposit)}
+            className='w-full border-border/40 hover:bg-foreground/5 font-medium'
+            onClick={() => router.push(`/deposit?token=${deposit.symbol}`)}
           >
             Modify
-          </Button>
-          <Button
-            variant='outline'
-            className='flex-1 border-border/40 hover:bg-foreground/5 font-medium'
-            onClick={() => onWithdraw?.(deposit)}
-          >
-            Withdraw
           </Button>
         </div>
       </CardContent>
