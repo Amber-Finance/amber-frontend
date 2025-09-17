@@ -35,6 +35,7 @@ const Portfolio = () => {
   const {
     activeStrategies,
     isLoading: strategiesLoading,
+    isInitialLoading: strategiesInitialLoading,
     error: strategiesError,
   } = useActiveStrategies()
 
@@ -217,7 +218,7 @@ const Portfolio = () => {
               )}
 
               {/* Loading State */}
-              {strategiesLoading && (
+              {(strategiesLoading || strategiesInitialLoading) && (
                 <div className='text-center py-12'>
                   <div className='max-w-md mx-auto space-y-3'>
                     <div className='w-12 h-12 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
@@ -251,7 +252,7 @@ const Portfolio = () => {
               )}
 
               {/* Strategy Cards */}
-              {!strategiesLoading && !strategiesError && (
+              {!strategiesLoading && !strategiesInitialLoading && !strategiesError && (
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20'>
                   {activeStrategies.length === 0 && deposits.length > 0 ? (
                     <div className='col-span-full'>
@@ -326,6 +327,7 @@ const Portfolio = () => {
             activeStrategies.length === 0 &&
             deposits.length === 0 &&
             !strategiesLoading &&
+            !strategiesInitialLoading &&
             !depositsLoading &&
             !positionsLoading && (
               <div className='flex flex-col items-center justify-center py-20 px-8 text-center'>
