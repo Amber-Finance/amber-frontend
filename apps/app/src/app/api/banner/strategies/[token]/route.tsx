@@ -7,11 +7,11 @@ export const runtime = 'edge'
 
 // Token to base image mapping for strategies
 const TOKEN_BASE_IMAGES = {
-  lbtc: '/x-banner/strategies/lbtc.jpg',
-  solvbtc: '/x-banner/strategies/solvbtc.jpg',
-  ebtc: '/x-banner/strategies/ebtc.jpg',
-  wbtc: '/x-banner/strategies/wbtc.jpg',
-  unibtc: '/x-banner/strategies/unibtc.jpg',
+  lbtc: '/x-banner/strategies/LBTC.jpg',
+  solvbtc: '/x-banner/strategies/solvBTC.jpg',
+  ebtc: '/x-banner/strategies/eBTC.jpg',
+  wbtc: '/x-banner/strategies/WBTC.jpg',
+  unibtc: '/x-banner/strategies/uniBTC.jpg',
 } as const
 
 const STRATEGIES_API_URL = 'https://api.amberfi.io/api/strategies'
