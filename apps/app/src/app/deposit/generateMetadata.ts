@@ -4,11 +4,11 @@ import tokens from '@/config/tokens'
 
 // Token to share image mapping
 const TOKEN_SHARE_IMAGES = {
-  LBTC: 'https://app.amberfi.io/api/banner/LBTC',
-  solvBTC: 'https://app.amberfi.io/api/banner/solvBTC',
-  eBTC: 'https://app.amberfi.io/api/banner/eBTC',
-  WBTC: 'https://app.amberfi.io/api/banner/WBTC',
-  uniBTC: 'https://app.amberfi.io/api/banner/uniBTC',
+  lbtc: 'https://app.amberfi.io/api/banner/lbtc',
+  solvbtc: 'https://app.amberfi.io/api/banner/solvbtc',
+  ebtc: 'https://app.amberfi.io/api/banner/ebtc',
+  wbtc: 'https://app.amberfi.io/api/banner/wbtc',
+  unibtc: 'https://app.amberfi.io/api/banner/unibtc',
 } as const
 
 export async function generateDepositMetadata(tokenSymbol: string | null): Promise<Metadata> {
@@ -46,8 +46,9 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
     }
   }
 
-  const token = tokens.find((t) => t.symbol === tokenSymbol)
-  const shareImage = TOKEN_SHARE_IMAGES[tokenSymbol as keyof typeof TOKEN_SHARE_IMAGES]
+  const token = tokens.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase())
+  const shareImage =
+    TOKEN_SHARE_IMAGES[tokenSymbol.toLowerCase() as keyof typeof TOKEN_SHARE_IMAGES]
 
   // If token not found or no share image exists, return default deposit metadata
   if (!token || !shareImage) {
