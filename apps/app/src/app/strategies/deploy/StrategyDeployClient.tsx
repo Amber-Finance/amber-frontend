@@ -372,7 +372,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                     isModifying && activeStrategy
                       ? isNaN(activeStrategy.netApy)
                         ? 0
-                        : activeStrategy.netApy * 100
+                        : activeStrategy.netApy
                       : isNaN(positionCalcs.leveragedApy)
                         ? 0
                         : positionCalcs.leveragedApy * 100
@@ -399,7 +399,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             symbol={strategy.debtAsset.symbol}
             brandColor={strategy.debtAsset.brandColor}
             supplyApy={strategy.supplyApy}
-            className='w-full h-full'
+            className='w-[494px] h-[350px]'
           />
           <StrategyFlowCard
             strategy={strategy}
@@ -480,7 +480,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                       }`}
                     >
                       {activeStrategy.netApy > 0 ? '+' : ''}
-                      {(activeStrategy.netApy * 100).toFixed(2)}%
+                      {activeStrategy.netApy.toFixed(2)}%
                     </div>
                   </div>
                 </div>

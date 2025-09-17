@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
@@ -11,8 +12,6 @@ import { useStore } from '@/store/useStore'
 interface ActivePositionCardProps {
   strategy: ActiveStrategy
   index: number
-  onManage?: (strategy: ActiveStrategy) => void
-  onClose?: (strategy: ActiveStrategy) => void
 }
 
 // Helper function to determine health factor color
@@ -29,12 +28,8 @@ const getLeverageColor = (leverage: number): string => {
   return 'text-red-600 dark:text-red-400'
 }
 
-export function ActivePositionCard({
-  strategy,
-  index,
-  onManage,
-  onClose,
-}: ActivePositionCardProps) {
+export function ActivePositionCard({ strategy, index }: ActivePositionCardProps) {
+  const router = useRouter()
   const { markets } = useStore()
 
   // Token decimals are now included in the strategy object from useActiveStrategies
@@ -290,23 +285,20 @@ export function ActivePositionCard({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className='flex gap-3 pt-4'>
+        {/* Action Button */}
+        <div className='flex pt-4'>
           <Button
             variant='default'
             size='sm'
-            className='flex-1'
-            onClick={() => onManage?.(strategy)}
+            className='w-full'
+            onClick={() => {
+              const strategyId = `${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`
+              router.push(
+                `/strategies/deploy?strategy=${strategyId}&modify=true&accountId=${strategy.accountId}`,
+              )
+            }}
           >
             Manage
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            className='flex-1'
-            onClick={() => onClose?.(strategy)}
-          >
-            Close
           </Button>
         </div>
       </CardContent>
