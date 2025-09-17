@@ -4,13 +4,13 @@ import { useRouter } from 'next/navigation'
 import BigNumber from 'bignumber.js'
 import { ArrowDownToLine } from 'lucide-react'
 
+import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import TokenBalance from '@/components/common/TokenBalance'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -24,11 +24,7 @@ import useRedBankAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
-import {
-  getProtocolIcon,
-  getProtocolPoints,
-  getProtocolPointsIcon,
-} from '@/utils/depositCardHelpers'
+import { getProtocolIcon } from '@/utils/depositCardHelpers'
 
 interface DepositCardProps {
   token: TokenInfo
@@ -75,8 +71,6 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
       : 0
 
   // Helper function calls
-  const protocolPoints = getProtocolPoints(token.symbol)
-  const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
   const protocolIcon = getProtocolIcon(token.protocolIconLight, token.protocolIconDark, theme)
 
   const handleDepositClick = () => {
@@ -224,58 +218,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           {/* Points Section */}
-          <div className='space-y-3'>
-            <div className='flex items-center gap-2'>
-              <span className='text-sm font-semibold text-foreground'>Earning Points</span>
-            </div>
-            <div className='flex flex-wrap gap-2'>
-              {/* Protocol Points - Show first if they exist */}
-              {protocolPoints.protocolPoint && protocolPointsIcon && (
-                <Badge variant='secondary' className='text-xs gap-1.5'>
-                  <div className='w-3 h-3 flex-shrink-0'>
-                    <Image
-                      src={protocolPointsIcon}
-                      alt={protocolPoints.protocolPoint}
-                      width={12}
-                      height={12}
-                      className='object-contain w-full h-full'
-                      unoptimized={true}
-                    />
-                  </div>
-                  <span>{protocolPoints.protocolPoint}</span>
-                  <span className='font-semibold'>{protocolPoints.multiplier}</span>
-                </Badge>
-              )}
-
-              {/* Neutron Rewards */}
-              <Badge variant='secondary' className='text-xs gap-1.5'>
-                <div className='w-3 h-3 flex-shrink-0'>
-                  <Image
-                    src='/images/neutron/neutron.svg'
-                    alt='Neutron'
-                    width={12}
-                    height={12}
-                    className='object-contain w-full h-full'
-                  />
-                </div>
-                <span>Neutron</span>
-              </Badge>
-
-              {/* Mars Fragments */}
-              <Badge variant='secondary' className='text-xs gap-1.5'>
-                <div className='w-3 h-3 flex-shrink-0'>
-                  <Image
-                    src='/points/mars-fragments.svg'
-                    alt='Mars Fragments'
-                    width={12}
-                    height={12}
-                    className='object-contain w-full h-full'
-                  />
-                </div>
-                <span>Mars Fragments</span>
-              </Badge>
-            </div>
-          </div>
+          <EarningPointsRow assetSymbol={token.symbol} variant='full' type='deposit' />
 
           {/* Flexible spacer to push content to bottom */}
           <div className='flex-1' />

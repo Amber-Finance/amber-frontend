@@ -25,6 +25,36 @@ export function EarningPointsRow({
   const protocolPoints = getProtocolPoints(assetSymbol)
   const protocolPointsIcon = getProtocolPointsIcon(assetSymbol, theme)
 
+  // Helper function to get multipliers based on asset and type
+  const getMultipliers = () => {
+    const assetLower = assetSymbol.toLowerCase()
+
+    if (type === 'deposit') {
+      if (assetLower === 'wbtc') {
+        return {
+          neutron: '3x',
+          mars: '', // No multiplier shown for 1x
+          showStructured: false,
+        }
+      } else {
+        return {
+          neutron: '2x',
+          mars: '', // No multiplier shown for 1x
+          showStructured: false,
+        }
+      }
+    } else {
+      // strategy
+      return {
+        neutron: '', // No multiplier shown for 1x
+        mars: '', // No multiplier shown for 1x
+        showStructured: true,
+      }
+    }
+  }
+
+  const multipliers = getMultipliers()
+
   if (variant === 'full') {
     // Full variant - matches the deposits page exactly
     return (
@@ -51,8 +81,8 @@ export function EarningPointsRow({
             </Badge>
           )}
 
-          {/* Structured Points - Only show for strategies */}
-          {type === 'strategy' && (
+          {/* Structured Points - Show for strategies and WBTC deposits */}
+          {multipliers.showStructured && (
             <Badge variant='secondary' className='text-xs gap-1.5'>
               <div className='w-3 h-3 flex-shrink-0'>
                 <Image
@@ -64,25 +94,24 @@ export function EarningPointsRow({
                 />
               </div>
               <span>Structured Points</span>
-              <span className='font-semibold'>2x</span>
+              {type === 'strategy' && <span className='font-semibold'>2x</span>}
             </Badge>
           )}
 
-          {/* Neutron Rewards - Only show for deposits */}
-          {type === 'deposit' && (
-            <Badge variant='secondary' className='text-xs gap-1.5'>
-              <div className='w-3 h-3 flex-shrink-0'>
-                <Image
-                  src='/images/neutron/neutron.svg'
-                  alt='Neutron'
-                  width={12}
-                  height={12}
-                  className='object-contain w-full h-full'
-                />
-              </div>
-              <span>Neutron</span>
-            </Badge>
-          )}
+          {/* Neutron Rewards - Show for deposits and strategies */}
+          <Badge variant='secondary' className='text-xs gap-1.5'>
+            <div className='w-3 h-3 flex-shrink-0'>
+              <Image
+                src='/images/neutron/neutron.svg'
+                alt='Neutron'
+                width={12}
+                height={12}
+                className='object-contain w-full h-full'
+              />
+            </div>
+            <span>Neutron</span>
+            {multipliers.neutron && <span className='font-semibold'>{multipliers.neutron}</span>}
+          </Badge>
 
           {/* Mars Fragments - Always show */}
           <Badge variant='secondary' className='text-xs gap-1.5'>
@@ -96,6 +125,7 @@ export function EarningPointsRow({
               />
             </div>
             <span>Mars Fragments</span>
+            {multipliers.mars && <span className='font-semibold'>{multipliers.mars}</span>}
           </Badge>
         </div>
       </div>
@@ -119,28 +149,26 @@ export function EarningPointsRow({
             )
           }
 
-          // Add Structured Points only for strategies
-          if (type === 'strategy') {
+          // Add Structured Points for strategies and WBTC deposits
+          if (multipliers.showStructured) {
             badges.push(
               <Badge key='structured' variant='secondary' className='text-xs px-1.5 py-0.5'>
-                Structured 2x
+                Structured{type === 'strategy' ? ' 2x' : ''}
               </Badge>,
             )
           }
 
-          // Add Neutron only for deposits
-          if (type === 'deposit') {
-            badges.push(
-              <Badge key='neutron' variant='secondary' className='text-xs px-1.5 py-0.5'>
-                NTRN
-              </Badge>,
-            )
-          }
+          // Add Neutron for both deposits and strategies
+          badges.push(
+            <Badge key='neutron' variant='secondary' className='text-xs px-1.5 py-0.5'>
+              NTRN{multipliers.neutron ? ` ${multipliers.neutron}` : ''}
+            </Badge>,
+          )
 
           // Always add Mars Fragments
           badges.push(
             <Badge key='mars' variant='secondary' className='text-xs px-1.5 py-0.5'>
-              MARS
+              MARS{multipliers.mars ? ` ${multipliers.mars}` : ''}
             </Badge>,
           )
 

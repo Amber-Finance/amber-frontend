@@ -129,6 +129,27 @@ export default function DepositClient() {
   const protocolPoints = getProtocolPoints(lstMarketData.token.symbol)
   const protocolPointsIcon = getProtocolPointsIcon(lstMarketData.token.symbol, theme)
 
+  // Helper function to get multipliers for deposit client
+  const getDepositMultipliers = () => {
+    const assetLower = lstMarketData.token.symbol.toLowerCase()
+
+    if (assetLower === 'wbtc') {
+      return {
+        neutron: { value: '3x', suffix: ' multiplier' },
+        mars: { value: '', suffix: '' },
+        showStructured: true,
+      }
+    } else {
+      return {
+        neutron: { value: '2x', suffix: ' multiplier' },
+        mars: { value: '', suffix: '' },
+        showStructured: false,
+      }
+    }
+  }
+
+  const depositMultipliers = getDepositMultipliers()
+
   if (walletBalancesLoading) {
     return (
       <div className='w-full lg:container mx-auto px-4 py-8'>
@@ -305,20 +326,30 @@ export default function DepositClient() {
                       brandColor={token.brandColor}
                     />
                   )}
+                  {/* Structured Points - Show for WBTC deposits */}
+                  {depositMultipliers.showStructured && (
+                    <MetricRow
+                      customIcon='/images/structured.svg'
+                      label='Structured Points'
+                      value=''
+                      suffix=''
+                      brandColor={token.brandColor}
+                    />
+                  )}
                   {/* Mars Fragments */}
                   <MetricRow
                     customIcon='/images/marsFragments/mars-fragments.svg'
                     label='Mars Fragments'
-                    value=''
-                    suffix=''
+                    value={depositMultipliers.mars.value}
+                    suffix={depositMultipliers.mars.suffix}
                     brandColor={token.brandColor}
                   />
                   {/* Neutron Rewards */}
                   <MetricRow
                     customIcon='/images/neutron/neutron.svg'
                     label='Neutron Rewards'
-                    value=''
-                    suffix=''
+                    value={depositMultipliers.neutron.value}
+                    suffix={depositMultipliers.neutron.suffix}
                     brandColor={token.brandColor}
                   />
                 </div>
