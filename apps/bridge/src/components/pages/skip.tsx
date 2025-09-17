@@ -476,7 +476,7 @@ export function SkipPage() {
             </div>
           </div>
         </div>
-        <div className='w-full max-w-lg mx-auto p-4'>
+        <div className='w-full max-w-lg mx-auto py-4 px-4 sm:px-0 sm:pl-8'>
           <p className='sm:text-base max-w-md text-center text-xs text-muted-foreground'>
             If you hold your Bitcoin LSTs on any other chain than Ethereum or Neutron, you can
             bridge them via the official{' '}
