@@ -53,7 +53,7 @@ export function MarsFork() {
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
                 A hardened fork of Mars Protocol&apos;s Red Bank - Cosmos&apos;s battle‑tested
-                lending primitive adapted for Bitcoin Related Tokens. Trusted architecture,
+                lending primitive adapted for Bitcoin Liquid Staking Tokens. Trusted architecture,
                 optimized for native Bitcoin yield.
               </p>
             </SectionHeader>
@@ -87,8 +87,8 @@ export function MarsFork() {
                   <p className='text-neutral-400 dark:text-neutral-400 mb-4'>
                     The Red Bank is a mature lending primitive with strong risk tooling and proven
                     market behavior. Amber Finance uses the battletested Mars Protocol Contracts as
-                    the base of its core. Configured to support BRTs and liquidate towards highly
-                    correlated assets.
+                    the base of its core. Configured to support Bitcoin LSTs and liquidate towards
+                    highly correlated assets.
                   </p>
                   <ul className='list-disc pl-5 text-neutral-400 dark:text-neutral-400 space-y-1'>
                     <li>Conservative parameters and hardened liquidation logic</li>
@@ -103,7 +103,7 @@ export function MarsFork() {
                   </h3>
                   <ul className='space-y-2 text-neutral-400 dark:text-neutral-400'>
                     <li>
-                      Security‑first: adopt Mars Protocol defaults, then tighten where BRT market
+                      Security‑first: adopt Mars Protocol defaults, then tighten where Bitcoin LST market
                       structure warrants it.
                     </li>
                     <li>Minimal surface area: focus on essentials to maximize reliability.</li>

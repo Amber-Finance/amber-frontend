@@ -88,10 +88,10 @@ export default function SwapClient() {
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
-            Swap <AuroraText>Bitcoin Related</AuroraText> Tokens
+            Swap <AuroraText>Bitcoin LSTs</AuroraText>
           </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-            Trade between BRTs with minimal slippage and competitive rates.
+            Swap between Bitcoin Liquid Staking Tokens with minimal slippage and competitive rates.
           </p>
         </div>
       </div>

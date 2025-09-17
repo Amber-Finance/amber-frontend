@@ -11,14 +11,14 @@ export const metadata: Metadata = {
   title: 'Amber Finance',
   metadataBase: new URL('https://amberfi.io'),
   description:
-    'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+    'Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Preserve Value. Generate Wealth.',
   openGraph: {
     type: 'website',
     url: 'https://amberfi.io',
     title: 'Amber Finance',
     locale: 'en_US',
     description:
-      'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+      'Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Preserve Value. Generate Wealth.',
     siteName: 'Amber',
     images: [
       {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     creator: '@amberfi_io',
     title: 'Amber Finance',
     description:
-      'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+      'Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Preserve Value. Generate Wealth.',
     images: [
       {
         url: 'https://amberfi.io/x-banner/default.jpg',

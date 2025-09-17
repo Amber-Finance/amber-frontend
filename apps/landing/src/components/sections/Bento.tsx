@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 const features = [
   {
     name: 'Swap',
-    description: 'Seamlessly swap between BRTs.',
+    description: 'Seamlessly swap between Bitcoin LSTs.',
     href: 'https://app.amberfi.io/swap',
     cta: 'Swap',
     className: 'col-span-2 lg:col-span-1',
@@ -22,7 +22,7 @@ const features = [
   },
   {
     name: 'Deposit',
-    description: 'Seamlessly deposit BRTs on Amber to earn yield and farm points.',
+    description: 'Seamlessly deposit Bitcoin LSTs on Amber to earn yield and farm points.',
     className: 'col-span-2 lg:col-span-1',
     href: 'https://app.amberfi.io/deposit',
     cta: 'Deposit',
@@ -30,7 +30,7 @@ const features = [
   },
   {
     name: 'Strategies',
-    description: 'Deploy strategies to multiply your maxBTC exposure with up to 10x leverage.',
+    description: 'Deploy strategies to multiply your maxBTC exposure with up to 12x leverage.',
     href: 'https://app.amberfi.io/strategies',
     cta: 'Strategies',
     className: 'col-span-1 lg:col-span-2',
@@ -89,8 +89,8 @@ export function Bento() {
                 Amplify Your Bitcoin Yield
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-                Deposit BRTs to earn yield, swap between tokens, deploy leverage strategies with up
-                to 10x leverage, and track your positions performance with real-time analytics.
+                Deposit Bitcoin LSTs to earn yield, swap between tokens, deploy leverage strategies with up
+                to 12x leverage, and track your positions performance with real-time analytics.
               </p>
             </SectionHeader>
           </motion.div>

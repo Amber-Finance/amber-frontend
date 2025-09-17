@@ -35,7 +35,7 @@ export default function Home() {
       <Hero
         title='Liquid Staking.'
         subtitle={<AuroraText>Solid Yields.</AuroraText>}
-        description='Bridge your liquid staking tokens and earn maximum yield. Deposit supported assets to earn real yield.'
+        description='Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Deposit supported assets to earn real yield.'
         stats={[
           {
             value: sortedMarkets.reduce((sum, m) => sum + m.metrics.collateralTotalUsd, 0),

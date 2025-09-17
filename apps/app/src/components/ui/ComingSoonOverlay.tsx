@@ -38,12 +38,12 @@ export function ComingSoonOverlay() {
             <div className='p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
               <div className='text-sm font-semibold text-foreground'>Yield</div>
               <div className='text-xs text-muted-foreground'>
-                Earn Yield on Bitcoin Related Tokens (BRTs)
+                Earn Yield on Bitcoin Liquid Staking Tokens
               </div>
             </div>
             <div className='p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
               <div className='text-sm font-semibold text-foreground'>Looping</div>
-              <div className='text-xs text-muted-foreground'>Up to 10x Leverage on your maxBTC</div>
+              <div className='text-xs text-muted-foreground'>Up to 12x Leverage on your maxBTC</div>
             </div>
             <div className='p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
               <div className='text-sm font-semibold text-foreground'>Points Farming</div>
