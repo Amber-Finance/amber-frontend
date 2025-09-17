@@ -5,11 +5,11 @@ export const runtime = 'edge'
 
 // Token to base image mapping
 const TOKEN_BASE_IMAGES = {
-  LBTC: '/x-banner/deposit/LBTC.png',
-  solvBTC: '/x-banner/deposit/solvBTC.png',
-  eBTC: '/x-banner/deposit/eBTC.png',
-  WBTC: '/x-banner/deposit/WBTC.png',
-  uniBTC: '/x-banner/deposit/uniBTC.png',
+  LBTC: '/x-banner/deposit/LBTC.jpg',
+  solvBTC: '/x-banner/deposit/solvBTC.jpg',
+  eBTC: '/x-banner/deposit/eBTC.jpg',
+  WBTC: '/x-banner/deposit/WBTC.jpg',
+  uniBTC: '/x-banner/deposit/uniBTC.jpg',
 } as const
 
 // API endpoint for APY data
