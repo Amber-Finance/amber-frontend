@@ -67,7 +67,9 @@ export const SwapTokenInput = ({
           const parts = raw.split('.')
           let clean = parts[0]
           if (parts.length > 1) {
-            clean += '.' + parts.slice(1).join('')
+            const maxDecimals = Math.min(token?.decimals || 8, 18)
+            const decimalPart = parts.slice(1).join('').substring(0, maxDecimals)
+            clean += '.' + decimalPart
           }
           onAmountChange(clean)
         }}

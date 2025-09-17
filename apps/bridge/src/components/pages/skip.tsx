@@ -437,10 +437,10 @@ export function SkipPage() {
         <section className='relative w-full py-8 sm:py-10 px-4'>
           <div className='flex flex-col items-center gap-4'>
             <h1 className='text-3xl lg:text-5xl font-funnel leading-tight text-center'>
-              Bridge <AuroraText>Bitcoin Related</AuroraText> Tokens
+              Bridge <AuroraText>Bitcoin LSTs</AuroraText>
             </h1>
             <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-              Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
+              Bridge your Bitcoin Liquid Staking Tokens via our partner Skip:Go.
             </p>
           </div>
         </section>
@@ -478,8 +478,8 @@ export function SkipPage() {
         </div>
         <div className='w-full max-w-lg mx-auto p-4'>
           <p className='sm:text-base max-w-md text-center text-xs text-muted-foreground'>
-            If you hold your BRTs on any other chain than Ethereum or Neutron, you can bridge them
-            via the official{' '}
+            If you hold your Bitcoin LSTs on any other chain than Ethereum or Neutron, you can
+            bridge them via the official{' '}
             <a
               href='https://go.skip.build'
               className='text-amber-500 underline hover:no-underline'

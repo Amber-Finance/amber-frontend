@@ -1,23 +1,28 @@
-// Define the Asset interface
-interface Asset {
-  denom: string
-  symbol: string
-  name: string
-  description: string
-  decimals: number
-  icon: string
-  brandColor?: string
-}
-
-// AssetInfo interface for strategy assets
-interface AssetInfo {
-  denom: string
-  symbol: string
-  name: string
-  description: string
-  decimals: number
-  icon: string
-  brandColor?: string
+// Active strategy interface for portfolio components
+interface ActiveStrategy {
+  accountId: string
+  collateralAsset: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+    decimals: number
+    icon: string
+  }
+  debtAsset: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+    decimals: number
+    icon: string
+  }
+  leverage: number
+  netApy: number
+  isPositive: boolean
+  strategyId: string
 }
 
 interface MarketParams {
@@ -69,7 +74,7 @@ interface MarketDataItem {
 
 // Base Market interface - core structure of a market
 interface Market {
-  asset: Asset
+  asset: TokenInfo
   params: MarketParams
   metrics: MarketDataItem
   price: PriceData
@@ -148,17 +153,24 @@ interface MarketDataResponse {
   }
 }
 
-interface Token {
+interface TokenInfo {
   chainId: string
   denom: string
   symbol: string
   icon: string
   description: string
+  protocolIconLight: string
+  protocolIconDark: string
   decimals: number
   isLST: boolean
   stakingApy?: number
   protocol: string
   brandColor: string
+  origin: {
+    chainId: string
+    tokenAddress: string
+  }
+  comingSoon: boolean
 }
 
 interface MarketColumn {
@@ -195,7 +207,9 @@ interface ChainConfig {
     restUrl: string
     rpcUrl: string
     fallbackRpc?: string
+    fallbackRpcs?: string[]
     routes?: string
+    redBank: string
   }
   queries: {
     allAssetParams: string
@@ -234,6 +248,8 @@ interface FormatValueOptions {
   smallValueThreshold?: number
   /** Threshold for using compact notation */
   largeValueThreshold?: number
+  /** Token decimals for zero value formatting */
+  tokenDecimals?: number
 }
 
 /**
@@ -482,8 +498,8 @@ type Theme = 'dark' | 'light' | 'system'
 interface Strategy {
   id: string
   type: string
-  collateralAsset: AssetInfo
-  debtAsset: AssetInfo
+  collateralAsset: TokenInfo
+  debtAsset: TokenInfo
   maxROE: number
   isPositive: boolean
   hasPoints: boolean
@@ -676,7 +692,7 @@ interface StrategyAsset {
 }
 
 interface SwapConfig {
-  route: any
+  routeInfo: SwapRouteInfo
   slippage?: string
 }
 
@@ -815,7 +831,7 @@ type SwapAction =
 interface StrategyDeploymentParams {
   collateralAmount: number
   multiplier: number
-  swapRoute: any
+  swapRouteInfo: SwapRouteInfo
 }
 
 interface UseStrategyDeploymentProps {
@@ -895,8 +911,8 @@ interface Icon {
 interface StrategyData {
   id: string
   type: string
-  collateralAsset: AssetInfo
-  debtAsset: AssetInfo
+  collateralAsset: TokenInfo
+  debtAsset: TokenInfo
   maxROE: number
   isPositive: boolean
   hasPoints: boolean
@@ -921,25 +937,8 @@ interface StrategyData {
   hasStakingData: boolean
 }
 
-interface AssetInfo {
-  denom: string
-  symbol: string
-  name: string
-  description: string
-  decimals: number
-  icon: string
-  brandColor?: string
-}
-
 interface MarketData {
-  asset: {
-    denom: string
-    symbol: string
-    name: string
-    description: string
-    decimals: number
-    icon?: string
-  }
+  asset: TokenInfo
   metrics: {
     collateral_total_amount?: string
     debt_total_amount?: string
@@ -1047,4 +1046,23 @@ interface SwapActions {
   setEditingDirection: (direction: 'from' | 'to') => void
   resetAmounts: () => void
   swapTokens: () => void
+}
+
+interface ChartData {
+  date: Date
+  formattedDate: string
+  [key: string]: any
+}
+
+interface ChartConfig {
+  [key: string]: {
+    label: string
+    color: string
+  }
+}
+
+interface YAxisConfig {
+  yAxisId: string
+  orientation: 'left' | 'right'
+  tickFormatter: (value: any) => string
 }

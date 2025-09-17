@@ -88,14 +88,14 @@ export default function SwapClient() {
       <div className='relative w-full py-8 sm:py-10 px-4 max-w-6xl mx-auto'>
         <div className='flex flex-col items-center gap-4'>
           <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
-            Swap <AuroraText>Bitcoin Related</AuroraText> Tokens
+            Swap <AuroraText>Bitcoin LSTs</AuroraText>
           </h1>
           <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-            Trade between BRTs with minimal slippage and competitive rates.
+            Swap between Bitcoin Liquid Staking Tokens with minimal slippage and competitive rates.
           </p>
         </div>
       </div>
-      <div className='w-full max-w-lg mx-auto pb-0 sm:pb-16'>
+      <div className='w-full max-w-lg mx-auto sm:pb-16'>
         <Card className='bg-card rounded-2xl shadow-xl border border-border/30 py-2'>
           <CardContent className='sm:py-2 px-2'>
             <div className='flex items-center justify-end pb-2 text-xs text-muted-foreground'>
@@ -136,7 +136,12 @@ export default function SwapClient() {
                   const calculatedAmount = new BigNumber(logic.fromToken.balance).multipliedBy(
                     percent,
                   )
-                  actions.setFromAmount(calculatedAmount.toString())
+                  const maxDecimals = Math.min(logic.fromToken.decimals || 8, 18)
+                  const limitedAmount = calculatedAmount.decimalPlaces(
+                    maxDecimals,
+                    BigNumber.ROUND_DOWN,
+                  )
+                  actions.setFromAmount(limitedAmount.toString())
                   actions.setEditingDirection('from')
                 }
               }}

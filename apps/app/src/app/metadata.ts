@@ -124,14 +124,14 @@ export const metaData: { [key: string]: Metadata } = {
     title: 'Amber Finance | Swap',
     metadataBase: new URL(SHARED_CONFIG.baseUrl),
     description:
-      'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
+      'Convert your Bitcoin LSTs into correlated assets. Optimize your yield and improve your exposure.',
     openGraph: {
       type: 'website',
       url: `${SHARED_CONFIG.baseUrl}/swap`,
       title: 'Amber Finance | Swap',
       locale: SHARED_CONFIG.locale,
       description:
-        'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
+        'Convert your Bitcoin LSTs into correlated assets. Optimize your yield and improve your exposure.',
       siteName: SHARED_CONFIG.siteName,
       images: [
         {
@@ -148,7 +148,7 @@ export const metaData: { [key: string]: Metadata } = {
       title: 'Amber Finance | Swap',
       creator: SHARED_CONFIG.twitterHandle,
       description:
-        'Convert your LSTs into correlated assets. Optimize your yield and improve your exposure.',
+        'Convert your Bitcoin LSTs into correlated assets. Optimize your yield and improve your exposure.',
       images: [
         {
           url: 'https://app.amberfi.io/x-banner/swap.jpg',

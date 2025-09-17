@@ -56,7 +56,7 @@ function createDualityRoute(denomIn: string, denomOut: string, swapOperations: a
   }
 }
 
-function createSwapDescription(denomIn: string, denomOut: string, assets: Asset[]): string {
+function createSwapDescription(denomIn: string, denomOut: string, assets: TokenInfo[]): string {
   return [
     assets.find(byDenom(denomIn))?.symbol || denomIn,
     assets.find(byDenom(denomOut))?.symbol || denomOut,
@@ -99,7 +99,7 @@ function buildSwapRouteInfo(
 async function getNeutronRouteInfoInternal(
   denomIn: string,
   denomOut: string,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
   routeParams: any,
   isReverse: boolean = false,
@@ -108,17 +108,25 @@ async function getNeutronRouteInfoInternal(
     const amountInWithDecimals = new BigNumber(routeParams.amountIn).integerValue().toString()
 
     const skipRouteParams = {
-      ...routeParams,
-      sourceAssetDenom: denomIn,
-      sourceAssetChainId: chainConfig.id,
-      destAssetDenom: denomOut,
-      destAssetChainId: chainConfig.id,
-      allowUnsafe: true,
+      amount_in: amountInWithDecimals,
+      source_asset_chain_id: chainConfig.id,
+      source_asset_denom: denomIn,
+      dest_asset_chain_id: chainConfig.id,
+      dest_asset_denom: denomOut,
+      smart_relay: true,
+      experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
+      allow_multi_tx: true,
+      allow_unsafe: true,
+      smart_swap_options: {
+        split_routes: true,
+        evm_swaps: true,
+      },
+      // Force only Duality swaps for Mars strategies
       swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
-      amountIn: amountInWithDecimals,
+      go_fast: false,
     }
 
-    const skipRouteResponse = await skipRoute(skipRouteParams)
+    const skipRouteResponse = await skipRoute(skipRouteParams as any)
 
     if (!skipRouteResponse) {
       throw new Error('No route response from Skip API')
@@ -127,7 +135,23 @@ async function getNeutronRouteInfoInternal(
     const venueType = analyzeVenues(skipRouteResponse)
 
     if (venueType === 'unknown') {
-      throw new Error('Unknown venue type - no Duality routes available')
+      // Log the actual venues found for debugging
+      const venues = new Set<string>()
+      skipRouteResponse.swapVenues?.forEach((venue: any) => {
+        if (venue?.name) venues.add(venue.name)
+      })
+      skipRouteResponse.operations?.forEach((operation: any) => {
+        const venueName = operation?.swap?.swapIn?.swapVenue?.name
+        if (venueName) venues.add(venueName)
+      })
+
+      console.error('No Duality routes available. Found venues:', Array.from(venues))
+      console.error(
+        'This route requires cross-chain swaps which are not supported in Mars credit manager',
+      )
+      throw new Error(
+        `No direct Duality swap available between these assets. Mars strategies only support native Neutron swaps, not cross-chain routes.`,
+      )
     }
 
     const swapOperations = extractSwapOperations(skipRouteResponse)
@@ -156,7 +180,7 @@ export async function getNeutronRouteInfoReverse(
   denomIn: string,
   denomOut: string,
   amountOut: BigNumber,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
   slippage?: number, // Will use default from settings if not provided
 ): Promise<SwapRouteInfo | null> {
@@ -165,17 +189,27 @@ export async function getNeutronRouteInfoReverse(
 
   try {
     const skipRouteParams = {
-      sourceAssetDenom: denomIn,
-      sourceAssetChainId: chainConfig.id,
-      destAssetDenom: denomOut,
-      destAssetChainId: chainConfig.id,
-      allowUnsafe: true,
+      source_asset_chain_id: chainConfig.id,
+      source_asset_denom: denomIn,
+      dest_asset_chain_id: chainConfig.id,
+      dest_asset_denom: denomOut,
+      smart_relay: true,
+      experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
+      allow_multi_tx: true,
+      allow_unsafe: true,
+      smart_swap_options: {
+        split_routes: true,
+        evm_swaps: true,
+      },
       swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
+      experimentalFeatures: ['stargate', 'eureka'],
+      smartRelay: true,
+      go_fast: false,
       // Use reverse routing parameters
-      amountOut: toIntegerString(amountOut),
+      amount_out: toIntegerString(amountOut),
     }
 
-    const skipRouteResponse = await skipRoute(skipRouteParams)
+    const skipRouteResponse = await skipRoute(skipRouteParams as any)
 
     if (!skipRouteResponse) {
       throw new Error('No route response from Skip API')
@@ -184,7 +218,23 @@ export async function getNeutronRouteInfoReverse(
     const venueType = analyzeVenues(skipRouteResponse)
 
     if (venueType === 'unknown') {
-      throw new Error('Unknown venue type - no Duality routes available')
+      // Log the actual venues found for debugging
+      const venues = new Set<string>()
+      skipRouteResponse.swapVenues?.forEach((venue: any) => {
+        if (venue?.name) venues.add(venue.name)
+      })
+      skipRouteResponse.operations?.forEach((operation: any) => {
+        const venueName = operation?.swap?.swapIn?.swapVenue?.name
+        if (venueName) venues.add(venueName)
+      })
+
+      console.error(
+        'No Duality routes available for reverse routing. Found venues:',
+        Array.from(venues),
+      )
+      throw new Error(
+        `No direct Duality swap available between these assets. Mars strategies only support native Neutron swaps, not cross-chain routes.`,
+      )
     }
 
     const swapOperations = extractSwapOperations(skipRouteResponse)
@@ -232,7 +282,7 @@ async function binarySearchReverseRouting(
   denomIn: string,
   denomOut: string,
   targetAmountOut: BigNumber,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
   slippage: number,
 ): Promise<SwapRouteInfo | null> {
@@ -305,7 +355,7 @@ export default async function getNeutronRouteInfo(
   denomIn: string,
   denomOut: string,
   amount: BigNumber,
-  assets: Asset[],
+  assets: TokenInfo[],
   chainConfig: ChainConfig,
 ): Promise<SwapRouteInfo | null> {
   return getNeutronRouteInfoInternal(

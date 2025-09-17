@@ -53,11 +53,11 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
   const setupCanvas = useCallback(
     (canvas: HTMLCanvasElement, width: number, height: number) => {
       const dpr = window.devicePixelRatio || 1
-      canvas.width = width * dpr
+      canvas.width = width * dpr + 10
       canvas.height = height * dpr
-      canvas.style.width = `${width}px`
+      canvas.style.width = `${width + 10}px`
       canvas.style.height = `${height}px`
-      const cols = Math.floor(width / (squareSize + gridGap))
+      const cols = Math.floor(width + 10 / (squareSize + gridGap))
       const rows = Math.floor(height / (squareSize + gridGap))
 
       const squares = new Float32Array(cols * rows)

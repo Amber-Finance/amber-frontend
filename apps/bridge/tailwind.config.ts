@@ -8,6 +8,9 @@ const config = {
   },
   theme: {
     extend: {
+      screens: {
+        md: '850px', // Override default md breakpoint to 850px
+      },
       fontSize: {
         xxs: ['0.625rem', { lineHeight: '0.75rem' }], // 10px with 12px line height
       },

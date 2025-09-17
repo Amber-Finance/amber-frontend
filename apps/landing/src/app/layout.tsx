@@ -11,14 +11,14 @@ export const metadata: Metadata = {
   title: 'Amber Finance',
   metadataBase: new URL('https://amberfi.io'),
   description:
-    'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+    'Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Preserve Value. Generate Wealth.',
   openGraph: {
     type: 'website',
     url: 'https://amberfi.io',
     title: 'Amber Finance',
     locale: 'en_US',
     description:
-      'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+      'Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Preserve Value. Generate Wealth.',
     siteName: 'Amber',
     images: [
       {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     creator: '@amberfi_io',
     title: 'Amber Finance',
     description:
-      'Bridge your liquid staking tokens and earn maximum yield. Preserve Value. Generate Wealth.',
+      'Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Preserve Value. Generate Wealth.',
     images: [
       {
         url: 'https://amberfi.io/x-banner/default.jpg',
@@ -51,7 +51,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang='en' className='dark h-full prevent-overscroll'>
       <body className='font-sans h-full overflow-x-hidden prevent-overscroll'>
-        <div className='relative min-h-full h-full w-full max-w-full bg-background overflow-x-hidden flex flex-col prevent-overscroll'>
+        <div
+          className='relative w-full max-w-full bg-background overflow-x-hidden flex flex-col prevent-overscroll'
+          style={{ minHeight: '100vh' }}
+        >
           <main className='relative flex-1 w-full no-scrollbar'>
             <Background />
             {children}

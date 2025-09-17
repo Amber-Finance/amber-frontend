@@ -1,7 +1,7 @@
-import { Info, Target } from 'lucide-react'
+import { Info } from 'lucide-react'
 
+import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
 interface PositionOverviewCardProps {
@@ -25,14 +25,8 @@ export function PositionOverviewCard({
   getEstimatedEarningsUsd,
 }: PositionOverviewCardProps) {
   return (
-    <Card>
-      <CardHeader className='pb-1'>
-        <CardTitle className='flex items-center gap-2 text-sm font-semibold'>
-          <Target className='w-4 h-4 text-accent-foreground' />
-          Position Overview
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <InfoCard title='Position Overview'>
+      <div>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
           <div className='space-y-2'>
             <div className='space-y-1'>
@@ -92,32 +86,44 @@ export function PositionOverviewCard({
           </div>
 
           <div className='space-y-2'>
-            <div className='p-2 rounded-lg border bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'>
-              <div className='text-xs font-medium mb-1 text-emerald-700 dark:text-emerald-400'>
+            <div
+              className={`p-2 rounded-lg border ${
+                positionCalcs.estimatedYearlyEarnings >= 0
+                  ? 'bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'
+                  : 'bg-red-500/10 border-red-500/20 dark:bg-red-900/20 dark:border-red-700/30'
+              }`}
+            >
+              <div
+                className={`text-xs font-medium mb-1 ${
+                  positionCalcs.estimatedYearlyEarnings >= 0
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : 'text-red-700 dark:text-red-400'
+                }`}
+              >
                 Est. Annual Earnings
               </div>
-              <div className='font-semibold text-sm text-emerald-600 dark:text-emerald-300'>
-                {Math.abs(positionCalcs.estimatedYearlyEarnings).toFixed(6)}{' '}
-                {strategy.collateralAsset.symbol}
+              <div
+                className={`font-semibold text-sm ${
+                  positionCalcs.estimatedYearlyEarnings >= 0
+                    ? 'text-emerald-600 dark:text-emerald-300'
+                    : 'text-red-600 dark:text-red-300'
+                }`}
+              >
+                {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
+                {positionCalcs.estimatedYearlyEarnings.toFixed(6)} {strategy.collateralAsset.symbol}
               </div>
-              <div className='text-xs text-emerald-600/80 dark:text-emerald-400/80'>
+              <div
+                className={`text-xs ${
+                  positionCalcs.estimatedYearlyEarnings >= 0
+                    ? 'text-emerald-600/80 dark:text-emerald-400/80'
+                    : 'text-red-600/80 dark:text-red-400/80'
+                }`}
+              >
                 {getEstimatedEarningsUsd()}
               </div>
             </div>
 
             <div className='space-y-1 text-xs'>
-              <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>ROE</span>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <span className='font-medium text-foreground cursor-help'>0.00%</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className='text-xs'>Current return on equity based on price change</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-
               <div className='flex justify-between items-center'>
                 <span className='text-muted-foreground'>Your LTV (LLTV)</span>
                 <span className='font-medium text-foreground'>∞ (-%)</span>
@@ -130,7 +136,7 @@ export function PositionOverviewCard({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </InfoCard>
   )
 }

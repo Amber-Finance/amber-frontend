@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { InfoCard } from '@/components/deposit'
 import { Separator } from '@/components/ui/separator'
 
 interface MarketInfoCardProps {
@@ -18,11 +18,8 @@ export function MarketInfoCard({
   getAvailableLiquidityDisplay,
 }: MarketInfoCardProps) {
   return (
-    <Card>
-      <CardHeader className='pb-1'>
-        <CardTitle className='text-sm font-semibold'>Market</CardTitle>
-      </CardHeader>
-      <CardContent className='space-y-2'>
+    <InfoCard title='Market'>
+      <div className='space-y-2'>
         <div className='space-y-2'>
           <div className='flex items-center gap-2'>
             <Image
@@ -71,7 +68,7 @@ export function MarketInfoCard({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </InfoCard>
   )
 }

@@ -16,83 +16,82 @@ import { assetLists } from 'chain-registry'
 import chainConfig from '@/config/chain'
 import { getCosmosKitTheme } from '@/theme/cosmosKitTheme'
 
+// Extend the Window interface to include wallet properties
+declare global {
+  interface Window {
+    keplr?: any
+    leap?: any
+    cosmostation?: any
+    xfi?: any
+    okxwallet?: any
+    vectis?: any
+  }
+}
+
 const chainNames = [chainConfig.name]
 const chainAssets = assetLists.filter((asset) => asset.chainName === chainConfig.name)
 
-// Utility to check wallet availability
-const isWalletAvailable = (walletName: string): boolean => {
-  if (typeof window === 'undefined') return false
+// Regex for wallet name extraction
+const WALLET_NAME_REGEX = /(Leap|Cosmostation|XDEFI|OKX|Vectis|Keplr)/i
 
-  const windowAny = window as any
-
-  switch (walletName) {
-    case 'keplr':
-      return !!windowAny.keplr
-    case 'leap':
-      return !!windowAny.leap
-    case 'cosmostation':
-      return !!windowAny.cosmostation
-    case 'xdefi':
-      return !!windowAny.xfi?.cosmos
-    case 'okx':
-      return !!windowAny.okxwallet
-    case 'vectis':
-      return !!windowAny.vectis
-    default:
-      return false
-  }
-}
-
-// Filter wallets based on availability
-const getAvailableWallets = () => {
-  const allWallets = [
-    { wallets: keplrWallets, name: 'keplr' },
-    { wallets: leapWallets, name: 'leap' },
-    { wallets: cosmostationWallets, name: 'cosmostation' },
-    { wallets: xdefiWallets, name: 'xdefi' },
-    { wallets: okxWallets, name: 'okx' },
-    { wallets: vectisWallets, name: 'vectis' },
-  ]
-
-  const availableWallets = allWallets
-    .filter(({ name }) => isWalletAvailable(name))
-    .flatMap(({ wallets }) => wallets)
-
-  // Always include Keplr as fallback since it's the most common
-  if (availableWallets.length === 0) {
-    return keplrWallets
-  }
-
-  return availableWallets
-}
+// Combine all wallets (like before)
+const wallets = [
+  ...keplrWallets,
+  ...leapWallets,
+  ...cosmostationWallets,
+  ...xdefiWallets,
+  ...okxWallets,
+  ...vectisWallets,
+]
 
 export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isClient, setIsClient] = useState(false)
+
   // Get the theme configuration
   const modalTheme = getCosmosKitTheme()
 
-  // State to track available wallets
-  const [availableWallets, setAvailableWallets] = useState(() => {
-    // Initial state with Keplr as fallback for SSR
-    return keplrWallets
-  })
-
-  // Update available wallets after component mounts
+  // Ensure we're on the client side before checking for wallets
   useEffect(() => {
-    // Small delay to ensure wallet extensions are loaded
-    const timer = setTimeout(() => {
-      const wallets = getAvailableWallets()
-      setAvailableWallets(wallets)
-    }, 100)
-
-    return () => clearTimeout(timer)
+    setIsClient(true)
   }, [])
+
+  // Use all wallets like before
+  const availableWallets = wallets
+
+  // Enhanced error handling for wallet initialization
+  useEffect(() => {
+    if (!isClient) return
+
+    // Override console.error to handle wallet initialization errors gracefully
+    const originalError = console.error
+
+    console.error = (...args) => {
+      // Convert arguments to string for analysis
+      const message = args
+        .map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg)))
+        .join(' ')
+
+      // Only handle specific wallet client initialization errors
+      if (message.includes('initClientError: Client Not Exist!')) {
+        return
+      }
+
+      // Log all other errors normally (including WalletConnect core logs)
+      originalError(...args)
+    }
+
+    // Cleanup function to restore original console methods
+    return () => {
+      console.error = originalError
+    }
+  }, [isClient])
 
   return (
     <ChainProvider
       chains={chainNames}
       assetLists={chainAssets as any}
-      wallets={availableWallets}
-      throwErrors={'connect_only'}
+      wallets={availableWallets as any}
+      throwErrors={false}
       walletConnectOptions={{
         signClient: {
           projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
@@ -118,7 +117,6 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         },
       }}
       modalTheme={modalTheme}
-      logLevel={'ERROR'}
     >
       {children}
     </ChainProvider>

@@ -347,7 +347,7 @@ button[aria-label='Toggle theme'] .text-primary {
   color: hsl(var(--primary)) !important;
 }
 
-/* BRT table logo column styling */
+/* Bitcoin LST table logo column styling */
 .nextra-content table td:first-child {
   width: 60px !important;
   text-align: center !important;
@@ -355,7 +355,7 @@ button[aria-label='Toggle theme'] .text-primary {
   padding: 8px 4px !important;
 }
 
-/* BRT table image styling - extremely aggressive targeting */
+/* Bitcoin LST table image styling - extremely aggressive targeting */
 .nextra-content table td:first-child img,
 .nextra-content table td:first-child img[src*='eBTC'],
 .nextra-content table td:first-child img[src*='LBTC'],

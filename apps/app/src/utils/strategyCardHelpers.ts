@@ -1,6 +1,10 @@
 import { BigNumber } from 'bignumber.js'
 
-import { formatLargeCurrency, formatTokenAmountLegacy } from '@/utils/format'
+import {
+  calculateUsdValueLegacy,
+  formatLargeCurrency,
+  formatTokenAmountLegacy,
+} from '@/utils/format'
 import { pipe } from '@/utils/functional'
 import { calculatePositionMetrics } from '@/utils/strategyUtils'
 
@@ -67,8 +71,9 @@ export const getUserBalanceUsd = (
   isLoading: boolean,
   walletBalances: any[] | undefined,
   collateralDenom: string,
+  markets: Market[] | null = null,
 ): BigNumber => {
-  if (!isWalletConnected || isLoading || !walletBalances) {
+  if (!isWalletConnected || isLoading || !walletBalances || !markets) {
     return new BigNumber(0)
   }
 
@@ -77,9 +82,16 @@ export const getUserBalanceUsd = (
     return new BigNumber(0)
   }
 
-  // This would need market price data to convert to USD
-  // For now, return the raw amount
-  return new BigNumber(balance.amount)
+  // Find the matching market for this coin
+  const market = markets.find((m) => m.asset.denom === collateralDenom)
+  if (!market?.price?.price) {
+    return new BigNumber(0)
+  }
+
+  // Calculate USD value using market price and proper decimals
+  const decimals = market.asset.decimals || 6
+  const usdValue = calculateUsdValueLegacy(balance.amount, market.price.price, decimals)
+  return new BigNumber(usdValue)
 }
 
 // Format user token amount
@@ -89,6 +101,7 @@ export const formatUserTokenAmount = (
   walletBalances: any[] | undefined,
   collateralDenom: string,
   collateralSymbol: string,
+  decimals: number = 8, // Add decimals parameter with fallback
 ): string => {
   if (!isWalletConnected || isLoading) {
     return `0.000000 ${collateralSymbol}`
@@ -103,7 +116,7 @@ export const formatUserTokenAmount = (
     return `0.000000 ${collateralSymbol}`
   }
 
-  const amount = new BigNumber(balance.amount).shiftedBy(-8).toNumber() // Assuming 8 decimals
+  const amount = new BigNumber(balance.amount).shiftedBy(-decimals).toNumber()
   return `${amount.toFixed(6)} ${collateralSymbol}`
 }
 
@@ -138,7 +151,7 @@ export const getRiskColor = (riskLevel: 'low' | 'medium' | 'high'): string => {
 // Pure function to format APY with sign
 export const formatApyWithSign = (apy: number): string => {
   const percentage = apy * 100
-  const sign = percentage > 0 ? '+' : ''
+  const sign = percentage > 0 ? '+' : '-'
   return `${sign}${percentage.toFixed(2)}%`
 }
 

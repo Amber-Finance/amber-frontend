@@ -60,45 +60,55 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   const alignmentClass = getAlignmentClass(align)
 
   // Calculate USD value from the store using coin.denom
-  let usdValue = '0'
-  let adjustedAmount = '0'
+  let usdValue = '0.00'
+  let adjustedAmount: string
+  let assetDecimals = 6
+  let symbol = ''
 
-  if (markets && coin.denom && coin.amount) {
+  if (markets && coin.denom) {
     // Find the matching market for this coin
     const market = markets.find((market) => market.asset.denom === coin.denom)
 
-    if (market?.price?.price) {
-      const decimals = market.asset.decimals || 6
-      usdValue = calculateUsdValueLegacy(coin.amount, market.price.price, decimals).toString()
-    }
     if (market?.asset) {
-      adjustedAmount = new BigNumber(coin.amount).shiftedBy(-market.asset.decimals).toString()
+      assetDecimals = market.asset.decimals || 6
+      symbol = market.asset.symbol || ''
     }
-  }
 
-  // Only show USD value if it's not zero
-  const showUsdValue = usdValue !== '0'
+    if (coin.amount && market?.price?.price) {
+      usdValue = calculateUsdValueLegacy(coin.amount, market.price.price, assetDecimals).toString()
+      adjustedAmount = new BigNumber(coin.amount).shiftedBy(-assetDecimals).toString()
+    } else {
+      // Set default zero value with correct decimals for this asset
+      adjustedAmount = '0.' + '0'.repeat(assetDecimals)
+    }
+  } else {
+    // Set default zero value with correct decimals
+    adjustedAmount = '0.' + '0'.repeat(assetDecimals)
+  }
 
   return (
     <div className={cn(alignmentClass, className)}>
       <div
         className={cn(
           amountTextSize,
-          textClassName ? textClassName : 'text-gray-900 dark:text-white font-medium truncate',
+          textClassName || 'text-gray-900 dark:text-white font-medium truncate',
         )}
       >
-        <FormattedValue value={adjustedAmount} isCurrency={false} />
+        <FormattedValue value={usdValue} isCurrency={true} />
       </div>
-      {showUsdValue && (
-        <div
-          className={cn(
-            valueTextSize,
-            textClassName ? textClassName : 'text-gray-500 dark:text-gray-400 opacity-50 truncate',
-          )}
-        >
-          <FormattedValue value={usdValue} isCurrency={true} />
-        </div>
-      )}
+      <div
+        className={cn(
+          valueTextSize,
+          textClassName || 'text-gray-500 dark:text-gray-400 opacity-50 truncate',
+        )}
+      >
+        <FormattedValue
+          value={adjustedAmount}
+          isCurrency={false}
+          tokenDecimals={assetDecimals}
+          suffix={` ${symbol}`}
+        />
+      </div>
     </div>
   )
 }

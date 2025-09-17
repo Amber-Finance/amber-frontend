@@ -50,7 +50,7 @@ export const StrategiesContent = ({
         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}
       >
         {strategies.map((strategy) => (
-          <StrategyCard key={strategy.id} strategy={strategy as any} />
+          <StrategyCard key={strategy.id} strategy={strategy as Strategy} />
         ))}
       </div>
     )

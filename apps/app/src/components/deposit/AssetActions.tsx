@@ -11,7 +11,7 @@ export const AssetActions = ({ tokenSymbol, tokenDenom }: AssetActionsProps) => 
   const router = useRouter()
 
   return (
-    <div className='mt-6 pt-6 border-t border-border/40'>
+    <div className='mt-6 border-t border-border/40 flex-1 flex flex-col justify-center p-4'>
       <div className='text-center mb-4'>
         <h4 className='text-sm font-semibold text-foreground mb-1'>Need more {tokenSymbol}?</h4>
         <p className='text-xs text-muted-foreground'>

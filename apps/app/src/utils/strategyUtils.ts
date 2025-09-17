@@ -9,7 +9,9 @@ export const calculateBaseNetApy = (supplyApy: number, borrowApy: number): numbe
 
 export const calculateMaxLeverage = (maxLTV: number): number => {
   if (maxLTV <= 0 || maxLTV >= 1) return 1
-  return 1 / (1 - maxLTV)
+  const theoreticalMaxLeverage = 1 / (1 - maxLTV)
+  // Apply 0.5x safety buffer
+  return Math.max(1, theoreticalMaxLeverage - 0.5)
 }
 
 // Removed: calculateCappedMaxLeverage - now using pure 1/(1-LTV) calculation without caps
@@ -38,18 +40,24 @@ export const filterDebtMarkets = (markets: MarketData[], excludeSymbol?: string)
   )
 
 // Pure function to find token configuration
-export const findTokenConfig = (tokens: any[], market: MarketData) =>
+export const findTokenConfig = (tokens: TokenInfo[], market: MarketData) =>
   tokens.find((token) => token.denom === market.asset.denom || token.symbol === market.asset.symbol)
 
 // Pure function to create asset info
-export const createAssetInfo = (token: any, market?: MarketData, tokenConfig?: any): AssetInfo => ({
+export const createTokenInfo = (token: any, market?: MarketData, tokenConfig?: any): TokenInfo => ({
   denom: token.denom || market?.asset.denom || '',
   symbol: token.symbol || market?.asset.symbol || '',
-  name: token.symbol || market?.asset.name || '',
   description: token.description || market?.asset.description || '',
   decimals: token.decimals || market?.asset.decimals || 8,
   icon: token.icon || tokenConfig?.icon || market?.asset.icon || '',
   brandColor: token.brandColor || tokenConfig?.brandColor || '#6B7280',
+  chainId: token.chainId || market?.asset.chainId || '',
+  protocolIconLight: token.protocolIconLight || tokenConfig?.protocolIconLight || '',
+  protocolIconDark: token.protocolIconDark || tokenConfig?.protocolIconDark || '',
+  isLST: token.isLST || tokenConfig?.isLST || false,
+  protocol: token.protocol || tokenConfig?.protocol || '',
+  origin: token.origin || tokenConfig?.origin || {},
+  comingSoon: token.comingSoon || tokenConfig?.comingSoon || false,
 })
 
 // Pure function to calculate strategy metrics
@@ -74,8 +82,8 @@ export const calculateStrategyMetrics = (
 // Pure function to create strategy data
 export const createStrategyData = (
   market: MarketData,
-  collateralAsset: AssetInfo,
-  debtAsset: AssetInfo,
+  collateralAsset: TokenInfo,
+  debtAsset: TokenInfo,
   metrics: ReturnType<typeof calculateStrategyMetrics>,
   borrowCapacityUsd: number,
   maxPositionUsd: number,
@@ -111,11 +119,15 @@ export const createStrategyData = (
 
 // Higher-order function for strategy generation
 export const createStrategyGenerator =
-  (collateralToken: any, tokens: any[], effectiveMaxBtcApy: number, markets: MarketData[]) =>
+  (
+    collateralToken: TokenInfo,
+    tokens: TokenInfo[],
+    effectiveMaxBtcApy: number,
+    markets: MarketData[],
+  ) =>
   (market: MarketData): StrategyData => {
-    const tokenConfig = findTokenConfig(tokens, market)
-    const collateralAsset = createAssetInfo(collateralToken)
-    const debtAsset = createAssetInfo(market.asset, market, tokenConfig)
+    const collateralAsset = collateralToken
+    const debtAsset = market.asset
 
     // Find the collateral market to get its LTV (this is what determines max leverage)
     const collateralMarket = markets.find((m) => m.asset.denom === collateralToken.denom)
@@ -124,18 +136,6 @@ export const createStrategyGenerator =
     // Use COLLATERAL asset's LTV for max leverage calculation, not debt asset's LTV
     const maxLTV = safeParseNumber()(collateralMarket?.params?.max_loan_to_value || '0.8')
     const liquidationThreshold = safeParseNumber()(market.params.liquidation_threshold || '0.85')
-
-    // Console log strategy maxLTV values
-    console.log(`🔍 Strategy ${collateralAsset.symbol}-${debtAsset.symbol}:`, {
-      maxLTV,
-      collateralRawMaxLoanToValue: collateralMarket?.params?.max_loan_to_value,
-      debtRawMaxLoanToValue: market.params.max_loan_to_value,
-      calculatedMaxLeverage: maxLTV > 0 ? 1 / (1 - maxLTV) : 1,
-      collateralSymbol: collateralAsset.symbol,
-      collateralDenom: collateralToken.denom,
-      debtSymbol: market.asset.symbol,
-      debtDenom: market.asset.denom,
-    })
 
     const metrics = calculateStrategyMetrics(market, maxBtcSupplyApy, maxLTV, liquidationThreshold)
 
@@ -178,8 +178,8 @@ export const createStrategyGenerator =
 // Pure function to generate all strategies
 export const generateStrategies = (
   markets: MarketData[],
-  collateralToken: any,
-  tokens: any[],
+  collateralToken: TokenInfo,
+  tokens: TokenInfo[],
   effectiveMaxBtcApy: number,
 ): StrategyData[] => {
   const debtMarkets = filterDebtMarkets(markets, collateralToken.symbol)

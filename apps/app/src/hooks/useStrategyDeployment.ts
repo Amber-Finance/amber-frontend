@@ -28,7 +28,7 @@ export const useStrategyDeployment = ({
           decimals: strategy.debtAsset.decimals || 6,
         },
         swap: {
-          route: params.swapRoute,
+          routeInfo: params.swapRouteInfo,
           slippage: '0.5',
           destDenom: strategy.collateralAsset.denom,
         },
@@ -60,12 +60,12 @@ export const useStrategyDeployment = ({
         .toString()
 
       try {
-        const routeResult = await route({
+        const skipRouteParams = {
           amount_in: formattedBorrowAmount,
-          source_asset_denom: strategy.debtAsset.denom,
           source_asset_chain_id: chainConfig.id,
-          dest_asset_denom: strategy.collateralAsset.denom,
+          source_asset_denom: strategy.debtAsset.denom,
           dest_asset_chain_id: chainConfig.id,
+          dest_asset_denom: strategy.collateralAsset.denom,
           smart_relay: true,
           experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
           allow_multi_tx: true,
@@ -74,17 +74,74 @@ export const useStrategyDeployment = ({
             split_routes: true,
             evm_swaps: true,
           },
+          // Force only Duality swaps for Mars strategies
+          swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
           go_fast: false,
-          cumulative_affiliate_fee_bps: '0',
-        } as any)
+        }
 
-        if (!routeResult?.operations || routeResult?.operations?.length === 0) {
+        const skipRouteResponse = await route(skipRouteParams as any)
+
+        if (!skipRouteResponse?.operations || skipRouteResponse?.operations?.length === 0) {
           throw new Error(
             `No swap route found between ${strategy.debtAsset.symbol} and ${strategy.collateralAsset.symbol}`,
           )
         }
 
-        return routeResult
+        // Extract swap operations from Skip response
+        const extractSwapOperations = (skipResponse: any): any[] => {
+          const firstOperation = skipResponse.operations?.[0]?.swap?.swapIn?.swapOperations
+          return firstOperation || []
+        }
+
+        // Create duality route from swap operations
+        const createDualityRoute = (
+          denomIn: string,
+          denomOut: string,
+          swapOperations: any[],
+        ): any => {
+          const swapDenoms: string[] = [denomIn]
+
+          swapOperations.forEach((op: any) => {
+            if (op.denomOut && !swapDenoms.includes(op.denomOut)) {
+              swapDenoms.push(op.denomOut)
+            }
+          })
+
+          // Ensure denomOut is included if not already present
+          if (!swapDenoms.includes(denomOut)) {
+            swapDenoms.push(denomOut)
+          }
+
+          return {
+            duality: {
+              from: denomIn,
+              swap_denoms: swapDenoms,
+              to: denomOut,
+            },
+          }
+        }
+
+        const swapOperations = extractSwapOperations(skipRouteResponse)
+        const marsRoute = createDualityRoute(
+          strategy.debtAsset.denom,
+          strategy.collateralAsset.denom,
+          swapOperations,
+        )
+
+        console.log('Skip route response:', skipRouteResponse)
+        console.log('Extracted swap operations:', swapOperations)
+        console.log('Mars route format:', marsRoute)
+
+        // Create SwapRouteInfo object
+        const routeInfo: SwapRouteInfo = {
+          amountOut: new BigNumber(skipRouteResponse.amountOut || '0'),
+          priceImpact: new BigNumber(skipRouteResponse.swapPriceImpactPercent || '0'),
+          fee: new BigNumber('0'),
+          description: `${strategy.debtAsset.symbol} → ${strategy.collateralAsset.symbol}`,
+          route: marsRoute,
+        }
+
+        return routeInfo
       } catch (error) {
         console.error('Route fetching failed:', error)
         throw new Error(

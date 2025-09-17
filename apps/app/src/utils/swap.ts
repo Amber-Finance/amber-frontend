@@ -12,7 +12,7 @@ export function getSwapExactInAction(
   denomOut: string,
   routeInfo: SwapRouteInfo,
   slippage: number,
-): SwapAction {
+) {
   return {
     swap_exact_in: {
       coin_in: coinIn,

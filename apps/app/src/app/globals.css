@@ -413,7 +413,6 @@ input[type='number'] {
 }
 
 .gradient-button:hover {
-  background-position: 100% 50%;
   animation: gradient-shift 2s ease-in-out infinite;
 }
 

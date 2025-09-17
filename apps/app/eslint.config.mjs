@@ -30,7 +30,6 @@ const eslintConfig = [
       'no-case-declarations': 'off',
       'no-constant-binary-expression': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       'linebreak-style': 'off',
       'no-undef': 'off',

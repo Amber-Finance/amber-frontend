@@ -17,7 +17,7 @@ import { CollaborativeEditingProvider } from '@/contexts/CollaborativeEditingCon
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const navbar = (
-    <Navbar logo={<Logo />} projectLink='https://github.com/amber-finance'>
+    <Navbar logo={<Logo />} projectLink='https://github.amberfi.io'>
       <div className='flex items-center gap-3'>
         <ThemeToggle />
         <LaunchAppButton />
@@ -62,7 +62,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>
           <CollaborativeEditingProvider>
-            <div className='relative min-h-screen w-full'>
+            <div className='relative w-full' style={{ minHeight: '100vh' }}>
               <Background />
               <ThemedParticles
                 className='absolute inset-0 z-0'

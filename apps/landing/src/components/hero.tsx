@@ -24,6 +24,7 @@ const XIcon = ({ className }: { className?: string }) => {
     </svg>
   )
 }
+
 export const HeroContent = () => {
   return (
     <motion.div
@@ -87,8 +88,8 @@ export const HeroContent = () => {
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
           className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'
         >
-          Maximize your Bitcoin yield. Deploy BRTs (Bitcoin-Related Tokens) with up to 10x leverage
-          through automated strategies.
+          Maximize your Bitcoin yield. Deploy Bitcoin LSTs (Liquid Staking Tokens) with up to 12x
+          leverage through automated strategies.
         </motion.p>
       </div>
       <motion.div

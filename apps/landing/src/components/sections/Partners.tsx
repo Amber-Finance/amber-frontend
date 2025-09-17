@@ -11,7 +11,7 @@ const partners = [
   { name: 'Lombard', image: 'lombard/lombardIconOnlyDark.svg' },
   { name: 'Solv', image: 'solv/solvDark.png' },
   { name: 'Bedrock', image: 'bedrock.svg' },
-  { name: 'Neutron', image: 'neutron/neutron-dark.svg' },
+  { name: 'Neutron', image: 'neutron/neutron.svg' },
 ]
 
 export function Partners() {

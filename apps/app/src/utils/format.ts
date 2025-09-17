@@ -27,7 +27,7 @@ export const formatApy = (value: number): string => {
   if (value === 0 || value === undefined) return '-'
   // Convert decimal to percentage for display
   const percentageValue = value * 100
-  return `${percentageValue > 0 ? '+' : ''}${percentageValue.toFixed(2)}%`
+  return `${percentageValue > 0 ? '+' : '-'}${percentageValue.toFixed(2)}%`
 }
 
 // Higher-order function for creating APY formatters
@@ -35,7 +35,7 @@ export const createApyFormatter =
   (showSign: boolean = true) =>
   (value: number): string => {
     if (value === 0 || value === undefined) return '-'
-    const sign = showSign && value > 0 ? '+' : ''
+    const sign = showSign && value > 0 ? '+' : '-'
     return `${sign}${value.toFixed(2)}%`
   }
 
@@ -78,9 +78,9 @@ export const formatCompactCurrency = (value: string | number): string => {
 }
 
 // Helper functions to reduce complexity
-const createDefaultMetadata = (isCurrency: boolean): FormatMetadata => ({
+const createDefaultMetadata = (isCurrency: boolean, decimals: number = 6): FormatMetadata => ({
   type: 'standard',
-  value: isCurrency ? '0.00' : '0',
+  value: isCurrency ? '0.00' : '0.' + '0'.repeat(decimals),
   prefix: isCurrency ? '$' : '',
 })
 
@@ -264,11 +264,12 @@ export const formatValue = (
     decimalPlaces = 2,
     smallValueThreshold = 0.0001,
     largeValueThreshold = 1000,
+    tokenDecimals = 6,
   } = options
 
   // Handle null/undefined/zero values
-  if (!value && value !== 0) return createDefaultMetadata(isCurrency)
-  if (value === '0' || value === 0) return createDefaultMetadata(isCurrency)
+  if (!value && value !== 0) return createDefaultMetadata(isCurrency, tokenDecimals)
+  if (value === '0' || value === 0) return createDefaultMetadata(isCurrency, tokenDecimals)
 
   // Extract currency prefix
   const {
