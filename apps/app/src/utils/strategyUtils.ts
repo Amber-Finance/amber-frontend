@@ -272,15 +272,6 @@ export const filterStrategiesByRisk =
       return risk.overall === riskLevel
     })
 
-// Pure function for sorting strategies
-export const sortStrategiesByApy =
-  (direction: 'asc' | 'desc' = 'desc') =>
-  (strategies: StrategyData[]): StrategyData[] =>
-    [...strategies].sort((a, b) => {
-      const comparison = a.maxROE - b.maxROE
-      return direction === 'asc' ? comparison : -comparison
-    })
-
 // Pure function for sorting strategies with coming soon assets at the end
 export const sortStrategiesWithComingSoonAtEnd =
   (direction: 'asc' | 'desc' = 'desc') =>

@@ -228,19 +228,6 @@ export const isValidStrategy = (strategy: any): boolean => {
 export const filterValidStrategies = (strategies: any[]): any[] =>
   strategies.filter(isValidStrategy)
 
-// Pure function to sort strategies by APY with coming soon assets at the end
-export const sortStrategiesByApy = (strategies: any[], direction: 'asc' | 'desc' = 'desc'): any[] =>
-  [...strategies].sort((a, b) => {
-    // First, sort by coming soon status (coming soon goes to the end)
-    if (a.debtAsset?.comingSoon && !b.debtAsset?.comingSoon) return 1
-    if (!a.debtAsset?.comingSoon && b.debtAsset?.comingSoon) return -1
-    
-    // If both have the same coming soon status, sort by APY
-    const aApy = a.maxROE || 0
-    const bApy = b.maxROE || 0
-    return direction === 'asc' ? aApy - bApy : bApy - aApy
-  })
-
 // Pure function to group strategies by risk level
 export const groupStrategiesByRisk = (strategies: any[]): Record<string, any[]> => {
   return strategies.reduce(
