@@ -97,7 +97,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
       title,
       description,
       type: 'website',
-      url: `https://app.amberfi.io/strategies/deploy?strategy=WBTC-${token.symbol}`,
+      url: `https://app.amberfi.io/strategies/deploy?strategy=maxBTC-${token.symbol}`,
       siteName: 'Amber Finance',
       images: [
         {
