@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 import DepositClient from '@/app/deposit/DepositClient'
-import { generateDepositMetadata } from '@/app/deposit/generateMetadata'
+import { generateDepositMetadata } from '@/app/deposit/generateDepositMetadata'
 
 export async function generateMetadata({
   searchParams,
