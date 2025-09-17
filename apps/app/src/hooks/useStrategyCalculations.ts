@@ -5,7 +5,12 @@ import { BigNumber } from 'bignumber.js'
 export const formatBalance = (balance: number): string =>
   balance <= 0 ? '0.000000' : balance.toFixed(6)
 
-export const calculateMaxLeverage = (ltv: number): number => (ltv > 0 ? 1 / (1 - ltv) : 1)
+export const calculateMaxLeverage = (ltv: number): number => {
+  if (ltv <= 0) return 1
+  const theoreticalMaxLeverage = 1 / (1 - ltv)
+  // Apply 0.5x safety buffer
+  return Math.max(1, theoreticalMaxLeverage - 0.5)
+}
 
 export const usePositionCalculations = (
   currentAmount: number,

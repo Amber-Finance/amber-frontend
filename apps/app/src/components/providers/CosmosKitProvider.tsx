@@ -66,32 +66,17 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const originalError = console.error
 
     console.error = (...args) => {
-      const message = args.join(' ')
+      // Convert arguments to string for analysis
+      const message = args
+        .map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg)))
+        .join(' ')
 
-      // Handle specific wallet client initialization errors
-      if (
-        message.includes('initClientError: Client Not Exist!') ||
-        message.includes('Client Not Exist')
-      ) {
-        // Extract wallet name from the error message
-        const walletMatch = WALLET_NAME_REGEX.exec(message)
-        const walletName = walletMatch ? walletMatch[1] : 'Unknown wallet'
-        console.warn(
-          `${walletName} wallet extension not installed - this is normal if you don't have it installed`,
-        )
+      // Only handle specific wallet client initialization errors
+      if (message.includes('initClientError: Client Not Exist!')) {
         return
       }
 
-      // Handle other wallet-related errors more gracefully
-      if (
-        message.toLowerCase().includes('wallet') &&
-        (message.includes('not found') || message.includes('undefined'))
-      ) {
-        console.warn('Wallet initialization warning:', message)
-        return
-      }
-
-      // Log other errors normally
+      // Log all other errors normally (including WalletConnect core logs)
       originalError(...args)
     }
 

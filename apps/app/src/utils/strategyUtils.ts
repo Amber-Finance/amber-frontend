@@ -9,7 +9,9 @@ export const calculateBaseNetApy = (supplyApy: number, borrowApy: number): numbe
 
 export const calculateMaxLeverage = (maxLTV: number): number => {
   if (maxLTV <= 0 || maxLTV >= 1) return 1
-  return 1 / (1 - maxLTV)
+  const theoreticalMaxLeverage = 1 / (1 - maxLTV)
+  // Apply 0.5x safety buffer
+  return Math.max(1, theoreticalMaxLeverage - 0.5)
 }
 
 // Removed: calculateCappedMaxLeverage - now using pure 1/(1-LTV) calculation without caps

@@ -1,4 +1,4 @@
-import { Info, Target } from 'lucide-react'
+import { Info } from 'lucide-react'
 
 import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
@@ -86,16 +86,39 @@ export function PositionOverviewCard({
           </div>
 
           <div className='space-y-2'>
-            <div className='p-2 rounded-lg border bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'>
-              <div className='text-xs font-medium mb-1 text-emerald-700 dark:text-emerald-400'>
+            <div
+              className={`p-2 rounded-lg border ${
+                positionCalcs.estimatedYearlyEarnings >= 0
+                  ? 'bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'
+                  : 'bg-red-500/10 border-red-500/20 dark:bg-red-900/20 dark:border-red-700/30'
+              }`}
+            >
+              <div
+                className={`text-xs font-medium mb-1 ${
+                  positionCalcs.estimatedYearlyEarnings >= 0
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : 'text-red-700 dark:text-red-400'
+                }`}
+              >
                 Est. Annual Earnings
               </div>
-              <div className='font-semibold text-sm text-emerald-600 dark:text-emerald-300'>
-                {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : '-'}
-                {Math.abs(positionCalcs.estimatedYearlyEarnings).toFixed(6)}{' '}
-                {strategy.collateralAsset.symbol}
+              <div
+                className={`font-semibold text-sm ${
+                  positionCalcs.estimatedYearlyEarnings >= 0
+                    ? 'text-emerald-600 dark:text-emerald-300'
+                    : 'text-red-600 dark:text-red-300'
+                }`}
+              >
+                {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
+                {positionCalcs.estimatedYearlyEarnings.toFixed(6)} {strategy.collateralAsset.symbol}
               </div>
-              <div className='text-xs text-emerald-600/80 dark:text-emerald-400/80'>
+              <div
+                className={`text-xs ${
+                  positionCalcs.estimatedYearlyEarnings >= 0
+                    ? 'text-emerald-600/80 dark:text-emerald-400/80'
+                    : 'text-red-600/80 dark:text-red-400/80'
+                }`}
+              >
                 {getEstimatedEarningsUsd()}
               </div>
             </div>

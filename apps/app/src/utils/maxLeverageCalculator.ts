@@ -10,8 +10,10 @@ export function maxLeverageCalculator(markets: Market[]): { [denom: string]: num
       // Use LTV from market params
       const maxLTV = parseFloat(market.params?.max_loan_to_value || '0.8')
 
-      // Calculate max leverage using LTV formula: maxLev = 1 / (1 - LTV)
-      const maxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) - 1 : 1
+      // Calculate max leverage using LTV formula with safety buffer: maxLev = 1 / (1 - LTV) - 0.5
+      const theoreticalMaxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) - 1 : 1
+      // Apply 0.5x safety buffer
+      const maxLeverage = Math.max(1, theoreticalMaxLeverage - 0.5)
 
       // Console log maxLeverageCalculator values
       console.log(`📊 maxLeverageCalculator ${market.asset.symbol}:`, {
@@ -43,7 +45,9 @@ export function getMaxLeverageForDenom(
   if (!market) return 1 // Fallback to 1x
 
   const maxLTV = parseFloat(market.params?.max_loan_to_value || '0.8')
-  const calculatedMaxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) - 1 : 1
+  const theoreticalMaxLeverage = maxLTV > 0 ? 1 / (1 - maxLTV) - 1 : 1
+  // Apply 0.5x safety buffer
+  const calculatedMaxLeverage = Math.max(1, theoreticalMaxLeverage - 0.5)
 
   // Console log getMaxLeverageForDenom values
   console.log(`🎯 getMaxLeverageForDenom ${market.asset.symbol}:`, {

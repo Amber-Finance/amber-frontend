@@ -107,7 +107,9 @@ export function ActivePositionCard({
 
     // Calculate max leverage from LTV
     const ltv = parseFloat(collateralMarket.params?.max_loan_to_value || '0')
-    const maxLeverage = ltv > 0 ? 1 / (1 - ltv) : 12.5
+    const theoreticalMaxLeverage = ltv > 0 ? 1 / (1 - ltv) : 12.5
+    // Apply 0.5x safety buffer
+    const maxLeverage = Math.max(1, theoreticalMaxLeverage - 0.5)
 
     // Use computed health factor from hook, with fallback
     const fallbackHealthFactor = depositsUsd > 0 ? depositsUsd / (borrowsUsd || 1) : 0

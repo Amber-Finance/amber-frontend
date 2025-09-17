@@ -98,6 +98,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       debt: strategy.debtAsset.decimals || 6,
     },
   )
+
   const { deployStrategy, fetchSwapRoute } = useStrategyDeployment({
     strategy,
     executeTransaction,
@@ -120,7 +121,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   )
 
   // Risk styles
-  const riskStyles = createRiskStyles()
+  const riskStyles = createRiskStyles(positionCalcs.yieldSpread)
   const strategyRiskStyles = createStrategyRiskStyles(strategy.isCorrelated)
 
   // Validation states
@@ -369,8 +370,12 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                 <CountingNumber
                   value={
                     isModifying && activeStrategy
-                      ? activeStrategy.netApy * 100
-                      : positionCalcs.leveragedApy * 100
+                      ? isNaN(activeStrategy.netApy)
+                        ? 0
+                        : activeStrategy.netApy * 100
+                      : isNaN(positionCalcs.leveragedApy)
+                        ? 0
+                        : positionCalcs.leveragedApy * 100
                   }
                   decimalPlaces={2}
                 />
@@ -388,6 +393,12 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             displayValues={displayValues}
             positionCalcs={positionCalcs}
             getEstimatedEarningsUsd={getEstimatedEarningsUsd}
+          />
+          <StrategyChart
+            denom={strategy.debtAsset.denom}
+            symbol={strategy.debtAsset.symbol}
+            brandColor={strategy.debtAsset.brandColor}
+            className='w-full h-full'
           />
           <StrategyFlowCard
             strategy={strategy}
@@ -509,14 +520,6 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             {buttonContent}
           </Button>
         </div>
-      </div>
-      {/* Chart Section */}
-      <div className='mt-4'>
-        <StrategyChart
-          denom={strategy.debtAsset.denom}
-          symbol={strategy.debtAsset.symbol}
-          brandColor={strategy.debtAsset.brandColor}
-        />
       </div>
     </div>
   )

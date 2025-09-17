@@ -33,13 +33,22 @@ export const createDisplayValues = (
   }
 }
 
-export const createRiskStyles = () => ({
-  colorClasses:
-    'bg-emerald-500/10 border-emerald-500/30 dark:bg-emerald-900/20 dark:border-emerald-700/40',
-  textColor: 'text-emerald-600 dark:text-emerald-400',
-  subtextColor: 'text-emerald-700/80 dark:text-emerald-400/80',
-  description: 'Healthy positive spread',
-})
+export const createRiskStyles = (yieldSpread?: number) => {
+  const isPositive = yieldSpread === undefined || yieldSpread >= 0
+
+  return {
+    colorClasses: isPositive
+      ? 'bg-emerald-500/10 border-emerald-500/30 dark:bg-emerald-900/20 dark:border-emerald-700/40'
+      : 'bg-red-500/10 border-red-500/30 dark:bg-red-900/20 dark:border-red-700/40',
+    textColor: isPositive
+      ? 'text-emerald-600 dark:text-emerald-400'
+      : 'text-red-600 dark:text-red-400',
+    subtextColor: isPositive
+      ? 'text-emerald-700/80 dark:text-emerald-400/80'
+      : 'text-red-700/80 dark:text-red-400/80',
+    description: isPositive ? 'Healthy positive spread' : 'Negative spread erodes position',
+  }
+}
 
 export const createStrategyRiskStyles = (isCorrelated: boolean) => ({
   colorClasses: isCorrelated

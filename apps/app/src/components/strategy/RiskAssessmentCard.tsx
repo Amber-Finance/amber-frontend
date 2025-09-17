@@ -53,7 +53,7 @@ export function RiskAssessmentCard({
             </Tooltip>
           </div>
           <div className={`text-lg font-bold ${riskStyles.textColor}`}>
-            {positionCalcs.yieldSpread >= 0 ? '+' : '-'}
+            {positionCalcs.yieldSpread >= 0 ? '+' : ''}
             {(positionCalcs.yieldSpread * 100).toFixed(2)}%
           </div>
           <div className={`text-xs mt-1 ${riskStyles.subtextColor}`}>{riskStyles.description}</div>
