@@ -261,11 +261,16 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     try {
       const swapRouteInfo = await fetchSwapRoute(borrowAmount)
 
-      await deployStrategy({
+      const result = await deployStrategy({
         collateralAmount: currentAmount,
         multiplier,
         swapRouteInfo,
       })
+
+      // Redirect to portfolio page on successful deployment
+      if (result.success) {
+        router.push('/portfolio')
+      }
 
       // All success/error handling is done by the broadcast system via toast notifications
       // No need for custom console.logs or manual error handling

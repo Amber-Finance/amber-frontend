@@ -1,7 +1,5 @@
 'use client'
 
-import React from 'react'
-
 import { useRouter } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
@@ -158,12 +156,14 @@ const Portfolio = () => {
             label: 'Total Borrow',
             isCurrency: true,
             prefix: '$',
+            abbreviated: false,
           },
           {
             value: totalSuppliedValue + depositsValue,
             label: 'Total Supply',
             isCurrency: true,
             prefix: '$',
+            abbreviated: false,
           },
         ]}
       />
@@ -171,7 +171,7 @@ const Portfolio = () => {
       <div className='w-full py-6  px-4 sm:px-6 lg:px-8'>
         <div className='w-full mx-auto'>
           {/* Portfolio Overview Stats */}
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-4'>
+          <div className='grid grid-cols-1 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-4'>
             {stats.map((stat, index) => {
               return (
                 <Card
