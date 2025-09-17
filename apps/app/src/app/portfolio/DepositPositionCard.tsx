@@ -1,8 +1,7 @@
-import React from 'react'
-
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
+import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -125,6 +124,11 @@ export function DepositPositionCard({ deposit, index }: DepositPositionCardProps
               %
             </p>
           </div>
+        </div>
+
+        {/* Earning Points Section */}
+        <div className='pt-3 border-t border-border/20'>
+          <EarningPointsRow assetSymbol={deposit.symbol} variant='full' type='deposit' />
         </div>
 
         {/* Action Button */}

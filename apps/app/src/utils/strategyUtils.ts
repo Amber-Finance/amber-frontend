@@ -127,9 +127,9 @@ export const createStrategyGenerator =
   ) =>
   (market: MarketData): StrategyData => {
     const collateralAsset = collateralToken
-    
+
     // Find token config for debt asset to ensure it has brandColor
-    const debtTokenConfig = findTokenConfig(tokens)(market)
+    const debtTokenConfig = findTokenConfig(tokens, market)
     const debtAsset = createTokenInfo(market.asset, market, debtTokenConfig)
 
     // Find the collateral market to get its LTV (this is what determines max leverage)

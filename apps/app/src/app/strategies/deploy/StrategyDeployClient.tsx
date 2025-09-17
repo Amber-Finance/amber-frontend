@@ -61,7 +61,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   usePrices()
 
   // Derived state
-  const effectiveMaxBtcApy = maxBtcError ? 6.5 : maxBtcApy || 6.5
+  const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy || 0
   const isModifying = searchParams.get('modify') === 'true'
   const modifyingAccountId = searchParams.get('accountId')
   const currentAmount = parseFloat(collateralAmount || '0')

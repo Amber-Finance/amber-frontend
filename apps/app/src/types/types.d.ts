@@ -761,6 +761,9 @@ interface ActiveStrategy {
     amount: string
     amountFormatted: number
     usdValue: number
+    decimals: number
+    icon: string
+    brandColor: string
   }
   debtAsset: {
     denom: string
@@ -768,6 +771,9 @@ interface ActiveStrategy {
     amount: string
     amountFormatted: number
     usdValue: number
+    decimals: number
+    icon: string
+    brandColor: string
   }
   leverage: number
   netApy: number

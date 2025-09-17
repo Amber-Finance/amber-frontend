@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import { Info } from 'lucide-react'
 
+import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
@@ -219,7 +220,7 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
             {Math.abs(strategy.netApy).toFixed(2)}
             <span
               className={`text-3xl`}
-              style={{ color: strategy.debtAsset?.brandColor || '#F97316' }}
+              style={{ color: (strategy.debtAsset as any)?.brandColor || '#F97316' }}
             >
               %
             </span>
@@ -227,6 +228,15 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
           <p className='text-muted-foreground uppercase tracking-wider text-sm font-medium'>
             Net APY
           </p>
+        </div>
+
+        {/* Earning Points Section */}
+        <div className='pt-3 border-t border-border/20'>
+          <EarningPointsRow
+            assetSymbol={strategy.collateralAsset.symbol}
+            variant='full'
+            type='strategy'
+          />
         </div>
 
         {/* Strategy Metrics */}
