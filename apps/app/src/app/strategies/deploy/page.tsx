@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 
-import StrategyDeployPage from '@/app/strategies/deploy/StrategyDeployPage'
+import StrategyDeployPage from '@/app/strategies/deploy/strategyDeployPage'
 import { generateStrategiesMetadata } from '@/app/strategies/generateStrategiesMetadata'
 
 export async function generateMetadata({
