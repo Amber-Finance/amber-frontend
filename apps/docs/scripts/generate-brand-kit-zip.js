@@ -84,7 +84,7 @@ const ASSET_CATEGORIES = {
   ],
   'additional-assets': [
     'images/Baby-Symbol-Mint.png',
-    'images/etherfi_icon-white-outline.svg',
+    'images/etherfi.svg',
     'images/marsFragments/mars-fragments.svg',
     'points/mars-fragments.svg',
   ],
