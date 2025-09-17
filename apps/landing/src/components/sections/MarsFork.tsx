@@ -103,8 +103,8 @@ export function MarsFork() {
                   </h3>
                   <ul className='space-y-2 text-neutral-400 dark:text-neutral-400'>
                     <li>
-                      Security‑first: adopt Mars Protocol defaults, then tighten where Bitcoin LST market
-                      structure warrants it.
+                      Security‑first: adopt Mars Protocol defaults, then tighten where Bitcoin LST
+                      market structure warrants it.
                     </li>
                     <li>Minimal surface area: focus on essentials to maximize reliability.</li>
                   </ul>

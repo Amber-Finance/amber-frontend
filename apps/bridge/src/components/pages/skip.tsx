@@ -478,8 +478,8 @@ export function SkipPage() {
         </div>
         <div className='w-full max-w-lg mx-auto p-4'>
           <p className='sm:text-base max-w-md text-center text-xs text-muted-foreground'>
-            If you hold your Bitcoin LSTs on any other chain than Ethereum or Neutron, you can bridge them
-            via the official{' '}
+            If you hold your Bitcoin LSTs on any other chain than Ethereum or Neutron, you can
+            bridge them via the official{' '}
             <a
               href='https://go.skip.build'
               className='text-amber-500 underline hover:no-underline'

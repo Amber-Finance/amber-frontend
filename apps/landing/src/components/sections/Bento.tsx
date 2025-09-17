@@ -89,8 +89,9 @@ export function Bento() {
                 Amplify Your Bitcoin Yield
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-                Deposit Bitcoin LSTs to earn yield, swap between tokens, deploy leverage strategies with up
-                to 12x leverage, and track your positions performance with real-time analytics.
+                Deposit Bitcoin LSTs to earn yield, swap between tokens, deploy leverage strategies
+                with up to 12x leverage, and track your positions performance with real-time
+                analytics.
               </p>
             </SectionHeader>
           </motion.div>
