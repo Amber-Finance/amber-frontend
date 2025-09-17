@@ -53,25 +53,17 @@ export const useStrategySimulatedApy = (
       const collateralAmountSmallest = collateralAmountBN.shiftedBy(decimals.collateral).toString()
       const borrowAmountSmallest = borrowAmount.shiftedBy(decimals.debt).toString()
 
-      // Calculate new APYs after deposit action
-      const collateralResult = calculateApyAfterAction(
-        'deposit',
-        collateralAmountSmallest,
-        collateralMarketData,
-      )
-
       // Calculate new APYs after borrow action
       const debtResult = calculateApyAfterAction('borrow', borrowAmountSmallest, debtMarketData)
 
       // Convert APY strings to numbers (they're already in percentage format)
-      const newCollateralSupplyApy = parseFloat(collateralResult.apys.lend) / 100
       const newDebtBorrowApy = parseFloat(debtResult.apys.borrow) / 100
 
       // Calculate leveraged APY: (collateral APY - debt APY) * multiplier
-      const leveragedApy = (newCollateralSupplyApy - newDebtBorrowApy) * multiplier
+      const leveragedApy = (currentApys.collateralSupplyApy - newDebtBorrowApy) * multiplier
 
       return {
-        collateralSupplyApy: newCollateralSupplyApy,
+        collateralSupplyApy: currentApys.collateralSupplyApy,
         debtBorrowApy: newDebtBorrowApy,
         leveragedApy,
         netApy: leveragedApy,
