@@ -26,17 +26,7 @@ const fetcher = async (url: string): Promise<AmberApiResponse> => {
 }
 
 export interface LstMarketData {
-  token: {
-    symbol: string
-    icon: string
-    description: string
-    protocol: string
-    isLST: boolean
-    brandColor: string
-    protocolIconLight?: string
-    protocolIconDark?: string
-    denom: string
-  }
+  token: TokenInfo
   metrics: {
     lendingApy: number
     stakingApy: number
@@ -90,7 +80,6 @@ export function useLstMarkets(): {
       .map((market) => {
         // Find token info from tokens.ts
         const tokenData = tokens.find((token) => token.denom === market.asset.denom)
-
         // Skip if token not found or not an LST
         if (!tokenData?.isLST) {
           return null
@@ -156,6 +145,10 @@ export function useLstMarkets(): {
             protocolIconLight: tokenData.protocolIconLight,
             protocolIconDark: tokenData.protocolIconDark,
             denom: tokenData.denom,
+            chainId: tokenData.chainId,
+            decimals: tokenData.decimals,
+            origin: tokenData.origin,
+            comingSoon: tokenData.comingSoon,
           },
           metrics: {
             lendingApy,

@@ -7,8 +7,9 @@
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
     "generate-brand-kit": "node scripts/generate-brand-kit-zip.js",
     "prebuild": "npm run copy-public && npm run generate-brand-kit",
+    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind && cp -r ./public/_pagefind ./out",
     "dev": "next dev --port 3002",
-    "build": "next build",
+    "build": "next build && npm run postbuild",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -48,6 +49,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "pagefind": "^1.0.0",
     "postcss": "^8",
     "tailwindcss": "^4.1.12",
     "typescript": "^5"

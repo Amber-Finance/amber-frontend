@@ -1,43 +1,6 @@
-const tokens = [
-  {
-    chainId: 'neutron-1',
-    denom: 'factory/neutron1ndu2wvkrxtane8se2tr48gv7nsm46y5gcqjhux/MARS',
-    symbol: 'MARS',
-    icon: '/images/MARS.svg',
-    description: 'Mars Token',
-    protocolIconLight: '/images/MARS.svg',
-    protocolIconDark: '/images/MARS.svg',
-    decimals: 6,
-    isLST: false,
-    protocol: 'Cosmos Hub',
-    brandColor: '#2E3148',
-  },
-  {
-    chainId: 'neutron-1',
-    denom: 'untrn',
-    symbol: 'NTRN',
-    icon: '/images/NTRN.svg',
-    description: 'Neutron Token',
-    protocolIconLight: '/images/NTRN.svg',
-    protocolIconDark: '/images/NTRN.svg',
-    decimals: 6,
-    isLST: false,
-    protocol: 'Neutron',
-    brandColor: '#3B82F6',
-  },
-  {
-    chainId: 'neutron-1',
-    denom: 'ibc/B559A80D62249C8AA07A380E2A2BEA6E5CA9A6F079C912C3A9E9B494105E4F81',
-    symbol: 'USDC',
-    icon: '/images/USDC.svg',
-    description: 'USD Coin',
-    protocolIconLight: '/images/USDC.svg',
-    protocolIconDark: '/images/USDC.svg',
-    decimals: 6,
-    isLST: false,
-    protocol: 'Circle',
-    brandColor: '#2775CA',
-  },
+import { MAXBTC_DENOM } from '@/constants/query'
+
+const tokens: TokenInfo[] = [
   {
     chainId: 'neutron-1',
     denom: 'ibc/B7BF60BB54433071B49D586F54BD4DED5E20BEFBBA91958E87488A761115106B',
@@ -54,6 +17,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x8236a87084f8b84306f72007f36f2618a5634494',
     },
+    comingSoon: true,
   },
   {
     chainId: 'neutron-1',
@@ -71,6 +35,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x7a56e1c57c7475ccf742a1832b028f0456652f97',
     },
+    comingSoon: false,
   },
   {
     chainId: 'neutron-1',
@@ -78,9 +43,9 @@ const tokens = [
     symbol: 'eBTC',
     icon: '/images/eBTC.svg',
     description: 'Ether.fi Bitcoin',
-    protocolIconLight: '/images/eBTC.svg',
-    protocolIconDark: '/images/eBTC.svg',
-    decimals: 8,
+    protocolIconLight: '/images/etherfiDark.svg',
+    protocolIconDark: '/images/etherfi.svg',
+    decimals: 8, // eBTC uses 8 decimals like other BTC tokens
     isLST: true,
     protocol: 'Ether.fi ',
     brandColor: '#6366F1', // Ether.fi blue
@@ -88,6 +53,7 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x657e8c867d8b37dcc18fa4caead9c45eb088c642',
     },
+    comingSoon: false,
   },
   {
     chainId: 'neutron-1',
@@ -100,11 +66,30 @@ const tokens = [
     decimals: 8,
     isLST: true,
     protocol: 'Bedrock',
-    brandColor: '#A855F7', // Bedrock purple (slightly different from Solv)
+    brandColor: '#b45afa', // Bedrock purple (slightly different from Solv)
     origin: {
       chainId: '1',
       tokenAddress: '0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568',
     },
+    comingSoon: false,
+  },
+  {
+    chainId: 'neutron-1',
+    denom: MAXBTC_DENOM,
+    symbol: 'maxBTC',
+    icon: '/images/maxBTC.png',
+    description: 'Structured Bitcoin',
+    protocolIconLight: '/images/structured/structuredLight.svg',
+    protocolIconDark: '/images/structured/structuredDark.svg',
+    decimals: 8,
+    isLST: true,
+    protocol: 'Structured Finance',
+    brandColor: '#F97316', // Bitcoin orange
+    origin: {
+      chainId: '1',
+      tokenAddress: '0x0000000000000000000000000000000000000000', // Factory token on Neutron
+    },
+    comingSoon: false,
   },
   {
     chainId: 'neutron-1',
@@ -122,6 +107,24 @@ const tokens = [
       chainId: '1',
       tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     },
+    comingSoon: false,
   },
+  // {
+  //   chainId: 'neutron-1',
+  //   denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',
+  //   symbol: 'FBTC',
+  //   icon: '/images/FBTC.svg',
+  //   description: 'FBTC Ignition',
+  //   protocolIconLight: '/images/fbtc.svg',
+  //   protocolIconDark: '/images/fbtc.svg',
+  //   decimals: 8,
+  //   isLST: true,
+  //   protocol: 'FBTC Ignition',
+  //   brandColor: '#0066ff', // FBTC blue
+  //   origin: {
+  //     chainId: '1',
+  //     tokenAddress: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  //   },
+  // },
 ]
 export default tokens

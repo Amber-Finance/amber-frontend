@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ipAddress } from '@vercel/edge'
 import { createClient } from '@vercel/edge-config'
 
-import { cleanOrigin, edgeConfigResponse, isPreview } from './utils/api'
+import { cleanOrigin, edgeConfigResponse, isPreview } from '@/utils/api'
 
 const corsOptions = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -88,7 +88,6 @@ export async function middleware(request: NextRequest) {
   const ip = ipAddress(request) || 'unknown'
   console.log(`Request from IP: ${ip}, URL: ${request.url}`)
   const response = await corsMiddleware(request)
-  // response = abTestMiddleware(request, response);
   return response
 }
 

@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'gradient-button text-white shadow disabled:opacity-50 font-bold hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out',
+          'gradient-button text-white shadow disabled:opacity-50 font-bold hover:shadow-lg transition-all duration-300 ease-in-out',
         outline:
           'bg-card text-foreground border border-border hover:bg-secondary hover:text-foreground disabled:bg-muted/30 disabled:text-muted-foreground disabled:border-muted-foreground/20 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-300 ease-in-out',
         'outline-gradient':

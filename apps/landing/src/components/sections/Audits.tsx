@@ -7,9 +7,8 @@ import { motion } from 'framer-motion'
 
 import { Background } from '@/components/Background'
 import { SectionHeader } from '@/components/section-header'
+import { GridPattern } from '@/components/ui/grid-pattern'
 import { cn } from '@/lib/utils'
-
-import { GridPattern } from '../ui/grid-pattern'
 
 export function Audits() {
   return (
@@ -84,6 +83,8 @@ export function Audits() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.6 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/halborn'
+              target='_blank'
+              rel='noopener noreferrer'
               className='group relative overflow-hidden rounded-xl bg-background [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:bg-background dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-10px_30px_-10px_#ffffff1f_inset] p-6 flex flex-col transform-gpu transition-all duration-300'
             >
               <div className='flex flex-col gap-3'>
@@ -138,6 +139,8 @@ export function Audits() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.8 }}
               href='https://github.com/mars-protocol/mars-audits/tree/main/red-bank/oak'
+              target='_blank'
+              rel='noopener noreferrer'
               className='group relative overflow-hidden rounded-xl bg-background [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:bg-background dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-10px_30px_-10px_#ffffff1f_inset] p-6 flex flex-col transform-gpu transition-all duration-300'
             >
               <div className='flex flex-col gap-3'>

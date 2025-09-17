@@ -1,9 +1,9 @@
 ---
-title: Amber Finance | Looping BRTs
-description: A guide to using leverage strategies ("looping") to maximize your maxBTC yields on Amber Finance. Learn how to amplify your Bitcoin yields with up to 10x leverage safely.
+title: Amber Finance | Looping maxBTC
+description: A guide to using leverage strategies ("looping") to maximize your maxBTC yields on Amber Finance. Learn how to amplify your Bitcoin yields with up to 12x leverage safely.
 ---
 
-# Looping BRTs
+# Looping maxBTC
 
 ## Strategy Guide
 
@@ -13,16 +13,16 @@ A guide to using leverage strategies ("looping") to maximize your maxBTC yields 
 
 ## Understanding Leverage Strategies
 
-Looping lets you **amplify the staking yield of maxBTC** by borrowing BRTs against your maxBTC collateral and swapping it to redeploy into more yield-bearing maxBTC, repeatedly, to multiply your exposure.
+Looping lets you **amplify the staking yield of maxBTC** by borrowing Bitcoin LSTs against your maxBTC collateral and swapping it to redeploy into more yield-bearing maxBTC, repeatedly, to multiply your exposure.
 
-Amber offers pre-configured loops with up to 10x leverage.
+Amber offers pre-configured loops with up to 12x leverage.
 
 ---
 
 ## How Looping Works
 
 1. **Deposit maxBTC collateral**
-2. **Borrow any supported BRT** (e.g., LBTC, solvBTC)
+2. **Borrow any supported Bitcoin LST** (e.g., LBTC, solvBTC)
 3. **Swap** borrowed assets into maxBTC (0.05% swap fee)
 4. **Earn yield** on the full leveraged maxBTC position
 
@@ -31,8 +31,8 @@ Amber offers pre-configured loops with up to 10x leverage.
 ```mermaid
 graph TD
     A[maxBTC Deposit]
-    A --> B[Borrow BRT]
-    B --> C[Swap BRT → maxBTC]
+    A --> B[Borrow Bitcoin LST]
+    B --> C[Swap Bitcoin LST → maxBTC]
     C --> D[Additional maxBTC]
     D --> A
 
@@ -49,8 +49,8 @@ graph TD
 **Key Components:**
 
 - **maxBTC**: Your Bitcoin exposure and yield-bearing asset
-- **Borrow**: Access to multiple BRTs for borrowing
-- **Swap**: Seamless conversion between BRTs
+- **Borrow**: Access to multiple Bitcoin LSTs for borrowing
+- **Swap**: Seamless conversion between Bitcoin LSTs
 - **Loop**: Continuous cycle to amplify your position
 
 ---

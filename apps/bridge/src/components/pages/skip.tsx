@@ -1,16 +1,14 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Widget } from '@skip-go/widget'
 
-// import { useFeatureEnabled } from '@/hooks/useFeatureEnabled'
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { AuroraText } from '@/components/ui/AuroraText'
 import { useURLQueryParams } from '@/hooks/useURLQueryParams'
 import { apiURL, endpointOptions } from '@/lib/skip-go-widget'
 import { cn } from '@/utils/ui'
-
-import { AuroraText } from '../ui/AuroraText'
 
 interface AssetPair {
   source: { chainId: string; denom: string }
@@ -27,7 +25,6 @@ const preselectedIfEmpty = {
 export function SkipPage() {
   const defaultRoute = useURLQueryParams()
   const { resolvedTheme } = useTheme()
-  const [queryParamsString, setQueryParamsString] = useState<string>()
 
   // Track the current source asset to detect changes
   const [currentSourceAsset, setCurrentSourceAsset] = useState<{
@@ -87,11 +84,6 @@ export function SkipPage() {
     }
   }, [defaultRoute, autoSelectedRoute, shouldResetAmounts])
 
-  const lastAutoSelectionRef = useRef<{
-    type: 'source' | 'destination'
-    chainId: string
-    denom: string
-  } | null>(null)
   const isAutoSelectingRef = useRef(false)
   const currentSelectionRef = useRef<{
     srcChainId?: string
@@ -99,6 +91,32 @@ export function SkipPage() {
     destChainId?: string
     destAssetDenom?: string
   }>({})
+
+  // Helper function to hide Solana connect buttons
+  const hideSolanaConnectButtons = () => {
+    const ROOT_SELECTOR = '[data-root-id="amber-bridge"]'
+    const roots = document.querySelectorAll(ROOT_SELECTOR)
+    roots.forEach((root) => {
+      const buttons = root.querySelectorAll('button')
+      buttons.forEach((button) => {
+        const text = (button.textContent || '').trim()
+        if (/solana/i.test(text)) {
+          ;(button as HTMLElement).style.display = 'none'
+        }
+      })
+    })
+  }
+
+  // Hide Solana connect option inside the Skip widget wallet modal
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const observer = new MutationObserver(hideSolanaConnectButtons)
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true })
+    hideSolanaConnectButtons()
+
+    return () => observer.disconnect()
+  }, [])
 
   // Define allowed asset pairs. Populate this with your desired pairs.
   // Each entry restricts bridging from a specific source asset to a specific destination asset.
@@ -163,13 +181,21 @@ export function SkipPage() {
         denom: 'ibc/E2A000FD3EDD91C9429B473995CE2C7C555BCC8CFC1D0A3D02F514392B7A80E8',
       },
     },
-    {
-      source: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
-      destination: {
-        chainId: 'neutron-1',
-        denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
-      },
-    },
+    // pumpBTC
+    // {
+    //   source: {
+    //     chainId: 'neutron-1',
+    //     denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
+    //   },
+    //   destination: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
+    // },
+    // {
+    //   source: { chainId: '1', denom: '0xF469fBD2abcd6B9de8E169d128226C0Fc90a012e' },
+    //   destination: {
+    //     chainId: 'neutron-1',
+    //     denom: 'ibc/1075520501498E008B02FD414CD8079C0A2BAF9657278F8FB8F7D37A857ED668',
+    //   },
+    // },
     // uniBTC
     {
       source: {
@@ -203,7 +229,7 @@ export function SkipPage() {
   ]
 
   function isEvmChainId(chainId?: string) {
-    return typeof chainId === 'string' && /^[0-9]+$/.test(chainId)
+    return typeof chainId === 'string' && /^\d+$/.test(chainId)
   }
 
   function normalizeDenomForCompare(denom?: string, chainId?: string) {
@@ -250,11 +276,11 @@ export function SkipPage() {
         const set = new Set(aDenoms)
         const intersection = bDenoms.filter((d) => set.has(d))
         // If either side omits the chain or is empty, treat as allowing only the other
-        merged[side][chainId] = intersection.length
-          ? intersection
-          : aDenoms.length
-            ? aDenoms
-            : bDenoms
+        let selectedDenoms = intersection
+        if (!intersection.length) {
+          selectedDenoms = aDenoms.length ? aDenoms : bDenoms
+        }
+        merged[side][chainId] = selectedDenoms
       }
     }
     return merged
@@ -291,7 +317,7 @@ export function SkipPage() {
         }
     }
     // If nothing matched, return undefined to avoid over-restricting
-    return filter ? filter : undefined
+    return filter ?? undefined
   }
 
   const onRouteUpdated = (props: {
@@ -343,18 +369,6 @@ export function SkipPage() {
       }, 50)
     }
 
-    const params = new URLSearchParams({
-      src_asset: props?.srcAssetDenom ?? '',
-      src_chain: props?.srcChainId ?? '',
-      dest_asset: props?.destAssetDenom ?? '',
-      dest_chain: props?.destChainId ?? '',
-      amount_in: props?.amountIn ?? '',
-      amount_out: props?.amountOut ?? '',
-    })
-
-    const queryString = params.toString()
-    setQueryParamsString(queryString)
-
     // Auto-select destination based on source selection
     const pf = computePairFilter(props)
     if (!pf) {
@@ -396,18 +410,20 @@ export function SkipPage() {
     }
   }
 
-  const onSourceAssetUpdated = ({ chainId, denom }: { chainId?: string; denom?: string }) => {
-    // Clear auto-selection when user manually changes source
+  const clearAutoSelection = () => {
     if (!isAutoSelectingRef.current && autoSelectedRoute) {
       setAutoSelectedRoute(null)
     }
   }
 
+  const onSourceAssetUpdated = ({ chainId, denom }: { chainId?: string; denom?: string }) => {
+    // Clear auto-selection when user manually changes source
+    clearAutoSelection()
+  }
+
   const onDestinationAssetUpdated = ({ chainId, denom }: { chainId?: string; denom?: string }) => {
     // Clear auto-selection when user manually changes destination
-    if (!isAutoSelectingRef.current && autoSelectedRoute) {
-      setAutoSelectedRoute(null)
-    }
+    clearAutoSelection()
   }
 
   return (
@@ -421,10 +437,10 @@ export function SkipPage() {
         <section className='relative w-full py-8 sm:py-10 px-4'>
           <div className='flex flex-col items-center gap-4'>
             <h1 className='text-3xl lg:text-5xl font-funnel leading-tight text-center'>
-              Bridge <AuroraText>Bitcoin Related</AuroraText> Tokens
+              Bridge <AuroraText>Bitcoin LSTs</AuroraText>
             </h1>
             <p className='text-xs sm:text-base text-muted-foreground max-w-md text-center'>
-              Bridge your Bitcoin Related Tokens (BRTs) via our partner Skip:Go.
+              Bridge your Bitcoin Liquid Staking Tokens via our partner Skip:Go.
             </p>
           </div>
         </section>
@@ -460,12 +476,19 @@ export function SkipPage() {
             </div>
           </div>
         </div>
-
-        <div className='hidden flex-row justify-end items-center px-8 pt-24 w-full md:flex'>
-          <p
-            className={`text-center text-[13px] opacity-50 ${resolvedTheme === 'dark' ? 'text-white' : 'text-black'}`}
-          >
-            <u>bridge.amberfi.io</u> {' is powered by Cosmos Hub, IBC Eureka & Skip:Go'}
+        <div className='w-full max-w-lg mx-auto p-4'>
+          <p className='sm:text-base max-w-md text-center text-xs text-muted-foreground'>
+            If you hold your Bitcoin LSTs on any other chain than Ethereum or Neutron, you can
+            bridge them via the official{' '}
+            <a
+              href='https://go.skip.build'
+              className='text-amber-500 underline hover:no-underline'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Skip:Go bridge UI
+            </a>
+            <span>.</span>
           </p>
         </div>
       </main>

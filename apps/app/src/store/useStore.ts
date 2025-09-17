@@ -126,7 +126,7 @@ export const useStore = create<StoreState>()(
         },
       }),
       {
-        name: 'btc-outpost-storage', // storage key
+        name: 'amberfi-storage', // storage key
         partialize: (state: StoreState) => ({
           markets: state.markets,
           // You can exclude some state properties from persistence if needed

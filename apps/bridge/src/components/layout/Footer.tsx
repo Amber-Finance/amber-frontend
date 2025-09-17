@@ -31,17 +31,17 @@ interface Icon {
 const icons: Icon[] = [
   {
     icon: <TwitterLogoIcon className='h-5 w-5' />,
-    url: 'https://twitter.com/amberfi_io',
+    url: 'https://x.amberfi.io',
     label: 'X',
   },
   {
     icon: <GitHubLogoIcon className='h-5 w-5' />,
-    url: 'https://github.com/amber-finance',
+    url: 'https://github.amberfi.io',
     label: 'GitHub',
   },
   {
     icon: <TelegramIcon className='h-5 w-5' />,
-    url: 'https://t.me/mars_protocol',
+    url: 'https://telegram.amberfi.io',
     label: 'Mars Telegram',
   },
 ]
@@ -66,7 +66,7 @@ const footerSections = [
     title: 'Resources',
     links: [
       { title: 'Documentation', url: 'https://docs.amberfi.io' },
-      { title: 'Amber GitHub', url: 'https://github.com/amber-finance' },
+      { title: 'Amber GitHub', url: 'https://github.amberfi.io' },
     ],
   },
 ]
@@ -75,7 +75,7 @@ export function Footer() {
   const { resolvedTheme } = useTheme()
 
   return (
-    <footer className='mt-20 border-t border-border/50 bg-background/50 backdrop-blur-md'>
+    <footer className='mt-auto border-t border-border/50 bg-background/50 backdrop-blur-md'>
       {/* Main Footer Content */}
       <div className='mx-auto max-w-6xl px-8 py-12 md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
@@ -116,7 +116,7 @@ export function Footer() {
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label={icon.label}
-                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/50 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
+                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/20 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
                 >
                   {icon.icon}
                 </a>
@@ -127,7 +127,7 @@ export function Footer() {
           {/* Link Sections Container */}
           <div className='grid grid-cols-2 gap-8 text-right md:col-span-2 md:grid-cols-2'>
             {footerSections.map((section, index) => (
-              <div key={index} className='text-right'>
+              <div key={`${section.title}-${index}`} className='text-right'>
                 <h3 className='mb-4 text-sm font-semibold uppercase tracking-wider text-foreground'>
                   {section.title}
                 </h3>

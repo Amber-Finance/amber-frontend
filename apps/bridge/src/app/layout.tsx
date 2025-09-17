@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 
+import { metadata as defaultMetadata } from '@/app/metadata'
 import { Providers } from '@/app/providers'
 import { Background } from '@/components/layout/Background'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
-
-import '../styles/globals.css'
-import { metadata as defaultMetadata } from './metadata'
+import '@/styles/globals.css'
 
 export const metadata: Metadata = defaultMetadata
 
@@ -19,7 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ overscrollBehavior: 'none' }}
       >
         <Providers>
-          <div className='no-scrollbar relative flex min-h-screen w-full max-w-full flex-col overflow-x-hidden bg-background'>
+          <div
+            className='no-scrollbar relative flex w-full max-w-full flex-col overflow-x-hidden bg-background'
+            style={{ minHeight: '100vh' }}
+          >
             <Background />
             <ThemedParticles
               className='absolute inset-0 z-0'
@@ -29,11 +31,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               staticity={30}
               refresh={false}
             />
-            <main className='relative z-10 mx-auto w-full max-w-screen-2xl flex-1 px-2 pt-16 sm:px-8 sm:pt-20'>
-              <Navbar />
-              {children}
-            </main>
-            <Footer />
+            <div className='relative z-10 flex-1 flex flex-col'>
+              <main className='flex-1 mx-auto w-full max-w-screen-2xl px-2 pt-16 sm:px-8 sm:pt-20'>
+                <Navbar />
+                {children}
+              </main>
+              <Footer />
+            </div>
           </div>
         </Providers>
       </body>

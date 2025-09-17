@@ -18,7 +18,7 @@ export default function ProgressCard({
   brandColor,
   max = 100,
   min = 0,
-  className = 'size-12 sm:size-16',
+  className = 'size-12 sm:size-18',
 }: ProgressCardProps) {
   return (
     <div className='flex-1 flex flex-col items-center gap-2'>
@@ -27,7 +27,7 @@ export default function ProgressCard({
         min={min}
         value={value}
         gaugePrimaryColor={brandColor}
-        gaugeSecondaryColor={`${brandColor}20`}
+        gaugeSecondaryColor={`${brandColor}10`}
         className={cn(className, 'text-[8px] sm:text-xs')}
       />
       <div className='text-center'>

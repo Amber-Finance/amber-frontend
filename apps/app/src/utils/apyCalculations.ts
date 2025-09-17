@@ -5,13 +5,13 @@ import { convertAprToApy } from '@/utils/finance'
 /**
  * Calculate the lending and borrowing APY after a specific action (deposit or borrow)
  *
- * @param action - The action to simulate: 'deposit' or 'borrow'
+ * @param action - The action to simulate: 'deposit', 'withdraw', or 'borrow'
  * @param amount - The amount in the smallest unit (e.g., satoshis for BTC)
  * @param marketData - The current market data containing utilization and interest rate model
  * @returns Object with lending and borrowing APY as formatted strings
  */
 export function calculateApyAfterAction(
-  action: 'deposit' | 'borrow',
+  action: 'deposit' | 'borrow' | 'withdraw',
   amount: string | number,
   marketData: MarketDataItem,
 ): {
@@ -33,10 +33,16 @@ export function calculateApyAfterAction(
 
   if (action === 'deposit') {
     newCollateralTotal = currentCollateralTotal.plus(actionAmount)
+  } else if (action === 'withdraw') {
+    newCollateralTotal = currentCollateralTotal.minus(actionAmount)
+    // Ensure collateral doesn't go below zero
+    if (newCollateralTotal.isLessThan(0)) {
+      newCollateralTotal = new BigNumber(0)
+    }
   } else if (action === 'borrow') {
     newDebtTotal = currentDebtTotal.plus(actionAmount)
   } else {
-    throw new Error('Invalid action. Use "deposit" or "borrow".')
+    throw new Error('Invalid action. Use "deposit", "withdraw", or "borrow".')
   }
 
   // Calculate new utilization rate

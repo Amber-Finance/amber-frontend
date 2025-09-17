@@ -1,11 +1,6 @@
 import { getCreditManagerQueryClient } from '@/api/cosmwasm-client'
 import { ITEM_LIMIT_PER_QUERY } from '@/constants/query'
 
-export interface AccountIdAndKind {
-  id: string
-  kind: 'default' | 'high_levered_strategy'
-}
-
 export default async function getAccountIds(
   chainConfig: ChainConfig,
   address?: string,
@@ -15,7 +10,7 @@ export default async function getAccountIds(
   try {
     const client = await getCreditManagerQueryClient(chainConfig)
 
-    const lastItem = previousResults && previousResults.at(-1)
+    const lastItem = previousResults?.at(-1)
     const accounts = (
       await client.accounts({
         limit: ITEM_LIMIT_PER_QUERY,
@@ -32,6 +27,6 @@ export default async function getAccountIds(
 
     return await getAccountIds(chainConfig, address, accumulated)
   } catch {
-    return new Promise((_, reject) => reject('No data'))
+    return new Promise(() => Promise.reject(new Error('No data')))
   }
 }

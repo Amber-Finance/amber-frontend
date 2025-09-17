@@ -27,18 +27,39 @@ const getClient = async (rpc: string) => {
 
     return _cosmWasmClient.get(rpc)!
   } catch (error) {
+    console.warn(`Failed to connect to RPC ${rpc}:`, error)
     throw error
+  }
+}
+
+const getClientWithFallback = async (primaryRpc: string, fallbackRpcs: string[] = []) => {
+  const allRpcs = [primaryRpc, ...fallbackRpcs]
+
+  for (const rpc of allRpcs) {
+    try {
+      return await getClient(rpc)
+    } catch (error) {
+      console.warn(`Failed to connect to RPC ${rpc}:`, error)
+      if (rpc === allRpcs[allRpcs.length - 1]) {
+        // If this is the last RPC, throw the error
+        throw new Error(
+          `Failed to connect to any RPC endpoint. Last error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        )
+      }
+      // Continue to next RPC
+    }
   }
 }
 
 const getCreditManagerQueryClient = async (chainConfig: ChainConfig) => {
   try {
     const contract = chainConfig.contracts.creditManager
-    const rpc = getUrl(chainConfig.endpoints.rpcUrl)
-    const key = rpc + contract
+    const primaryRpc = getUrl(chainConfig.endpoints.rpcUrl)
+    const fallbackRpcs = (chainConfig.endpoints as any).fallbackRpcs?.map(getUrl) || []
+    const key = primaryRpc + contract
 
     if (!_creditManagerQueryClient.get(key)) {
-      const client = await getClient(rpc)
+      const client = await getClientWithFallback(primaryRpc, fallbackRpcs)
       _creditManagerQueryClient.set(key, new MarsCreditManagerQueryClient(client, contract))
     }
 

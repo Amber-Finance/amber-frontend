@@ -13,6 +13,7 @@ interface FormattedValueProps {
   suffix?: string // Suffix to add after the value (e.g., "%")
   useCompactNotation?: boolean // Whether to use compact notation (K, M, B) for large values
   smallValueThreshold?: number // Threshold for using subscript notation (default 0.00001)
+  tokenDecimals?: number // Token decimals for zero value formatting
 }
 
 /**
@@ -24,6 +25,59 @@ interface FormattedValueProps {
  * - Values below 0.00001: Uses subscript notation for zero count
  * - Other values: Regular formatting with appropriate precision
  */
+// Helper function to process display value
+const processDisplayValue = (value: string, isCurrency: boolean) => {
+  if (isCurrency || !value.includes('.')) return value
+
+  // Remove trailing zeros
+  let processed = value.replace(/\.?0+$/, '')
+
+  // If we end up with just a decimal point, remove it too
+  if (processed.endsWith('.')) {
+    processed = processed.slice(0, -1)
+  }
+
+  return processed
+}
+
+// Helper function to render subscript notation
+const renderSubscriptNotation = (
+  formatData: FormatMetadata,
+  effectivePrefix: string,
+  className: string,
+  suffix: string,
+) => {
+  try {
+    const displayDigits = formatData.significantDigits
+      ? formatData.significantDigits.substring(0, 4)
+      : '1'
+
+    return (
+      <span className={`whitespace-nowrap inline-flex items-baseline ${className}`}>
+        {effectivePrefix || formatData.prefix || ''}
+        {formatData.value || '0.0'}
+        <span
+          className='inline-block text-[0.7em] font-bold relative bottom-[-0.1em] mx-[0.5px]'
+          style={{ lineHeight: '1' }}
+        >
+          {formatData.zeroCount}
+        </span>
+        {displayDigits}
+        {suffix}
+      </span>
+    )
+  } catch (error) {
+    console.error('Error rendering subscript notation:', error)
+    return (
+      <span className={className}>
+        {effectivePrefix || ''}
+        {'< 0.0001'}
+        {suffix}
+      </span>
+    )
+  }
+}
+
 const FormattedValue: React.FC<FormattedValueProps> = ({
   value,
   isCurrency = false,
@@ -33,6 +87,7 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
   suffix = '',
   useCompactNotation = true,
   smallValueThreshold,
+  tokenDecimals = 6,
 }) => {
   // Handle currency prefix - if isCurrency is true and no prefix is provided, use "$"
   const effectivePrefix = isCurrency && !prefix ? '$' : prefix
@@ -40,29 +95,20 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
   // Format the value according to our rules
   const formatData = formatValue(value, {
     isCurrency,
-    // For currency values, use 0.01 as default smallValueThreshold, otherwise use provided value or default (0.00001)
     smallValueThreshold: isCurrency ? 0.01 : smallValueThreshold || 0.00001,
-    largeValueThreshold: 1000, // Use compact notation (K, M, B) for values above this
+    largeValueThreshold: 1000,
     useCompactNotation,
-    significantDigits: 4, // Increased from 4 to 6 to show more digits for small values
-    decimalPlaces: maxDecimals !== undefined ? maxDecimals : isCurrency ? 2 : 4, // Use 6 decimal places for tokens, 2 for currency
+    significantDigits: 4,
+    decimalPlaces: (() => {
+      if (maxDecimals !== undefined) return maxDecimals
+      return isCurrency ? 2 : 4
+    })(),
+    tokenDecimals,
   })
 
   // Render based on format type
   if (formatData.type === 'standard') {
-    // Trim trailing zeros for cleaner display, but only for non-currency values
-    let displayValue = formatData.value
-
-    // Only trim if there's a decimal point and it's not a currency value
-    if (!isCurrency && displayValue.includes('.')) {
-      // Remove trailing zeros
-      displayValue = displayValue.replace(/\.?0+$/, '')
-
-      // If we end up with just a decimal point, remove it too
-      if (displayValue.endsWith('.')) {
-        displayValue = displayValue.slice(0, -1)
-      }
-    }
+    const displayValue = processDisplayValue(formatData.value, isCurrency)
 
     return (
       <span className={className}>
@@ -73,46 +119,14 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
     )
   }
 
-  // For subscript notation (very small values)
   if (formatData.type === 'subscript') {
-    try {
-      // Limit the significant digits based on significantDigits from formatValue (4)
-      // regardless of what's returned from the formatData
-      const displayDigits = formatData.significantDigits
-        ? formatData.significantDigits.substring(0, 4) // Always limit to 4 significant digits
-        : '1' // Ensure we have at least one digit
-
-      return (
-        <span className={`whitespace-nowrap inline-flex items-baseline ${className}`}>
-          {effectivePrefix || formatData.prefix || ''}
-          {formatData.value || '0.0'}
-          <span
-            className='inline-block text-[0.7em] font-bold relative bottom-[-0.1em] mx-[0.5px]'
-            style={{ lineHeight: '1' }}
-          >
-            {formatData.zeroCount}
-          </span>
-          {displayDigits}
-          {suffix}
-        </span>
-      )
-    } catch (error) {
-      console.error('Error rendering subscript notation:', error)
-      return (
-        <span className={className}>
-          {effectivePrefix || ''}
-          {'< 0.0001'}
-          {suffix}
-        </span>
-      )
-    }
+    return renderSubscriptNotation(formatData, effectivePrefix, className, suffix)
   }
-
-  // Fallback for any unhandled cases
+  console.log(value)
   return (
     <span className={className}>
       {effectivePrefix || ''}
-      {value || '0'}
+      {value || '0.' + '0'.repeat(tokenDecimals)}
       {suffix}
     </span>
   )

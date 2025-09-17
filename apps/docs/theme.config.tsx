@@ -8,6 +8,14 @@ const config = {
   footer: {
     content: 'Amber Finance Documentation',
   },
+  search: {
+    placeholder: 'Search documentation...',
+  },
+  useNextSeoProps() {
+    return {
+      titleTemplate: '%s – Amber Finance Docs',
+    }
+  },
   // Let Nextra Docs theme read front matter for title/description/openGraph
 }
 

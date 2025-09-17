@@ -9,7 +9,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider'
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(() => new QueryClient())
   return (
-    <ThemeProvider defaultTheme='dark' storageKey='btc-outpost-theme'>
+    <ThemeProvider defaultTheme='dark' storageKey='amberfi-theme'>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </ThemeProvider>
   )

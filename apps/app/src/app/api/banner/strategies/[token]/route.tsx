@@ -7,17 +7,17 @@ export const runtime = 'edge'
 
 // Token to base image mapping for strategies
 const TOKEN_BASE_IMAGES = {
-  LBTC: '/x-banner/strategies/LBTC.png',
-  solvBTC: '/x-banner/strategies/solvBTC.png',
-  eBTC: '/x-banner/strategies/eBTC.png',
-  WBTC: '/x-banner/strategies/WBTC.png',
-  uniBTC: '/x-banner/strategies/uniBTC.png',
+  lbtc: '/x-banner/strategies/lbtc.jpg',
+  solvbtc: '/x-banner/strategies/solvbtc.jpg',
+  ebtc: '/x-banner/strategies/ebtc.jpg',
+  wbtc: '/x-banner/strategies/wbtc.jpg',
+  unibtc: '/x-banner/strategies/unibtc.jpg',
 } as const
 
 const STRATEGIES_API_URL = 'https://api.amberfi.io/api/strategies'
 
 function getTokenBrandColor(tokenSymbol: string): string {
-  const token = tokens.find((t) => t.symbol === tokenSymbol)
+  const token = tokens.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase())
   return token?.brandColor || '#FF6B35'
 }
 
@@ -30,7 +30,7 @@ export async function GET(
     const { searchParams } = new URL(request.url)
     const strategy = searchParams.get('strategy')
 
-    // Extract the last token from strategy parameter (e.g., "WBTC-uniBTC" -> "uniBTC")
+    // Extract the last token from strategy parameter (e.g., "maxBTC-uniBTC" -> "uniBTC")
     let targetToken = tokenSymbol
     if (strategy) {
       const lastToken = strategy.split('-').pop()
@@ -39,7 +39,7 @@ export async function GET(
 
     // Case-insensitive
     const validToken = Object.keys(TOKEN_BASE_IMAGES).find(
-      (key) => key.toLowerCase() === targetToken.toLowerCase(),
+      (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),
     ) as keyof typeof TOKEN_BASE_IMAGES
 
     const baseImagePath = validToken ? TOKEN_BASE_IMAGES[validToken] : undefined

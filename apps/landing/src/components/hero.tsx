@@ -7,9 +7,8 @@ import { BookOpen, ChevronRight } from 'lucide-react'
 
 import SplineBgObject from '@/components/SplineBgObject'
 import { Partners } from '@/components/sections/Partners'
+import { AnimatedGradientText } from '@/components/ui/animated-gradient-text'
 import { cn } from '@/lib/utils'
-
-import { AnimatedGradientText } from './ui/animated-gradient-text'
 
 const XIcon = ({ className }: { className?: string }) => {
   return (
@@ -25,6 +24,7 @@ const XIcon = ({ className }: { className?: string }) => {
     </svg>
   )
 }
+
 export const HeroContent = () => {
   return (
     <motion.div
@@ -88,8 +88,8 @@ export const HeroContent = () => {
           transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
           className='sm:text-xs md:text-sm lg:text-base xl:text-base tracking-wide text-white/70 md:text-white/60 max-w-3xl text-center'
         >
-          Maximize your Bitcoin yield. Deploy BRTs (Bitcoin-Related Tokens) with up to 10x leverage
-          through automated strategies.
+          Maximize your Bitcoin yield. Deploy Bitcoin LSTs (Liquid Staking Tokens) with up to 12x
+          leverage through automated strategies.
         </motion.p>
       </div>
       <motion.div
@@ -101,6 +101,8 @@ export const HeroContent = () => {
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
             href='https://app.amberfi.io'
+            target='_blank'
+            rel='noopener noreferrer'
             className={cn(
               // colors
               'bg-white text-black shadow hover:bg-white/90 dark:bg-white dark:text-black dark:hover:bg-white/90',
@@ -119,6 +121,8 @@ export const HeroContent = () => {
         <div className='flex flex-col gap-4 lg:flex-row'>
           <a
             href='https://docs.amberfi.io'
+            target='_blank'
+            rel='noopener noreferrer'
             className={cn(
               // colors
               'bg-black text-white shadow hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90',

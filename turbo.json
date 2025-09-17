@@ -1,13 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalDependencies": ["**/.env.*local"],
   "tasks": {
     "copy-public": {
       "cache": false,
       "outputs": ["public/**"]
     },
     "build": {
-      "dependsOn": ["copy-public", "^build"],
+      "dependsOn": ["copy-public"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": ["POLKACHU_USER", "POLKACHU_PASSWORD", "APP_URL", "EDGE_CONFIG"]
     },
@@ -16,15 +17,9 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "lint:fix": {
-      "dependsOn": ["^lint:fix"]
-    },
-    "type-check": {
-      "dependsOn": ["^type-check"]
-    },
+    "lint": {},
+    "lint:fix": {},
+    "type-check": {},
     "clean": {
       "cache": false
     }

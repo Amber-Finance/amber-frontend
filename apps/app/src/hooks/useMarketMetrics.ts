@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { BigNumber } from 'bignumber.js'
 
 import { convertAprToApy } from '@/utils/finance'
-import { calculateUsdValue } from '@/utils/format'
+import { calculateUsdValueLegacy } from '@/utils/format'
 
 export function useMarketMetrics(market: Market): MarketMetrics {
   return useMemo(() => {
@@ -31,7 +31,7 @@ export function useMarketMetrics(market: Market): MarketMetrics {
     }
 
     const reserveSize = parseFloat(market.metrics.collateral_total_amount)
-    const reserveSizeUsd = calculateUsdValue(
+    const reserveSizeUsd = calculateUsdValueLegacy(
       reserveSize,
       parseFloat(market.price.price),
       market.asset.decimals,
@@ -42,14 +42,14 @@ export function useMarketMetrics(market: Market): MarketMetrics {
         .minus(market.metrics.debt_total_amount)
         .toString(),
     )
-    const availableLiquidityUsd = calculateUsdValue(
+    const availableLiquidityUsd = calculateUsdValueLegacy(
       availableLiquidity,
       parseFloat(market.price.price),
       market.asset.decimals,
     )
 
     const depositCap = parseFloat(market.params.deposit_cap)
-    const depositCapUsd = calculateUsdValue(
+    const depositCapUsd = calculateUsdValueLegacy(
       depositCap,
       parseFloat(market.price.price),
       market.asset.decimals,

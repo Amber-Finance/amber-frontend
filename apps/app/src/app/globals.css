@@ -74,8 +74,8 @@
 @font-face {
   font-family: SourceSans;
   src:
-    url('/fonts/SourceSans-Bold.woff2') format('woff2'),
-    url('/fonts/SourceSans-Bold.woff') format('woff');
+    url('/fonts/SourceSans3-Bold.woff2') format('woff2'),
+    url('/fonts/SourceSans3-Bold.woff') format('woff');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -239,7 +239,10 @@ body {
     rgba(255, 115, 0, 0.08) 40%,
     transparent 80%
   );
-  border: 1px solid rgba(255, 115, 0, 0.2);
+  animation: navGlow 2s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 20px rgba(255, 115, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dark .nav-glow-active {
@@ -249,7 +252,36 @@ body {
     rgba(255, 120, 0, 0.12) 40%,
     transparent 80%
   );
-  border: 1px solid rgba(255, 120, 0, 0.3);
+  animation: navGlowDark 2s ease-in-out infinite alternate;
+  box-shadow:
+    0 0 20px rgba(255, 120, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes navGlow {
+  0% {
+    box-shadow:
+      0 0 20px rgba(255, 115, 0, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow:
+      0 0 30px rgba(255, 115, 0, 0.2),
+      0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@keyframes navGlowDark {
+  0% {
+    box-shadow:
+      0 0 20px rgba(255, 120, 0, 0.15),
+      0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    box-shadow:
+      0 0 30px rgba(255, 120, 0, 0.25),
+      0 6px 16px rgba(0, 0, 0, 0.4);
+  }
 }
 
 input[type='number']::-webkit-inner-spin-button,
@@ -259,7 +291,71 @@ input[type='number']::-webkit-outer-spin-button {
 }
 input[type='number'] {
   -moz-appearance: textfield; /* Firefox */
-  appearance: textfield;
+}
+
+/* Custom Toast Styling */
+.Toastify__toast {
+  @apply bg-card/95 text-foreground border border-border/50 shadow-xl rounded-xl backdrop-blur-sm;
+  font-family: var(--font-space-mono), monospace;
+  font-size: 0.875rem;
+  min-height: 64px;
+  padding: 16px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.Toastify__toast--success {
+  @apply bg-card/95 text-foreground border-l-4 border-l-green-500;
+}
+
+.Toastify__toast--error {
+  @apply bg-card/95 text-foreground border-l-4 border-l-red-500;
+}
+
+.Toastify__toast--info {
+  @apply bg-card/95 text-foreground border-l-4 border-l-blue-500;
+}
+
+.Toastify__toast--warning {
+  @apply bg-card/95 text-foreground border-l-4 border-l-yellow-500;
+}
+
+.Toastify__toast--loading {
+  @apply bg-card/95 text-foreground border-l-4 border-l-primary;
+}
+
+.Toastify__progress-bar {
+  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+  height: 3px;
+}
+
+.Toastify__close-button {
+  @apply text-muted-foreground hover:text-foreground transition-colors duration-200;
+  opacity: 0.8;
+}
+
+.Toastify__toast-body {
+  @apply text-foreground;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+}
+
+/* Add subtle animation */
+.Toastify__toast {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Custom scrollbar for token selector modal */
@@ -317,7 +413,6 @@ input[type='number'] {
 }
 
 .gradient-button:hover {
-  background-position: 100% 50%;
   animation: gradient-shift 2s ease-in-out infinite;
 }
 

@@ -1,142 +1,129 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 
-import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
-import { ArrowLeft, ArrowRight, ArrowUpRight, Coins, Wallet, Zap } from 'lucide-react'
+import { ArrowLeft, Coins, Wallet } from 'lucide-react'
 
-import { BalanceRow, InfoCard, MetricRow, ProgressCard } from '@/components/deposit'
+import { BalanceRow, InfoCard, MetricRow } from '@/components/deposit'
+import { AssetActions } from '@/components/deposit/AssetActions'
+import { DepositChart } from '@/components/deposit/DepositChart'
+import { DepositForm } from '@/components/deposit/DepositForm'
+import { DepositHeader } from '@/components/deposit/DepositHeader'
+import ProgressCard from '@/components/deposit/ProgressCard'
 import { useTheme } from '@/components/providers/ThemeProvider'
-import { AmountInput } from '@/components/ui/AmountInput'
-import { Button } from '@/components/ui/Button'
-import { CountingNumber } from '@/components/ui/CountingNumber'
-import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import { Slider } from '@/components/ui/slider'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
-import {
-  useLstMarkets,
-  useMarkets,
-  useTransactions,
-  useUserDeposit,
-  useWalletBalances,
-} from '@/hooks'
-import useRedBankAssetsTvl from '@/hooks/redBank/useRedBankAssetsTvl'
-import useRedBankDenomData from '@/hooks/redBank/useRedBankDenomData'
+import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
+import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
+import useDenomData from '@/hooks/redBank/useDenomData'
+import { useDepositState } from '@/hooks/useDepositState'
+import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
+import { useUserDeposit } from '@/hooks/useUserDeposit'
+import useWalletBalances from '@/hooks/useWalletBalances'
+import { useWithdrawValidation } from '@/hooks/useWithdrawValidation'
 import { useStore } from '@/store/useStore'
-import {
-  getNeutronIcon,
-  getProtocolPoints,
-  getProtocolPointsIcon,
-} from '@/utils/depositCardHelpers'
+import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
 import { convertAprToApy } from '@/utils/finance'
-import { formatCompactCurrency, formatCurrency, formatTokenAmount } from '@/utils/format'
-
-type TabType = 'deposit' | 'withdraw'
+import { formatCompactCurrency, formatNumber } from '@/utils/format'
 
 export default function DepositClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<TabType>(() => {
-    const action = searchParams.get('action')
-    return action === 'withdraw' ? 'withdraw' : 'deposit'
-  })
-  const [depositAmount, setDepositAmount] = useState('')
-  const [withdrawAmount, setWithdrawAmount] = useState('')
-  const [sliderPercentage, setSliderPercentage] = useState(0)
-  const [lastAction, setLastAction] = useState<'deposit' | 'withdraw' | null>(null)
+  const depositState = useDepositState()
+  const { state, actions, computed } = depositState
 
+  // Initialize tab from URL params
+  useEffect(() => {
+    const action = searchParams.get('action')
+    const initialTab = action === 'withdraw' ? 'withdraw' : 'deposit'
+    if (state.activeTab !== initialTab) {
+      actions.setActiveTab(initialTab)
+    }
+  }, [searchParams])
+
+  // Update URL when tab changes
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString())
-    if (activeTab === 'withdraw') {
+    if (state.activeTab === 'withdraw') {
       params.set('action', 'withdraw')
     } else {
       params.delete('action')
     }
     router.replace(`?${params.toString()}`)
-  }, [activeTab, router, searchParams])
+  }, [state.activeTab, router])
 
   useMarkets()
   const { markets } = useStore()
-  const { getTokenStakingApy, isLoading: isYieldLoading } = useLstMarkets()
+  const { data: lstMarkets, isLoading: walletBalancesLoading, getTokenStakingApy } = useLstMarkets()
   const { deposit, withdraw, isPending } = useTransactions()
 
-  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
   const { isWalletConnected, connect } = useChain(chainConfig.name)
   const { theme } = useTheme()
 
   const tokenSymbol = searchParams.get('token')
   const tokenData = tokens.find((token) => token.symbol === tokenSymbol)
   const market = markets?.find((market) => market.asset.denom === tokenData?.denom)
+
+  const { data: walletBalances } = useWalletBalances()
   const { amount: depositedAmount } = useUserDeposit(tokenData?.denom)
+  const walletBalanceAmount =
+    walletBalances?.find((balance) => balance.denom === tokenData?.denom)?.amount || '0'
 
-  const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
-  const { data: redBankDenomData, tvlGrowth30d } = useRedBankDenomData(tokenData?.denom || '')
+  const withdrawValidation = useWithdrawValidation(
+    state.withdrawAmount,
+    tokenData?.denom || '',
+    depositedAmount,
+  )
 
-  const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
+  const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
+
+  const { data: assetsTvl } = useAssetsTvl()
+  const { data: assetMetrics, tvlGrowth30d } = useDenomData(tokenData?.denom || '')
+
+  const currentTokenTvlData = assetsTvl?.assets?.find(
     (asset: any) => asset.denom === tokenData?.denom,
   )
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
-  const selectedToken = useMemo(() => {
-    if (!tokenSymbol || !tokenData || !market) {
-      router.push('/')
-      return null
-    }
+  // Calculate simulated APY based on user input - must be called at top level
+  const simulatedApys = useDepositSimulatedApy(
+    computed.currentAmount.toString(),
+    computed.isDepositing ? 'deposit' : 'withdraw',
+    market?.asset.decimals || 8,
+    market?.metrics || null,
+    market?.metrics
+      ? convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString())
+      : '0',
+  )
 
-    const protocolApy = parseFloat(
-      convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
-    )
+  // Redirect if required data is missing
+  if (!tokenSymbol || !tokenData || !lstMarketData || !market) {
+    router.push('/')
+    return null
+  }
 
-    // Get real-time staking APY from consolidated hook
-    const stakingApy = getTokenStakingApy(tokenData.symbol)
-    // Calculate total APY: protocol APY + staking APY
-    const totalApy = parseFloat((protocolApy + stakingApy).toFixed(2))
+  const protocolApy = parseFloat(
+    convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString()),
+  )
 
-    const walletBalance =
-      walletBalances?.find((balance) => balance.denom === tokenData.denom)?.amount || '0'
-    const depositedNumber = new BigNumber(depositedAmount || '0')
-      .shiftedBy(-market.asset.decimals)
-      .toNumber()
-    const balanceNumber = new BigNumber(walletBalance).shiftedBy(-market.asset.decimals).toNumber()
-    const price = parseFloat(market.price?.price || '0')
-    const valueUsd = balanceNumber * price
-    const depositedValueUsd = depositedNumber * price
+  // Get real-time staking APY from consolidated hook
+  const stakingApy = getTokenStakingApy(tokenData.symbol)
 
-    return {
-      token: {
-        symbol: tokenData.symbol,
-        icon: tokenData.icon,
-        description: tokenData.description,
-        protocol: tokenData.protocol,
-        isLST: tokenData.isLST,
-        brandColor: tokenData.brandColor,
-      },
-      metrics: {
-        protocolApy,
-        stakingApy,
-        totalApy,
-        balance: balanceNumber,
-        deposited: depositedNumber,
-        valueUsd,
-        depositedValueUsd,
-      },
-    }
-  }, [tokenSymbol, tokenData, market, router, getTokenStakingApy, walletBalances, depositedAmount])
+  // Use simulated APY if user has input, otherwise use current APY
+  const hasValidInput = computed.currentAmount && parseFloat(computed.currentAmount) > 0
+  const currentProtocolApy = hasValidInput ? parseFloat(simulatedApys.lend) : protocolApy
 
-  // Calculate theme-dependent values after all hooks are called
-  const protocolPoints = selectedToken ? getProtocolPoints(selectedToken.token.symbol) : null
-  const protocolPointsIcon = selectedToken
-    ? getProtocolPointsIcon(selectedToken.token.symbol, theme)
-    : null
-  const neutronIcon = getNeutronIcon(theme)
+  // Calculate total APY: dynamic protocol APY + staking APY
+  const totalApy = parseFloat((currentProtocolApy + stakingApy).toFixed(2))
 
-  if (!selectedToken || walletBalancesLoading) {
+  const protocolPoints = getProtocolPoints(lstMarketData.token.symbol)
+  const protocolPointsIcon = getProtocolPointsIcon(lstMarketData.token.symbol, theme)
+
+  if (walletBalancesLoading) {
     return (
       <div className='w-full lg:container mx-auto px-4 py-8'>
         <div className='text-center py-16'>
@@ -144,75 +131,86 @@ export default function DepositClient() {
             <div className='w-16 h-16 mx-auto bg-muted/20 rounded-full flex items-center justify-center'>
               <div className='w-8 h-8 bg-muted/40 rounded-full animate-pulse' />
             </div>
-            <h3 className='text-lg font-bold text-foreground'>
-              {!selectedToken ? 'Loading Token Data' : 'Loading Wallet Balances'}
-            </h3>
-            <p className='text-muted-foreground'>
-              {!selectedToken ? 'Fetching token information...' : 'Fetching wallet balances...'}
-            </p>
+            <h3 className='text-lg font-bold text-foreground'>Loading</h3>
+            <p className='text-muted-foreground'>Fetching wallet balances...</p>
           </div>
         </div>
       </div>
     )
   }
 
-  const { token, metrics } = selectedToken
+  const { token, metrics } = lstMarketData
+
+  const availableToken = {
+    denom: token.denom,
+    amount: walletBalanceAmount,
+  }
+  const depositedToken = {
+    denom: token.denom,
+    amount: depositedAmount,
+  }
 
   const handleDeposit = async () => {
-    if (!depositAmount || parseFloat(depositAmount) <= 0) return
-
-    const market = markets?.find((m) => m.asset.symbol === token.symbol)
-    if (!market) {
-      console.error('Market not found for token:', token.symbol)
-      return
-    }
+    if (!hasValidAmount()) return
 
     await deposit({
-      amount: depositAmount,
-      denom: market.asset.denom,
+      amount: state.depositAmount,
+      denom: tokenData!.denom,
       symbol: token.symbol,
-      decimals: market.asset.decimals,
+      decimals: tokenData!.decimals,
     })
-    setDepositAmount('')
-    setSliderPercentage(0)
-    setLastAction('deposit')
+    actions.resetAmounts()
+    actions.setLastAction('deposit')
   }
 
   const handleWithdraw = async () => {
-    if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return
+    if (!hasValidAmount()) return
 
-    const market = markets?.find((m) => m.asset.symbol === token.symbol)
-    if (!market) {
-      console.error('Market not found for token:', token.symbol)
+    if (!withdrawValidation.isValid) {
+      console.error('Withdrawal validation failed:', withdrawValidation.errorMessage)
       return
     }
 
     await withdraw({
-      amount: withdrawAmount,
-      denom: market.asset.denom,
+      amount: state.withdrawAmount,
+      denom: tokenData!.denom,
       symbol: token.symbol,
-      decimals: market.asset.decimals,
+      decimals: tokenData!.decimals,
     })
-    setWithdrawAmount('')
-    setSliderPercentage(0)
-    setLastAction('withdraw')
+    actions.resetAmounts()
+    actions.setLastAction('withdraw')
   }
 
-  const currentAmount = activeTab === 'deposit' ? depositAmount : withdrawAmount
-  const maxAmount = activeTab === 'deposit' ? metrics.balance : metrics.deposited
+  const maxAmount = computed.isDepositing
+    ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toNumber()
+    : new BigNumber(depositedAmount).shiftedBy(-tokenData!.decimals).toNumber()
 
-  const handleSliderChange = (value: number[]) => {
-    const percentage = value[0]
-    setSliderPercentage(percentage)
-    const amount = new BigNumber(maxAmount).multipliedBy(percentage).dividedBy(100).toString()
-    if (activeTab === 'deposit') {
-      setDepositAmount(amount)
-    } else {
-      setWithdrawAmount(amount)
+  const hasValidAmount = () => {
+    const amount = computed.currentAmount
+    if (amount === '') return false
+
+    try {
+      const parsedAmount = new BigNumber(amount)
+      if (parsedAmount.isLessThanOrEqualTo(0) || !parsedAmount.isFinite()) return false
+
+      const maxAmountBN = new BigNumber(maxAmount)
+      const isWithinBalance = parsedAmount.isLessThanOrEqualTo(maxAmountBN)
+
+      // For withdrawals, also check liquidity validation
+      if (computed.isWithdrawing) {
+        return isWithinBalance && withdrawValidation.isValid
+      }
+
+      return isWithinBalance
+    } catch {
+      return false
     }
   }
 
-  const estimatedApyEarnings = parseFloat(currentAmount || '0') * (metrics.totalApy / 100)
+  const handleSliderChange = (value: number[]) => {
+    const percentage = value[0]
+    actions.updateAmountFromSlider(percentage, maxAmount)
+  }
 
   return (
     <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
@@ -224,70 +222,26 @@ export default function DepositClient() {
         Back
       </button>
 
-      <div className='relative mb-4 sm:mb-6'>
-        <div className='absolute inset-0 z-10 w-full overflow-hidden'>
-          <FlickeringGrid
-            className='w-full h-full'
-            color={token.brandColor}
-            squareSize={8}
-            gridGap={2}
-            flickerChance={0.2}
-            maxOpacity={0.3}
-            gradientDirection='top-to-bottom'
-            height={140}
-          />
-        </div>
-
-        <div className='relative z-20'>
-          <div className='flex justify-between p-4'>
-            <div className='flex items-center justify-start gap-3'>
-              <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
-                <Image
-                  src={token.icon}
-                  alt={`${token.symbol} token icon`}
-                  fill
-                  className='object-contain'
-                />
-              </div>
-              <div>
-                <h2 className='text-lg sm:text-xl font-bold text-foreground'>
-                  {token.symbol} Deposit
-                </h2>
-                <p className='text-xs sm:text-sm text-muted-foreground'>{token.protocol}</p>
-              </div>
-            </div>
-
-            <div className='text-right'>
-              <div className='text-4xl font-bold text-primary'>
-                <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
-              </div>
-            </div>
-          </div>
-
-          <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 sm:mt-3 w-full sm:w-[550px] ml-auto'>
-            <Tabs
-              value={activeTab}
-              onValueChange={(value) => setActiveTab(value as TabType)}
-              className='w-full'
-            >
-              <TabsList>
-                <TabsTrigger value='deposit'>
-                  <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
-                    <ArrowUpRight className='w-3 h-3' />
-                    Deposit
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger value='withdraw'>
-                  <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
-                    <ArrowRight className='w-3 h-3' />
-                    Withdraw
-                  </div>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
-      </div>
+      <DepositHeader
+        token={token}
+        totalApy={totalApy}
+        activeTab={state.activeTab}
+        onTabChange={(value) => {
+          actions.setActiveTab(value)
+          // Pre-populate withdraw amount with deposited amount when switching to withdraw
+          if (value === 'withdraw' && depositedAmount) {
+            const depositedAmountFormatted = new BigNumber(depositedAmount)
+              .shiftedBy(-tokenData!.decimals)
+              .toString()
+            actions.setWithdrawAmount(depositedAmountFormatted)
+            // Update slider to match the deposited amount
+            const maxWithdrawAmount = new BigNumber(depositedAmount)
+              .shiftedBy(-tokenData!.decimals)
+              .toNumber()
+            actions.updateSliderFromAmount(depositedAmountFormatted, maxWithdrawAmount)
+          }
+        }}
+      />
 
       <div className='flex flex-col lg:flex-row gap-4 lg:gap-8'>
         <div className='flex-1 space-y-4 order-2 lg:order-1'>
@@ -297,20 +251,14 @@ export default function DepositClient() {
               <BalanceRow
                 icon={Coins}
                 label='Deposited'
-                value={formatTokenAmount(metrics.deposited, token.symbol)}
-                usdValue={
-                  metrics.depositedValueUsd > 0
-                    ? formatCurrency(metrics.depositedValueUsd)
-                    : undefined
-                }
+                coin={depositedToken}
                 brandColor={token.brandColor}
-                actionType={lastAction}
+                actionType={state.lastAction}
               />
               <BalanceRow
                 icon={Wallet}
                 label='Available in Wallet'
-                value={formatTokenAmount(metrics.balance, token.symbol)}
-                usdValue={formatCurrency(metrics.valueUsd)}
+                coin={availableToken}
                 brandColor={token.brandColor}
                 actionType={null}
               />
@@ -326,9 +274,9 @@ export default function DepositClient() {
                   Get native yield in the form of {token.symbol}.
                 </div>
                 <MetricRow
-                  icon={Zap}
-                  label={`${token.protocol} Yield`}
-                  value={`~${metrics.protocolApy}`}
+                  customIcon={token.icon}
+                  label={'Amber Finance Yield'}
+                  value={`~${currentProtocolApy}`}
                   suffix='%'
                   brandColor={token.brandColor}
                 />
@@ -360,7 +308,7 @@ export default function DepositClient() {
                   />
                   {/* Neutron Points */}
                   <MetricRow
-                    customIcon={neutronIcon}
+                    customIcon='/images/neutron/neutron.svg'
                     label='Neutron Points'
                     value=''
                     suffix=''
@@ -370,14 +318,57 @@ export default function DepositClient() {
               </div>
             </div>
           </InfoCard>
+        </div>
 
-          {/* Market Status Section */}
+        {/* Right Column - Input Form */}
+        <div className='flex-1 order-1 lg:order-2 flex flex-col'>
+          <DepositForm
+            token={token}
+            currentAmount={computed.currentAmount.toString()}
+            balance={
+              computed.isDepositing
+                ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toString()
+                : withdrawValidation.maxWithdrawable
+            }
+            sliderPercentage={state.sliderPercentage}
+            isDepositing={computed.isDepositing}
+            isWalletConnected={isWalletConnected}
+            isPending={isPending}
+            hasAmount={hasValidAmount()}
+            validationError={computed.isWithdrawing ? withdrawValidation.errorMessage : undefined}
+            onAmountChange={(value) => {
+              if (computed.isDepositing) {
+                actions.setDepositAmount(value)
+              } else {
+                actions.setWithdrawAmount(value)
+              }
+              actions.updateSliderFromAmount(value, maxAmount)
+            }}
+            onSliderChange={handleSliderChange}
+            onConnect={connect}
+            onDeposit={handleDeposit}
+            onWithdraw={handleWithdraw}
+          />
+
+          {/* Asset Actions Section */}
+          {computed.isDepositing && (
+            <div className='flex-1 flex flex-col'>
+              <AssetActions tokenSymbol={token.symbol} tokenDenom={tokenData?.denom} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Market Status and Protocol Details Row */}
+      <div className='flex flex-col lg:flex-row gap-4 lg:gap-8 mt-4 '>
+        {/* Market Status Section */}
+        <div className='flex-1'>
           <InfoCard title='Market Status'>
             <div className='flex flex-row gap-4'>
               <ProgressCard
                 value={tvlGrowth30d}
                 label='TVL Growth (30d)'
-                subtitle={`${tvlGrowth30d.toFixed(2)}%`}
+                subtitle={`${formatNumber(2)(tvlGrowth30d)}%`}
                 brandColor={token.brandColor}
               />
               <ProgressCard
@@ -388,23 +379,25 @@ export default function DepositClient() {
               />
             </div>
           </InfoCard>
+        </div>
 
-          {/* Protocol Details Section */}
+        {/* Protocol Details Section */}
+        <div className='flex-1'>
           <InfoCard title='Protocol Details'>
-            <div className='flex flex-wrap gap-2'>
+            <div className='flex flex-wrap gap-2 py-[20px]'>
               <MetricRow
                 label='Total Value Locked'
-                value={formatCompactCurrency(currentTokenTvlAmount)}
+                value={formatCompactCurrency(parseFloat(currentTokenTvlAmount))}
                 variant='compact'
               />
               <MetricRow
                 label='Unique Wallets'
-                value={redBankDenomData?.unique_wallets}
+                value={assetMetrics?.unique_wallets}
                 variant='compact'
               />
               <MetricRow
                 label='Average Lending APY (30d)'
-                value={`${redBankDenomData?.average_lending_apy.toFixed(2)}%`}
+                value={`${assetMetrics?.average_lending_apy.toFixed(2)}%`}
                 variant='compact'
               />
               <MetricRow
@@ -416,148 +409,9 @@ export default function DepositClient() {
             </div>
           </InfoCard>
         </div>
-
-        {/* Right Column - Input Form */}
-        <div className='flex-1 order-1 lg:order-2'>
-          <InfoCard title={activeTab === 'deposit' ? 'Deposit Amount' : 'Withdraw Amount'}>
-            <div className='space-y-2'>
-              <AmountInput
-                value={currentAmount}
-                onChange={(e) => {
-                  const value = e.target.value
-                  if (activeTab === 'deposit') {
-                    setDepositAmount(value)
-                  } else {
-                    setWithdrawAmount(value)
-                  }
-                  const numValue = parseFloat(value || '0')
-                  const newPercentage = maxAmount > 0 ? (numValue / maxAmount) * 100 : 0
-                  setSliderPercentage(Math.min(newPercentage, 100))
-                }}
-                token={token}
-                usdValue={formatCurrency(
-                  (parseFloat(currentAmount || '0') || 0) *
-                    (metrics.valueUsd / metrics.balance || 0),
-                )}
-                balance={
-                  activeTab === 'deposit'
-                    ? metrics.balance.toString()
-                    : metrics.deposited.toString()
-                }
-              />
-
-              <div className='flex flex-col gap-4 mb-8'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-xs text-muted-foreground'>Amount</span>
-                  <span className='text-xs font-medium text-foreground'>
-                    {sliderPercentage.toFixed(1)}%
-                  </span>
-                </div>
-                <Slider
-                  value={[sliderPercentage]}
-                  onValueChange={handleSliderChange}
-                  max={100}
-                  min={0}
-                  step={0.1}
-                  className='w-full'
-                  brandColor={token.brandColor}
-                />
-              </div>
-
-              {/* {activeTab === 'deposit' && parseFloat(currentAmount || '0') > 0 && (
-                <div className='p-3 rounded-lg bg-muted/20 border border-border/40 mb-4'>
-                  <div className='flex items-center gap-1.5 mb-2'>
-                    <TrendingUp className='w-4 h-4' style={{ color: token.brandColor }} />
-                    <span className='text-sm font-bold text-foreground'>
-                      Estimated Annual Earnings
-                    </span>
-                  </div>
-                  <div className='text-lg font-bold text-foreground'>
-                    {formatTokenAmount(estimatedApyEarnings, token.symbol)}
-                  </div>
-                  <div className='text-xs text-muted-foreground'>
-                    ~
-                    {formatCurrency(
-                      estimatedApyEarnings * (metrics.valueUsd / metrics.balance || 0),
-                    )}{' '}
-                    USD
-                  </div>
-                </div>
-              )} */}
-
-              <Button
-                variant='outline-gradient'
-                gradientColor={token.brandColor}
-                onClick={
-                  !isWalletConnected
-                    ? connect
-                    : activeTab === 'deposit'
-                      ? handleDeposit
-                      : handleWithdraw
-                }
-                disabled={
-                  !isWalletConnected ||
-                  isPending ||
-                  !currentAmount ||
-                  parseFloat(currentAmount) <= 0
-                }
-                className='w-full'
-              >
-                {!isWalletConnected ? (
-                  'Connect Wallet'
-                ) : isPending ? (
-                  <>
-                    <div className='w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2' />
-                    {activeTab === 'deposit' ? 'Depositing...' : 'Withdrawing...'}
-                  </>
-                ) : (
-                  <>
-                    {activeTab === 'deposit' ? 'Deposit' : 'Withdraw'} {token.symbol}
-                    <ArrowRight className='w-4 h-4 ml-1' />
-                  </>
-                )}
-              </Button>
-
-              {/* Asset Actions Section */}
-              {activeTab === 'deposit' && (
-                <div className='mt-6 pt-6 border-t border-border/40'>
-                  <div className='text-center mb-4'>
-                    <h4 className='text-sm font-semibold text-foreground mb-1'>
-                      Need more {token.symbol}?
-                    </h4>
-                    <p className='text-xs text-muted-foreground'>
-                      Bridge from other chains or swap for {token.symbol}
-                    </p>
-                  </div>
-
-                  <div className='flex gap-3'>
-                    <Button
-                      variant='outline'
-                      onClick={() => window.open('https://go.skip.build/', '_blank')}
-                      className='flex-1 h-10 text-xs font-medium hover:bg-muted/30 transition-colors'
-                    >
-                      <div className='flex items-center gap-2'>
-                        <div className='w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500' />
-                        Bridge Assets
-                      </div>
-                    </Button>
-
-                    <Button
-                      variant='outline'
-                      onClick={() => router.push(`/swap?to=${tokenData?.denom}`)}
-                      className='flex-1 h-10 text-xs font-medium hover:bg-muted/30 transition-colors'
-                    >
-                      <div className='flex items-center gap-2'>
-                        <div className='w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-blue-500' />
-                        Swap Assets
-                      </div>
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </InfoCard>
-        </div>
+      </div>
+      <div className='mt-4'>
+        {tokenData?.denom && <DepositChart denom={tokenData.denom} brandColor={token.brandColor} />}
       </div>
     </div>
   )

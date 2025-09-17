@@ -1,22 +1,14 @@
 import { useState } from 'react'
 
-import { type DepositParams, type WithdrawParams, useBroadcast } from '@/utils/broadcast'
+import { useBroadcast } from '@/utils/broadcast'
 
 export type TransactionType = 'deposit' | 'withdraw'
-
-// Legacy interface for backward compatibility
-interface TransactionParams {
-  amount: string
-  denom: string
-  symbol: string
-  decimals: number
-}
 
 export function useTransactions() {
   const [isPending, setIsPending] = useState(false)
   const { executeTransaction } = useBroadcast()
 
-  const deposit = async (params: TransactionParams) => {
+  const deposit = async (params: LegacyTransactionParams) => {
     setIsPending(true)
     try {
       const depositParams: DepositParams = {
@@ -34,7 +26,7 @@ export function useTransactions() {
     }
   }
 
-  const withdraw = async (params: TransactionParams) => {
+  const withdraw = async (params: LegacyTransactionParams) => {
     setIsPending(true)
     try {
       const withdrawParams: WithdrawParams = {

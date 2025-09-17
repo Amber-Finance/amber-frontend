@@ -2,57 +2,35 @@
 
 import { motion } from 'framer-motion'
 
+import { Background } from '@/components/Background'
+import { SectionHeader } from '@/components/section-header'
 import { FirstBentoSection } from '@/components/sections/bento/FirstBentoSection'
+import { FourthBentoSection } from '@/components/sections/bento/FourthBentoSection'
 import { SecondBentoAnimation } from '@/components/sections/bento/SecondBentoSection'
-// import { ThirdBentoAnimation } from '@/components/sections/bento/ThirdBentoSection'
 import { BentoCard } from '@/components/ui/bento-grid'
+import { DotPattern } from '@/components/ui/dot-pattern'
 import { cn } from '@/lib/utils'
-
-import { Background } from '../Background'
-import { SectionHeader } from '../section-header'
-import { DotPattern } from '../ui/dot-pattern'
-import { FourthBentoSection } from './bento/FourthBentoSection'
-
-// import { FourthBentoSection } from './bento/FourthBentoSection'
 
 const features = [
   {
     name: 'Swap',
-    description: 'Seamlessly swap between BRTs.',
+    description: 'Seamlessly swap between Bitcoin LSTs.',
     href: 'https://app.amberfi.io/swap',
     cta: 'Swap',
     className: 'col-span-2 lg:col-span-1',
     background: <FourthBentoSection />,
   },
-  // {
-  //   // Icon: BellIcon,
-  //   name: 'Performance Analytics',
-  //   description: 'Track your yield and returns over time with interactive charts and tooltips.',
-  //   href: 'https://app.amberfi.io/deposit',
-  //   cta: 'Learn More',
-  //   className: 'col-span-3 lg:col-span-2',
-  //   background: (
-  //     <ThirdBentoAnimation
-  //       data={[20, 30, 25, 45, 40, 55, 75]}
-  //       color='rgba(255, 115, 0, 1)'
-  //       toolTipValues={[2.9, 3.5, 4.21, 6.85, 9.3, 8.78, 12.6, 15.7]}
-  //     />
-  //   ),
-  // },
-
   {
-    // Icon: CalendarIcon,
     name: 'Deposit',
-    description: 'Seamlessly deposit BRTs on Amber to earn yield and farm points.',
+    description: 'Seamlessly deposit Bitcoin LSTs on Amber to earn yield and farm points.',
     className: 'col-span-2 lg:col-span-1',
     href: 'https://app.amberfi.io/deposit',
     cta: 'Deposit',
     background: <SecondBentoAnimation />,
   },
   {
-    // Icon: Share2Icon,
     name: 'Strategies',
-    description: 'Deploy strategies to multiply your maxBTC exposure with up to 10x leverage.',
+    description: 'Deploy strategies to multiply your maxBTC exposure with up to 12x leverage.',
     href: 'https://app.amberfi.io/strategies',
     cta: 'Strategies',
     className: 'col-span-1 lg:col-span-2',
@@ -111,8 +89,9 @@ export function Bento() {
                 Amplify Your Bitcoin Yield
               </h2>
               <p className='text-base text-muted-foreground text-center text-balance font-medium max-w-2xl'>
-                Deposit BRTs to earn yield, swap between tokens, deploy leverage strategies with up
-                to 10x leverage, and track your positions performance with real-time analytics.
+                Deposit Bitcoin LSTs to earn yield, swap between tokens, deploy leverage strategies
+                with up to 12x leverage, and track your positions performance with real-time
+                analytics.
               </p>
             </SectionHeader>
           </motion.div>

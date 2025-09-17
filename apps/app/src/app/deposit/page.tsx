@@ -1,10 +1,9 @@
 import { Metadata } from 'next'
 
+import { generateDepositMetadata } from '@/app/deposit/generateMetadata'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { ComingSoonOverlay } from '@/components/ui/ComingSoonOverlay'
-
-import { generateDepositMetadata } from './generateDepositMetadata'
 
 export async function generateMetadata({
   searchParams,

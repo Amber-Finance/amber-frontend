@@ -1,4 +1,8 @@
+import { fixupPluginRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
+import nextPlugin from '@next/eslint-plugin-next'
+import eslintPluginReact from 'eslint-plugin-react'
+import eslintPluginReactHooks from 'eslint-plugin-react-hooks'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -26,7 +30,6 @@ const eslintConfig = [
       'no-case-declarations': 'off',
       'no-constant-binary-expression': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       'linebreak-style': 'off',
       'no-undef': 'off',

@@ -4,11 +4,11 @@ import tokens from '@/config/tokens'
 
 // Token to share image mapping
 const TOKEN_SHARE_IMAGES = {
-  LBTC: 'https://app.amberfi.io/api/banner/LBTC',
-  solvBTC: 'https://app.amberfi.io/api/banner/solvBTC',
-  eBTC: 'https://app.amberfi.io/api/banner/eBTC',
-  WBTC: 'https://app.amberfi.io/api/banner/WBTC',
-  uniBTC: 'https://app.amberfi.io/api/banner/uniBTC',
+  lbtc: 'https://app.amberfi.io/api/banner/lbtc',
+  solvbtc: 'https://app.amberfi.io/api/banner/solvbtc',
+  ebtc: 'https://app.amberfi.io/api/banner/ebtc',
+  wbtc: 'https://app.amberfi.io/api/banner/wbtc',
+  unibtc: 'https://app.amberfi.io/api/banner/unibtc',
 } as const
 
 export async function generateDepositMetadata(tokenSymbol: string | null): Promise<Metadata> {
@@ -88,8 +88,8 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
     }
   }
 
-  const title = `Amber Finance | Deposit ${token.symbol}`
-  const description = `Get yield on your ${token.symbol}. Preserve value. Generate wealth.`
+  const title = `Amber Finance | Deposit ${tokenSymbol}`
+  const description = `Get yield on your ${tokenSymbol}. Preserve value. Generate wealth.`
 
   return {
     title,
@@ -105,7 +105,7 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
           url: shareImage,
           width: 1200,
           height: 630,
-          alt: `${token.symbol} deposit yield on Amber`,
+          alt: `${tokenSymbol} deposit yield on Amber`,
         },
       ],
     },
@@ -118,7 +118,7 @@ export async function generateDepositMetadata(tokenSymbol: string | null): Promi
           url: shareImage,
           width: 1200,
           height: 630,
-          alt: `${token.symbol} deposit yield on Amber`,
+          alt: `${tokenSymbol} deposit yield on Amber`,
         },
       ],
       site: '@amberfi_io',

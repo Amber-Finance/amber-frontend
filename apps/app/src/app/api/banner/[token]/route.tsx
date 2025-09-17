@@ -1,26 +1,19 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest, NextResponse } from 'next/server'
 
-import tokens from '@/config/tokens'
-
 export const runtime = 'edge'
 
 // Token to base image mapping
 const TOKEN_BASE_IMAGES = {
-  LBTC: '/x-banner/deposit/LBTC.png',
-  solvBTC: '/x-banner/deposit/solvBTC.png',
-  eBTC: '/x-banner/deposit/eBTC.png',
-  WBTC: '/x-banner/deposit/WBTC.png',
-  uniBTC: '/x-banner/deposit/uniBTC.png',
+  lbtc: '/x-banner/deposit/LBTC.jpg',
+  solvbtc: '/x-banner/deposit/solvBTC.jpg',
+  ebtc: '/x-banner/deposit/eBTC.jpg',
+  wbtc: '/x-banner/deposit/WBTC.jpg',
+  unibtc: '/x-banner/deposit/uniBTC.jpg',
 } as const
 
 // API endpoint for APY data
 const APY_API_URL = 'https://api.amberfi.io/api/btc'
-
-function getTokenBrandColor(tokenSymbol: string): string {
-  const token = tokens.find((t) => t.symbol === tokenSymbol)
-  return token?.brandColor || '#FF6B35'
-}
 
 export async function GET(
   request: NextRequest,
@@ -29,19 +22,13 @@ export async function GET(
   try {
     const { token: tokenSymbol } = await params
 
-    // Case-insensitive
-    const validToken = Object.keys(TOKEN_BASE_IMAGES).find(
-      (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),
-    ) as keyof typeof TOKEN_BASE_IMAGES
-
     // Get base image path
-    const baseImagePath = validToken ? TOKEN_BASE_IMAGES[validToken] : undefined
+    const baseImagePath =
+      TOKEN_BASE_IMAGES[tokenSymbol.toLowerCase() as keyof typeof TOKEN_BASE_IMAGES]
 
     if (!baseImagePath) {
       return new NextResponse('Banner image not found', { status: 404 })
     }
-
-    const brandColor = getTokenBrandColor(tokenSymbol)
 
     let apyData = null
 
@@ -52,7 +39,7 @@ export async function GET(
 
       if (response.ok) {
         const apiData = await response.json()
-        const tokenKey = validToken?.toLowerCase() as keyof typeof apiData.apys
+        const tokenKey = tokenSymbol.toLowerCase() as keyof typeof apiData.apys
 
         if (apiData.apys && apiData.apys[tokenKey]) {
           const apyValue = parseFloat(apiData.apys[tokenKey])
@@ -122,10 +109,10 @@ export async function GET(
                     {
                       fontSize: '120px',
                       fontWeight: '900',
-                      color: 'white',
+                      color: '#FF6B35',
                       lineHeight: '1',
                       letterSpacing: '0.1em',
-                      WebkitTextStroke: '8px white',
+                      WebkitTextStroke: '8px #FF6B35',
                     } as React.CSSProperties
                   }
                 >
@@ -136,9 +123,9 @@ export async function GET(
                     {
                       fontSize: '80px',
                       fontWeight: '900',
-                      color: brandColor,
+                      color: '#FF6B35',
                       lineHeight: '1',
-                      WebkitTextStroke: `5px ${brandColor}`,
+                      WebkitTextStroke: '5px #FF6B35',
                     } as React.CSSProperties
                   }
                 >

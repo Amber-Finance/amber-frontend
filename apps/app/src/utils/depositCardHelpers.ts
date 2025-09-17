@@ -37,12 +37,12 @@ export const getProtocolPoints = (symbol: string) => {
     ebtc: {
       multiplier: '3x',
       protocolPoint: 'Etherfi Points',
-      protocolIconLight: '/images/eBTC.svg',
-      protocolIconDark: '/images/eBTC.svg', // Same icon for both themes
+      protocolIconLight: '/images/etherfiDark.svg',
+      protocolIconDark: '/images/etherfi.svg',
     },
     unibtc: {
       multiplier: '3x',
-      protocolPoint: 'Bedrock Points',
+      protocolPoint: 'Bedrock Diamonds',
       protocolIconLight: '/images/bedrock.svg',
       protocolIconDark: '/images/bedrock.svg', // Same icon for both themes
     },
@@ -50,11 +50,6 @@ export const getProtocolPoints = (symbol: string) => {
   }
 
   return pointsMap[symbolLower] || { multiplier: '1X' }
-}
-
-// Get Neutron icon based on theme
-export const getNeutronIcon = (theme: string) => {
-  return theme === 'dark' ? '/images/neutron/neutron-dark.svg' : '/images/neutron/neutron-light.svg'
 }
 
 // Get protocol points icon based on theme

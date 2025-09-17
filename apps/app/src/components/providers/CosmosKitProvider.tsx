@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import { GasPrice } from '@cosmjs/stargate'
 import { wallets as cosmostationWallets } from '@cosmos-kit/cosmostation'
 import { wallets as keplrWallets } from '@cosmos-kit/keplr'
@@ -14,10 +16,25 @@ import { assetLists } from 'chain-registry'
 import chainConfig from '@/config/chain'
 import { getCosmosKitTheme } from '@/theme/cosmosKitTheme'
 
+// Extend the Window interface to include wallet properties
+declare global {
+  interface Window {
+    keplr?: any
+    leap?: any
+    cosmostation?: any
+    xfi?: any
+    okxwallet?: any
+    vectis?: any
+  }
+}
+
 const chainNames = [chainConfig.name]
 const chainAssets = assetLists.filter((asset) => asset.chainName === chainConfig.name)
 
-// Combine all wallets
+// Regex for wallet name extraction
+const WALLET_NAME_REGEX = /(Leap|Cosmostation|XDEFI|OKX|Vectis|Keplr)/i
+
+// Combine all wallets (like before)
 const wallets = [
   ...keplrWallets,
   ...leapWallets,
@@ -28,14 +45,52 @@ const wallets = [
 ]
 
 export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isClient, setIsClient] = useState(false)
+
   // Get the theme configuration
   const modalTheme = getCosmosKitTheme()
+
+  // Ensure we're on the client side before checking for wallets
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Use all wallets like before
+  const availableWallets = wallets
+
+  // Enhanced error handling for wallet initialization
+  useEffect(() => {
+    if (!isClient) return
+
+    // Override console.error to handle wallet initialization errors gracefully
+    const originalError = console.error
+
+    console.error = (...args) => {
+      // Convert arguments to string for analysis
+      const message = args
+        .map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg)))
+        .join(' ')
+
+      // Only handle specific wallet client initialization errors
+      if (message.includes('initClientError: Client Not Exist!')) {
+        return
+      }
+
+      // Log all other errors normally (including WalletConnect core logs)
+      originalError(...args)
+    }
+
+    // Cleanup function to restore original console methods
+    return () => {
+      console.error = originalError
+    }
+  }, [isClient])
 
   return (
     <ChainProvider
       chains={chainNames}
       assetLists={chainAssets as any}
-      wallets={wallets as any}
+      wallets={availableWallets as any}
       throwErrors={false}
       walletConnectOptions={{
         signClient: {
@@ -52,12 +107,12 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       signerOptions={{
         signingCosmwasm: () => {
           return {
-            gasPrice: GasPrice.fromString('0.025untrn'),
+            gasPrice: GasPrice.fromString('0.025untrn') as unknown as any,
           }
         },
         signingStargate: () => {
           return {
-            gasPrice: GasPrice.fromString('0.025untrn'),
+            gasPrice: GasPrice.fromString('0.025untrn') as unknown as any,
           }
         },
       }}

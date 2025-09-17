@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { formatLargeNumber } from '@/utils/format'
 
 interface AnimatedCircularProgressBarProps {
   max: number
@@ -94,7 +95,7 @@ export function AnimatedCircularProgressBar({
         data-current-value={currentPercent}
         className='duration-[var(--transition-length)] delay-[var(--delay)] absolute inset-0 m-auto size-fit ease-linear animate-in fade-in'
       >
-        {value.toFixed(2)}%
+        {formatLargeNumber(1)(value)}%
       </span>
     </div>
   )

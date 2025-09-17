@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button'
 import chainConfig from '@/config/chain'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValue } from '@/utils/format'
+import { calculateUsdValueLegacy } from '@/utils/format'
 
 interface WalletModalProps {
   isOpen: boolean
@@ -72,9 +72,9 @@ const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
 
     for (const balance of walletBalances) {
       const market = markets.find((m) => m.asset.denom === balance.denom)
-      if (!market || !market.price?.price) continue
+      if (!market?.price?.price) continue
 
-      const usdValue = calculateUsdValue(
+      const usdValue = calculateUsdValueLegacy(
         balance.amount,
         market.price.price,
         market.asset.decimals || 6,
@@ -110,41 +110,55 @@ const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
             Your Balances
           </h4>
 
-          {walletBalancesLoading ? (
-            <p className='text-gray-500 dark:text-gray-400 text-center py-4'>Loading balances...</p>
-          ) : sortedBalances.length > 0 ? (
-            <div className='space-y-2'>
-              {sortedBalances.map((balance) => (
-                <div
-                  key={balance.denom}
-                  className='flex justify-between items-center border-b border-gray-200 dark:border-zinc-800 py-1.5'
-                >
-                  <div className='flex items-center'>
-                    <Image
-                      src={balance.asset.icon}
-                      alt={balance.asset.symbol}
-                      width={24}
-                      height={24}
-                      className='mr-2 rounded-full'
-                    />
-                    <span className='text-gray-900 dark:text-white'>{balance.asset.symbol}</span>
-                  </div>
-                  <TokenBalance
-                    coin={{
-                      denom: balance.denom,
-                      amount: balance.amount,
-                    }}
-                    align='right'
-                    size='sm'
-                  />
+          {(() => {
+            if (walletBalancesLoading) {
+              return (
+                <p className='text-gray-500 dark:text-gray-400 text-center py-4'>
+                  Loading balances...
+                </p>
+              )
+            }
+
+            if (sortedBalances.length > 0) {
+              return (
+                <div className='space-y-2'>
+                  {sortedBalances.map((balance) => (
+                    <div
+                      key={balance.denom}
+                      className='flex justify-between items-center border-b border-gray-200 dark:border-zinc-800 py-1.5'
+                    >
+                      <div className='flex items-center'>
+                        <Image
+                          src={balance.asset.icon}
+                          alt={balance.asset.symbol}
+                          width={24}
+                          height={24}
+                          className='mr-2 rounded-full'
+                        />
+                        <span className='text-gray-900 dark:text-white'>
+                          {balance.asset.symbol}
+                        </span>
+                      </div>
+                      <TokenBalance
+                        coin={{
+                          denom: balance.denom,
+                          amount: balance.amount,
+                        }}
+                        align='right'
+                        size='sm'
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className='text-gray-500 dark:text-gray-400 text-center py-4'>
-              No balances to display
-            </p>
-          )}
+              )
+            }
+
+            return (
+              <p className='text-gray-500 dark:text-gray-400 text-center py-4'>
+                No balances to display
+              </p>
+            )
+          })()}
         </div>
 
         {/* Disconnect Button */}

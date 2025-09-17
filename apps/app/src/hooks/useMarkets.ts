@@ -9,7 +9,10 @@ import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 
 // Create initial markets from params data and token data
-const createInitialMarkets = (paramsData: AssetParamsResponse, tokensData: Token[]): Market[] => {
+const createInitialMarkets = (
+  paramsData: AssetParamsResponse,
+  tokensData: TokenInfo[],
+): Market[] => {
   // First filter params to only include deposit-enabled assets
   // Convert to proper Market objects and filter out nulls
   const marketsWithNulls = paramsData.data
@@ -25,13 +28,22 @@ const createInitialMarkets = (paramsData: AssetParamsResponse, tokensData: Token
 
       if (matchedToken) {
         // Create asset object with matched data
-        const asset: Asset = {
+        const asset: TokenInfo = matchedToken ?? {
           denom: param.denom,
-          symbol: matchedToken.symbol || '',
-          name: matchedToken.description || '',
-          description: matchedToken.description || '',
-          decimals: matchedToken.decimals || 6,
-          icon: matchedToken.icon || '',
+          symbol: '',
+          description: '',
+          decimals: 6,
+          icon: '',
+          protocolIconLight: '',
+          protocolIconDark: '',
+          isLST: false,
+          protocol: '',
+          brandColor: '',
+          origin: {
+            chainId: '',
+            tokenAddress: '',
+          },
+          comingSoon: false,
         }
 
         // Create params object from MarketResponse
@@ -194,7 +206,7 @@ export const useMarkets = () => {
     revalidateOnReconnect: false,
     onSuccess: (data: MarketDataResponse) => {
       // Update markets with metrics if we have both markets and market data
-      if (markets && data && data.data) {
+      if (markets && data?.data) {
         updateMarketsWithMetrics(markets, data, updateMarketMetrics)
       }
     },
