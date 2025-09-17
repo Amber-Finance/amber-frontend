@@ -231,7 +231,7 @@ const ChartTooltipContent = React.forwardRef<
                               : item.dataKey === 'tvl'
                                 ? `$ ${item.value.toLocaleString()}`
                                 : item.dataKey === 'supplyApr'
-                                  ? `${item.value.toFixed(2)}%`
+                                  ? `${item.value.toLocaleString()}%`
                                   : item.value.toLocaleString()}
                         </span>
                       )}
