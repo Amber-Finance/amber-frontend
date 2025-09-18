@@ -17,17 +17,6 @@ interface StrategyChartProps {
   currentBorrowApy?: number // Current borrow APY to replace the last data point
 }
 
-const chartConfig = {
-  borrowApr: {
-    label: 'Debt Borrow APY',
-    color: '#f57136',
-  },
-  maxBtcSupplyApr: {
-    label: 'MaxBTC Supply APY',
-    color: '#6B7289',
-  },
-}
-
 export function StrategyChart({
   denom,
   brandColor,
@@ -37,6 +26,20 @@ export function StrategyChart({
   currentBorrowApy,
 }: StrategyChartProps) {
   const [timeRange, setTimeRange] = useState('7')
+
+  const chartConfig = useMemo(
+    () => ({
+      borrowApr: {
+        label: 'Debt Borrow APY',
+        color: brandColor || '#f57136',
+      },
+      maxBtcSupplyApr: {
+        label: 'MaxBTC Supply APY',
+        color: '#6B7289',
+      },
+    }),
+    [brandColor],
+  )
 
   const { data: assetsApr, isLoading: aprLoading } = useAssetsApr(denom, parseInt(timeRange))
   const assetAprData = assetsApr?.[0]?.borrow_apr || []
@@ -56,12 +59,11 @@ export function StrategyChart({
           date: new Date(point.date),
           formattedDate: moment(point.date).format('MMM DD'),
           borrowApr: 0,
-          maxBtcSupplyApr: 0, // Use 6.5% as historical approximation for maxBTC data
+          maxBtcSupplyApr: 0,
         })
       }
 
       dataMap.get(dateKey).borrowApr = parseFloat(convertAprToApy(parseFloat(point.value) / 100))
-      // Use 6.5% as historical approximation for maxBTC APY
       dataMap.get(dateKey).maxBtcSupplyApr = 0
     })
 
