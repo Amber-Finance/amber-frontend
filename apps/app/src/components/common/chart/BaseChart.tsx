@@ -76,7 +76,7 @@ export function BaseChart({
         </Select>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-        <div className='w-full h-full overflow-hidden'>
+        <div className='w-full h-[350px] overflow-hidden'>
           {isLoading ? (
             <div className='flex items-center justify-center w-full h-full text-muted-foreground'>
               Loading...
