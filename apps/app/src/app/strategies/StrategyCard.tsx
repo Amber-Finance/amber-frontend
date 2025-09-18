@@ -316,7 +316,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                             : 'text-red-600 dark:text-red-400'
                         }`}
                       >
-                        {activeStrategy.netApy > 0 ? '+' : '-'}
+                        {activeStrategy.netApy > 0 ? '+' : ''}
                         {activeStrategy.netApy.toFixed(2)}% APY
                       </span>
                     </div>

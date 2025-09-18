@@ -245,7 +245,7 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
             <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>Leverage</p>
             <p className={`font-semibold text-sm ${getLeverageColor(strategy.leverage)}`}>
               {strategy.leverage.toFixed(2)}x
-              {strategy.leverage > 9 && <span className='ml-1 text-xs'>⚠️</span>}
+              {strategy.leverage > 11 && <span className='ml-1 text-xs'>⚠️</span>}
             </p>
           </div>
           <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
