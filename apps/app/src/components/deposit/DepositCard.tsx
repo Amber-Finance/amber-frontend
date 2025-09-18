@@ -152,7 +152,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           <div className='text-center'>
-            <div className='text-5xl font-funnel font-bold' style={{ color: token.brandColor }}>
+            <div
+              className='text-4xl sm:text-5xl font-funnel font-bold'
+              style={{ color: token.brandColor }}
+            >
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
             <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>

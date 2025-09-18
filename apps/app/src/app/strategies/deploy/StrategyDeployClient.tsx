@@ -391,7 +391,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
         </div>
       </div>
 
-      <div className='flex flex-col lg:flex-row gap-4 lg:gap-8'>
+      <div className='flex flex-col lg:flex-row gap-4 lg:gap-6'>
         <div className='flex-1 space-y-4 order-2 lg:order-1'>
           <PositionOverviewCard
             strategy={strategy}

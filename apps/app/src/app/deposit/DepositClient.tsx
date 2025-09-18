@@ -270,7 +270,7 @@ export default function DepositClient() {
         }}
       />
 
-      <div className='flex flex-col lg:flex-row gap-4 lg:gap-8'>
+      <div className='flex flex-col lg:flex-row gap-4 lg:gap-6'>
         <div className='flex-1 space-y-4 order-2 lg:order-1'>
           {/* Balances Section */}
           <InfoCard title='Your Balances'>
@@ -398,7 +398,7 @@ export default function DepositClient() {
       </div>
 
       {/* Market Status and Protocol Details Row */}
-      <div className='flex flex-col lg:flex-row gap-4 lg:gap-8 mt-4 '>
+      <div className='flex flex-col lg:flex-row gap-4 lg:gap-6 mt-4 '>
         {/* Market Status Section */}
         <div className='flex-1'>
           <InfoCard title='Market Status'>
