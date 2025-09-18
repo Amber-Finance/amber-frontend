@@ -355,7 +355,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
                 </div>
               </div>
               <div>
-                <h2 className='text-lg sm:text-xl font-bold text-foreground'>
+                <h2 className='text-base sm:text-xl font-bold text-foreground'>
                   {isModifying ? 'Close' : 'Deploy'} {strategy.collateralAsset.symbol}/
                   {strategy.debtAsset.symbol} Strategy
                 </h2>
@@ -369,7 +369,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
 
             <div className='text-right'>
               <div
-                className='text-4xl font-bold'
+                className='text-4xl font-bold whitespace-nowrap'
                 style={{ color: strategy.collateralAsset.brandColor }}
               >
                 <CountingNumber
