@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { MAXBTC_DENOM } from '@/constants/query'
 
@@ -42,9 +42,11 @@ export function useTokenPreselection(
   const shouldInitialize =
     !hasInitialized && swapTokens.length > 0 && (address ? walletBalances?.length > 0 : true)
 
+  const markInitialized = useCallback(() => setHasInitialized(true), [])
+
   return {
     bestToken,
     shouldInitialize,
-    markInitialized: () => setHasInitialized(true),
+    markInitialized,
   }
 }
