@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 
@@ -12,35 +11,61 @@ import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
 
-// Create a CosmWasm client with fallback RPC endpoints
-const createCosmWasmClientWithFallback = async (): Promise<any> => {
-  const primaryRpc = chainConfig.endpoints.rpcUrl
-  const fallbackRpcs = chainConfig.endpoints.fallbackRpcs || []
-  const allRpcs = [primaryRpc, ...fallbackRpcs]
-
-  for (const rpc of allRpcs) {
-    try {
-      console.log(`Attempting to connect to RPC: ${rpc}`)
-      const client = await CosmWasmClient.connect(rpc)
-      console.log(`Successfully connected to RPC: ${rpc}`)
-      return client
-    } catch (error) {
-      console.warn(`Failed to connect to RPC ${rpc}:`, error)
-      if (rpc === allRpcs[allRpcs.length - 1]) {
-        // If this is the last RPC, throw the error
-        throw new Error(
-          `Failed to connect to any RPC endpoint. Last error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        )
-      }
-      // Continue to next RPC
+// REST-based fetcher for credit accounts
+const fetchCreditAccounts = async (address: string): Promise<any[]> => {
+  try {
+    const accountsQuery = {
+      accounts: {
+        owner: address,
+        limit: 10, // Get up to 10 accounts
+      },
     }
-  }
+    const query = btoa(JSON.stringify(accountsQuery))
+    const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.creditManager}/smart/${query}`
 
-  throw new Error('No RPC endpoints available')
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch credit accounts: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    return data.data || []
+  } catch (error) {
+    console.error('Failed to fetch credit accounts:', error)
+    throw new Error(
+      `Failed to fetch credit accounts: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    )
+  }
+}
+
+// REST-based fetcher for account positions
+const fetchAccountPositions = async (accountId: string): Promise<any> => {
+  try {
+    const positionsQuery = {
+      positions: {
+        account_id: accountId,
+      },
+    }
+    const query = btoa(JSON.stringify(positionsQuery))
+    const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.creditManager}/smart/${query}`
+
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch positions for account ${accountId}: ${response.status} ${response.statusText}`,
+      )
+    }
+
+    const data = await response.json()
+    return data.data || null
+  } catch (error) {
+    console.error(`Failed to fetch positions for account ${accountId}:`, error)
+    throw error
+  }
 }
 
 export function useActiveStrategies() {
-  const { address, getCosmWasmClient } = useChain(chainConfig.name)
+  const { address } = useChain(chainConfig.name)
   const { markets, updateMarketPrice } = useStore()
   const [activeStrategies, setActiveStrategies] = useState<ActiveStrategy[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -88,47 +113,15 @@ export function useActiveStrategies() {
   // Get maxBTC denom for looping strategies
   const maxBtcDenom = MAXBTC_DENOM
 
-  // Get all credit accounts for the user
-  const getUserCreditAccounts = async (client: any) => {
-    try {
-      const accountsQuery = {
-        accounts: {
-          owner: address,
-          limit: 100, // Get up to 100 accounts
-        },
-      }
-      const response = await client.queryContractSmart(
-        chainConfig.contracts.creditManager,
-        accountsQuery,
-      )
-      // Response structure: [...] (direct array)
-      return response || []
-    } catch (error) {
-      console.error('Failed to fetch credit accounts:', error)
-      throw new Error(
-        `Failed to fetch credit accounts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      )
-    }
+  // Get all credit accounts for the user (now using REST)
+  const getUserCreditAccounts = async () => {
+    if (!address) return []
+    return await fetchCreditAccounts(address)
   }
 
-  // Get positions for a specific account
-  const getAccountPositions = async (client: any, accountId: string) => {
-    try {
-      const positionsQuery = {
-        positions: {
-          account_id: accountId,
-        },
-      }
-      const response = await client.queryContractSmart(
-        chainConfig.contracts.creditManager,
-        positionsQuery,
-      )
-      // Response structure: { account_id, deposits, debts, ... } (direct object)
-      return response || null
-    } catch (error) {
-      console.error(`Failed to fetch positions for account ${accountId}:`, error)
-      throw error
-    }
+  // Get positions for a specific account (now using REST)
+  const getAccountPositions = async (accountId: string) => {
+    return await fetchAccountPositions(accountId)
   }
 
   const hasActivePositions = (positions: any) => {
@@ -204,10 +197,10 @@ export function useActiveStrategies() {
     }
   }
 
-  // Get all user accounts with their positions
-  const getUserAccountsWithPositions = async (client: any) => {
+  // Get all user accounts with their positions (now using REST)
+  const getUserAccountsWithPositions = async () => {
     // First, get all credit accounts for the user
-    const creditAccounts = await getUserCreditAccounts(client)
+    const creditAccounts = await getUserCreditAccounts()
 
     if (creditAccounts.length === 0) {
       return []
@@ -222,10 +215,7 @@ export function useActiveStrategies() {
             setTimeout(() => reject(new Error('Query timeout')), 10000),
           )
 
-          const positions = await Promise.race([
-            getAccountPositions(client, account.id),
-            timeoutPromise,
-          ])
+          const positions = await Promise.race([getAccountPositions(account.id), timeoutPromise])
 
           if (hasActivePositions(positions)) {
             return {
@@ -286,21 +276,8 @@ export function useActiveStrategies() {
     }
 
     try {
-      // Try our custom client with fallback RPC endpoints first
-      let client: any
-      try {
-        client = await createCosmWasmClientWithFallback()
-      } catch (fallbackError) {
-        console.warn('Fallback client failed, trying CosmosKit client:', fallbackError)
-        // Fallback to CosmosKit client if our custom client fails
-        const cosmosKitClient = await getCosmWasmClient()
-        if (!cosmosKitClient)
-          throw new Error('Failed to get CosmWasm client from both custom and CosmosKit')
-        client = cosmosKitClient
-      }
-
-      // Get all user accounts with their positions using the optimized approach
-      const accountsWithPositions = await getUserAccountsWithPositions(client)
+      // Get all user accounts with their positions using REST
+      const accountsWithPositions = await getUserAccountsWithPositions()
 
       if (accountsWithPositions.length === 0) {
         setActiveStrategies([])
@@ -317,7 +294,7 @@ export function useActiveStrategies() {
     } finally {
       setIsLoading(false)
     }
-  }, [address, getCosmWasmClient, maxBtcDenom, markets, maxBtcApy])
+  }, [address, maxBtcDenom, markets, maxBtcApy, updateMarketPrice, fetchMissingPrice])
 
   // Scan accounts when wallet connects or when markets/prices update
   useEffect(() => {

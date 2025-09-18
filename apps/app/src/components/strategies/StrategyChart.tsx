@@ -56,13 +56,13 @@ export function StrategyChart({
           date: new Date(point.date),
           formattedDate: moment(point.date).format('MMM DD'),
           borrowApr: 0,
-          maxBtcSupplyApr: 6.5, // Use 6.5% as historical approximation for maxBTC data
+          maxBtcSupplyApr: 0, // Use 6.5% as historical approximation for maxBTC data
         })
       }
 
       dataMap.get(dateKey).borrowApr = parseFloat(convertAprToApy(parseFloat(point.value) / 100))
       // Use 6.5% as historical approximation for maxBTC APY
-      dataMap.get(dateKey).maxBtcSupplyApr = 6.5
+      dataMap.get(dateKey).maxBtcSupplyApr = 0
     })
 
     const sortedData = Array.from(dataMap.values()).sort(

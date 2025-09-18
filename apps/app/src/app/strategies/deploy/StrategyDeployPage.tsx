@@ -77,7 +77,7 @@ export default function StrategyDeployPage() {
 
     // Use same approach as strategies page - mock values for WBTC.eureka
     // WBTC.eureka mock values - use realistic supply rate (higher than BTC LST borrow rates)
-    const collateralSupplyApy = 0.065 // 6.5% APY mock supply rate for WBTC.eureka
+    const collateralSupplyApy = 0 // 6.5% APY mock supply rate for WBTC.eureka
 
     // Total supply APY (no staking - just supply APY)
     const collateralTotalApy = collateralSupplyApy

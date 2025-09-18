@@ -95,7 +95,7 @@ async function getUserPositions(
       JSON.stringify({
         user_collaterals_v2: {
           user: address,
-          limit: 100,
+          limit: 10,
         },
       }),
     )
@@ -108,7 +108,7 @@ async function getUserPositions(
       JSON.stringify({
         user_debts: {
           user: address,
-          limit: 100,
+          limit: 10,
         },
       }),
     )
