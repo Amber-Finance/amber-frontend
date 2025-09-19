@@ -26,6 +26,7 @@ import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { usePrices } from '@/hooks/usePrices'
 import { useMarketData, useWalletData } from '@/hooks/useStrategyCalculations'
 import { useStrategyDeployment } from '@/hooks/useStrategyDeployment'
+import { useStrategyLeverageModification } from '@/hooks/useStrategyLeverageModification'
 import { usePositionCalculationsWithSimulatedApy } from '@/hooks/useStrategySimulatedApy'
 import { useStrategyWithdrawal } from '@/hooks/useStrategyWithdrawal'
 import useWalletBalances from '@/hooks/useWalletBalances'
@@ -33,7 +34,6 @@ import { useStore } from '@/store/useStore'
 import { useBroadcast } from '@/utils/broadcast'
 import { formatCurrency } from '@/utils/format'
 import {
-  CreateButtonContent,
   createDisplayValues,
   createRiskStyles,
   createStrategyRiskStyles,
@@ -47,9 +47,11 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   const router = useRouter()
   const searchParams = useSearchParams()
   const [collateralAmount, setCollateralAmount] = useState('')
-  const [multiplier, setMultiplier] = useState(1.5)
+  const [multiplier, setMultiplier] = useState(2)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
   const [cachedSwapRouteInfo, setCachedSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
+  const [targetLeverage, setTargetLeverage] = useState(2)
 
   // Hooks
   const { isWasmReady } = useHealthComputer()
@@ -110,6 +112,37 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   // Add withdrawal hook for position closing
   const { withdrawFullStrategy, isProcessing: isWithdrawing } = useStrategyWithdrawal()
 
+  // Add leverage modification hook for modify mode - use dummy data if no active strategy
+  const leverageModification = useStrategyLeverageModification({
+    strategy,
+    accountId: activeStrategy?.accountId || '',
+    activeStrategy: activeStrategy || {
+      accountId: '',
+      strategyId: `${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`,
+      collateralAsset: {
+        denom: strategy.collateralAsset.denom,
+        symbol: strategy.collateralAsset.symbol,
+        icon: strategy.collateralAsset.icon,
+        amount: '0',
+        amountFormatted: 0,
+        usdValue: 0,
+        decimals: strategy.collateralAsset.decimals || 8,
+      },
+      debtAsset: {
+        denom: strategy.debtAsset.denom,
+        symbol: strategy.debtAsset.symbol,
+        icon: strategy.debtAsset.icon,
+        amount: '0',
+        amountFormatted: 0,
+        usdValue: 0,
+        decimals: strategy.debtAsset.decimals || 6,
+      },
+      leverage: 1,
+      netApy: 0,
+      isPositive: true,
+    },
+  })
+
   // Display values
   const displayValues = createDisplayValues(
     isBalancesLoading,
@@ -154,27 +187,13 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     strategy.debtAsset.decimals,
   ])
 
-  // Button content
-  const buttonContent = isModifying
-    ? isProcessing
-      ? 'Closing Position...'
-      : 'Close Position'
-    : CreateButtonContent(
-        isProcessing,
-        isModifying,
-        walletData.isWalletConnected,
-        isBalancesLoading,
-        hasInsufficientBalance,
-        hasValidAmount,
-        hasInsufficientLiquidity,
-      )
-
   // Effects
   useEffect(() => {
     if (isModifying && activeStrategy) {
       // Pre-fill data from existing position
       setCollateralAmount(activeStrategy.collateralAsset.amountFormatted.toString())
       setMultiplier(activeStrategy.leverage)
+      setTargetLeverage(activeStrategy.leverage)
     }
   }, [isModifying, activeStrategy])
 
@@ -191,8 +210,37 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
 
   const handleMultiplierChange = (value: number[]) => {
     const newMultiplier = value[0]
-    if (newMultiplier >= 1 && newMultiplier <= marketData.dynamicMaxLeverage) {
+    if (newMultiplier >= 2.0 && newMultiplier <= marketData.dynamicMaxLeverage) {
       setMultiplier(newMultiplier)
+    }
+  }
+
+  const handleLeverageChange = (value: number[]) => {
+    const newLeverage = value[0]
+    const maxLeverage = 12
+    if (newLeverage >= 2.0 && newLeverage <= maxLeverage) {
+      setTargetLeverage(newLeverage)
+    }
+  }
+
+  const handleLeverageModification = async () => {
+    if (!activeStrategy || !leverageModification) return
+
+    setIsProcessing(true)
+    try {
+      const result = await leverageModification.modifyLeverage(targetLeverage)
+      if (result.success) {
+        toast.success(`Leverage adjusted to ${targetLeverage.toFixed(2)}x successfully!`)
+        // Refresh the page data or navigate back
+        router.push('/portfolio')
+      } else {
+        toast.error(result.error || 'Failed to modify leverage')
+      }
+    } catch (error) {
+      console.error('Leverage modification failed:', error)
+      toast.error(error instanceof Error ? error.message : 'Unknown error occurred')
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -200,37 +248,6 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     // Validation checks
     if (!walletData.isWalletConnected) return
     if (isBalancesLoading) return
-
-    // For position closing, use different logic
-    if (isModifying && activeStrategy) {
-      setIsProcessing(true)
-
-      try {
-        const withdrawParams = {
-          accountId: activeStrategy.accountId,
-          collateralDenom: activeStrategy.collateralAsset.denom,
-          collateralAmount: activeStrategy.collateralAsset.amountFormatted.toString(),
-          collateralDecimals: activeStrategy.collateralAsset.decimals || 8,
-          debtDenom: activeStrategy.debtAsset.denom,
-          debtAmount: activeStrategy.debtAsset.amountFormatted.toString(),
-          debtDecimals: activeStrategy.debtAsset.decimals || 6,
-        }
-
-        await withdrawFullStrategy(withdrawParams)
-
-        // Success handling is done by the withdrawal hook
-        // Navigate back to strategies page after successful closure
-        router.push('/strategies')
-      } catch (error) {
-        console.error('❌ Strategy close failed:', error)
-        toast.error(error instanceof Error ? error.message : 'Position closure failed')
-      } finally {
-        setIsProcessing(false)
-      }
-      return
-    }
-
-    // Original deployment logic for creating/modifying positions
     if (!collateralAmount || currentAmount <= 0) return
     if (hasInsufficientBalance) return
     if (hasInsufficientLiquidity) return
@@ -277,15 +294,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       if (result.success) {
         router.push('/portfolio')
       }
-
-      // All success/error handling is done by the broadcast system via toast notifications
-      // No need for custom console.logs or manual error handling
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unknown error')
       console.error(error)
-
-      // Error handling is managed by the broadcast system
-      // The error will be shown as a toast notification automatically
     } finally {
       setIsProcessing(false)
     }
@@ -362,13 +373,26 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
               </div>
               <div>
                 <h2 className='text-base sm:text-xl font-bold text-foreground'>
-                  {isModifying ? 'Close' : 'Deploy'} {strategy.collateralAsset.symbol}/
-                  {strategy.debtAsset.symbol} Strategy
+                  {(() => {
+                    if (!isModifying) return 'Deploy'
+                    const hasLeverageChanged =
+                      Math.abs(targetLeverage - (activeStrategy?.leverage || 0)) > 0.01
+                    return hasLeverageChanged ? 'Adjust Leverage' : 'Close'
+                  })()}{' '}
+                  {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol} Strategy
                 </h2>
                 <p className='text-xs sm:text-sm text-muted-foreground'>
-                  {isModifying
-                    ? `Close your existing position and withdraw all collateral`
-                    : `Supply ${strategy.collateralAsset.symbol}, borrow ${strategy.debtAsset.symbol}, leverage your position`}
+                  {(() => {
+                    if (!isModifying) {
+                      return `Supply ${strategy.collateralAsset.symbol}, borrow ${strategy.debtAsset.symbol}, leverage your position`
+                    }
+                    const hasLeverageChanged =
+                      Math.abs(targetLeverage - (activeStrategy?.leverage || 0)) > 0.01
+                    if (hasLeverageChanged) {
+                      return `Modify your position leverage from ${activeStrategy?.leverage.toFixed(2)}x to ${targetLeverage.toFixed(2)}x`
+                    }
+                    return `Close your existing position and withdraw all collateral`
+                  })()}
                 </p>
               </div>
             </div>
@@ -444,61 +468,99 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             />
           )}
 
-          {/* Show current position summary for modify mode */}
+          {/* Show leverage adjustment for modify mode */}
           {isModifying && activeStrategy && (
-            <div className='bg-card backdrop-blur-sm border rounded-lg p-3 sm:p-4'>
-              <h3 className='text-sm font-bold text-foreground mb-3'>Current Position</h3>
-              <div className='space-y-3'>
-                <div className='grid grid-cols-2 gap-4 text-xs'>
-                  <div>
-                    <div className='text-muted-foreground'>Collateral</div>
-                    <div className='font-semibold'>
-                      {activeStrategy.collateralAsset.amountFormatted.toFixed(
-                        Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
-                      )}{' '}
-                      {activeStrategy.collateralAsset.symbol}
-                    </div>
-                    <div className='text-muted-foreground'>
-                      ${activeStrategy.collateralAsset.usdValue.toFixed(2)}
-                    </div>
-                  </div>
+            <MarginCollateralCard
+              strategy={strategy}
+              collateralAmount='0' // No additional deposit for existing positions
+              setCollateralAmount={() => {}} // Disabled for existing positions
+              multiplier={targetLeverage}
+              handleMultiplierChange={handleLeverageChange}
+              dynamicMaxLeverage={12}
+              displayValues={{
+                walletBalance: '', // Not used when hidden
+                usdValue: (amount: number) =>
+                  `$${(amount * parseFloat(marketData.currentPrice.toString())).toFixed(2)}`,
+              }}
+              userBalance={0} // No additional deposit allowed
+              currentAmount={0} // No additional deposit
+              positionCalcs={{
+                borrowAmount:
+                  Math.abs(targetLeverage - activeStrategy.leverage) *
+                  activeStrategy.collateralAsset.amountFormatted,
+                totalPosition: activeStrategy.collateralAsset.amountFormatted * targetLeverage,
+              }}
+              onSwapRouteLoaded={handleSwapRouteLoaded}
+              hideWalletBalance={true}
+              hideAmountInput={true}
+            />
+          )}
 
-                  <div>
-                    <div className='text-muted-foreground'>Debt</div>
-                    <div className='font-semibold'>
-                      {activeStrategy.debtAsset.amountFormatted.toFixed(
-                        Math.min(activeStrategy.debtAsset.decimals || 6, 6),
-                      )}{' '}
-                      {activeStrategy.debtAsset.symbol}
-                    </div>
-                    <div className='text-muted-foreground'>
-                      ${activeStrategy.debtAsset.usdValue.toFixed(2)}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className='text-muted-foreground'>Leverage</div>
-                    <div className='font-semibold text-lg'>
-                      {activeStrategy.leverage.toFixed(2)}x
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className='text-muted-foreground'>Current APY</div>
-                    <div
-                      className={`font-semibold text-lg ${
-                        activeStrategy.isPositive
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
-                      }`}
-                    >
-                      {activeStrategy.netApy > 0 ? '+' : ''}
-                      {activeStrategy.netApy.toFixed(2)}%
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Action Buttons */}
+          {isModifying && activeStrategy ? (
+            <div className='flex gap-3'>
+              <Button
+                onClick={handleLeverageModification}
+                disabled={
+                  isProcessing ||
+                  isWithdrawing ||
+                  !walletData.isWalletConnected ||
+                  Math.abs(targetLeverage - activeStrategy.leverage) <= 0.01 ||
+                  !leverageModification?.validateLeverageModification(targetLeverage).isValid
+                }
+                variant='default'
+                className='flex-1 shadow-md hover:shadow-lg'
+              >
+                {isProcessing ? 'Adjusting...' : `Adjust to ${targetLeverage.toFixed(2)}x`}
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsClosing(true)
+                  const withdrawParams = {
+                    accountId: activeStrategy.accountId,
+                    collateralDenom: activeStrategy.collateralAsset.denom,
+                    collateralAmount: activeStrategy.collateralAsset.amountFormatted.toString(),
+                    collateralDecimals: activeStrategy.collateralAsset.decimals || 8,
+                    debtDenom: activeStrategy.debtAsset.denom,
+                    debtAmount: activeStrategy.debtAsset.amountFormatted.toString(),
+                    debtDecimals: activeStrategy.debtAsset.decimals || 6,
+                  }
+                  withdrawFullStrategy(withdrawParams)
+                    .then(() => router.push('/strategies'))
+                    .catch((error) => {
+                      console.error('❌ Strategy close failed:', error)
+                      toast.error(
+                        error instanceof Error ? error.message : 'Position closure failed',
+                      )
+                    })
+                    .finally(() => setIsClosing(false))
+                }}
+                disabled={
+                  isProcessing || isWithdrawing || !walletData.isWalletConnected || isClosing
+                }
+                variant='outline'
+                className='flex-1'
+              >
+                {isClosing ? 'Closing...' : 'Close Position'}
+              </Button>
             </div>
+          ) : (
+            <Button
+              onClick={handleDeploy}
+              disabled={
+                isProcessing ||
+                isWithdrawing ||
+                !walletData.isWalletConnected ||
+                isBalancesLoading ||
+                !hasValidAmount ||
+                hasInsufficientBalance ||
+                hasInsufficientLiquidity
+              }
+              variant='default'
+              className='w-full'
+            >
+              {isProcessing ? 'Deploying...' : 'Deploy Strategy'}
+            </Button>
           )}
 
           <MarketInfoCard
@@ -515,24 +577,6 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             riskStyles={riskStyles}
             strategyRiskStyles={strategyRiskStyles}
           />
-
-          {/* Action Button */}
-          <Button
-            onClick={handleDeploy}
-            disabled={
-              isProcessing ||
-              isWithdrawing ||
-              !walletData.isWalletConnected ||
-              isBalancesLoading ||
-              !hasValidAmount ||
-              hasInsufficientBalance ||
-              hasInsufficientLiquidity
-            }
-            variant='default'
-            className={`w-full ${isModifying ? 'bg-red-600 hover:bg-red-700 text-white' : ''}`}
-          >
-            {buttonContent}
-          </Button>
         </div>
       </div>
     </div>

@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import { BigNumber } from 'bignumber.js'
-import { Info } from 'lucide-react'
 
 import FormattedValue from '@/components/common/FormattedValue'
 import { InfoCard } from '@/components/deposit'
 import { AmountInput } from '@/components/ui/AmountInput'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
 import { Slider } from '@/components/ui/slider'
 import chainConfig from '@/config/chain'
@@ -37,6 +35,8 @@ interface MarginCollateralCardProps {
     totalPosition: number
   }
   onSwapRouteLoaded?: (swapRouteInfo: SwapRouteInfo | null) => void
+  hideWalletBalance?: boolean
+  hideAmountInput?: boolean
 }
 
 export function MarginCollateralCard({
@@ -51,6 +51,8 @@ export function MarginCollateralCard({
   currentAmount,
   positionCalcs,
   onSwapRouteLoaded,
+  hideWalletBalance = false,
+  hideAmountInput = false,
 }: MarginCollateralCardProps) {
   const [swapRouteInfo, setSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
   const [isSwapLoading, setIsSwapLoading] = useState(false)
@@ -72,63 +74,26 @@ export function MarginCollateralCard({
       setSwapError(null)
 
       try {
-        const { route } = await import('@skip-go/client')
-        const formattedBorrowAmount = new BigNumber(debouncedBorrowAmount)
-          .shiftedBy(strategy.debtAsset.decimals || 6)
-          .integerValue(BigNumber.ROUND_DOWN)
-          .toString()
+        const { BigNumber } = await import('bignumber.js')
+        const getNeutronRouteInfo = (await import('@/api/swap/getNeutronRouteInfo')).default
 
-        const skipRouteParams = {
-          amount_in: formattedBorrowAmount,
-          source_asset_chain_id: chainConfig.id,
-          source_asset_denom: strategy.debtAsset.denom,
-          dest_asset_chain_id: chainConfig.id,
-          dest_asset_denom: strategy.collateralAsset.denom,
-          smart_relay: true,
-          experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
-          allow_multi_tx: true,
-          allow_unsafe: true,
-          smart_swap_options: {
-            split_routes: true,
-            evm_swaps: true,
-          },
-          swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
-          go_fast: false,
-        }
+        const formattedBorrowAmount = new BigNumber(debouncedBorrowAmount).shiftedBy(
+          strategy.debtAsset.decimals || 6,
+        )
 
-        const skipRouteResponse = await route(skipRouteParams as any)
+        // Use the established getNeutronRouteInfo function to ensure consistent route formatting
+        const routeInfo = await getNeutronRouteInfo(
+          strategy.debtAsset.denom,
+          strategy.collateralAsset.denom,
+          formattedBorrowAmount,
+          [], // assets array - not needed for route structure
+          chainConfig,
+        )
 
-        if (!skipRouteResponse?.operations || skipRouteResponse?.operations?.length === 0) {
+        if (!routeInfo) {
           throw new Error(
             `No swap route found between ${strategy.debtAsset.symbol} and ${strategy.collateralAsset.symbol}`,
           )
-        }
-
-        // Extract swap operations from Skip response
-        const extractSwapOperations = (skipResponse: any): any[] => {
-          const firstOperation = skipResponse.operations?.[0]?.swap?.swapIn?.swapOperations
-          return firstOperation || []
-        }
-
-        const swapOperations = extractSwapOperations(skipRouteResponse)
-        const amountOut = skipRouteResponse.amountOut || '0'
-
-        // Calculate price impact and other details
-        const amountInBN = new BigNumber(formattedBorrowAmount)
-        const amountOutBN = new BigNumber(amountOut)
-
-        // Simple price impact calculation (this might need refinement based on your specific needs)
-        const expectedOut = amountInBN // 1:1 ratio as baseline
-        const priceImpact = expectedOut.gt(0)
-          ? amountOutBN.minus(expectedOut).dividedBy(expectedOut).multipliedBy(100).toNumber()
-          : 0
-
-        const routeInfo: SwapRouteInfo = {
-          amountOut: amountOutBN,
-          priceImpact: new BigNumber(priceImpact),
-          fee: new BigNumber(0), // You might need to extract this from the route
-          route: { duality: swapOperations }, // Assuming duality route
-          description: 'duality',
         }
 
         setSwapRouteInfo(routeInfo)
@@ -147,23 +112,27 @@ export function MarginCollateralCard({
   return (
     <InfoCard title='Margin Collateral'>
       <div className='space-y-2'>
-        <div className='flex justify-between items-center text-xs'>
-          <span className='text-muted-foreground'>Wallet balance</span>
-          <span className='font-medium text-foreground'>{displayValues.walletBalance}</span>
-        </div>
+        {!hideWalletBalance && (
+          <div className='flex justify-between items-center text-xs'>
+            <span className='text-muted-foreground'>Wallet balance</span>
+            <span className='font-medium text-foreground'>{displayValues.walletBalance}</span>
+          </div>
+        )}
 
-        <AmountInput
-          value={collateralAmount}
-          onChange={(e) => setCollateralAmount(e.target.value)}
-          token={{
-            symbol: strategy.collateralAsset.symbol,
-            brandColor: strategy.collateralAsset.brandColor || '#F7931A',
-            denom: strategy.collateralAsset.denom,
-          }}
-          balance={userBalance.toString()}
-        />
+        {!hideAmountInput && (
+          <AmountInput
+            value={collateralAmount}
+            onChange={(e) => setCollateralAmount(e.target.value)}
+            token={{
+              symbol: strategy.collateralAsset.symbol,
+              brandColor: strategy.collateralAsset.brandColor || '#F7931A',
+              denom: strategy.collateralAsset.denom,
+            }}
+            balance={userBalance.toString()}
+          />
+        )}
 
-        <Separator />
+        {!hideAmountInput && <Separator />}
 
         <div className='space-y-2'>
           <div className='flex justify-between items-center'>
@@ -172,18 +141,6 @@ export function MarginCollateralCard({
               <span className='text-sm font-semibold text-accent-foreground'>
                 {multiplier.toFixed(2)}x
               </span>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className='w-3 h-3 text-muted-foreground hover:text-foreground transition-colors' />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className='text-xs max-w-xs'>
-                    Leverage multiplier: {multiplier}x means you'll have {multiplier}x exposure to{' '}
-                    {strategy.collateralAsset.symbol}. You supply {currentAmount.toFixed(6)} and
-                    borrow {positionCalcs.borrowAmount.toFixed(6)} {strategy.debtAsset.symbol}.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
             </div>
           </div>
 
@@ -191,14 +148,14 @@ export function MarginCollateralCard({
             value={[multiplier]}
             onValueChange={handleMultiplierChange}
             max={dynamicMaxLeverage}
-            min={1}
+            min={2.0}
             step={0.01}
             className='w-full'
             brandColor={strategy.collateralAsset.brandColor || '#F7931A'}
           />
 
           <div className='flex justify-between text-xs text-muted-foreground'>
-            <span>1.0x</span>
+            <span>2.0x</span>
             <span>Max {dynamicMaxLeverage.toFixed(1)}x</span>
           </div>
 
@@ -300,7 +257,11 @@ export function MarginCollateralCard({
                     )
                   })()}
                 </>
-              ) : null}
+              ) : (
+                <div className='flex items-center justify-center py-2'>
+                  <span className='text-muted-foreground'>No route available</span>
+                </div>
+              )}
             </div>
           )}
 

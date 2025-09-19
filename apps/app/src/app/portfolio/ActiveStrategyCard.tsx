@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Info } from 'lucide-react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import { LeverageAdjustment } from '@/components/strategy/LeverageAdjustment'
 import { Button } from '@/components/ui/Button'
 import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
@@ -35,6 +36,7 @@ const getLeverageColor = (leverage: number): string => {
 export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps) {
   const router = useRouter()
   const { markets } = useStore()
+  const [showLeverageAdjustment, setShowLeverageAdjustment] = useState(false)
 
   // Token decimals are now included in the strategy object from useActiveStrategies
 

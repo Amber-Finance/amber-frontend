@@ -40,7 +40,7 @@ export default function RootLayout({
                     <Background />
 
                     <ThemedParticles
-                      className='fixed inset-0 z-[-5]'
+                      className='fixed inset-0 z-[1]'
                       quantity={100}
                       ease={70}
                       size={0.6}
@@ -50,6 +50,9 @@ export default function RootLayout({
                     <div className='relative z-10 flex-1 flex flex-col'>
                       <Navbar />
                       <main className='flex-1 w-full max-w-screen-2xl min-h-screen mx-auto px-2 sm:px-8 py-16 sm:pt-20'>
+                        <div className='fixed w-screen h-screen inset-0 bg-gradient-to-b from-background to-transparent pointer-events-none z-[-2]' />
+                        <div className='fixed w-screen h-screen inset-0 bg-gradient-to-b from-background to-transparent pointer-events-none z-[-2]' />
+                        <div className='fixed w-screen h-screen inset-0 bg-gradient-to-b from-background to-transparent pointer-events-none z-[-2]' />
                         {children}
                       </main>
                       <Footer />

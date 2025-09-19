@@ -63,9 +63,9 @@ const Portfolio = () => {
     0,
   )
 
-  // Total assets = all deposits (from strategies) + all deposits (pure) + all strategies (equity)
-  // This includes the full collateral value from strategies plus pure deposits
-  const totalPortfolioValue = totalSuppliedValue + depositsValue
+  // Total assets = net equity from strategies (collateral - debt) + pure deposits
+  // For each strategy summed: (collateral - debt) + deposits
+  const totalPortfolioValue = totalStrategiesValue + depositsValue
 
   // Calculate total PnL based on strategy performance and deposit earnings
   const totalPnL =
@@ -104,10 +104,6 @@ const Portfolio = () => {
   // Helper functions for formatting
   const formatPercentage = (value: number) =>
     value === 0 ? '0.00%' : `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
-  const formatCurrency = (value: number) =>
-    value === 0
-      ? '$0.00'
-      : `${value >= 0 ? '+' : '-'}${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
   const getChangeType = (value: number) =>
     value === 0 ? 'neutral' : value >= 0 ? 'positive' : 'negative'
@@ -127,7 +123,7 @@ const Portfolio = () => {
     },
     {
       title: 'Unrealized P&L',
-      value: formatCurrency(totalPnL),
+      value: `$${totalPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: formatPercentage(pnlPercentage),
       changeType: getChangeType(totalPnL),
     },
@@ -150,14 +146,14 @@ const Portfolio = () => {
             value: totalBorrowedValue,
             label: 'Total Borrow',
             isCurrency: true,
-            prefix: '$',
+            prefix: '$ ',
             abbreviated: false,
           },
           {
             value: totalSuppliedValue + depositsValue,
             label: 'Total Supply',
             isCurrency: true,
-            prefix: '$',
+            prefix: '$ ',
             abbreviated: false,
           },
         ]}
@@ -254,11 +250,11 @@ const Portfolio = () => {
                         <div className='space-y-4 max-w-lg mx-auto'>
                           {/* Title */}
                           <h3 className='text-xl font-funnel font-semibold text-foreground'>
-                            <AuroraText>No Active Strategies</AuroraText>
+                            <span className='text-foreground text-md'>No Active Strategies</span>
                           </h3>
 
                           {/* Description */}
-                          <p className='text-muted-foreground leading-relaxed'>
+                          <p className='text-foreground/70 leading-relaxed'>
                             You don't have any active strategy positions yet. Deploy your first
                             strategy to start earning leveraged yield on your assets.
                           </p>
@@ -297,11 +293,11 @@ const Portfolio = () => {
               <div className='space-y-6 max-w-lg mx-auto'>
                 {/* Title */}
                 <h3 className='text-2xl font-funnel font-semibold text-foreground'>
-                  <AuroraText>Connect Your Wallet</AuroraText>
+                  <span className='text-foreground text-md'>Connect Your Wallet</span>
                 </h3>
 
                 {/* Description */}
-                <p className='text-muted-foreground leading-relaxed'>
+                <p className='text-foreground/70 leading-relaxed'>
                   Connect your wallet to view your active strategies and deposit positions, and
                   start earning yield on your assets.
                 </p>
@@ -328,11 +324,11 @@ const Portfolio = () => {
                 <div className='space-y-6 max-w-lg mx-auto'>
                   {/* Title */}
                   <h3 className='text-2xl font-funnel font-semibold text-foreground'>
-                    <AuroraText>No Positions Found</AuroraText>
+                    <span className='text-foreground text-md'>No Positions Found</span>
                   </h3>
 
                   {/* Description */}
-                  <p className='text-muted-foreground leading-relaxed'>
+                  <p className='text-foreground/70 leading-relaxed'>
                     You don't have any active strategies or deposit positions yet. Deploy your first
                     strategy or make a deposit to start earning yield on your assets.
                   </p>
@@ -369,7 +365,7 @@ const Portfolio = () => {
                     <h2 className='text-2xl font-funnel font-bold text-foreground mb-2'>
                       Active Deposits
                     </h2>
-                    <p className='text-muted-foreground font-medium'>
+                    <p className='text-foreground/80 font-medium'>
                       Traditional yield-bearing positions
                     </p>
                   </div>
@@ -409,11 +405,11 @@ const Portfolio = () => {
                           <div className='space-y-4 max-w-lg mx-auto'>
                             {/* Title */}
                             <h3 className='text-xl font-funnel font-semibold text-foreground'>
-                              <AuroraText>No Active Deposits</AuroraText>
+                              <span className='text-foreground text-md'>No Active Deposits</span>
                             </h3>
 
                             {/* Description */}
-                            <p className='text-muted-foreground leading-relaxed'>
+                            <p className='text-foreground/70 leading-relaxed'>
                               You don't have any deposit positions yet. Make a deposit to start
                               earning traditional yield on your assets.
                             </p>

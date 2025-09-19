@@ -20,7 +20,6 @@ import { useStore } from '@/store/useStore'
 import {
   calculateNetApy,
   formatLeverage,
-  formatUserTokenAmount,
   getGradientColors,
   getMaxAPY,
 } from '@/utils/strategyCardHelpers'
@@ -31,7 +30,7 @@ interface StrategyCardProps {
 
 export function StrategyCard({ strategy }: StrategyCardProps) {
   const { isWalletConnected, connect } = useChain(chainConfig.name)
-  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
+  const { data: walletBalances } = useWalletBalances()
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
   const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
@@ -65,25 +64,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       amount: rawAmount,
     }
   }, [markets, strategy.debtAsset.denom])
-  const userTokenAmount = useMemo(
-    () =>
-      formatUserTokenAmount(
-        isWalletConnected,
-        walletBalancesLoading,
-        walletBalances,
-        strategy.collateralAsset.denom,
-        strategy.collateralAsset.symbol,
-        strategy.collateralAsset.decimals || 8, // Use actual decimals from strategy
-      ),
-    [
-      isWalletConnected,
-      walletBalancesLoading,
-      walletBalances,
-      strategy.collateralAsset.denom,
-      strategy.collateralAsset.symbol,
-      strategy.collateralAsset.decimals,
-    ],
-  )
 
   const cardStyle = {
     '--collateral-color': collateralColor,
@@ -185,13 +165,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           {/* Strategy Metrics */}
-          <div className='grid grid-cols-2 gap-4 pt-3'>
+          <div className='grid grid-cols-2 gap-4'>
             <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Base APY
               </p>
               <p
-                className={`font-semibold text-sm ${netApy >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                className={`font-semibold text-md ${netApy >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
               >
                 {netApy >= 0 ? '+' : '-'}
                 {Math.abs(netApy * 100).toFixed(2)}%
@@ -201,7 +181,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Max Leverage
               </p>
-              <p className='text-foreground font-semibold text-sm'>{leverage}</p>
+              <p className='text-foreground font-semibold text-md'>{leverage}</p>
             </div>
           </div>
 
@@ -291,13 +271,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               {/* Deposited Balance */}
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-foreground'>Deposited</span>
-                <TokenBalance coin={activeStrategy.collateralAsset} size='sm' />
+                <TokenBalance coin={activeStrategy.collateralAsset} size='md' />
               </div>
 
               {/* Borrowed Balance */}
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-foreground'>Borrowed</span>
-                <TokenBalance coin={activeStrategy.debtAsset} size='sm' />
+                <TokenBalance coin={activeStrategy.debtAsset} size='md' />
               </div>
             </div>
           ) : (
@@ -313,8 +293,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   <div className='flex justify-between items-center'>
                     <span className='text-sm text-foreground'>Available</span>
                     <TokenBalance
-                      coin={{ denom: strategy.collateralAsset.denom, amount: userTokenAmount }}
-                      size='sm'
+                      coin={{
+                        denom: strategy.collateralAsset.denom,
+                        amount:
+                          walletBalances?.find((b) => b.denom === strategy.collateralAsset.denom)
+                            ?.amount || '0',
+                      }}
+                      size='md'
                     />
                   </div>
                 </div>

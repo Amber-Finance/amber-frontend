@@ -716,6 +716,25 @@ interface ManageStrategyConfig {
   swap: SwapConfig
 }
 
+interface ModifyLeverageConfig {
+  type: 'modify_leverage'
+  actionType: 'increase' | 'decrease'
+  accountId: string
+  currentLeverage: number
+  targetLeverage: number
+  collateral: StrategyAsset
+  debt: StrategyAsset
+  swap: SwapConfig
+}
+
+interface LeverageModificationParams {
+  currentLeverage: number
+  targetLeverage: number
+  collateralAmount: number
+  debtAmount: number
+  swapRouteInfo: SwapRouteInfo
+}
+
 interface DepositConfig extends BaseTransactionConfig {
   type: 'deposit'
 }
@@ -751,6 +770,7 @@ type TransactionConfig =
   | SwapTransactionConfig
   | DeployStrategyConfig
   | ManageStrategyConfig
+  | ModifyLeverageConfig
   | StrategyParams
 
 interface ActiveStrategy {

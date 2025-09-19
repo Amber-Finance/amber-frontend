@@ -157,9 +157,9 @@ export function useActiveStrategies() {
     )
     const debtUsd = calculateUsdValueLegacy(debt.amount, debtPrice, debtToken.decimals)
 
-    // Calculate leverage as debt/equity ratio: debt/(collateral-debt)
+    // Calculate leverage as collateral/equity ratio: collateral/(collateral-debt)
     const equity = collateralUsd - debtUsd
-    const leverage = equity > 0 ? debtUsd / equity : 0
+    const leverage = equity > 0 ? collateralUsd / equity : 0
 
     // Use maxBTC APY for collateral supply APY, fallback to market metrics
     const collateralSupplyApy =

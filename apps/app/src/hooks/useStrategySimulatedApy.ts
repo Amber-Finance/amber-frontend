@@ -37,8 +37,12 @@ export const useStrategySimulatedApy = (
       return {
         collateralSupplyApy: currentApys.collateralSupplyApy,
         debtBorrowApy: currentApys.debtBorrowApy,
-        leveragedApy: (currentApys.collateralSupplyApy - currentApys.debtBorrowApy) * multiplier,
-        netApy: (currentApys.collateralSupplyApy - currentApys.debtBorrowApy) * multiplier,
+        leveragedApy:
+          currentApys.collateralSupplyApy * multiplier -
+          currentApys.debtBorrowApy * (multiplier - 1),
+        netApy:
+          currentApys.collateralSupplyApy * multiplier -
+          currentApys.debtBorrowApy * (multiplier - 1),
       }
     }
 
@@ -59,8 +63,10 @@ export const useStrategySimulatedApy = (
       // Convert APY strings to numbers (they're already in percentage format)
       const newDebtBorrowApy = parseFloat(debtResult.apys.borrow) / 100
 
-      // Calculate leveraged APY: (collateral APY - debt APY) * multiplier
-      const leveragedApy = (currentApys.collateralSupplyApy - newDebtBorrowApy) * multiplier
+      // Calculate leveraged APY: (collateral APY * multiplier) - (debt APY * (multiplier - 1))
+      // This accounts for earning on total collateral and paying interest on borrowed amount
+      const leveragedApy =
+        currentApys.collateralSupplyApy * multiplier - newDebtBorrowApy * (multiplier - 1)
 
       return {
         collateralSupplyApy: currentApys.collateralSupplyApy,
@@ -72,7 +78,7 @@ export const useStrategySimulatedApy = (
       console.warn('Error calculating strategy simulated APY:', error)
       // Return fallback values
       const leveragedApy =
-        (currentApys.collateralSupplyApy - currentApys.debtBorrowApy) * multiplier
+        currentApys.collateralSupplyApy * multiplier - currentApys.debtBorrowApy * (multiplier - 1)
       return {
         collateralSupplyApy: currentApys.collateralSupplyApy,
         debtBorrowApy: currentApys.debtBorrowApy,

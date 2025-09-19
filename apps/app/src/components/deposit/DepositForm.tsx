@@ -108,7 +108,7 @@ export const DepositForm = ({
         </div>
 
         <Button
-          variant='outline-gradient'
+          variant='default'
           gradientColor={token.brandColor}
           onClick={onClick}
           disabled={!isWalletConnected || isPending || !hasAmount}

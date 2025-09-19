@@ -235,7 +235,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <div className='space-y-1'>
                 <div className='flex justify-between items-center'>
                   <span className='text-sm text-foreground'>Deposited</span>
-                  <TokenBalance coin={depositedCoin} size='sm' />
+                  <TokenBalance coin={depositedCoin} size='md' />
                 </div>
               </div>
 
@@ -243,7 +243,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               <div className='space-y-1'>
                 <div className='flex justify-between items-center'>
                   <span className='text-sm text-foreground'>Available</span>
-                  <TokenBalance coin={availableCoin} size='sm' />
+                  <TokenBalance coin={availableCoin} size='md' />
                 </div>
               </div>
             </div>
