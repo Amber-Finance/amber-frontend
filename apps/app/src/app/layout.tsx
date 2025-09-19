@@ -12,6 +12,7 @@ import { TermsModalProvider } from '@/components/modals/TermsModalProvider'
 import { CosmosKitProvider, SkipProvider } from '@/components/providers'
 import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
+import { BackgroundGradient } from '@/components/ui/BackgroundGradient'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
 export const metadata: Metadata = metaData.home
@@ -33,10 +34,13 @@ export default function RootLayout({
             <CosmosKitProvider>
               <SkipProvider>
                 <TermsModalProvider>
-                  <div className='relative flex flex-col w-full h-full max-w-full overflow-x-hidden bg-background no-scrollbar'>
+                  <div className='relative flex flex-col w-full h-full max-w-full overflow-x-hidden no-scrollbar bg-background'>
+                    <BackgroundGradient />
+
                     <Background />
+
                     <ThemedParticles
-                      className='absolute inset-0 z-0'
+                      className='fixed inset-0 z-[-5]'
                       quantity={100}
                       ease={70}
                       size={0.6}
@@ -44,8 +48,8 @@ export default function RootLayout({
                       refresh={false}
                     />
                     <div className='relative z-10 flex-1 flex flex-col'>
-                      <main className='flex-1 w-full max-w-screen-2xl min-h-screen mx-auto px-2 sm:px-8 pt-16 sm:pt-20'>
-                        <Navbar />
+                      <Navbar />
+                      <main className='flex-1 w-full max-w-screen-2xl min-h-screen mx-auto px-2 sm:px-8 py-16 sm:pt-20'>
                         {children}
                       </main>
                       <Footer />

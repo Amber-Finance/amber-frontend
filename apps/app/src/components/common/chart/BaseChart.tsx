@@ -50,7 +50,7 @@ export function BaseChart({
   }
 
   return (
-    <Card className='bg-card/20 pt-0 w-full min-w-0'>
+    <Card className='bg-card pt-0 w-full min-w-0'>
       <CardHeader className='flex items-center gap-2 space-y-0 border-b border-border/40 py-5 sm:flex-row'>
         <div className='grid flex-1 gap-1'>
           <CardTitle className='text-sm font-bold text-foreground'>{title}</CardTitle>

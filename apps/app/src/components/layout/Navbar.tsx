@@ -182,10 +182,10 @@ export function Navbar() {
 
             {/* Desktop Actions */}
             <div className='hidden md:flex md:items-center md:space-x-3'>
-              <div className='hidden p-1 rounded-full border md:flex md:items-center bg-card/20 border-border/80'>
+              <div className='hidden p-1 rounded-full border md:flex md:items-center bg-card border-border/80'>
                 <ThemeToggle />
               </div>
-              <div className='hidden p-2 text-base rounded-full border md:flex md:items-center md:space-x-3 bg-card/20 border-border/80'>
+              <div className='hidden p-2 text-base rounded-full border md:flex md:items-center md:space-x-3 bg-card border-border/80'>
                 <ConnectButton />
               </div>
             </div>

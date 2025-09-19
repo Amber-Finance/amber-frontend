@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -49,6 +49,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   const [collateralAmount, setCollateralAmount] = useState('')
   const [multiplier, setMultiplier] = useState(1.5)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [cachedSwapRouteInfo, setCachedSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
 
   // Hooks
   const { isWasmReady } = useHealthComputer()
@@ -184,6 +185,10 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
   }, [marketData.dynamicMaxLeverage, multiplier, currentAmount, isWasmReady])
 
   // Handlers
+  const handleSwapRouteLoaded = useCallback((routeInfo: SwapRouteInfo | null) => {
+    setCachedSwapRouteInfo(routeInfo)
+  }, [])
+
   const handleMultiplierChange = (value: number[]) => {
     const newMultiplier = value[0]
     if (newMultiplier >= 1 && newMultiplier <= marketData.dynamicMaxLeverage) {
@@ -259,7 +264,8 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
     setIsProcessing(true)
 
     try {
-      const swapRouteInfo = await fetchSwapRoute(borrowAmount)
+      // Use cached swap route info if available, otherwise fetch it
+      const swapRouteInfo = cachedSwapRouteInfo || (await fetchSwapRoute(borrowAmount))
 
       const result = await deployStrategy({
         collateralAmount: currentAmount,
@@ -318,7 +324,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       </button>
 
       {/* Header with FlickeringGrid */}
-      <div className='relative mb-4 sm:mb-6'>
+      <div className='relative mb-4 sm:mb-6 bg-card rounded-lg p-4 overflow-hidden'>
         <div className='absolute inset-0 z-10 w-full overflow-hidden'>
           <FlickeringGrid
             className='w-full h-full'
@@ -332,7 +338,7 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
           />
         </div>
 
-        <div className='relative z-20'>
+        <div className='relative z-20 '>
           <div className='flex justify-between p-4'>
             <div className='flex items-center justify-start gap-3'>
               <div className='relative'>
@@ -434,12 +440,13 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
               userBalance={walletData.userBalance}
               currentAmount={currentAmount}
               positionCalcs={positionCalcs}
+              onSwapRouteLoaded={handleSwapRouteLoaded}
             />
           )}
 
           {/* Show current position summary for modify mode */}
           {isModifying && activeStrategy && (
-            <div className='bg-card/20 backdrop-blur-sm border rounded-lg p-3 sm:p-4'>
+            <div className='bg-card backdrop-blur-sm border rounded-lg p-3 sm:p-4'>
               <h3 className='text-sm font-bold text-foreground mb-3'>Current Position</h3>
               <div className='space-y-3'>
                 <div className='grid grid-cols-2 gap-4 text-xs'>

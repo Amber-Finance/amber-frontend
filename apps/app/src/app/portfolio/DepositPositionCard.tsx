@@ -56,7 +56,7 @@ export function DepositPositionCard({ deposit, index }: DepositPositionCardProps
   }
 
   return (
-    <Card className='group relative overflow-hidden bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
+    <Card className='group relative overflow-hidden bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* Subtle Gradient Background */}
       <SubtleGradientBg variant={gradientClass} className='opacity-40' />
 

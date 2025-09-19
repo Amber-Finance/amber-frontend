@@ -11,7 +11,7 @@
   --foreground: rgb(28, 20, 15);
   --card: rgb(254, 246, 239);
 
-  --primary: rgba(255, 115, 0, 1);
+  --primary: #ff7300;
   --secondary: rgb(250, 232, 210);
   --muted: rgb(248, 218, 180);
   --muted-foreground: rgb(120, 85, 50);
@@ -37,8 +37,7 @@
 .dark {
   --background: rgb(10, 10, 10);
   --foreground: rgb(244, 244, 244);
-  --card: rgb(23, 23, 23);
-
+  --card: #0e0f10;
   --primary: rgba(255, 120, 0, 1);
   --secondary: rgb(42, 42, 42);
   --muted: rgb(50, 50, 50);
@@ -49,6 +48,9 @@
 
   --gradient-start: rgb(177, 36, 30);
   --gradient-end: rgb(245, 113, 54);
+
+  /* SVG background gradient colors */
+  --svg-bg-color: rgb(23, 23, 23);
 }
 
 @font-face {
@@ -132,7 +134,7 @@ body {
 /* Ensure viewport covers entire screen */
 #__next {
   min-height: 100vh;
-  background: hsl(var(--background));
+  background: transparent;
 }
 
 @keyframes aurora {
@@ -420,4 +422,22 @@ input[type='number'] {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* SVG background gradient theme support */
+.bg-gradient-svg {
+  color: var(--svg-bg-color);
+}
+
+/* Ensure background is visible and properly positioned */
+.bg-gradient-svg svg,
+.bg-gradient-svg {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* Additional body styling for SVG background */
+body.bg-svg-enabled {
+  background-color: var(--svg-bg-color);
 }

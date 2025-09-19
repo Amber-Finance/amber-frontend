@@ -177,7 +177,7 @@ const Portfolio = () => {
               return (
                 <Card
                   key={`stat-${stat.title}`}
-                  className='group relative overflow-hidden bg-card/20 border border-border/50 backdrop-blur-xl transition-all duration-300 '
+                  className='group relative overflow-hidden bg-card border border-border/50 backdrop-blur-xl transition-all duration-300 '
                 >
                   <CardContent className=''>
                     <div className='space-y-2'>

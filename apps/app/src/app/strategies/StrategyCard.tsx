@@ -6,9 +6,9 @@ import Image from 'next/image'
 
 import { useChain } from '@cosmos-kit/react'
 
-import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import TokenBalance from '@/components/common/TokenBalance'
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
-import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
@@ -17,10 +17,9 @@ import useHealthComputer from '@/hooks/useHealthComputer'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
+import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
 import {
   calculateNetApy,
-  formatBorrowTokenAmount,
-  formatBorrowableUsd,
   formatLeverage,
   formatUserTokenAmount,
   getGradientColors,
@@ -38,6 +37,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
   const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
+  const { theme } = useTheme()
 
   // Find active strategy for this collateral/debt pair
   const activeStrategy = activeStrategies.find(
@@ -73,13 +73,18 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     () => formatLeverage(strategy, markets || [], isWasmReady),
     [strategy, markets, isWasmReady],
   )
-  const borrowableUsd = useMemo(() => formatBorrowableUsd(strategy), [strategy])
   const { collateralColor, debtColor } = useMemo(() => getGradientColors(strategy), [strategy])
-  const borrowTokenAmount = useMemo(
-    () =>
-      formatBorrowTokenAmount(markets || [], strategy.debtAsset.denom, strategy.debtAsset.symbol),
-    [markets, strategy.debtAsset.denom, strategy.debtAsset.symbol],
-  )
+
+  // Create coin object for TokenBalance component
+  const debtCoin = useMemo((): Coin => {
+    const market = markets?.find((m) => m.asset.denom === strategy.debtAsset.denom)
+    const rawAmount = market?.metrics?.collateral_total_amount || '0'
+
+    return {
+      denom: strategy.debtAsset.denom,
+      amount: rawAmount,
+    }
+  }, [markets, strategy.debtAsset.denom])
   const userTokenAmount = useMemo(
     () =>
       formatUserTokenAmount(
@@ -109,10 +114,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
   return (
     <Card
-      className='group relative w-full h-full flex flex-col bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'
+      className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'
       style={cardStyle}
     >
-      <FlickeringGrid
+      {/* <FlickeringGrid
         className='absolute inset-0 z-0 rounded-lg overflow-hidden'
         color={debtColor}
         squareSize={8}
@@ -121,7 +126,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         maxOpacity={0.3}
         gradientDirection='top-to-bottom'
         height={120}
-      />
+      /> */}
 
       {/* Enhanced gradient overlay for depth */}
       <div
@@ -135,7 +140,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         <div className='flex items-center justify-between mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='w-12 h-12 rounded-2xl overflow-hidden bg-background border border-border/20 p-2'>
+              <div className='relative w-20 h-20'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
@@ -144,13 +149,14 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   className='w-full h-full object-contain'
                 />
               </div>
-              <div className='absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-background/90 backdrop-blur-sm border border-border/30 p-1'>
+              <div className='absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-lg bg-background border shadow-sm p-1'>
                 <Image
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
                   width={20}
                   height={20}
-                  className='w-full h-full object-contain'
+                  className='object-contain w-full h-full'
+                  unoptimized={true}
                 />
               </div>
             </div>
@@ -221,11 +227,65 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
           {/* Earning Points Section */}
           <div className='pt-3'>
-            <EarningPointsRow
-              assetSymbol={strategy.collateralAsset.symbol}
-              variant='full'
-              type='strategy'
-            />
+            <div className='space-y-3'>
+              <div className='flex items-center justify-between'>
+                <span className='text-sm font-semibold text-foreground'>Earning Points</span>
+                <div className='flex -space-x-2'>
+                  {(() => {
+                    const protocolPoints = getProtocolPoints(strategy.debtAsset.symbol)
+                    const protocolPointsIcon = getProtocolPointsIcon(
+                      strategy.debtAsset.symbol,
+                      theme,
+                    )
+                    const assetLower = strategy.debtAsset.symbol.toLowerCase()
+                    const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
+
+                    const pointsData = []
+
+                    // Protocol Points - Show first if they exist
+                    if (protocolPoints.protocolPoint && protocolPointsIcon) {
+                      pointsData.push({
+                        icon: protocolPointsIcon,
+                        alt: protocolPoints.protocolPoint,
+                        tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                      })
+                    }
+
+                    // Neutron Rewards
+                    pointsData.push({
+                      icon: '/images/neutron/neutron.svg',
+                      alt: 'Neutron',
+                      tooltip: `Neutron ${neutronMultiplier}`,
+                    })
+
+                    // Mars Fragments
+                    pointsData.push({
+                      icon: '/points/mars-fragments.svg',
+                      alt: 'Mars Fragments',
+                      tooltip: 'Mars Fragments',
+                    })
+
+                    return pointsData.map((point) => (
+                      <div key={point.alt} className='group/icon relative inline-block'>
+                        <div className='relative inline-block size-8 rounded-full ring-2 ring-card group-hover/icon:ring-primary/20 bg-secondary border border-border group-hover/icon:border-primary/40 p-1.5 transition-all duration-200 group-hover/icon:z-10 cursor-pointer'>
+                          <Image
+                            src={point.icon}
+                            alt={point.alt}
+                            width={20}
+                            height={20}
+                            className='object-contain w-full h-full'
+                            unoptimized={true}
+                          />
+                        </div>
+                        <div className='opacity-0 group-hover/icon:opacity-100 invisible group-hover/icon:visible absolute z-20 bottom-full left-1/2 transform -translate-x-1/2 mb-2 py-1.5 px-2.5 bg-popover text-popover-foreground text-xs rounded-lg border border-border shadow-lg transition-all duration-200 whitespace-nowrap pointer-events-none'>
+                          {point.tooltip}
+                        </div>
+                      </div>
+                    ))
+                  })()}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Available Debt Section */}
@@ -235,21 +295,25 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             </div>
 
             <div className='space-y-1'>
-              <div className='flex justify-between items-center'>
-                <span className='text-xs text-muted-foreground flex items-center gap-2'>
+              <div className='flex justify-between  items-center'>
+                <span className='text-xs text-muted-foreground flex justify-center items-center gap-2'>
                   <Image
                     src={strategy.debtAsset.icon}
                     alt={strategy.debtAsset.symbol}
-                    width={14}
-                    height={14}
-                    className='w-3.5 h-3.5'
+                    width={32}
+                    height={32}
+                    unoptimized={true}
                   />
-                  {strategy.debtAsset.symbol}
+                  <span className='text-sm font-medium text-foreground'>
+                    {strategy.debtAsset.symbol}
+                  </span>
                 </span>
-                <div className='text-sm font-medium text-foreground'>{borrowableUsd}</div>
-              </div>
-              <div className='flex justify-end'>
-                <div className='text-xs text-muted-foreground'>{borrowTokenAmount}</div>
+                <TokenBalance
+                  coin={debtCoin}
+                  size='md'
+                  align='right'
+                  className='flex flex-col justify-end items-end'
+                />
               </div>
             </div>
           </div>
@@ -266,95 +330,66 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 </div>
               </div>
 
-              <div className='space-y-2'>
-                {/* Deposited Balance */}
-                <div className='space-y-1'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-muted-foreground'>Deposited</span>
-                    <span className='text-sm font-medium text-foreground'>
-                      ${activeStrategy.collateralAsset.usdValue.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className='flex justify-end'>
-                    <span className='text-xs text-muted-foreground'>
-                      {activeStrategy.collateralAsset.amountFormatted.toFixed(
-                        Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
-                      )}{' '}
-                      {strategy.collateralAsset.symbol}
-                    </span>
+              <div className='grid grid-cols-2 gap-4'>
+                {/* Leverage */}
+                <div className='bg-secondary/20 rounded-lg p-3 border border-border/40'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>Leverage</span>
+                    <div className='text-right'>
+                      <div className='text-sm font-semibold text-foreground'>
+                        {activeStrategy.leverage.toFixed(2)}x
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className='grid grid-cols-2 gap-3'>
-                  <div className='space-y-1'>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-xs text-muted-foreground'>Borrowed</span>
-                      <span className='text-sm font-medium text-foreground'>
-                        ${activeStrategy.debtAsset.usdValue.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className='flex justify-end'>
-                      <span className='text-xs text-muted-foreground'>
-                        {activeStrategy.debtAsset.amountFormatted.toFixed(6)}{' '}
-                        {activeStrategy.debtAsset.symbol}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className='space-y-1'>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-xs text-muted-foreground'>Leverage</span>
-                      <span className='text-sm font-medium text-foreground'>
-                        {activeStrategy.leverage.toFixed(2)}x
-                      </span>
-                    </div>
-                    <div className='flex justify-end'>
-                      <span
-                        className={`text-xs font-medium ${
+                {/* Net APY */}
+                <div className='bg-secondary/20 rounded-lg p-3 border border-border/40'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>Net APY</span>
+                    <div className='text-right'>
+                      <div
+                        className={`text-sm font-semibold ${
                           activeStrategy.isPositive
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
                         }`}
                       >
                         {activeStrategy.netApy > 0 ? '+' : ''}
-                        {activeStrategy.netApy.toFixed(2)}% APY
-                      </span>
+                        {activeStrategy.netApy.toFixed(2)}%
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+              {/* Deposited Balance */}
+              <div className='flex justify-between items-center'>
+                <span className='text-sm text-foreground'>Deposited</span>
+                <TokenBalance coin={activeStrategy.collateralAsset} size='sm' />
+              </div>
+
+              {/* Borrowed Balance */}
+              <div className='flex justify-between items-center'>
+                <span className='text-sm text-foreground'>Borrowed</span>
+                <TokenBalance coin={activeStrategy.debtAsset} size='sm' />
+              </div>
             </div>
           ) : (
             /* Balances Section */
-            <div className='space-y-2 pt-2 flex-1'>
+            <div className='space-y-2 pt-2 flex-1 flex flex-col h-full'>
               <div className='flex items-center gap-2'>
-                <span className='text-sm font-semibold text-foreground'>Balances</span>
+                <span className='text-sm font-semibold text-foreground'>Balance</span>
               </div>
 
               <div className='space-y-2'>
-                {/* Deposited Balance */}
-                <div className='space-y-1'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-muted-foreground'>Deposited</span>
-                    <span className='text-sm font-medium text-foreground'>$0.00</span>
-                  </div>
-                  <div className='flex justify-end'>
-                    <span className='text-xs text-muted-foreground'>
-                      0.{'0'.repeat(strategy.collateralAsset.decimals || 8)}{' '}
-                      {strategy.collateralAsset.symbol}
-                    </span>
-                  </div>
-                </div>
                 {/* Available Balance */}
                 <div className='space-y-1'>
                   <div className='flex justify-between items-center'>
-                    <span className='text-xs text-muted-foreground'>Available</span>
-                    <span className='text-sm font-medium text-foreground'>
-                      {userBalanceUsd.gt(0) ? `$${userBalanceUsd.toFormat(2)}` : '$0.00'}
-                    </span>
-                  </div>
-                  <div className='flex justify-end'>
-                    <span className='text-xs text-muted-foreground'>{userTokenAmount}</span>
+                    <span className='text-sm text-foreground'>Available</span>
+                    <TokenBalance
+                      coin={{ denom: strategy.collateralAsset.denom, amount: userTokenAmount }}
+                      size='sm'
+                    />
                   </div>
                 </div>
               </div>
@@ -365,7 +400,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           <div className='flex-1' />
         </CardContent>
       </div>
-      <CardFooter className='relative z-20 pt-3'>
+      <CardFooter className='relative z-20 pt-3 h-full flex flex-col justify-end'>
         {!isWalletConnected && (
           <Button
             onClick={isComingSoon ? undefined : connect}

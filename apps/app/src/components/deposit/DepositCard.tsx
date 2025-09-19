@@ -10,7 +10,6 @@ import { useTheme } from '@/components/providers/ThemeProvider'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
-import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import {
   Card,
   CardContent,
@@ -24,7 +23,11 @@ import useRedBankAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
-import { getProtocolIcon } from '@/utils/depositCardHelpers'
+import {
+  getProtocolIcon,
+  getProtocolPoints,
+  getProtocolPointsIcon,
+} from '@/utils/depositCardHelpers'
 
 interface DepositCardProps {
   token: TokenInfo
@@ -92,10 +95,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   }
 
   return (
-    <Card className='group relative w-full h-full flex flex-col bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
+    <Card className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* FlickeringGrid in header area only */}
       <div className='absolute inset-x-0 top-0 h-32 z-0 flex justify-center items-center self-center overflow-hidden rounded-t-lg'>
-        <FlickeringGrid
+        {/* <FlickeringGrid
           className='w-full h-full'
           color={token.brandColor}
           squareSize={8}
@@ -104,7 +107,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           maxOpacity={0.2}
           gradientDirection='top-to-bottom'
           height={128}
-        />
+        /> */}
         {/* Subtle gradient overlay */}
         <div
           className='absolute inset-0 opacity-60'
@@ -118,24 +121,24 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-3'>
             <div className='relative'>
-              <div className='relative w-16 h-16 rounded-xl overflow-hidden shadow-sm'>
+              <div className='relative w-20 h-20'>
                 <Image
                   src={token.icon}
                   alt={token.symbol}
                   fill
-                  className='object-contain p-2'
-                  sizes='48px'
+                  className='object-contain'
+                  sizes='80px'
                 />
               </div>
 
               {/* Protocol Icon Badge */}
               {protocolIcon && (
-                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-lg bg-card/20 border shadow-sm p-0.5'>
+                <div className='absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-lg bg-background border shadow-sm p-1'>
                   <Image
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
-                    width={16}
-                    height={16}
+                    width={32}
+                    height={32}
                     className='object-contain w-full h-full'
                     unoptimized={true}
                   />
@@ -152,10 +155,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           <div className='text-center'>
-            <div
-              className='text-4xl sm:text-5xl font-funnel font-bold'
-              style={{ color: token.brandColor }}
-            >
+            <div className='text-4xl  font-funnel font-bold' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
             <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>
@@ -221,7 +221,62 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           {/* Points Section */}
-          <EarningPointsRow assetSymbol={token.symbol} variant='full' type='deposit' />
+          <div className='space-y-3'>
+            <div className='flex items-center justify-between'>
+              <span className='text-sm font-semibold text-foreground'>Earning Points</span>
+              <div className='flex -space-x-2'>
+                {(() => {
+                  const protocolPoints = getProtocolPoints(token.symbol)
+                  const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
+                  const assetLower = token.symbol.toLowerCase()
+                  const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
+
+                  const pointsData = []
+
+                  // Protocol Points - Show first if they exist
+                  if (protocolPoints.protocolPoint && protocolPointsIcon) {
+                    pointsData.push({
+                      icon: protocolPointsIcon,
+                      alt: protocolPoints.protocolPoint,
+                      tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                    })
+                  }
+
+                  // Neutron Rewards
+                  pointsData.push({
+                    icon: '/images/neutron/neutron.svg',
+                    alt: 'Neutron',
+                    tooltip: `Neutron ${neutronMultiplier}`,
+                  })
+
+                  // Mars Fragments
+                  pointsData.push({
+                    icon: '/points/mars-fragments.svg',
+                    alt: 'Mars Fragments',
+                    tooltip: 'Mars Fragments',
+                  })
+
+                  return pointsData.map((point) => (
+                    <div key={point.alt} className='group/icon relative inline-block'>
+                      <div className='relative inline-block size-8 rounded-full ring-2 ring-card group-hover/icon:ring-primary/20 bg-secondary border border-border group-hover/icon:border-primary/40 p-1.5 transition-all duration-200 group-hover/icon:z-10 cursor-pointer'>
+                        <Image
+                          src={point.icon}
+                          alt={point.alt}
+                          width={20}
+                          height={20}
+                          className='object-contain w-full h-full'
+                          unoptimized={true}
+                        />
+                      </div>
+                      <div className='opacity-0 group-hover/icon:opacity-100 invisible group-hover/icon:visible absolute z-20 bottom-full left-1/2 transform -translate-x-1/2 mb-2 py-1.5 px-2.5 bg-popover text-popover-foreground text-xs rounded-lg border border-border shadow-lg transition-all duration-200 whitespace-nowrap pointer-events-none'>
+                        {point.tooltip}
+                      </div>
+                    </div>
+                  ))
+                })()}
+              </div>
+            </div>
+          </div>
 
           {/* Flexible spacer to push content to bottom */}
           <div className='flex-1' />
@@ -238,7 +293,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               {/* Deposited Balance */}
               <div className='space-y-1'>
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm text-muted-foreground'>Deposited</span>
+                  <span className='text-sm text-foreground'>Deposited</span>
                   <TokenBalance coin={depositedCoin} size='sm' />
                 </div>
               </div>
@@ -246,7 +301,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               {/* Available Balance */}
               <div className='space-y-1'>
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm text-muted-foreground'>Available</span>
+                  <span className='text-sm text-foreground'>Available</span>
                   <TokenBalance coin={availableCoin} size='sm' />
                 </div>
               </div>
@@ -262,7 +317,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             className='flex-1'
             disabled={token.comingSoon}
           >
-            {token.comingSoon ? 'Temporary Disabled' : metrics.deposited > 0 ? 'Modify' : 'Deposit'}
+            {(() => {
+              if (token.comingSoon) return 'Temporary Disabled'
+              return metrics.deposited > 0 ? 'Modify' : 'Deposit'
+            })()}
           </Button>
 
           {/* Withdraw Button */}

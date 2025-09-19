@@ -19,7 +19,7 @@ interface DepositHeaderProps {
 }
 
 export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: DepositHeaderProps) => (
-  <div className='relative mb-4 sm:mb-6'>
+  <div className='relative mb-4 sm:mb-6 bg-card rounded-lg p-4 overflow-hidden'>
     <div className='absolute inset-0 z-10 w-full overflow-hidden'>
       <FlickeringGrid
         className='w-full h-full'
