@@ -283,7 +283,12 @@ export default function SwapBeamMobile({ fromToken, toToken }: SwapBeamMobilePro
                   transition={{ duration: 0.8, ease: 'easeOut' }}
                   initial={{ scale: 0, opacity: 0 }}
                 >
-                  <Image src={token.icon} alt={token.symbol} width={24} height={24} />
+                  <Image
+                    src={tokens[i % tokens.length].icon}
+                    alt={tokens[i % tokens.length].symbol}
+                    width={24}
+                    height={24}
+                  />
                 </motion.div>
               </foreignObject>
             </motion.g>
