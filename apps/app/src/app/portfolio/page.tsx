@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 
+import { ActiveDepositCard } from '@/app/portfolio/ActiveDepositCard'
+import { ActiveStrategyCard } from '@/app/portfolio/ActiveStrategyCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
@@ -13,11 +15,6 @@ import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import { useUserDeposits } from '@/hooks/useUserDeposits'
 import useUserPositions from '@/hooks/useUserPositions'
-
-import { ActivePositionCard } from './ActivePositionCard'
-import { DepositPositionCard } from './DepositPositionCard'
-
-// import useWalletBalances from '@/hooks/useWalletBalances' // Available for future features
 
 // Helper function to determine change type color
 const getChangeTypeColor = (changeType: string): string => {
@@ -48,9 +45,6 @@ const Portfolio = () => {
 
   // Ensure user positions are loaded (this hook manages the markets store)
   const { isLoading: positionsLoading } = useUserPositions()
-
-  // Note: walletBalances currently unused but available for future features
-  // const { data: walletBalances, isLoading: balancesLoading } = useWalletBalances()
 
   // Calculate totals from real data using proper position value calculation
   const totalStrategiesValue = activeStrategies.reduce((sum, strategy) => {
@@ -285,7 +279,7 @@ const Portfolio = () => {
                     </div>
                   ) : (
                     activeStrategies.map((strategy, index) => (
-                      <ActivePositionCard
+                      <ActiveStrategyCard
                         key={strategy.accountId}
                         strategy={strategy}
                         index={index}
@@ -408,40 +402,54 @@ const Portfolio = () => {
               {/* Deposit Cards */}
               {!depositsLoading && !positionsLoading && (
                 <div>
-                  {deposits.length === 0 && activeStrategies.length > 0 ? (
-                    <div className='flex flex-col items-center justify-center py-12 px-8 text-center'>
-                      <div className='space-y-4 max-w-lg mx-auto'>
-                        {/* Title */}
-                        <h3 className='text-xl font-funnel font-semibold text-foreground'>
-                          <AuroraText>No Active Deposits</AuroraText>
-                        </h3>
+                  {(() => {
+                    if (deposits.length === 0 && activeStrategies.length > 0) {
+                      return (
+                        <div className='flex flex-col items-center justify-center py-12 px-8 text-center'>
+                          <div className='space-y-4 max-w-lg mx-auto'>
+                            {/* Title */}
+                            <h3 className='text-xl font-funnel font-semibold text-foreground'>
+                              <AuroraText>No Active Deposits</AuroraText>
+                            </h3>
 
-                        {/* Description */}
-                        <p className='text-muted-foreground leading-relaxed'>
-                          You don't have any deposit positions yet. Make a deposit to start earning
-                          traditional yield on your assets.
-                        </p>
+                            {/* Description */}
+                            <p className='text-muted-foreground leading-relaxed'>
+                              You don't have any deposit positions yet. Make a deposit to start
+                              earning traditional yield on your assets.
+                            </p>
 
-                        {/* Action Button */}
-                        <div className='pt-2'>
-                          <Button
-                            variant='default'
-                            size='lg'
-                            onClick={() => router.push('/')}
-                            className='px-8'
-                          >
-                            View Deposits
-                          </Button>
+                            {/* Action Button */}
+                            <div className='pt-2'>
+                              <Button
+                                variant='default'
+                                size='lg'
+                                onClick={() => router.push('/')}
+                                className='px-8'
+                              >
+                                View Deposits
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ) : deposits.length > 0 ? (
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-                      {deposits.map((deposit, index) => (
-                        <DepositPositionCard key={deposit.denom} deposit={deposit} index={index} />
-                      ))}
-                    </div>
-                  ) : null}
+                      )
+                    }
+
+                    if (deposits.length > 0) {
+                      return (
+                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+                          {deposits.map((deposit, index) => (
+                            <ActiveDepositCard
+                              key={deposit.denom}
+                              deposit={deposit}
+                              index={index}
+                            />
+                          ))}
+                        </div>
+                      )
+                    }
+
+                    return null
+                  })()}
                 </div>
               )}
             </div>

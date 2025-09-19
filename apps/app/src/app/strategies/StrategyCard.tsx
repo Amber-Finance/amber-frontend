@@ -6,8 +6,8 @@ import Image from 'next/image'
 
 import { useChain } from '@cosmos-kit/react'
 
+import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import TokenBalance from '@/components/common/TokenBalance'
-import { useTheme } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -17,14 +17,12 @@ import useHealthComputer from '@/hooks/useHealthComputer'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
-import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
 import {
   calculateNetApy,
   formatLeverage,
   formatUserTokenAmount,
   getGradientColors,
   getMaxAPY,
-  getUserBalanceUsd,
 } from '@/utils/strategyCardHelpers'
 
 interface StrategyCardProps {
@@ -37,7 +35,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
   const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
-  const { theme } = useTheme()
 
   // Find active strategy for this collateral/debt pair
   const activeStrategy = activeStrategies.find(
@@ -51,23 +48,6 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     [strategy, markets, isWasmReady],
   )
 
-  const userBalanceUsd = useMemo(
-    () =>
-      getUserBalanceUsd(
-        isWalletConnected,
-        walletBalancesLoading,
-        walletBalances,
-        strategy.collateralAsset.denom,
-        markets,
-      ),
-    [
-      isWalletConnected,
-      walletBalancesLoading,
-      walletBalances,
-      strategy.collateralAsset.denom,
-      markets,
-    ],
-  )
   const netApy = useMemo(() => calculateNetApy(strategy), [strategy])
   const leverage = useMemo(
     () => formatLeverage(strategy, markets || [], isWasmReady),
@@ -227,65 +207,11 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
           {/* Earning Points Section */}
           <div className='pt-3'>
-            <div className='space-y-3'>
-              <div className='flex items-center justify-between'>
-                <span className='text-sm font-semibold text-foreground'>Earning Points</span>
-                <div className='flex -space-x-2'>
-                  {(() => {
-                    const protocolPoints = getProtocolPoints(strategy.debtAsset.symbol)
-                    const protocolPointsIcon = getProtocolPointsIcon(
-                      strategy.debtAsset.symbol,
-                      theme,
-                    )
-                    const assetLower = strategy.debtAsset.symbol.toLowerCase()
-                    const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
-                    const pointsData = []
-
-                    // Protocol Points - Show first if they exist
-                    if (protocolPoints.protocolPoint && protocolPointsIcon) {
-                      pointsData.push({
-                        icon: protocolPointsIcon,
-                        alt: protocolPoints.protocolPoint,
-                        tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
-                      })
-                    }
-
-                    // Neutron Rewards
-                    pointsData.push({
-                      icon: '/images/neutron/neutron.svg',
-                      alt: 'Neutron',
-                      tooltip: `Neutron ${neutronMultiplier}`,
-                    })
-
-                    // Mars Fragments
-                    pointsData.push({
-                      icon: '/points/mars-fragments.svg',
-                      alt: 'Mars Fragments',
-                      tooltip: 'Mars Fragments',
-                    })
-
-                    return pointsData.map((point) => (
-                      <div key={point.alt} className='group/icon relative inline-block'>
-                        <div className='relative inline-block size-8 rounded-full ring-2 ring-card group-hover/icon:ring-primary/20 bg-secondary border border-border group-hover/icon:border-primary/40 p-1.5 transition-all duration-200 group-hover/icon:z-10 cursor-pointer'>
-                          <Image
-                            src={point.icon}
-                            alt={point.alt}
-                            width={20}
-                            height={20}
-                            className='object-contain w-full h-full'
-                            unoptimized={true}
-                          />
-                        </div>
-                        <div className='opacity-0 group-hover/icon:opacity-100 invisible group-hover/icon:visible absolute z-20 bottom-full left-1/2 transform -translate-x-1/2 mb-2 py-1.5 px-2.5 bg-popover text-popover-foreground text-xs rounded-lg border border-border shadow-lg transition-all duration-200 whitespace-nowrap pointer-events-none'>
-                          {point.tooltip}
-                        </div>
-                      </div>
-                    ))
-                  })()}
-                </div>
-              </div>
-            </div>
+            <EarningPointsRow
+              assetSymbol={strategy.debtAsset.symbol}
+              variant='full'
+              type='strategy'
+            />
           </div>
 
           {/* Available Debt Section */}

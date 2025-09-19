@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useStore } from '@/store/useStore'
 
-interface ActivePositionCardProps {
+interface ActiveStrategyCardProps {
   strategy: ActiveStrategy
   index: number
 }
@@ -32,7 +32,7 @@ const getLeverageColor = (leverage: number): string => {
   return 'text-red-600 dark:text-red-400'
 }
 
-export function ActivePositionCard({ strategy, index }: ActivePositionCardProps) {
+export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps) {
   const router = useRouter()
   const { markets } = useStore()
 
@@ -233,7 +233,7 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
         {/* Earning Points Section */}
         <div className='pt-3 border-t border-border/20'>
           <EarningPointsRow
-            assetSymbol={strategy.collateralAsset.symbol}
+            assetSymbol={strategy.debtAsset.symbol}
             variant='full'
             type='strategy'
           />

@@ -23,11 +23,7 @@ import useRedBankAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
-import {
-  getProtocolIcon,
-  getProtocolPoints,
-  getProtocolPointsIcon,
-} from '@/utils/depositCardHelpers'
+import { getProtocolIcon } from '@/utils/depositCardHelpers'
 
 interface DepositCardProps {
   token: TokenInfo
@@ -221,62 +217,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           {/* Points Section */}
-          <div className='space-y-3'>
-            <div className='flex items-center justify-between'>
-              <span className='text-sm font-semibold text-foreground'>Earning Points</span>
-              <div className='flex -space-x-2'>
-                {(() => {
-                  const protocolPoints = getProtocolPoints(token.symbol)
-                  const protocolPointsIcon = getProtocolPointsIcon(token.symbol, theme)
-                  const assetLower = token.symbol.toLowerCase()
-                  const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
-                  const pointsData = []
-
-                  // Protocol Points - Show first if they exist
-                  if (protocolPoints.protocolPoint && protocolPointsIcon) {
-                    pointsData.push({
-                      icon: protocolPointsIcon,
-                      alt: protocolPoints.protocolPoint,
-                      tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
-                    })
-                  }
-
-                  // Neutron Rewards
-                  pointsData.push({
-                    icon: '/images/neutron/neutron.svg',
-                    alt: 'Neutron',
-                    tooltip: `Neutron ${neutronMultiplier}`,
-                  })
-
-                  // Mars Fragments
-                  pointsData.push({
-                    icon: '/points/mars-fragments.svg',
-                    alt: 'Mars Fragments',
-                    tooltip: 'Mars Fragments',
-                  })
-
-                  return pointsData.map((point) => (
-                    <div key={point.alt} className='group/icon relative inline-block'>
-                      <div className='relative inline-block size-8 rounded-full ring-2 ring-card group-hover/icon:ring-primary/20 bg-secondary border border-border group-hover/icon:border-primary/40 p-1.5 transition-all duration-200 group-hover/icon:z-10 cursor-pointer'>
-                        <Image
-                          src={point.icon}
-                          alt={point.alt}
-                          width={20}
-                          height={20}
-                          className='object-contain w-full h-full'
-                          unoptimized={true}
-                        />
-                      </div>
-                      <div className='opacity-0 group-hover/icon:opacity-100 invisible group-hover/icon:visible absolute z-20 bottom-full left-1/2 transform -translate-x-1/2 mb-2 py-1.5 px-2.5 bg-popover text-popover-foreground text-xs rounded-lg border border-border shadow-lg transition-all duration-200 whitespace-nowrap pointer-events-none'>
-                        {point.tooltip}
-                      </div>
-                    </div>
-                  ))
-                })()}
-              </div>
-            </div>
-          </div>
+          <EarningPointsRow assetSymbol={token.symbol} variant='full' type='deposit' />
 
           {/* Flexible spacer to push content to bottom */}
           <div className='flex-1' />
