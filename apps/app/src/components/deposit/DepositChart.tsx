@@ -18,17 +18,6 @@ interface ChartProps {
   className?: string
 }
 
-const chartConfig = {
-  supplyApr: {
-    label: 'Deposit APY',
-    color: '#6B7289',
-  },
-  tvl: {
-    label: 'TVL',
-    color: '#f57136',
-  },
-}
-
 export function DepositChart({ denom, brandColor, className }: ChartProps) {
   const [timeRange, setTimeRange] = useState('7')
 
@@ -41,11 +30,23 @@ export function DepositChart({ denom, brandColor, className }: ChartProps) {
   // Get live market data from store
   const { markets } = useStore()
   const currentMarket = markets?.find((market) => market.asset.denom === denom)
-  
-  // Get live TVL data from API
-  const currentTokenTvlData = assetsTvl?.assets?.find(
-    (asset: any) => asset.denom === denom,
+
+  const chartConfig = useMemo(
+    () => ({
+      supplyApr: {
+        label: 'Deposit APY',
+        color: '#6B7289',
+      },
+      tvl: {
+        label: 'TVL',
+        color: brandColor || '#f57136',
+      },
+    }),
+    [brandColor],
   )
+
+  // Get live TVL data from API
+  const currentTokenTvlData = assetsTvl?.assets?.find((asset: any) => asset.denom === denom)
 
   const isLoading = tvlLoading || aprLoading
 
