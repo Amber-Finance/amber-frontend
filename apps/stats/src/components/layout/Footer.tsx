@@ -37,10 +37,19 @@ const footerSections = [
   {
     title: 'Platform',
     links: [
-      { title: 'Deposit', url: '/deposit' },
-      { title: 'Strategies (Looping)', url: '/strategies' },
-      { title: 'Swap', url: '/swap' },
-      { title: 'Bridge', url: 'https://bridge.amberfi.io' },
+      { title: 'Deposit', url: process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io' },
+      {
+        title: 'Strategies (Looping)',
+        url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/strategies',
+      },
+      {
+        title: 'Swap',
+        url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
+      },
+      {
+        title: 'Bridge',
+        url: 'https://bridge.amberfi.io',
+      },
     ],
   },
   {
@@ -56,13 +65,13 @@ export function Footer() {
   const { resolvedTheme } = useTheme()
 
   return (
-    <footer className='mt-auto border-t backdrop-blur-md bg-background/50 border-border/50'>
+    <footer className='mt-auto border-t border-border/50 bg-background/50 backdrop-blur-md'>
       {/* Main Footer Content */}
-      <div className='px-8 py-12 mx-auto max-w-6xl md:px-16'>
+      <div className='mx-auto max-w-6xl px-8 py-12  md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
-            <Link href='/' className='flex gap-x-3 items-center mb-4 relative'>
+            <Link href='https://app.amberfi.io' className='flex gap-x-3 items-center mb-4 relative'>
               <Image
                 src='/logo/logo-simple/logo-dark-400x140.svg'
                 alt='Amber Finance'
@@ -79,27 +88,29 @@ export function Footer() {
                 width={142}
                 height={50}
                 className={cn(
-                  'h-10 w-auto absolute inset-0 transition-opacity duration-700 ease-in-out',
+                  'absolute inset-0 h-10 w-auto transition-opacity duration-700 ease-in-out',
                   resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
                 )}
               />
             </Link>
-            <p className='mb-6 max-w-md text-muted-foreground'>Connect with us:</p>
+            <div className='flex sm:flex-col gap-4 items-center sm:items-start justify-between'>
+              <p className='max-w-md text-muted-foreground'>Connect with us:</p>
 
-            {/* Social Links */}
-            <div className='flex gap-x-4 items-center'>
-              {icons.map((icon) => (
-                <a
-                  key={icon.label}
-                  href={icon.url}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  aria-label={icon.label}
-                  className='flex justify-center items-center w-10 h-10 rounded-md border transition-all duration-200 ease-linear border-border/50 bg-card/20 text-muted-foreground hover:text-foreground hover:border-border hover:bg-card'
-                >
-                  {icon.icon}
-                </a>
-              ))}
+              {/* Social Links */}
+              <div className='flex items-center gap-x-4'>
+                {icons.map((icon) => (
+                  <a
+                    key={icon.label}
+                    href={icon.url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-label={icon.label}
+                    className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/20 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
+                  >
+                    {icon.icon}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
 

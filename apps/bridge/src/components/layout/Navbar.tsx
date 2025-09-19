@@ -83,7 +83,7 @@ export function Navbar() {
       <header className='fixed top-0 right-0 left-0 z-50 backdrop-blur-md bg-background/50 border-b border-border/50'>
         <nav className='px-4 py-2 mx-auto max-w-screen-2xl sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center py-1 md:grid md:grid-cols-3'>
-            <Link href='/' className='flex items-center space-x-2 group'>
+            <Link href='https://app.amberfi.io' className='flex items-center space-x-2 group'>
               <div className='relative'>
                 <Image
                   src='/logo/logo-simple/logo-dark-400x140.svg'
