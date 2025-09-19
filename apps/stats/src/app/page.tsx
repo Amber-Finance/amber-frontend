@@ -81,6 +81,9 @@ export default function Home() {
           },
         ]}
       />
+      <div className='container mx-auto px-4'>
+        <TvlChart />
+      </div>
     </div>
   )
 }
