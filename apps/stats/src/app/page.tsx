@@ -2,11 +2,15 @@
 
 import { useMemo } from 'react'
 
+import { useRouter, useSearchParams } from 'next/navigation'
+
 import { BigNumber } from 'bignumber.js'
 
-import TvlChart from '@/components/TvlChart'
+import AllMarketsBarChart from '@/components/AllMarketsBarChart'
+import TokenIconsRow from '@/components/TokenIconsRow'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
+import tokens from '@/config/tokens'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
@@ -56,6 +60,18 @@ const calculateMarketTotals = (markets: Market[] | null) => {
 export default function Home() {
   useMarkets()
   const { markets } = useStore()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // Get selected token from URL params, default to first token
+  const selectedTokenSymbol = searchParams.get('token') || tokens[0]?.symbol || 'LBTC'
+  const selectedToken = tokens.find((token) => token.symbol === selectedTokenSymbol) || tokens[0]
+
+  const handleTokenSelect = (tokenSymbol: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('token', tokenSymbol)
+    router.push(`?${params.toString()}`)
+  }
 
   console.log(markets, 'markets')
   const marketTotals = useMemo(() => calculateMarketTotals(markets), [markets])
@@ -81,9 +97,8 @@ export default function Home() {
           },
         ]}
       />
-      <div className='container mx-auto px-4'>
-        <TvlChart />
-      </div>
+      <AllMarketsBarChart />
+      <TokenIconsRow selectedToken={selectedToken} onTokenSelect={handleTokenSelect} />
     </div>
   )
 }

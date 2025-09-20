@@ -17,7 +17,7 @@ interface HeroProps {
 
 export default function Hero({ title, subtitle, description, stats }: HeroProps) {
   return (
-    <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-8'>
+    <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-0'>
       <div className='flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-12'>
         {/* Left Column - Main Content */}
         <div className='flex-1 flex flex-col justify-between gap-6'>

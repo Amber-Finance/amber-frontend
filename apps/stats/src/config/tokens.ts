@@ -84,7 +84,7 @@ const tokens: TokenInfo[] = [
     decimals: 8,
     isLST: true,
     protocol: 'Structured Finance',
-    brandColor: '#F97316', // Bitcoin orange
+    brandColor: '#F8F9FA', // Whitish color
     origin: {
       chainId: '1',
       tokenAddress: '0x0000000000000000000000000000000000000000', // Factory token on Neutron
