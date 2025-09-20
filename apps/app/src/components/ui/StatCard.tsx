@@ -31,7 +31,7 @@ export function StatCard({
 
       return (
         <>
-          <span className='text-orange-500'>{dollarSign}</span>
+          <span className='text-primary'>{dollarSign}</span>
           <span className='text-foreground'>{numberPart}</span>
         </>
       )
@@ -73,10 +73,10 @@ export function StatCard({
 
   return (
     <div
-      className={`${getDynamicWidth()} bg-card/20 backdrop-blur-xl border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card/50 transition-all duration-300 group`}
+      className={`${getDynamicWidth()} bg-card backdrop-blur-xl border border-border/50 rounded-xl p-2 sm:p-4 text-center hover:bg-card transition-all duration-300 group cursor-default`}
     >
       <div className='space-y-1'>
-        <div className='text-base font-funnel sm:text-lg lg:text-2xl text-foreground group-hover:scale-110 transition-transform duration-300'>
+        <div className='text-base font-funnel sm:text-lg lg:text-2xl text-foreground transition-transform duration-300'>
           {renderValue()}
         </div>
         <div className='text-[10px] sm:text-sm text-muted-foreground font-medium uppercase tracking-widest'>

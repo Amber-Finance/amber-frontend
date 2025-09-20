@@ -39,14 +39,6 @@ export function useUserDeposits() {
 
     const depositPositions: DepositPosition[] = []
 
-    // Debug log to help troubleshoot data issues
-    console.log(
-      'useUserDeposits - lstMarkets count:',
-      lstMarkets?.length,
-      'markets count:',
-      markets.length,
-    )
-
     markets.forEach((market) => {
       // Parse deposit amount as string (it's stored as string in the store)
       const depositAmountString = market.deposit || '0'
@@ -64,17 +56,6 @@ export function useUserDeposits() {
         market.price?.price || '0',
         token.decimals,
       )
-
-      // Debug log for price calculations
-      if (token.symbol === 'eBTC' || token.decimals === 18) {
-        console.log(`${token.symbol} price calculation:`, {
-          depositAmount: depositAmountString,
-          decimals: token.decimals,
-          oraclePrice: market.price?.price,
-          amountFormatted,
-          usdValue,
-        })
-      }
 
       // Get APY data from lstMarkets (same as DepositCard)
       // Find matching LST market data for this token

@@ -3,9 +3,11 @@ import { Info } from 'lucide-react'
 import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
+import { getHealthFactorColor } from '@/utils/healthComputer'
 
 interface PositionOverviewCardProps {
   strategy: Strategy
+  activeStrategy?: ActiveStrategy // Add activeStrategy for modify mode
   displayValues: {
     currentPrice: string
     usdValue: (amount: number) => string
@@ -16,13 +18,16 @@ interface PositionOverviewCardProps {
     estimatedYearlyEarnings: number
   }
   getEstimatedEarningsUsd: () => string
+  healthFactor: number
 }
 
 export function PositionOverviewCard({
   strategy,
+  activeStrategy,
   displayValues,
   positionCalcs,
   getEstimatedEarningsUsd,
+  healthFactor,
 }: PositionOverviewCardProps) {
   return (
     <InfoCard title='Position Overview'>
@@ -63,10 +68,15 @@ export function PositionOverviewCard({
                 <span className='text-muted-foreground'>Long exposure</span>
                 <div className='text-right'>
                   <div className='font-medium text-foreground'>
-                    {positionCalcs.totalPosition.toFixed(6)} {strategy.collateralAsset.symbol}
+                    {activeStrategy
+                      ? `${activeStrategy.collateralAsset.amountFormatted.toFixed(6)} ${strategy.collateralAsset.symbol}`
+                      : `${positionCalcs.totalPosition.toFixed(6)} ${strategy.collateralAsset.symbol}`}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~{displayValues.usdValue(positionCalcs.totalPosition)}
+                    ~
+                    {activeStrategy
+                      ? `$${activeStrategy.collateralAsset.usdValue.toFixed(2)}`
+                      : displayValues.usdValue(positionCalcs.totalPosition)}
                   </div>
                 </div>
               </div>
@@ -75,10 +85,15 @@ export function PositionOverviewCard({
                 <span className='text-muted-foreground'>Short exposure</span>
                 <div className='text-right'>
                   <div className='font-medium text-foreground'>
-                    {positionCalcs.borrowAmount.toFixed(6)} {strategy.debtAsset.symbol}
+                    {activeStrategy
+                      ? `${activeStrategy.debtAsset.amountFormatted.toFixed(6)} ${strategy.debtAsset.symbol}`
+                      : `${positionCalcs.borrowAmount.toFixed(6)} ${strategy.debtAsset.symbol}`}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~{displayValues.usdValue(positionCalcs.borrowAmount)}
+                    ~
+                    {activeStrategy
+                      ? `$${activeStrategy.debtAsset.usdValue.toFixed(2)}`
+                      : displayValues.usdValue(positionCalcs.borrowAmount)}
                   </div>
                 </div>
               </div>
@@ -103,35 +118,57 @@ export function PositionOverviewCard({
                 Est. Annual Earnings
               </div>
               <div
-                className={`font-semibold text-sm ${
-                  positionCalcs.estimatedYearlyEarnings >= 0
+                className={`font-semibold text-sm ${(() => {
+                  const isPositive = activeStrategy
+                    ? activeStrategy.netApy > 0
+                    : positionCalcs.estimatedYearlyEarnings >= 0
+                  return isPositive
                     ? 'text-emerald-600 dark:text-emerald-300'
                     : 'text-red-600 dark:text-red-300'
-                }`}
+                })()}`}
               >
-                {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
-                {positionCalcs.estimatedYearlyEarnings.toFixed(6)} {strategy.collateralAsset.symbol}
+                {activeStrategy ? (
+                  <>
+                    {activeStrategy.netApy > 0 ? '+' : ''}
+                    {(
+                      (activeStrategy.collateralAsset.amountFormatted * activeStrategy.netApy) /
+                      100
+                    ).toFixed(6)}{' '}
+                    {strategy.collateralAsset.symbol}
+                  </>
+                ) : (
+                  <>
+                    {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
+                    {positionCalcs.estimatedYearlyEarnings.toFixed(6)}{' '}
+                    {strategy.collateralAsset.symbol}
+                  </>
+                )}
               </div>
               <div
-                className={`text-xs ${
-                  positionCalcs.estimatedYearlyEarnings >= 0
+                className={`text-xs ${(() => {
+                  const isPositive = activeStrategy
+                    ? activeStrategy.netApy > 0
+                    : positionCalcs.estimatedYearlyEarnings >= 0
+                  return isPositive
                     ? 'text-emerald-600/80 dark:text-emerald-400/80'
                     : 'text-red-600/80 dark:text-red-400/80'
-                }`}
+                })()}`}
               >
-                {getEstimatedEarningsUsd()}
+                ~
+                {activeStrategy
+                  ? `$${((activeStrategy.collateralAsset.usdValue * activeStrategy.netApy) / 100).toFixed(2)}`
+                  : getEstimatedEarningsUsd()}
               </div>
             </div>
 
             <div className='space-y-1 text-xs'>
               <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>Your LTV (LLTV)</span>
-                <span className='font-medium text-foreground'>∞ (-%)</span>
-              </div>
-
-              <div className='flex justify-between items-center'>
                 <span className='text-muted-foreground'>Your health</span>
-                <span className='font-medium text-foreground'>-</span>
+                <span
+                  className={`font-medium text-foreground ${getHealthFactorColor(healthFactor)}`}
+                >
+                  {healthFactor?.toFixed(2) || '-'}
+                </span>
               </div>
             </div>
           </div>

@@ -51,6 +51,8 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   const { data: walletBalances } = useWalletBalances()
   const { amount: depositedAmount } = useUserDeposit(token.denom)
 
+  const hasDeposited = metrics.deposited > 0
+
   const walletBalanceAmount =
     walletBalances?.find((balance) => balance.denom === token.denom)?.amount || '0'
 
@@ -92,7 +94,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   }
 
   return (
-    <Card className='group relative w-full h-full flex flex-col bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
+    <Card className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* FlickeringGrid in header area only */}
       <div className='absolute inset-x-0 top-0 h-32 z-0 flex justify-center items-center self-center overflow-hidden rounded-t-lg'>
         <FlickeringGrid
@@ -105,38 +107,37 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           gradientDirection='top-to-bottom'
           height={128}
         />
+
         {/* Subtle gradient overlay */}
         <div
-          className='absolute inset-0 opacity-60'
+          className='absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'
           style={{
-            background: `linear-gradient(180deg, ${token.brandColor}05 0%, transparent 70%)`,
+            background: `linear-gradient(135deg, ${token.brandColor}08 0%, transparent 50%, transparent 100%)`,
           }}
         />
       </div>
 
-      <CardHeader className='pb-4 relative z-10'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
+      <CardHeader className='relative z-20'>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-16 h-16 rounded-xl overflow-hidden shadow-sm'>
+              <div className='relative w-16 h-16'>
                 <Image
                   src={token.icon}
                   alt={token.symbol}
                   fill
-                  className='object-contain p-2'
-                  sizes='48px'
+                  className='w-full h-full object-contain'
                 />
               </div>
 
               {/* Protocol Icon Badge */}
               {protocolIcon && (
-                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-lg bg-card/20 border shadow-sm p-0.5'>
+                <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
                   <Image
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
-                    width={16}
-                    height={16}
-                    className='object-contain w-full h-full'
+                    fill
+                    className=' w-full h-full p-1'
                     unoptimized={true}
                   />
                 </div>
@@ -152,10 +153,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           <div className='text-center'>
-            <div
-              className='text-4xl sm:text-5xl font-funnel font-bold'
-              style={{ color: token.brandColor }}
-            >
+            <div className='text-4xl  font-funnel font-bold' style={{ color: token.brandColor }}>
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
             <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>
@@ -238,16 +236,16 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
               {/* Deposited Balance */}
               <div className='space-y-1'>
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm text-muted-foreground'>Deposited</span>
-                  <TokenBalance coin={depositedCoin} size='sm' />
+                  <span className='text-sm text-foreground'>Deposited</span>
+                  <TokenBalance coin={depositedCoin} size='md' />
                 </div>
               </div>
 
               {/* Available Balance */}
               <div className='space-y-1'>
                 <div className='flex justify-between items-center'>
-                  <span className='text-sm text-muted-foreground'>Available</span>
-                  <TokenBalance coin={availableCoin} size='sm' />
+                  <span className='text-sm text-foreground'>Available</span>
+                  <TokenBalance coin={availableCoin} size='md' />
                 </div>
               </div>
             </div>
@@ -262,11 +260,14 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             className='flex-1'
             disabled={token.comingSoon}
           >
-            {token.comingSoon ? 'Temporary Disabled' : metrics.deposited > 0 ? 'Modify' : 'Deposit'}
+            {(() => {
+              if (token.comingSoon) return 'Temporary Disabled'
+              return hasDeposited ? 'Modify' : 'Deposit'
+            })()}
           </Button>
 
           {/* Withdraw Button */}
-          {metrics.deposited > 0 && (
+          {hasDeposited && (
             <Button
               onClick={token.comingSoon ? undefined : handleWithdrawClick}
               variant='outline'

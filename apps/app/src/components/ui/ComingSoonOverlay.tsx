@@ -35,17 +35,17 @@ export function ComingSoonOverlay() {
 
           {/* Features Preview */}
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4 max-w-lg mx-auto'>
-            <div className='p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
+            <div className='p-4 rounded-xl bg-card backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
               <div className='text-sm font-semibold text-foreground'>Yield</div>
               <div className='text-xs text-muted-foreground'>
                 Earn Yield on Bitcoin Liquid Staking Tokens
               </div>
             </div>
-            <div className='p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
+            <div className='p-4 rounded-xl bg-card backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
               <div className='text-sm font-semibold text-foreground'>Looping</div>
               <div className='text-xs text-muted-foreground'>Up to 12x Leverage on your maxBTC</div>
             </div>
-            <div className='p-4 rounded-xl bg-card/20 backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
+            <div className='p-4 rounded-xl bg-card backdrop-blur-sm border border-border/50 gap-2 flex flex-col justify-between'>
               <div className='text-sm font-semibold text-foreground'>Points Farming</div>
               <div className='text-xs text-muted-foreground'>
                 Earn BTCFi Points on Amber Finance

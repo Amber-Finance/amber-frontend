@@ -7,9 +7,17 @@ import Image from 'next/image'
 import { useChain } from '@cosmos-kit/react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import TokenBalance from '@/components/common/TokenBalance'
 import { Button } from '@/components/ui/Button'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
@@ -19,13 +27,9 @@ import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
 import {
   calculateNetApy,
-  formatBorrowTokenAmount,
-  formatBorrowableUsd,
   formatLeverage,
-  formatUserTokenAmount,
   getGradientColors,
   getMaxAPY,
-  getUserBalanceUsd,
 } from '@/utils/strategyCardHelpers'
 
 interface StrategyCardProps {
@@ -34,7 +38,7 @@ interface StrategyCardProps {
 
 export function StrategyCard({ strategy }: StrategyCardProps) {
   const { isWalletConnected, connect } = useChain(chainConfig.name)
-  const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
+  const { data: walletBalances } = useWalletBalances()
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
   const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
@@ -51,54 +55,23 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     [strategy, markets, isWasmReady],
   )
 
-  const userBalanceUsd = useMemo(
-    () =>
-      getUserBalanceUsd(
-        isWalletConnected,
-        walletBalancesLoading,
-        walletBalances,
-        strategy.collateralAsset.denom,
-        markets,
-      ),
-    [
-      isWalletConnected,
-      walletBalancesLoading,
-      walletBalances,
-      strategy.collateralAsset.denom,
-      markets,
-    ],
-  )
   const netApy = useMemo(() => calculateNetApy(strategy), [strategy])
   const leverage = useMemo(
     () => formatLeverage(strategy, markets || [], isWasmReady),
     [strategy, markets, isWasmReady],
   )
-  const borrowableUsd = useMemo(() => formatBorrowableUsd(strategy), [strategy])
   const { collateralColor, debtColor } = useMemo(() => getGradientColors(strategy), [strategy])
-  const borrowTokenAmount = useMemo(
-    () =>
-      formatBorrowTokenAmount(markets || [], strategy.debtAsset.denom, strategy.debtAsset.symbol),
-    [markets, strategy.debtAsset.denom, strategy.debtAsset.symbol],
-  )
-  const userTokenAmount = useMemo(
-    () =>
-      formatUserTokenAmount(
-        isWalletConnected,
-        walletBalancesLoading,
-        walletBalances,
-        strategy.collateralAsset.denom,
-        strategy.collateralAsset.symbol,
-        strategy.collateralAsset.decimals || 8, // Use actual decimals from strategy
-      ),
-    [
-      isWalletConnected,
-      walletBalancesLoading,
-      walletBalances,
-      strategy.collateralAsset.denom,
-      strategy.collateralAsset.symbol,
-      strategy.collateralAsset.decimals,
-    ],
-  )
+
+  // Create coin object for TokenBalance component
+  const debtCoin = useMemo((): Coin => {
+    const market = markets?.find((m) => m.asset.denom === strategy.debtAsset.denom)
+    const rawAmount = market?.metrics?.collateral_total_amount || '0'
+
+    return {
+      denom: strategy.debtAsset.denom,
+      amount: rawAmount,
+    }
+  }, [markets, strategy.debtAsset.denom])
 
   const cardStyle = {
     '--collateral-color': collateralColor,
@@ -109,7 +82,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
   return (
     <Card
-      className='group relative w-full h-full flex flex-col bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'
+      className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'
       style={cardStyle}
     >
       <FlickeringGrid
@@ -118,7 +91,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         squareSize={8}
         gridGap={2}
         flickerChance={0.2}
-        maxOpacity={0.3}
+        maxOpacity={0.2}
         gradientDirection='top-to-bottom'
         height={120}
       />
@@ -135,32 +108,31 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         <div className='flex items-center justify-between mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='w-12 h-12 rounded-2xl overflow-hidden bg-background border border-border/20 p-2'>
+              <div className='relative w-16 h-16'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
-                  width={32}
-                  height={32}
+                  fill
                   className='w-full h-full object-contain'
                 />
               </div>
-              <div className='absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-background/90 backdrop-blur-sm border border-border/30 p-1'>
+              <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
                 <Image
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
-                  width={20}
-                  height={20}
-                  className='w-full h-full object-contain'
+                  fill
+                  className=' w-full h-full'
+                  unoptimized={true}
                 />
               </div>
             </div>
-            <div>
-              <h3 className='font-funnel font-semibold text-foreground text-lg mb-1'>
+            <div className='flex flex-col'>
+              <CardTitle className='text-lg font-semibold'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
-              </h3>
-              <p className='text-muted-foreground text-sm font-medium'>
+              </CardTitle>
+              <CardDescription className='text-sm text-muted-foreground'>
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
-              </p>
+              </CardDescription>
             </div>
           </div>
         </div>
@@ -199,30 +171,35 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           {/* Strategy Metrics */}
-          <div className='grid grid-cols-2 gap-4 pt-3'>
-            <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+          <div className='grid grid-cols-2 gap-4'>
+            <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Base APY
               </p>
               <p
-                className={`font-semibold text-sm ${netApy >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                className={`font-semibold text-md ${netApy >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
               >
                 {netApy >= 0 ? '+' : '-'}
                 {Math.abs(netApy * 100).toFixed(2)}%
               </p>
             </div>
-            <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+            <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Max Leverage
               </p>
-              <p className='text-foreground font-semibold text-sm'>{leverage}</p>
+              <p
+                className='text-foreground font-semibold text-md
+              '
+              >
+                {leverage}
+              </p>
             </div>
           </div>
 
           {/* Earning Points Section */}
           <div className='pt-3'>
             <EarningPointsRow
-              assetSymbol={strategy.collateralAsset.symbol}
+              assetSymbol={strategy.debtAsset.symbol}
               variant='full'
               type='strategy'
             />
@@ -235,21 +212,25 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             </div>
 
             <div className='space-y-1'>
-              <div className='flex justify-between items-center'>
-                <span className='text-xs text-muted-foreground flex items-center gap-2'>
+              <div className='flex justify-between  items-center'>
+                <span className='text-xs text-muted-foreground flex justify-center items-center gap-2'>
                   <Image
                     src={strategy.debtAsset.icon}
                     alt={strategy.debtAsset.symbol}
-                    width={14}
-                    height={14}
-                    className='w-3.5 h-3.5'
+                    width={32}
+                    height={32}
+                    unoptimized={true}
                   />
-                  {strategy.debtAsset.symbol}
+                  <span className='text-sm font-medium text-foreground'>
+                    {strategy.debtAsset.symbol}
+                  </span>
                 </span>
-                <div className='text-sm font-medium text-foreground'>{borrowableUsd}</div>
-              </div>
-              <div className='flex justify-end'>
-                <div className='text-xs text-muted-foreground'>{borrowTokenAmount}</div>
+                <TokenBalance
+                  coin={debtCoin}
+                  size='md'
+                  align='right'
+                  className='flex flex-col justify-end items-end'
+                />
               </div>
             </div>
           </div>
@@ -266,95 +247,71 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 </div>
               </div>
 
-              <div className='space-y-2'>
-                {/* Deposited Balance */}
-                <div className='space-y-1'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-muted-foreground'>Deposited</span>
-                    <span className='text-sm font-medium text-foreground'>
-                      ${activeStrategy.collateralAsset.usdValue.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className='flex justify-end'>
-                    <span className='text-xs text-muted-foreground'>
-                      {activeStrategy.collateralAsset.amountFormatted.toFixed(
-                        Math.min(activeStrategy.collateralAsset.decimals || 8, 6),
-                      )}{' '}
-                      {strategy.collateralAsset.symbol}
-                    </span>
+              <div className='grid grid-cols-2 gap-4'>
+                {/* Leverage */}
+                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>Leverage</span>
+                    <div className='text-right'>
+                      <div className='text-sm font-semibold text-foreground'>
+                        {activeStrategy.leverage.toFixed(2)}x
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className='grid grid-cols-2 gap-3'>
-                  <div className='space-y-1'>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-xs text-muted-foreground'>Borrowed</span>
-                      <span className='text-sm font-medium text-foreground'>
-                        ${activeStrategy.debtAsset.usdValue.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className='flex justify-end'>
-                      <span className='text-xs text-muted-foreground'>
-                        {activeStrategy.debtAsset.amountFormatted.toFixed(6)}{' '}
-                        {activeStrategy.debtAsset.symbol}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className='space-y-1'>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-xs text-muted-foreground'>Leverage</span>
-                      <span className='text-sm font-medium text-foreground'>
-                        {activeStrategy.leverage.toFixed(2)}x
-                      </span>
-                    </div>
-                    <div className='flex justify-end'>
-                      <span
-                        className={`text-xs font-medium ${
+                {/* Net APY */}
+                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>Net APY</span>
+                    <div className='text-right'>
+                      <div
+                        className={`text-sm font-semibold ${
                           activeStrategy.isPositive
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
                         }`}
                       >
                         {activeStrategy.netApy > 0 ? '+' : ''}
-                        {activeStrategy.netApy.toFixed(2)}% APY
-                      </span>
+                        {activeStrategy.netApy.toFixed(2)}%
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+              {/* Deposited Balance */}
+              <div className='flex justify-between items-center'>
+                <span className='text-sm text-foreground'>Deposited</span>
+                <TokenBalance coin={activeStrategy.collateralAsset} size='md' />
+              </div>
+
+              {/* Borrowed Balance */}
+              <div className='flex justify-between items-center'>
+                <span className='text-sm text-foreground'>Borrowed</span>
+                <TokenBalance coin={activeStrategy.debtAsset} size='md' />
+              </div>
             </div>
           ) : (
             /* Balances Section */
-            <div className='space-y-2 pt-2 flex-1'>
+            <div className='space-y-2 pt-2 flex-1 flex flex-col h-full'>
               <div className='flex items-center gap-2'>
-                <span className='text-sm font-semibold text-foreground'>Balances</span>
+                <span className='text-sm font-semibold text-foreground'>Balance</span>
               </div>
 
               <div className='space-y-2'>
-                {/* Deposited Balance */}
-                <div className='space-y-1'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-xs text-muted-foreground'>Deposited</span>
-                    <span className='text-sm font-medium text-foreground'>$0.00</span>
-                  </div>
-                  <div className='flex justify-end'>
-                    <span className='text-xs text-muted-foreground'>
-                      0.{'0'.repeat(strategy.collateralAsset.decimals || 8)}{' '}
-                      {strategy.collateralAsset.symbol}
-                    </span>
-                  </div>
-                </div>
                 {/* Available Balance */}
                 <div className='space-y-1'>
                   <div className='flex justify-between items-center'>
-                    <span className='text-xs text-muted-foreground'>Available</span>
-                    <span className='text-sm font-medium text-foreground'>
-                      {userBalanceUsd.gt(0) ? `$${userBalanceUsd.toFormat(2)}` : '$0.00'}
-                    </span>
-                  </div>
-                  <div className='flex justify-end'>
-                    <span className='text-xs text-muted-foreground'>{userTokenAmount}</span>
+                    <span className='text-sm text-foreground'>Available</span>
+                    <TokenBalance
+                      coin={{
+                        denom: strategy.collateralAsset.denom,
+                        amount:
+                          walletBalances?.find((b) => b.denom === strategy.collateralAsset.denom)
+                            ?.amount || '0',
+                      }}
+                      size='md'
+                    />
                   </div>
                 </div>
               </div>
@@ -365,7 +322,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           <div className='flex-1' />
         </CardContent>
       </div>
-      <CardFooter className='relative z-20 pt-3'>
+      <CardFooter className='relative z-20 pt-3 h-full flex flex-col justify-end'>
         {!isWalletConnected && (
           <Button
             onClick={isComingSoon ? undefined : connect}
@@ -382,11 +339,11 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             onClick={() =>
               (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}&modify=true&accountId=${activeStrategy.accountId}`)
             }
-            variant='outline'
+            variant='default'
             className='w-full'
             disabled={isComingSoon}
           >
-            {isComingSoon ? 'Temporary Disabled' : 'Close Position'}
+            {isComingSoon ? 'Temporary Disabled' : 'Modify'}
           </Button>
         )}
 

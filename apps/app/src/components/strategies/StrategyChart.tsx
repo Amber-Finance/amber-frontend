@@ -34,7 +34,7 @@ export function StrategyChart({
         color: brandColor || '#f57136',
       },
       maxBtcSupplyApr: {
-        label: 'MaxBTC Supply APY',
+        label: 'MaxBTC Underlying Staking APY',
         color: '#6B7289',
       },
     }),
@@ -108,14 +108,14 @@ export function StrategyChart({
     {
       yAxisId: 'left',
       dataKey: 'maxBtcSupplyApr',
-      name: 'MaxBTC Supply APY',
+      name: 'MaxBTC Underlying Staking APY',
       gradientId: 'maxBtcSupplyAprGradient',
     },
   ]
 
   return (
     <BaseChart
-      title={`${symbol} Borrow APY & MaxBTC Supply APY`}
+      title={`${symbol} Borrow APY & MaxBTC Underlying Staking APY`}
       chartData={chartData}
       chartConfig={chartConfig}
       yAxes={yAxes}
