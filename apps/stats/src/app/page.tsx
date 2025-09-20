@@ -8,6 +8,7 @@ import { BigNumber } from 'bignumber.js'
 
 import AllMarketsBarChart from '@/components/AllMarketsBarChart'
 import TokenIconsRow from '@/components/TokenIconsRow'
+import TokenMetricsCards from '@/components/TokenMetricsCards'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
@@ -70,7 +71,7 @@ export default function Home() {
   const handleTokenSelect = (tokenSymbol: string) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('token', tokenSymbol)
-    router.push(`?${params.toString()}`)
+    router.replace(`?${params.toString()}`, { scroll: false })
   }
 
   console.log(markets, 'markets')
@@ -99,6 +100,7 @@ export default function Home() {
       />
       <AllMarketsBarChart />
       <TokenIconsRow selectedToken={selectedToken} onTokenSelect={handleTokenSelect} />
+      <TokenMetricsCards selectedToken={selectedToken} markets={markets} />
     </div>
   )
 }
