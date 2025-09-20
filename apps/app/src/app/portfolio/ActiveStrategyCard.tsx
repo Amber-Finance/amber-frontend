@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -6,24 +6,16 @@ import { useRouter } from 'next/navigation'
 import { Info } from 'lucide-react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
-import { LeverageAdjustment } from '@/components/strategy/LeverageAdjustment'
 import { Button } from '@/components/ui/Button'
-import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useStore } from '@/store/useStore'
+import { getHealthFactorColor } from '@/utils/healthComputer'
 
 interface ActiveStrategyCardProps {
   strategy: ActiveStrategy
   index: number
-}
-
-// Helper function to determine health factor color
-const getHealthFactorColor = (healthFactor: number): string => {
-  if (healthFactor > 1.1) return 'text-green-500'
-  if (healthFactor > 1.05) return 'text-amber-500'
-  return 'text-red-500'
 }
 
 // Helper function to determine leverage color
@@ -36,9 +28,6 @@ const getLeverageColor = (leverage: number): string => {
 export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps) {
   const router = useRouter()
   const { markets } = useStore()
-  const [showLeverageAdjustment, setShowLeverageAdjustment] = useState(false)
-
-  // Token decimals are now included in the strategy object from useActiveStrategies
 
   // Create positions for health computer using the specific account ID
   const updatedPositions = useMemo(
@@ -74,7 +63,6 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
 
   // Use health computer hook
   const { healthFactor: computedHealthFactor } = useHealthComputer(updatedPositions)
-
   // Real calculations using market data and health computer
   const calculations = useMemo(() => {
     if (!markets?.length) {
@@ -134,9 +122,6 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
 
   const { positionValue, healthFactor, pnl } = calculations
 
-  const gradientVariants: ('purple' | 'blue' | 'secondary')[] = ['purple', 'blue', 'secondary']
-  const gradientClass = gradientVariants[index % gradientVariants.length]
-
   // Format amounts for display with appropriate precision
   const formatAmount = (amount: number, tokenDecimals: number = 6, displayDecimals = 6): string => {
     if (typeof amount !== 'number' || isNaN(amount) || amount === 0) {
@@ -164,51 +149,38 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
   return (
     <Card className='group relative overflow-hidden bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* Subtle Gradient Background */}
-      <SubtleGradientBg variant={gradientClass} className='opacity-40' />
+      {/* <SubtleGradientBg variant={gradientClass} className='opacity-40' /> */}
 
       {/* Card Header */}
-      <CardHeader className='relative pb-6'>
+      <CardHeader className='relative z-20'>
         <div className='flex items-center justify-between mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='w-12 h-12 rounded-2xl overflow-hidden bg-background border border-border/20 p-2'>
-                {strategy.collateralAsset.icon ? (
-                  <Image
-                    src={strategy.collateralAsset.icon}
-                    alt={strategy.collateralAsset.symbol}
-                    width={32}
-                    height={32}
-                    className='w-full h-full object-contain'
-                  />
-                ) : (
-                  <div className='w-full h-full bg-primary/30 rounded-xl flex items-center justify-center text-xs font-bold text-primary'>
-                    {strategy.collateralAsset.symbol}
-                  </div>
-                )}
+              <div className='relative w-16 h-16'>
+                <Image
+                  src={strategy.collateralAsset.icon}
+                  alt={strategy.collateralAsset.symbol}
+                  fill
+                  className='w-full h-full object-contain'
+                />
               </div>
-              <div className='absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-background/90 backdrop-blur-sm border border-border/30 p-1'>
-                {strategy.debtAsset.icon ? (
-                  <Image
-                    src={strategy.debtAsset.icon}
-                    alt={strategy.debtAsset.symbol}
-                    width={20}
-                    height={20}
-                    className='w-full h-full object-contain'
-                  />
-                ) : (
-                  <div className='w-full h-full bg-secondary/40 rounded-md flex items-center justify-center text-[10px] font-bold text-secondary'>
-                    {strategy.debtAsset.symbol}
-                  </div>
-                )}
+              <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
+                <Image
+                  src={strategy.debtAsset.icon}
+                  alt={strategy.debtAsset.symbol}
+                  fill
+                  className=' w-full h-full'
+                  unoptimized={true}
+                />
               </div>
             </div>
-            <div>
-              <h3 className='font-funnel font-semibold text-foreground text-lg mb-1'>
+            <div className='flex flex-col'>
+              <CardTitle className='text-lg font-semibold'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
-              </h3>
-              <p className='text-muted-foreground text-sm font-medium'>
+              </CardTitle>
+              <CardDescription className='text-sm text-muted-foreground'>
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
-              </p>
+              </CardDescription>
             </div>
           </div>
         </div>

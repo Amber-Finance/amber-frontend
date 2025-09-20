@@ -25,10 +25,7 @@ export const createDisplayValues = (
     walletBalance: getWalletBalance(),
     usdValue: (amount: number) => (currentPrice > 0 ? formatUsd(amount * currentPrice) : 'N/A'),
     currentPrice: currentPrice > 0 ? `$${currentPrice.toLocaleString()}` : 'N/A',
-    supplyApy:
-      effectiveMaxBtcApy && effectiveMaxBtcApy > 0
-        ? `${Number(effectiveMaxBtcApy).toFixed(2)}%`
-        : 'N/A',
+    supplyApy: `${Number(effectiveMaxBtcApy).toFixed(2)}%`,
     borrowApy: debtBorrowApy > 0 ? `${(debtBorrowApy * 100).toFixed(2)}%` : 'N/A',
   }
 }

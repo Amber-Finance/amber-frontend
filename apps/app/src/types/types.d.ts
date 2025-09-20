@@ -225,6 +225,7 @@ type Coin = {
 type SwapRouteInfo = {
   amountOut: BigNumber
   priceImpact: BigNumber
+  amountIn?: BigNumber
   fee: BigNumber
   route: import('types/generated/mars-swapper-base/MarsSwapperBase.types').SwapperRoute
   description: string
@@ -551,8 +552,11 @@ interface SwapToken {
   chainId: string
 }
 interface SwapRouteInfo {
-  amountOut: string
-  priceImpact: number
+  amountOut?: BigNumber // Present in forward routing, target in reverse routing
+  amountIn?: BigNumber // Present in reverse routing, calculated amount needed
+  priceImpact: BigNumber
+  fee: BigNumber
+  description: string
   route: SwapperRoute
 }
 
@@ -764,12 +768,11 @@ interface SwapTransactionConfig {
 
 type TransactionConfig =
   | DepositConfig
-  | WithdrawConfig
+  | WithdrawConfig  
   | BorrowConfig
   | RepayConfig
   | SwapTransactionConfig
-  | DeployStrategyConfig
-  | ManageStrategyConfig
+  | StrategyParams
   | ModifyLeverageConfig
   | StrategyParams
 
@@ -858,6 +861,7 @@ interface StrategyDeploymentParams {
   collateralAmount: number
   multiplier: number
   swapRouteInfo: SwapRouteInfo
+  slippage?: number
 }
 
 interface UseStrategyDeploymentProps {

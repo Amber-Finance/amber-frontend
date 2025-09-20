@@ -31,7 +31,7 @@ export function StatCard({
 
       return (
         <>
-          <span className='text-orange-500'>{dollarSign}</span>
+          <span className='text-primary'>{dollarSign}</span>
           <span className='text-foreground'>{numberPart}</span>
         </>
       )

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 
 import { BigNumber } from 'bignumber.js'
 
-import getNeutronRouteInfo from '@/api/swap/getNeutronRouteInfo'
+import getNeutronRouteInfo, { getNeutronRouteInfoReverse } from '@/api/swap/getNeutronRouteInfo'
 import chainConfig from '@/config/chain'
 import { useStore } from '@/store/useStore'
 import { useBroadcast } from '@/utils/broadcast'
@@ -16,6 +16,7 @@ interface UseStrategyLeverageModificationProps {
   strategy: Strategy
   accountId: string
   activeStrategy: ActiveStrategy
+  slippage?: number
 }
 
 interface LeverageModificationResult {
@@ -28,6 +29,7 @@ export const useStrategyLeverageModification = ({
   strategy,
   accountId,
   activeStrategy,
+  slippage = 0.5,
 }: UseStrategyLeverageModificationProps) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const { executeTransaction } = useBroadcast()
@@ -50,13 +52,12 @@ export const useStrategyLeverageModification = ({
 
       const maxLoanToValue = parseFloat(collateralMarket.params?.max_loan_to_value || '0.8')
 
-      // Use 1.05 as minimum health factor (5% buffer above liquidation at 1.0)
       const validation = validateLeverageChange(
         activeStrategy.collateralAsset.usdValue,
         activeStrategy.debtAsset.usdValue,
         targetLeverage,
         maxLoanToValue,
-        1.05, // 5% buffer above liquidation threshold of 1.0
+        1.0,
       )
 
       return validation
@@ -105,18 +106,39 @@ export const useStrategyLeverageModification = ({
         )
       }
 
-      if (!isIncreasing && tokenAmounts.collateralToWithdraw) {
-        const withdrawAmount = new BigNumber(tokenAmounts.collateralToWithdraw)
-        return await fetchSwapRoute(
-          activeStrategy.collateralAsset.denom,
-          activeStrategy.debtAsset.denom,
-          withdrawAmount,
-        )
+      if (!isIncreasing && tokenAmounts.debtToRepay) {
+        // Use reverse routing for decrease leverage: specify exact debt amount to repay
+        const debtAmount = new BigNumber(tokenAmounts.debtToRepay)
+
+        try {
+          const routeResult = await getNeutronRouteInfoReverse(
+            activeStrategy.collateralAsset.denom,
+            activeStrategy.debtAsset.denom,
+            debtAmount,
+            markets?.map((m) => m.asset) || [],
+            chainConfig,
+          )
+
+          if (!routeResult?.amountIn) {
+            console.error('Reverse routing failed for leverage modification')
+            return null
+          }
+
+          return routeResult
+        } catch (error) {
+          console.error('Error in reverse routing for leverage modification:', error)
+          return null
+        }
       }
 
       return null
     },
-    [fetchSwapRoute, activeStrategy?.debtAsset?.denom, activeStrategy?.collateralAsset?.denom],
+    [
+      fetchSwapRoute,
+      markets,
+      activeStrategy?.debtAsset?.denom,
+      activeStrategy?.collateralAsset?.denom,
+    ],
   )
 
   const createTransactionConfig = useCallback(
@@ -133,11 +155,21 @@ export const useStrategyLeverageModification = ({
       currentLeverage,
       targetLeverage,
       collateral: {
-        amount: isIncreasing
-          ? 0
-          : new BigNumber(tokenAmounts.collateralToWithdraw || '0')
+        amount: (() => {
+          if (isIncreasing) return 0
+
+          // For decrease leverage with reverse routing, use the exact amount from route
+          if (swapRouteInfo.amountIn) {
+            return swapRouteInfo.amountIn
               .shiftedBy(-(activeStrategy.collateralAsset.decimals || 8))
-              .toNumber(),
+              .toNumber()
+          }
+
+          // Fallback to calculated amount
+          return new BigNumber(tokenAmounts.collateralToWithdraw || '0')
+            .shiftedBy(-(activeStrategy.collateralAsset.decimals || 8))
+            .toNumber()
+        })(),
         denom: activeStrategy.collateralAsset.denom,
         decimals: activeStrategy.collateralAsset.decimals || 8,
       },
@@ -152,10 +184,10 @@ export const useStrategyLeverageModification = ({
       },
       swap: {
         routeInfo: swapRouteInfo,
-        slippage: '0.5',
+        slippage: slippage.toString(),
       },
     }),
-    [accountId, activeStrategy],
+    [accountId, activeStrategy, slippage],
   )
 
   const modifyLeverage = useCallback(
@@ -255,7 +287,7 @@ export const useStrategyLeverageModification = ({
     if (!collateralMarket) return 1
 
     const maxLoanToValue = parseFloat(collateralMarket.params?.max_loan_to_value || '0.8')
-    const minHealthFactor = 1.05 // 5% buffer above liquidation
+    const minHealthFactor = 1.0 // below 1.0 is liquidation
 
     // Calculate max safe leverage: maxLev = LTV / (LTV - (1/minHF))
     const theoreticalMaxLeverage = maxLoanToValue / (maxLoanToValue - 1 / minHealthFactor)

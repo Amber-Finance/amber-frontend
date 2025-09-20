@@ -10,6 +10,7 @@ import { useTheme } from '@/components/providers/ThemeProvider'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
+import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
 import {
   Card,
   CardContent,
@@ -49,6 +50,8 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
   const { data: walletBalances } = useWalletBalances()
   const { amount: depositedAmount } = useUserDeposit(token.denom)
+
+  const hasDeposited = metrics.deposited > 0
 
   const walletBalanceAmount =
     walletBalances?.find((balance) => balance.denom === token.denom)?.amount || '0'
@@ -94,7 +97,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
     <Card className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* FlickeringGrid in header area only */}
       <div className='absolute inset-x-0 top-0 h-32 z-0 flex justify-center items-center self-center overflow-hidden rounded-t-lg'>
-        {/* <FlickeringGrid
+        <FlickeringGrid
           className='w-full h-full'
           color={token.brandColor}
           squareSize={8}
@@ -103,39 +106,38 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           maxOpacity={0.2}
           gradientDirection='top-to-bottom'
           height={128}
-        /> */}
+        />
+
         {/* Subtle gradient overlay */}
         <div
-          className='absolute inset-0 opacity-60'
+          className='absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'
           style={{
-            background: `linear-gradient(180deg, ${token.brandColor}05 0%, transparent 70%)`,
+            background: `linear-gradient(135deg, ${token.brandColor}08 0%, transparent 50%, transparent 100%)`,
           }}
         />
       </div>
 
-      <CardHeader className='pb-4 relative z-10'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
+      <CardHeader className='relative z-20'>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-20 h-20'>
+              <div className='relative w-16 h-16'>
                 <Image
                   src={token.icon}
                   alt={token.symbol}
                   fill
-                  className='object-contain'
-                  sizes='80px'
+                  className='w-full h-full object-contain'
                 />
               </div>
 
               {/* Protocol Icon Badge */}
               {protocolIcon && (
-                <div className='absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-lg bg-background border shadow-sm p-1'>
+                <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
                   <Image
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
-                    width={32}
-                    height={32}
-                    className='object-contain w-full h-full'
+                    fill
+                    className=' w-full h-full p-1'
                     unoptimized={true}
                   />
                 </div>
@@ -260,12 +262,12 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           >
             {(() => {
               if (token.comingSoon) return 'Temporary Disabled'
-              return metrics.deposited > 0 ? 'Modify' : 'Deposit'
+              return hasDeposited ? 'Modify' : 'Deposit'
             })()}
           </Button>
 
           {/* Withdraw Button */}
-          {metrics.deposited > 0 && (
+          {hasDeposited && (
             <Button
               onClick={token.comingSoon ? undefined : handleWithdrawClick}
               variant='outline'

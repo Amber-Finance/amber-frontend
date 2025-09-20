@@ -75,9 +75,6 @@ const createRepayAction = (accountId: string, denom: string) =>
     recipient_account_id: accountId,
   })
 
-const createWithdrawAction = (denom: string, amount: string) =>
-  createAction('withdraw', { denom, amount })
-
 const createRefundAction = () => createAction('refund_all_coin_balances', {})
 
 const buildDeployActions = (config: DeployStrategyConfig) => {
@@ -129,6 +126,7 @@ const buildModifyLeverageActions = (config: ModifyLeverageConfig) => {
   } else {
     // Decrease leverage: swap collateral to debt, repay debt
     // No withdrawal needed - the swap and repay achieve the desired leverage reduction
+    // Use the collateral amount from reverse routing (already calculated precisely)
     const formattedCollateral = formatAmount(config.collateral.amount, config.collateral.decimals)
 
     return [
@@ -145,16 +143,6 @@ const buildModifyLeverageActions = (config: ModifyLeverageConfig) => {
 
 const generateSuccessMessage = (config: TransactionConfig): string => {
   switch (config.type) {
-    case 'deploy_strategy': {
-      const action = config.strategyType === 'create' ? 'Deploying' : 'Increasing'
-      return `${action} strategy successful at ${config.multiplier.toFixed(2)}x leverage!`
-    }
-
-    case 'manage_strategy': {
-      const closure = config.actionType === 'close_full' ? 'fully closed' : 'partially closed'
-      return `Strategy ${closure} successfully! Collateral swapped back, debt repaid, and balances refunded.`
-    }
-
     case 'modify_leverage': {
       const action = config.actionType === 'increase' ? 'increased' : 'decreased'
       return `Leverage ${action} successfully to ${config.targetLeverage.toFixed(2)}x!`
@@ -194,18 +182,10 @@ const generateSuccessMessage = (config: TransactionConfig): string => {
 }
 
 const generateTrackingEvent = (config: TransactionConfig): string => {
-  switch (config.type) {
-    case 'deploy_strategy':
-      return `strategy_${config.strategyType}_${config.multiplier}x`
-
-    case 'manage_strategy':
-      return `strategy_${config.actionType}`
-
-    case 'strategy':
-      return `strategy_${config.strategyType}`
-
-    default:
-      return `${config.type}_success`
+  if (config.type === 'strategy') {
+    return `strategy_${config.strategyType}`
+  } else {
+    return `${config.type}_success`
   }
 }
 
@@ -235,73 +215,6 @@ export function useBroadcast() {
     ...customMessages,
   })
 
-  const executeDeployStrategy = async (config: DeployStrategyConfig) => {
-    const client = await getWalletClient()
-
-    const actions = buildDeployActions(config)
-    const funds = [
-      {
-        amount: formatAmount(config.collateral.amount, config.collateral.decimals),
-        denom: config.collateral.denom,
-      },
-    ]
-
-    const msg = {
-      update_credit_account: {
-        account_id: config.strategyType === 'create' ? undefined : config.accountId,
-        actions,
-      },
-    }
-    console.log('executeDeployStrategy', msg)
-
-    await client.execute(
-      address!,
-      chainConfig.contracts.creditManager,
-      msg,
-      'auto',
-      undefined,
-      funds,
-    )
-
-    return {
-      successMessage: generateSuccessMessage(config),
-      trackingEvent: generateTrackingEvent(config),
-    }
-  }
-
-  const executeManageStrategy = async (config: ManageStrategyConfig) => {
-    const client = await getWalletClient()
-
-    const actions = buildManageActions(config)
-    const funds = [
-      {
-        amount: formatAmount(config.debt.amount, config.debt.decimals),
-        denom: config.debt.denom,
-      },
-    ]
-
-    const msg = {
-      update_credit_account: {
-        account_id: config.accountId,
-        actions,
-      },
-    }
-
-    await client.execute(
-      address!,
-      chainConfig.contracts.creditManager,
-      msg,
-      'auto',
-      undefined,
-      funds,
-    )
-
-    return {
-      successMessage: generateSuccessMessage(config),
-      trackingEvent: generateTrackingEvent(config),
-    }
-  }
-
   const executeModifyLeverage = async (config: ModifyLeverageConfig) => {
     const client = await getWalletClient()
 
@@ -317,7 +230,6 @@ export function useBroadcast() {
         actions,
       },
     }
-    console.log('executeModifyLeverage', msg)
     await client.execute(
       address!,
       chainConfig.contracts.creditManager,
@@ -374,7 +286,6 @@ export function useBroadcast() {
       undefined,
       funds,
     )
-    console.log('result', result)
 
     return {
       result,
@@ -492,8 +403,6 @@ export function useBroadcast() {
   const createExecutor = (config: TransactionConfig) => {
     const executorMap = {
       // Strategy operations (Credit Manager contract)
-      deploy_strategy: () => executeDeployStrategy(config as DeployStrategyConfig),
-      manage_strategy: () => executeManageStrategy(config as ManageStrategyConfig),
       modify_leverage: () => executeModifyLeverage(config as ModifyLeverageConfig),
       strategy: () => executeStrategy(config as StrategyParams),
 
@@ -521,8 +430,6 @@ export function useBroadcast() {
     const refreshMap: Record<string, string[]> = {
       deposit: [`${address}/positions`, `${address}/deposit/${(config as DepositConfig).denom}`],
       withdraw: [`${address}/positions`, `${address}/deposit/${(config as WithdrawConfig).denom}`],
-      deploy_strategy: [`${address}/positions`, `${address}/credit-accounts`],
-      manage_strategy: [`${address}/positions`, `${address}/credit-accounts`],
       modify_leverage: [`${address}/positions`, `${address}/credit-accounts`],
       strategy: [`${address}/positions`, `${address}/credit-accounts`],
     }
@@ -581,8 +488,6 @@ export function useBroadcast() {
 
   return {
     executeTransaction,
-    executeDeployStrategy,
-    executeManageStrategy,
     executeModifyLeverage,
     executeStrategy,
     executeDeposit,

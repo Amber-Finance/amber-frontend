@@ -58,7 +58,7 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
   return (
     <Card className='group relative  bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* Subtle Gradient Background */}
-      <SubtleGradientBg variant={gradientClass} className='opacity-40' />
+      {/* <SubtleGradientBg variant={gradientClass} className='opacity-40' /> */}
 
       {/* Card Header */}
       <CardHeader className='relative pb-4'>

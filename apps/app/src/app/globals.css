@@ -9,14 +9,14 @@
 
   --background: rgb(255, 248, 240);
   --foreground: rgb(28, 20, 15);
-  --card: rgb(254, 246, 239);
+  --card: rgb(248, 236, 224);
 
   --primary: #ff7300;
   --secondary: rgb(250, 232, 210);
   --muted: rgb(248, 218, 180);
   --muted-foreground: rgb(120, 85, 50);
 
-  --border: rgba(210, 160, 120, 1);
+  --border: rgba(190, 140, 100, 0.3);
   --ring: rgba(255, 115, 0, 0.4);
 
   --gradient-start: rgb(177, 36, 30);
@@ -37,7 +37,7 @@
 .dark {
   --background: rgb(10, 10, 10);
   --foreground: rgb(244, 244, 244);
-  --card: #0e0f10;
+  --card: rgb(14, 15, 16);
   --primary: rgba(255, 120, 0, 1);
   --secondary: rgb(42, 42, 42);
   --muted: rgb(50, 50, 50);

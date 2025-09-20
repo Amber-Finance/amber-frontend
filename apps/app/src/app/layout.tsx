@@ -35,7 +35,7 @@ export default function RootLayout({
               <SkipProvider>
                 <TermsModalProvider>
                   <div className='relative flex flex-col w-full h-full max-w-full overflow-x-hidden no-scrollbar bg-background'>
-                    <BackgroundGradient />
+                    {/* <BackgroundGradient /> */}
 
                     <Background />
 
@@ -50,9 +50,8 @@ export default function RootLayout({
                     <div className='relative z-10 flex-1 flex flex-col'>
                       <Navbar />
                       <main className='flex-1 w-full max-w-screen-2xl min-h-screen mx-auto px-2 sm:px-8 py-16 sm:pt-20'>
-                        <div className='fixed w-screen h-screen inset-0 bg-gradient-to-b from-background to-transparent pointer-events-none z-[-2]' />
-                        <div className='fixed w-screen h-screen inset-0 bg-gradient-to-b from-background to-transparent pointer-events-none z-[-2]' />
-                        <div className='fixed w-screen h-screen inset-0 bg-gradient-to-b from-background to-transparent pointer-events-none z-[-2]' />
+                        {/* <div className='fixed w-screen h-screen inset-0 bg-background/90 pointer-events-none z-[-2]' /> */}
+
                         {children}
                       </main>
                       <Footer />

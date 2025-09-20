@@ -29,7 +29,7 @@ export const useStrategyDeployment = ({
         },
         swap: {
           routeInfo: params.swapRouteInfo,
-          slippage: '0.5',
+          slippage: params.slippage?.toString() || '0.5',
           destDenom: strategy.collateralAsset.denom,
         },
         multiplier: params.multiplier,

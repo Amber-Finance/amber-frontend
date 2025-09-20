@@ -9,7 +9,15 @@ import { useChain } from '@cosmos-kit/react'
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import TokenBalance from '@/components/common/TokenBalance'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
@@ -77,16 +85,16 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'
       style={cardStyle}
     >
-      {/* <FlickeringGrid
+      <FlickeringGrid
         className='absolute inset-0 z-0 rounded-lg overflow-hidden'
         color={debtColor}
         squareSize={8}
         gridGap={2}
         flickerChance={0.2}
-        maxOpacity={0.3}
+        maxOpacity={0.2}
         gradientDirection='top-to-bottom'
         height={120}
-      /> */}
+      />
 
       {/* Enhanced gradient overlay for depth */}
       <div
@@ -100,33 +108,31 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         <div className='flex items-center justify-between mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-20 h-20'>
+              <div className='relative w-16 h-16'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
-                  width={32}
-                  height={32}
+                  fill
                   className='w-full h-full object-contain'
                 />
               </div>
-              <div className='absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-lg bg-background border shadow-sm p-1'>
+              <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
                 <Image
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
-                  width={20}
-                  height={20}
-                  className='object-contain w-full h-full'
+                  fill
+                  className=' w-full h-full'
                   unoptimized={true}
                 />
               </div>
             </div>
-            <div>
-              <h3 className='font-funnel font-semibold text-foreground text-lg mb-1'>
+            <div className='flex flex-col'>
+              <CardTitle className='text-lg font-semibold'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
-              </h3>
-              <p className='text-muted-foreground text-sm font-medium'>
+              </CardTitle>
+              <CardDescription className='text-sm text-muted-foreground'>
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
-              </p>
+              </CardDescription>
             </div>
           </div>
         </div>
@@ -166,7 +172,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
           {/* Strategy Metrics */}
           <div className='grid grid-cols-2 gap-4'>
-            <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+            <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Base APY
               </p>
@@ -177,11 +183,16 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 {Math.abs(netApy * 100).toFixed(2)}%
               </p>
             </div>
-            <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+            <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Max Leverage
               </p>
-              <p className='text-foreground font-semibold text-md'>{leverage}</p>
+              <p
+                className='text-foreground font-semibold text-md
+              '
+              >
+                {leverage}
+              </p>
             </div>
           </div>
 
@@ -238,7 +249,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
               <div className='grid grid-cols-2 gap-4'>
                 {/* Leverage */}
-                <div className='bg-secondary/20 rounded-lg p-3 border border-border/40'>
+                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
                   <div className='flex items-center justify-between'>
                     <span className='text-xs font-medium text-muted-foreground'>Leverage</span>
                     <div className='text-right'>
@@ -250,7 +261,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 </div>
 
                 {/* Net APY */}
-                <div className='bg-secondary/20 rounded-lg p-3 border border-border/40'>
+                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
                   <div className='flex items-center justify-between'>
                     <span className='text-xs font-medium text-muted-foreground'>Net APY</span>
                     <div className='text-right'>
@@ -328,11 +339,11 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             onClick={() =>
               (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}&modify=true&accountId=${activeStrategy.accountId}`)
             }
-            variant='outline'
+            variant='default'
             className='w-full'
             disabled={isComingSoon}
           >
-            {isComingSoon ? 'Temporary Disabled' : 'Close Position'}
+            {isComingSoon ? 'Temporary Disabled' : 'Modify'}
           </Button>
         )}
 

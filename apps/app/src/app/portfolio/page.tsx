@@ -9,6 +9,7 @@ import { ActiveStrategyCard } from '@/app/portfolio/ActiveStrategyCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
+import { CountingNumber } from '@/components/ui/CountingNumber'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
@@ -111,27 +112,42 @@ const Portfolio = () => {
   const stats = [
     {
       title: 'Total Assets',
-      value: `$${totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: totalPortfolioValue.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       change: formatPercentage(pnlPercentage),
       changeType: getChangeType(pnlPercentage),
+      prefix: '$ ',
     },
     {
       title: 'Active Positions',
-      value: `${totalActivePositions}`,
-      change: `$${(totalStrategiesValue + depositsValue).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      value: totalActivePositions.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+      change: (totalStrategiesValue + depositsValue).toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
       changeType: 'neutral',
     },
     {
       title: 'Unrealized P&L',
-      value: `$${totalPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: totalPnL.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       change: formatPercentage(pnlPercentage),
       changeType: getChangeType(totalPnL),
+      prefix: '$ ',
     },
     {
       title: 'Weighted APY',
-      value: formatPercentage(weightedApy),
-      change: weightedApy === 0 ? '0.00%' : `${Math.abs(weightedApy).toFixed(2)}%`,
+      value: weightedApy,
+      change: formatPercentage(weightedApy),
       changeType: getChangeType(weightedApy),
+      suffix: ' %',
     },
   ]
 
@@ -147,14 +163,12 @@ const Portfolio = () => {
             label: 'Total Borrow',
             isCurrency: true,
             prefix: '$ ',
-            abbreviated: false,
           },
           {
             value: totalSuppliedValue + depositsValue,
             label: 'Total Supply',
             isCurrency: true,
             prefix: '$ ',
-            abbreviated: false,
           },
         ]}
       />
@@ -174,7 +188,14 @@ const Portfolio = () => {
                       <p className='text-xs text-muted-foreground uppercase tracking-wider font-medium'>
                         {stat.title}
                       </p>
-                      <p className='text-2xl font-funnel font-bold text-foreground'>{stat.value}</p>
+                      <div className='flex flex-row items-center gap-1 text-base font-funnel sm:text-lg lg:text-2xl text-foreground transition-transform duration-300'>
+                        {stat.prefix && <span className='text-primary'>{stat.prefix}</span>}
+                        <CountingNumber
+                          value={Number(stat.value)}
+                          decimalPlaces={stat.prefix || stat.suffix ? 2 : 0}
+                        />
+                        {stat.suffix && <span className='text-primary'>{stat.suffix}</span>}
+                      </div>
                       <p className={`text-sm font-medium ${getChangeTypeColor(stat.changeType)}`}>
                         {stat.change}
                       </p>

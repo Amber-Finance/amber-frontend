@@ -109,7 +109,7 @@ export const validateLeverageChange = (
   currentDebtUsd: number,
   targetLeverage: number,
   maxLoanToValue: number,
-  minHealthFactor: number = 1.05, // 5% buffer above liquidation threshold
+  minHealthFactor: number = 1, // below 1.0 is liquidation threshold
 ): {
   isValid: boolean
   newHealthFactor: number
@@ -171,7 +171,7 @@ export const validateLeverageChange = (
  */
 export const calculateMaxSafeLeverage = (
   maxLoanToValue: number,
-  minHealthFactor: number = 1.05,
+  minHealthFactor: number = 1.0,
 ): number => {
   // From health factor formula: HF = (collateral * LTV) / debt
   // From leverage formula: leverage = debt / equity = debt / (collateral - debt)
@@ -183,6 +183,39 @@ export const calculateMaxSafeLeverage = (
 
   // Apply safety buffer
   return Math.max(1, theoreticalMaxLeverage * 0.95)
+}
+
+/**
+ * Calculate debt amount to repay to reach target leverage
+ * When reducing leverage, we need to repay some debt to reduce the leverage ratio
+ */
+export const calculateDebtToRepay = (
+  currentCollateralUsd: number,
+  currentDebtUsd: number,
+  targetLeverage: number,
+): number => {
+  if (targetLeverage < 1.0) {
+    throw new Error('Target leverage must be at least 1.0x')
+  }
+
+  if (currentDebtUsd <= 0) {
+    throw new Error('Cannot decrease leverage with zero debt')
+  }
+
+  const currentEquity = currentCollateralUsd - currentDebtUsd
+  if (currentEquity <= 0) {
+    throw new Error('Invalid position: negative or zero equity')
+  }
+
+  // For target leverage: targetLeverage = collateral / equity
+  // Since we're only repaying debt, collateral stays the same
+  // So: targetLeverage = currentCollateral / (currentCollateral - targetDebt)
+  // Solving for targetDebt: targetDebt = currentCollateral - (currentCollateral / targetLeverage)
+  const targetDebtUsd = currentCollateralUsd - currentCollateralUsd / targetLeverage
+  const debtToRepayUsd = currentDebtUsd - targetDebtUsd
+
+  // Cannot repay negative amount or more than current debt
+  return Math.max(0, Math.min(debtToRepayUsd, currentDebtUsd))
 }
 
 /**
@@ -198,7 +231,8 @@ export const convertLeverageChangeToTokenAmounts = (
   debtDecimals: number,
 ): {
   additionalBorrowAmount?: string // For increasing leverage
-  collateralToWithdraw?: string // For decreasing leverage
+  collateralToWithdraw?: string // For decreasing leverage (legacy - kept for compatibility)
+  debtToRepay?: string // For decreasing leverage (new - for reverse routing)
   isIncreasing: boolean
 } => {
   const collateralUsd = new BigNumber(currentCollateralAmount)
@@ -244,8 +278,18 @@ export const convertLeverageChangeToTokenAmounts = (
       .integerValue(BigNumber.ROUND_DOWN)
       .toString()
 
+    // Also calculate the debt amount to repay for reverse routing
+    const debtToRepayUsd = calculateDebtToRepay(collateralUsd, debtUsd, targetLeverage)
+
+    const debtToRepay = new BigNumber(debtToRepayUsd)
+      .dividedBy(currentDebtPrice)
+      .shiftedBy(debtDecimals)
+      .integerValue(BigNumber.ROUND_UP)
+      .toString()
+
     return {
-      collateralToWithdraw,
+      collateralToWithdraw, // Keep for compatibility
+      debtToRepay, // New field for reverse routing
       isIncreasing: false,
     }
   }

@@ -1,4 +1,4 @@
-import { route as skipRoute } from '@skip-go/client'
+import { RouteRequest, route as skipRoute } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
 import { BN, byDenom, toIntegerString } from '@/utils/helpers'
@@ -126,7 +126,7 @@ async function getNeutronRouteInfoInternal(
       go_fast: false,
     }
 
-    const skipRouteResponse = await skipRoute(skipRouteParams as any)
+    const skipRouteResponse = await skipRoute(skipRouteParams as RouteRequest)
 
     if (!skipRouteResponse) {
       throw new Error('No route response from Skip API')
