@@ -47,10 +47,10 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
   }, [selectedMarket, redBankAssetsTvl, selectedToken.denom])
 
   return (
-    <div className='flex justify-end items-start gap-4 p-6'>
+    <div className='flex justify-end items-start gap-4'>
       <div className='flex flex-col gap-4 w-80'>
         {/* Utilization Rate Card */}
-        <Card className='bg-secondary/20 border border-border/40 hover:border-border/60 transition-all duration-200'>
+        <Card className='bg-secondary/20'>
           <CardContent className='p-4 text-center'>
             <div className='text-muted-foreground text-xs uppercase tracking-wider mb-2'>
               UTILIZATION
@@ -66,7 +66,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
         </Card>
 
         {/* Deposited Card */}
-        <Card className='bg-secondary/20 border border-border/40 hover:border-border/60 transition-all duration-200'>
+        <Card className='bg-secondary/20'>
           <CardContent className='p-4 text-center'>
             <div className='text-muted-foreground text-xs uppercase tracking-wider mb-2'>
               DEPOSITED
@@ -80,7 +80,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
         </Card>
 
         {/* TVL Share Card */}
-        <Card className='bg-secondary/20 border border-border/40 hover:border-border/60 transition-all duration-200'>
+        <Card className='bg-secondary/20'>
           <CardContent className='p-4 text-center'>
             <div className='text-muted-foreground text-xs uppercase tracking-wider mb-2'>
               TVL SHARE

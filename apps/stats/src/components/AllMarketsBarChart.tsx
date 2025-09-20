@@ -242,15 +242,7 @@ export default function AllMarketsBarChart() {
                       return `${sign}$${(absValue / 1000).toFixed(0)}K`
                     }}
                   />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(label) => `Date: ${label}`}
-                        isCurrency
-                        indicator='line'
-                      />
-                    }
-                  />
+                  <ChartTooltip content={<ChartTooltipContent isCurrency indicator='line' />} />
                   {renderBars()}
                 </BarChart>
               </ResponsiveContainer>

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { BigNumber } from 'bignumber.js'
 
 import AllMarketsBarChart from '@/components/AllMarketsBarChart'
+import TokenApyLineChart from '@/components/TokenApyLineChart'
 import TokenIconsRow from '@/components/TokenIconsRow'
 import TokenMetricsCards from '@/components/TokenMetricsCards'
 import Hero from '@/components/layout/Hero'
@@ -100,7 +101,10 @@ export default function Home() {
       />
       <AllMarketsBarChart />
       <TokenIconsRow selectedToken={selectedToken} onTokenSelect={handleTokenSelect} />
-      <TokenMetricsCards selectedToken={selectedToken} markets={markets} />
+      <div className='flex gap-4 mb-8'>
+        <TokenApyLineChart selectedToken={selectedToken} />
+        <TokenMetricsCards selectedToken={selectedToken} markets={markets} />
+      </div>
     </div>
   )
 }
