@@ -87,11 +87,7 @@ export function RiskAssessmentCard({
 
           <div className='flex justify-between items-center'>
             <span className='text-muted-foreground'>Liquidation Threshold</span>
-            <span className='font-medium text-foreground'>
-              {strategy.liquidationThreshold
-                ? `${(strategy.liquidationThreshold * 100).toFixed(0)}%`
-                : '85%'}
-            </span>
+            <span className='font-medium text-foreground'>95%</span>
           </div>
 
           <div className='flex justify-between items-center'>

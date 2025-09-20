@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
-import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 
 const TERMS_ACCEPTANCE_KEY = 'amberfi-terms-accepted'
 
@@ -48,9 +47,6 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onAccept }) => {
           zIndex: 9999,
         }}
       >
-        {/* Gradient background */}
-        <SubtleGradientBg variant='primary' className='opacity-20' />
-
         <div className='relative p-6 space-y-6'>
           {/* Title */}
           <div className='text-center'>

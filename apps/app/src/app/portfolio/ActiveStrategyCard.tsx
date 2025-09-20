@@ -69,7 +69,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
       return {
         positionValue: strategy.collateralAsset.usdValue,
         healthFactor: 0,
-        maxLeverage: 12.5,
+        maxLeverage: 12,
         pnl: 0,
         pnlPercent: 0,
       }
@@ -83,7 +83,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
       return {
         positionValue: strategy.collateralAsset.usdValue,
         healthFactor: 0,
-        maxLeverage: 12.5,
+        maxLeverage: 12,
         pnl: 0,
         pnlPercent: 0,
       }
@@ -96,7 +96,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
 
     // Calculate max leverage from LTV
     const ltv = parseFloat(collateralMarket.params?.max_loan_to_value || '0')
-    const theoreticalMaxLeverage = ltv > 0 ? 1 / (1 - ltv) : 12.5
+    const theoreticalMaxLeverage = ltv > 0 ? 1 / (1 - ltv) : 12
     // Apply 0.5x safety buffer
     const maxLeverage = Math.max(1, theoreticalMaxLeverage - 0.5)
 
@@ -148,9 +148,6 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
 
   return (
     <Card className='group relative overflow-hidden bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
-      {/* Subtle Gradient Background */}
-      {/* <SubtleGradientBg variant={gradientClass} className='opacity-40' /> */}
-
       {/* Card Header */}
       <CardHeader className='relative z-20'>
         <div className='flex items-center justify-between mb-4'>

@@ -53,23 +53,13 @@ const getSlippageWarning = (
 }
 
 // Helper function to check leverage liquidation risk
+// Note: With LTV 0.92 and LiqThreshold 0.95, liquidation occurs at ~15x leverage
+// However, we cap maximum leverage at 12x for safety, so no warnings needed
 const getLeverageWarning = (
   leverage: number,
 ): { type: 'warning' | 'danger'; message: string } | null => {
-  if (leverage > 12.5) {
-    return {
-      type: 'danger',
-      message:
-        'DANGER: This leverage exceeds the liquidation threshold. Your position will be liquidated immediately.',
-    }
-  }
-  if (leverage > 11) {
-    return {
-      type: 'warning',
-      message:
-        'WARNING: You are approaching liquidation risk. Leverage above 12.5x will result in liquidation.',
-    }
-  }
+  // Since we cap leverage at 12x (well below 15x liquidation threshold),
+  // no leverage warnings are needed
   return null
 }
 
@@ -319,7 +309,7 @@ export function MarginCollateralCard({
 
             {isSlippageExpanded && (
               <div className='space-y-3 pt-1'>
-                <div className='flex items-center gap-2'>
+                <div className='relative'>
                   <input
                     type='text'
                     value={slippageInput}
@@ -330,10 +320,12 @@ export function MarginCollateralCard({
                         e.currentTarget.blur() // Trigger onBlur validation
                       }
                     }}
-                    className='flex-1 h-8 text-xs px-3 border border-border rounded-lg bg-background text-foreground focus:border-primary focus:outline-none transition-colors'
+                    className='w-full h-8 text-xs px-3 pr-6 border border-border rounded-lg bg-background text-foreground focus:border-primary focus:outline-none transition-colors'
                     placeholder='0.5'
                   />
-                  <span className='text-xs text-muted-foreground font-medium'>%</span>
+                  <span className='absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none'>
+                    %
+                  </span>
                 </div>
 
                 {/* Quick slippage buttons */}
@@ -344,7 +336,7 @@ export function MarginCollateralCard({
                       onClick={() => handleSlippageChange(preset)}
                       className={`px-3 py-1.5 text-xs rounded-lg border transition-all duration-200 ${
                         slippage === preset
-                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          ? 'bg-primary text-white border-primary shadow-sm'
                           : 'bg-secondary/50 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
                       }`}
                     >
@@ -536,7 +528,7 @@ export function MarginCollateralCard({
                 </span>
               </div>
               <div className='text-xs text-muted-foreground/80'>
-                Based on liquidation threshold: {(strategy.liquidationThreshold || 0.85) * 100}%
+                Liquidation occurs at ~15x leverage (LTV: 92%, Threshold: 95%)
               </div>
             </div>
           </div>
