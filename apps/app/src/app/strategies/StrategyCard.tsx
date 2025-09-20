@@ -105,10 +105,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       />
 
       <CardHeader className='relative z-20'>
-        <div className='flex items-center justify-between mb-4'>
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-16 h-16'>
+              <div className='relative w-12 h-12 sm:w-16 sm:h-16'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
@@ -116,7 +116,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   className='w-full h-full object-contain'
                 />
               </div>
-              <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
+              <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full border shadow-sm p-1 bg-background'>
                 <Image
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
@@ -127,10 +127,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               </div>
             </div>
             <div className='flex flex-col'>
-              <CardTitle className='text-lg font-semibold'>
+              <CardTitle className='text-base sm:text-lg font-semibold'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
               </CardTitle>
-              <CardDescription className='text-sm text-muted-foreground'>
+              <CardDescription className='text-xs sm:text-sm text-muted-foreground'>
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
               </CardDescription>
             </div>
@@ -171,7 +171,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           {/* Strategy Metrics */}
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
             <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Base APY
@@ -247,7 +247,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 </div>
               </div>
 
-              <div className='grid grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
                 {/* Leverage */}
                 <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
                   <div className='flex items-center justify-between'>

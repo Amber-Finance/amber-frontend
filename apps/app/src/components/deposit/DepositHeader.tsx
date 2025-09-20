@@ -27,14 +27,14 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
         squareSize={8}
         gridGap={2}
         flickerChance={0.2}
-        maxOpacity={0.3}
+        maxOpacity={0.2}
         gradientDirection='top-to-bottom'
-        height={140}
+        height={190}
       />
     </div>
 
     <div className='relative z-20'>
-      <div className='flex justify-between p-4'>
+      <div className='flex flex-col sm:flex-row justify-center sm:justify-between items-center sm:items-start gap-4 p-4'>
         <div className='flex items-center justify-start gap-3'>
           <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
             <Image
@@ -45,19 +45,28 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
             />
           </div>
           <div>
-            <h2 className='text-lg sm:text-xl font-bold text-foreground'>{token.symbol} Deposit</h2>
-            <p className='text-xs sm:text-sm text-muted-foreground'>{token.protocol}</p>
+            <h2 className='text-base sm:text-xl font-bold text-foreground'>
+              {activeTab === 'deposit' ? 'Deposit' : 'Withdraw'} {token.symbol}
+            </h2>
+            <p className='text-xs sm:text-sm text-muted-foreground'>
+              {activeTab === 'deposit'
+                ? `Supply ${token.symbol} and earn yield plus points`
+                : `Withdraw your deposited ${token.symbol}`}
+            </p>
           </div>
         </div>
 
         <div className='text-right'>
-          <div className='text-4xl font-bold' style={{ color: token.brandColor }}>
+          <div className='text-4xl font-bold whitespace-nowrap' style={{ color: token.brandColor }}>
             <CountingNumber value={totalApy} decimalPlaces={2} />%
           </div>
+          <p className='text-muted-foreground uppercase tracking-wider text-xs text-center font-medium mt-1'>
+            Total APY
+          </p>
         </div>
       </div>
 
-      <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 sm:mt-3 w-full sm:w-[550px] ml-auto'>
+      <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 sm:mt-3 w-full sm:w-[400px] mx-auto'>
         <Tabs
           value={activeTab}
           onValueChange={(value) => onTabChange(value as 'deposit' | 'withdraw')}

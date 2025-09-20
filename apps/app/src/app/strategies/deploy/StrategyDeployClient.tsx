@@ -443,9 +443,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
             squareSize={8}
             gridGap={2}
             flickerChance={0.2}
-            maxOpacity={0.3}
+            maxOpacity={0.2}
             gradientDirection='top-to-bottom'
-            height={140}
+            height={190}
           />
         </div>
 

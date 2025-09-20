@@ -22,6 +22,7 @@ import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
 import { useDepositState } from '@/hooks/useDepositState'
+import useMarketMetrics from '@/hooks/useMarketMetrics'
 import { usePrices } from '@/hooks/usePrices'
 import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
 import { useUserDeposit } from '@/hooks/useUserDeposit'
@@ -88,7 +89,8 @@ export default function DepositClient() {
   const lstMarketData = lstMarkets?.find((item) => item.token.symbol === tokenSymbol)
 
   const { data: assetsTvl } = useAssetsTvl()
-  const { data: assetMetrics, tvlGrowth30d } = useDenomData(tokenData?.denom || '')
+  const { data: assetMetrics } = useDenomData(tokenData?.denom || '')
+  const marketMetrics = market ? useMarketMetrics(market) : null
 
   const currentTokenTvlData = assetsTvl?.assets?.find(
     (asset: any) => asset.denom === tokenData?.denom,
@@ -166,7 +168,7 @@ export default function DepositClient() {
     )
   }
 
-  const { token, metrics } = lstMarketData
+  const { token } = lstMarketData
 
   const availableToken = {
     denom: token.denom,
@@ -404,9 +406,9 @@ export default function DepositClient() {
           <InfoCard title='Market Status'>
             <div className='flex flex-row gap-4'>
               <ProgressCard
-                value={tvlGrowth30d}
-                label='TVL Growth (30d)'
-                subtitle={`${formatNumber(2)(tvlGrowth30d)}%`}
+                value={marketMetrics?.utilizationRate ?? 0}
+                label='Utilization'
+                subtitle={`${formatNumber(2)(marketMetrics?.utilizationRate ?? 0)}% of deposits borrowed`}
                 brandColor={token.brandColor}
               />
               <ProgressCard

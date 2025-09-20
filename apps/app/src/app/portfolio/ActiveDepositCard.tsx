@@ -58,10 +58,10 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
       {/* Card Header */}
 
       <CardHeader className='relative z-20'>
-        <div className='flex items-center justify-between mb-4'>
-          <div className='flex items-center w-full gap-4'>
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
+          <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-16 h-16'>
+              <div className='relative w-12 h-12 sm:w-16 sm:h-16'>
                 <Image
                   src={token?.icon || ''}
                   alt={deposit.symbol}
@@ -72,17 +72,19 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
             </div>
             <div>
               <div className='flex flex-col'>
-                <CardTitle className='text-lg font-semibold'>{token?.symbol}</CardTitle>
-                <CardDescription className='text-sm text-muted-foreground'>
+                <CardTitle className='text-base sm:text-lg font-semibold'>
+                  {token?.symbol}
+                </CardTitle>
+                <CardDescription className='text-xs sm:text-sm text-muted-foreground'>
                   {token?.protocol}
                 </CardDescription>
               </div>
             </div>
           </div>
 
-          <div className='text-center'>
+          <div className='text-center sm:text-right'>
             <div
-              className='text-4xl font-funnel font-bold flex flex-row'
+              className='text-3xl sm:text-4xl font-funnel font-bold flex flex-row justify-center sm:justify-end'
               style={{ color: token?.brandColor }}
             >
               <CountingNumber value={deposit.apy} decimalPlaces={2} /> %

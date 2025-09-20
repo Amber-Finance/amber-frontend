@@ -118,10 +118,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
       </div>
 
       <CardHeader className='relative z-20'>
-        <div className='flex items-center justify-between mb-4'>
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-16 h-16'>
+              <div className='relative w-12 h-12 sm:w-16 sm:h-16'>
                 <Image
                   src={token.icon}
                   alt={token.symbol}
@@ -132,7 +132,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
               {/* Protocol Icon Badge */}
               {protocolIcon && (
-                <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
+                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full border shadow-sm p-1 bg-background'>
                   <Image
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
@@ -145,15 +145,18 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
 
             <div className='flex flex-col'>
-              <CardTitle className='text-lg font-semibold'>{token.symbol}</CardTitle>
-              <CardDescription className='text-sm text-muted-foreground'>
+              <CardTitle className='text-base sm:text-lg font-semibold'>{token.symbol}</CardTitle>
+              <CardDescription className='text-xs sm:text-sm text-muted-foreground'>
                 {token.protocol}
               </CardDescription>
             </div>
           </div>
 
-          <div className='text-center'>
-            <div className='text-4xl  font-funnel font-bold' style={{ color: token.brandColor }}>
+          <div className='text-center sm:text-right'>
+            <div
+              className='text-3xl sm:text-4xl font-funnel font-bold flex flex-row justify-center sm:justify-end whitespace-nowrap'
+              style={{ color: token.brandColor }}
+            >
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
             </div>
             <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>
@@ -179,7 +182,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           {/* TVL and Metrics Section */}
           <div className='space-y-6'>
             {/* Progress Bars Section */}
-            <div className='grid grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
               {/* Utilization Rate */}
               <div
                 className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'
