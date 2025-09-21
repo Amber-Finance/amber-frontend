@@ -15,11 +15,11 @@ import {
 } from '@/components/ui/select'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 
-interface TokenApyLineChartProps {
+interface TokenPriceLineChartProps {
   selectedToken: TokenInfo
 }
 
-export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartProps) {
+export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineChartProps) {
   const [timeRange, setTimeRange] = useState('7')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
 
@@ -38,21 +38,16 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
             month: 'short',
             day: 'numeric',
           }),
-          depositApy: marketData ? parseFloat(marketData.deposit_apy || 0) : 0,
-          borrowApy: marketData ? parseFloat(marketData.borrow_apy || 0) : 0,
+          priceUsd: marketData ? parseFloat(marketData.price_usd || 0) : 0,
         }
       })
       .reverse()
   }, [marketsData, selectedToken.denom, timeRange])
 
   const chartConfig = {
-    depositApy: {
-      label: 'Deposit APY',
+    priceUsd: {
+      label: 'Price (USD)',
       color: selectedToken.brandColor,
-    },
-    borrowApy: {
-      label: 'Borrow APY',
-      color: '#ef4444',
     },
   }
 
@@ -60,7 +55,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
     <Card className='bg-card/20 w-full'>
       <CardHeader className='flex items-center border-b border-border/40'>
         <CardTitle className='text-sm font-bold text-foreground'>
-          {selectedToken.symbol} Deposit and Borrow APY
+          {selectedToken.symbol} Price (USD)
         </CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
@@ -83,13 +78,9 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
         <ChartContainer config={chartConfig} className='h-[350px] w-full'>
           <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 10 }}>
             <defs>
-              <linearGradient id='depositApyGradient' x1='0' y1='0' x2='0' y2='1'>
-                <stop offset='5%' stopColor={chartConfig.depositApy.color} stopOpacity={0.3} />
-                <stop offset='95%' stopColor={chartConfig.depositApy.color} stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id='borrowApyGradient' x1='0' y1='0' x2='0' y2='1'>
-                <stop offset='5%' stopColor={chartConfig.borrowApy.color} stopOpacity={0.3} />
-                <stop offset='95%' stopColor={chartConfig.borrowApy.color} stopOpacity={0} />
+              <linearGradient id='priceUsdGradient' x1='0' y1='0' x2='0' y2='1'>
+                <stop offset='5%' stopColor={chartConfig.priceUsd.color} stopOpacity={0.3} />
+                <stop offset='95%' stopColor={chartConfig.priceUsd.color} stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -99,8 +90,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
               fontSize={10}
               dy={10}
               stroke='rgba(255, 255, 255, 0.06)'
-              // interval={timeRange === '7' ? 0 : 'preserveStartEnd'}
-              interval={Math.ceil(chartData.length / 8)}
+              interval={timeRange === '7' ? 0 : 'preserveStartEnd'}
             />
             <YAxis
               tickLine={false}
@@ -109,25 +99,20 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
               dy={10}
               stroke='rgba(255, 255, 255, 0.06)'
               interval='preserveStartEnd'
+              domain={['dataMin - 100', 'dataMax + 100']}
+              tickFormatter={(value) =>
+                `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+              }
             />
-            <ChartTooltip content={<ChartTooltipContent indicator='line' isPercentage />} />
+            <ChartTooltip content={<ChartTooltipContent indicator='line' isCurrency />} />
             <Area
               type='monotone'
-              dataKey='depositApy'
-              stroke={chartConfig.depositApy.color}
-              fill='url(#depositApyGradient)'
+              dataKey='priceUsd'
+              stroke={chartConfig.priceUsd.color}
+              fill='url(#priceUsdGradient)'
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: chartConfig.depositApy.color }}
-            />
-            <Area
-              type='monotone'
-              dataKey='borrowApy'
-              stroke={chartConfig.borrowApy.color}
-              fill='url(#borrowApyGradient)'
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: chartConfig.borrowApy.color }}
+              activeDot={{ r: 4, fill: chartConfig.priceUsd.color }}
             />
           </AreaChart>
         </ChartContainer>

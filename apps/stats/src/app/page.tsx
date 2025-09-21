@@ -8,8 +8,10 @@ import { BigNumber } from 'bignumber.js'
 
 import AllMarketsBarChart from '@/components/AllMarketsBarChart'
 import TokenApyLineChart from '@/components/TokenApyLineChart'
+import TokenDepositBorrowChart from '@/components/TokenDepositBorrowChart'
 import TokenIconsRow from '@/components/TokenIconsRow'
 import TokenMetricsCards from '@/components/TokenMetricsCards'
+import TokenPriceLineChart from '@/components/TokenPriceLineChart'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
@@ -104,6 +106,10 @@ export default function Home() {
       <div className='flex gap-4 mb-8'>
         <TokenApyLineChart selectedToken={selectedToken} />
         <TokenMetricsCards selectedToken={selectedToken} markets={markets} />
+      </div>
+      <div className='flex gap-4 mb-8'>
+        <TokenPriceLineChart selectedToken={selectedToken} />
+        <TokenDepositBorrowChart selectedToken={selectedToken} />
       </div>
     </div>
   )

@@ -15,11 +15,11 @@ import {
 } from '@/components/ui/select'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 
-interface TokenApyLineChartProps {
+interface TokenDepositBorrowChartProps {
   selectedToken: TokenInfo
 }
 
-export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartProps) {
+export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositBorrowChartProps) {
   const [timeRange, setTimeRange] = useState('7')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
 
@@ -32,26 +32,30 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
       .map((item: any) => {
         const marketData = item.markets?.find((market: any) => market.denom === selectedToken.denom)
 
+        const priceUsd = marketData ? parseFloat(marketData.price_usd || 0) : 0
+        const depositAmount = marketData ? parseFloat(marketData.deposit_amount || 0) : 0
+        const borrowAmount = marketData ? parseFloat(marketData.borrow_amount || 0) : 0
+
         return {
           date: item.timestamp,
           formattedDate: new Date(parseInt(item.timestamp)).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
           }),
-          depositApy: marketData ? parseFloat(marketData.deposit_apy || 0) : 0,
-          borrowApy: marketData ? parseFloat(marketData.borrow_apy || 0) : 0,
+          depositAmount: depositAmount * priceUsd,
+          borrowAmount: borrowAmount * priceUsd,
         }
       })
       .reverse()
   }, [marketsData, selectedToken.denom, timeRange])
 
   const chartConfig = {
-    depositApy: {
-      label: 'Deposit APY',
+    depositAmount: {
+      label: 'Deposits',
       color: selectedToken.brandColor,
     },
-    borrowApy: {
-      label: 'Borrow APY',
+    borrowAmount: {
+      label: 'Borrows',
       color: '#ef4444',
     },
   }
@@ -60,7 +64,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
     <Card className='bg-card/20 w-full'>
       <CardHeader className='flex items-center border-b border-border/40'>
         <CardTitle className='text-sm font-bold text-foreground'>
-          {selectedToken.symbol} Deposit and Borrow APY
+          {selectedToken.symbol} Deposits & Borrows
         </CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
@@ -83,13 +87,13 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
         <ChartContainer config={chartConfig} className='h-[350px] w-full'>
           <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 10 }}>
             <defs>
-              <linearGradient id='depositApyGradient' x1='0' y1='0' x2='0' y2='1'>
-                <stop offset='5%' stopColor={chartConfig.depositApy.color} stopOpacity={0.3} />
-                <stop offset='95%' stopColor={chartConfig.depositApy.color} stopOpacity={0} />
+              <linearGradient id='depositAmountGradient' x1='0' y1='0' x2='0' y2='1'>
+                <stop offset='5%' stopColor={chartConfig.depositAmount.color} stopOpacity={0.3} />
+                <stop offset='95%' stopColor={chartConfig.depositAmount.color} stopOpacity={0} />
               </linearGradient>
-              <linearGradient id='borrowApyGradient' x1='0' y1='0' x2='0' y2='1'>
-                <stop offset='5%' stopColor={chartConfig.borrowApy.color} stopOpacity={0.3} />
-                <stop offset='95%' stopColor={chartConfig.borrowApy.color} stopOpacity={0} />
+              <linearGradient id='borrowAmountGradient' x1='0' y1='0' x2='0' y2='1'>
+                <stop offset='5%' stopColor={chartConfig.borrowAmount.color} stopOpacity={0.3} />
+                <stop offset='95%' stopColor={chartConfig.borrowAmount.color} stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -99,8 +103,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
               fontSize={10}
               dy={10}
               stroke='rgba(255, 255, 255, 0.06)'
-              // interval={timeRange === '7' ? 0 : 'preserveStartEnd'}
-              interval={Math.ceil(chartData.length / 8)}
+              interval={timeRange === '7' ? 0 : 'preserveStartEnd'}
             />
             <YAxis
               tickLine={false}
@@ -109,25 +112,31 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
               dy={10}
               stroke='rgba(255, 255, 255, 0.06)'
               interval='preserveStartEnd'
+              domain={['dataMin * 0.9', 'dataMax * 1.1']}
+              tickFormatter={(value) => {
+                const absValue = Math.abs(value)
+                const sign = value < 0 ? '-' : ''
+                return `${sign}$${(absValue / 1000).toFixed(0)}K`
+              }}
             />
-            <ChartTooltip content={<ChartTooltipContent indicator='line' isPercentage />} />
+            <ChartTooltip content={<ChartTooltipContent indicator='line' isCurrency />} />
             <Area
               type='monotone'
-              dataKey='depositApy'
-              stroke={chartConfig.depositApy.color}
-              fill='url(#depositApyGradient)'
+              dataKey='depositAmount'
+              stroke={chartConfig.depositAmount.color}
+              fill='url(#depositAmountGradient)'
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: chartConfig.depositApy.color }}
+              activeDot={{ r: 4, fill: chartConfig.depositAmount.color }}
             />
             <Area
               type='monotone'
-              dataKey='borrowApy'
-              stroke={chartConfig.borrowApy.color}
-              fill='url(#borrowApyGradient)'
+              dataKey='borrowAmount'
+              stroke={chartConfig.borrowAmount.color}
+              fill='url(#borrowAmountGradient)'
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: chartConfig.borrowApy.color }}
+              activeDot={{ r: 4, fill: chartConfig.borrowAmount.color }}
             />
           </AreaChart>
         </ChartContainer>

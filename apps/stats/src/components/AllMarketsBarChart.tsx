@@ -178,7 +178,9 @@ export default function AllMarketsBarChart() {
   return (
     <Card className='bg-card/20'>
       <CardHeader className='flex items-center border-b border-border/40'>
-        <CardTitle className='text-sm font-bold text-foreground'>Deposits and Borrows</CardTitle>
+        <CardTitle className='text-sm font-bold text-foreground'>
+          All Deposits and Borrows
+        </CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
             <SelectValue placeholder='Last 7 days' />
@@ -242,7 +244,10 @@ export default function AllMarketsBarChart() {
                       return `${sign}$${(absValue / 1000).toFixed(0)}K`
                     }}
                   />
-                  <ChartTooltip content={<ChartTooltipContent isCurrency indicator='line' />} />
+                  <ChartTooltip
+                    content={<ChartTooltipContent isCurrency indicator='line' />}
+                    cursor={{ opacity: 0.3 }}
+                  />
                   {renderBars()}
                 </BarChart>
               </ResponsiveContainer>
