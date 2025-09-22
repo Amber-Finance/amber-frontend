@@ -257,8 +257,9 @@ const createStrategy = (
   const collateralSupplyApy =
     maxBtcApyValue / 100 || parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
   const debtBorrowApy = parseFloat(debtMarket.metrics?.borrow_rate || '0')
-  // Net APY = Supply APY × (1 + leverage) - Borrow APY × leverage
-  const netApy = collateralSupplyApy * (1 + leverage) - debtBorrowApy * leverage
+  // Net APY = Supply APY × leverage - Borrow APY × (leverage - 1)
+  // You earn on total leveraged amount, but only pay borrow cost on borrowed amount
+  const netApy = collateralSupplyApy * leverage - debtBorrowApy * (leverage - 1)
 
   return {
     accountId: account.id,

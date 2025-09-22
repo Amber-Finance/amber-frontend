@@ -334,23 +334,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </Button>
         )}
 
-        {isWalletConnected && activeStrategy && (
+        {isWalletConnected && (
           <Button
             onClick={() =>
-              (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}&modify=true&accountId=${activeStrategy.accountId}`)
-            }
-            variant='default'
-            className='w-full'
-            disabled={isComingSoon}
-          >
-            {isComingSoon ? 'Temporary Disabled' : 'Modify'}
-          </Button>
-        )}
-
-        {isWalletConnected && !activeStrategy && (
-          <Button
-            onClick={() =>
-              (window.location.href = `/strategies/deploy?strategy=${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`)
+              (window.location.href = `/strategies/${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`)
             }
             variant='default'
             className='w-full'
@@ -359,7 +346,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             {(() => {
               if (activeStrategiesLoading) return 'Loading...'
               if (isComingSoon) return 'Temporary Disabled'
-              return 'Deploy'
+              return activeStrategy ? 'Modify' : 'Deploy'
             })()}
           </Button>
         )}

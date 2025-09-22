@@ -88,7 +88,7 @@ interface MarginCollateralCardProps {
   }
   collateralSupplyApy?: number
   debtBorrowApy?: number
-  healthFactor?: number
+  simulatedHealthFactor?: number
   showPositionTable?: boolean
   isCalculatingPositions?: boolean
   showSwapDetailsAndSlippage?: boolean
@@ -113,7 +113,7 @@ export function MarginCollateralCard({
   marketData,
   collateralSupplyApy = 0,
   debtBorrowApy = 0,
-  healthFactor = 0,
+  simulatedHealthFactor = 0,
   showPositionTable = false,
   isCalculatingPositions = false,
   showSwapDetailsAndSlippage = true,
@@ -133,8 +133,17 @@ export function MarginCollateralCard({
   const borrowAmountForSwap = positionCalcs.borrowAmount
 
   // Determine swap direction based on leverage change
-  const isLeverageIncrease =
-    currentLeverage && targetLeverage ? targetLeverage > currentLeverage : true // Default to increase for new positions
+  // For modify mode, check if we have the isLeverageIncrease field from calculations
+  // Otherwise fall back to comparing current vs target leverage
+  let isLeverageIncrease: boolean
+
+  if ((positionCalcs as any).isLeverageIncrease !== undefined) {
+    isLeverageIncrease = (positionCalcs as any).isLeverageIncrease
+  } else if (currentLeverage && targetLeverage) {
+    isLeverageIncrease = targetLeverage > currentLeverage
+  } else {
+    isLeverageIncrease = true // Default to increase for new positions
+  }
 
   // Track when calculations are in progress (use isCalculatingPositions from parent)
   // This is already handled by the parent component's debounce logic
@@ -438,25 +447,22 @@ export function MarginCollateralCard({
                   const slippageWarning = getSlippageWarning(slippage)
                   if (!slippageWarning) return null
 
-                  const variant =
-                    slippageWarning.type === 'danger'
-                      ? 'red'
-                      : slippageWarning.type === 'warning'
-                        ? 'yellow'
-                        : 'blue'
+                  let variant: 'red' | 'yellow' | 'blue'
+                  let title: string
+
+                  if (slippageWarning.type === 'danger') {
+                    variant = 'red'
+                    title = 'TRANSACTION RISK'
+                  } else if (slippageWarning.type === 'warning') {
+                    variant = 'yellow'
+                    title = 'SLIPPAGE WARNING'
+                  } else {
+                    variant = 'blue'
+                    title = 'SLIPPAGE INFO'
+                  }
 
                   return (
-                    <InfoAlert
-                      title={
-                        slippageWarning.type === 'danger'
-                          ? 'TRANSACTION RISK'
-                          : slippageWarning.type === 'warning'
-                            ? 'SLIPPAGE WARNING'
-                            : 'SLIPPAGE INFO'
-                      }
-                      variant={variant}
-                      className='mt-2'
-                    >
+                    <InfoAlert title={title} variant={variant} className='mt-2'>
                       <div className='flex items-start gap-2'>
                         {slippageWarning.type === 'info' ? (
                           <Info className='h-4 w-4 mt-0.5 flex-shrink-0 text-blue-600' />
@@ -479,135 +485,167 @@ export function MarginCollateralCard({
         {currentAmount > 0 && showSwapDetailsAndSlippage && (
           <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-xs'>
             <div className='font-medium text-foreground mb-2'>Swap Details</div>
-            {isCalculatingPositions || isSwapLoading || (!swapRouteInfo && !swapError) ? (
-              <>
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Borrow to swap</span>
-                  <span className='inline-block h-4 w-24 bg-muted/40 rounded animate-pulse' />
-                </div>
+            {(() => {
+              if (isCalculatingPositions || isSwapLoading || (!swapRouteInfo && !swapError)) {
+                const swapLabel = isLeverageIncrease
+                  ? 'Borrow to be swapped'
+                  : 'Collateral to be swapped'
+                const receiveLabel = isLeverageIncrease ? 'Added Collateral' : 'Debt Repay'
 
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Rate</span>
-                  <span className='inline-block h-4 w-28 bg-muted/40 rounded animate-pulse' />
-                </div>
+                return (
+                  <>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>{swapLabel}</span>
+                      <span className='inline-block h-4 w-24 bg-muted/40 rounded animate-pulse' />
+                    </div>
 
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Price Impact</span>
-                  <span className='inline-block h-4 w-12 bg-muted/40 rounded animate-pulse' />
-                </div>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Rate</span>
+                      <span className='inline-block h-4 w-28 bg-muted/40 rounded animate-pulse' />
+                    </div>
 
-                <div className='flex justify-between'>
-                  <span className='text-muted-foreground'>Minimum Received</span>
-                  <span className='inline-block h-4 w-24 bg-muted/40 rounded animate-pulse' />
-                </div>
-              </>
-            ) : swapError ? (
-              <div className='flex items-center justify-center py-2'>
-                <span className='text-muted-foreground'>No route available</span>
-              </div>
-            ) : swapRouteInfo ? (
-              <>
-                {(() => {
-                  // Calculate unit rate from dedicated unit rate query (not trade-specific)
-                  let rate = 0
-                  let fromAssetSymbol, toAssetSymbol
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Price Impact</span>
+                      <span className='inline-block h-4 w-12 bg-muted/40 rounded animate-pulse' />
+                    </div>
 
-                  if (isLeverageIncrease) {
-                    fromAssetSymbol = strategy.debtAsset.symbol
-                    toAssetSymbol = strategy.collateralAsset.symbol
-                  } else {
-                    fromAssetSymbol = strategy.collateralAsset.symbol
-                    toAssetSymbol = strategy.debtAsset.symbol
-                  }
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>{receiveLabel}</span>
+                      <span className='inline-block h-4 w-24 bg-muted/40 rounded animate-pulse' />
+                    </div>
 
-                  if (unitRateInfo && unitRateInfo.amountOut.gt(0)) {
-                    // Unit rate: 1 from asset = X to assets
-                    const toAssetDecimals = isLeverageIncrease
-                      ? strategy.collateralAsset.decimals || 8
-                      : strategy.debtAsset.decimals || 6
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Total Exposure</span>
+                      <span className='inline-block h-4 w-20 bg-muted/40 rounded animate-pulse' />
+                    </div>
+                  </>
+                )
+              } else if (swapError) {
+                return (
+                  <div className='flex items-center justify-center py-2'>
+                    <span className='text-muted-foreground'>No route available</span>
+                  </div>
+                )
+              } else if (swapRouteInfo) {
+                // Calculate unit rate from dedicated unit rate query (not trade-specific)
+                let rate = 0
+                let fromAssetSymbol, toAssetSymbol
 
-                    const outValue = unitRateInfo.amountOut.shiftedBy(-toAssetDecimals)
-                    rate = outValue.toNumber() // This is already per 1 unit of from asset
-                  }
+                if (isLeverageIncrease) {
+                  fromAssetSymbol = strategy.debtAsset.symbol
+                  toAssetSymbol = strategy.collateralAsset.symbol
+                } else {
+                  fromAssetSymbol = strategy.collateralAsset.symbol
+                  toAssetSymbol = strategy.debtAsset.symbol
+                }
 
-                  const slippageMultiplier = 1 - slippage / 100
+                if (unitRateInfo?.amountOut?.gt(0)) {
+                  // Unit rate: 1 from asset = X to assets
                   const toAssetDecimals = isLeverageIncrease
-                    ? strategy.collateralAsset.decimals || 8
-                    : strategy.debtAsset.decimals || 6
-                  const minimumReceived = swapRouteInfo.amountOut
-                    .shiftedBy(-toAssetDecimals)
-                    .multipliedBy(slippageMultiplier)
+                    ? (strategy.collateralAsset.decimals ?? 8)
+                    : (strategy.debtAsset.decimals ?? 6)
 
-                  const priceImpact = swapRouteInfo.priceImpact.toNumber()
+                  const outValue = unitRateInfo.amountOut.shiftedBy(-toAssetDecimals)
+                  rate = outValue.toNumber() // This is already per 1 unit of from asset
+                }
 
-                  return (
-                    <>
-                      <div className='flex justify-between'>
-                        <span className='text-muted-foreground'>
-                          {isLeverageIncrease ? 'Borrow to swap' : 'Swap to repay'}
-                        </span>
-                        <span>
-                          <FormattedValue
-                            value={borrowAmountForSwap}
-                            maxDecimals={8}
-                            useCompactNotation={false}
-                            suffix={` ${isLeverageIncrease ? strategy.debtAsset.symbol : strategy.collateralAsset.symbol}`}
-                          />
-                        </span>
-                      </div>
+                const slippageMultiplier = 1 - slippage / 100
+                const toAssetDecimals = isLeverageIncrease
+                  ? strategy.collateralAsset.decimals || 8
+                  : strategy.debtAsset.decimals || 6
+                const minimumReceived = swapRouteInfo.amountOut
+                  .shiftedBy(-toAssetDecimals)
+                  .multipliedBy(slippageMultiplier)
 
-                      <div className='flex justify-between'>
-                        <span className='text-muted-foreground'>Rate</span>
-                        <span>
-                          {rate > 0 ? (
-                            <>
-                              1 {fromAssetSymbol} ≈{' '}
-                              <FormattedValue
-                                value={rate}
-                                maxDecimals={6}
-                                useCompactNotation={false}
-                                suffix={` ${toAssetSymbol}`}
-                              />
-                            </>
-                          ) : (
-                            <span className='inline-block h-4 w-28 bg-muted/40 rounded animate-pulse' />
-                          )}
-                        </span>
-                      </div>
+                const priceImpact = swapRouteInfo.priceImpact.toNumber()
 
-                      <div className='flex justify-between'>
-                        <span className='text-muted-foreground'>Price Impact</span>
-                        <span className={getPriceImpactColor(priceImpact)}>
-                          {priceImpact > 0 ? '+' : ''}
-                          <FormattedValue
-                            value={Math.abs(priceImpact)}
-                            maxDecimals={2}
-                            suffix='%'
-                            useCompactNotation={false}
-                          />
-                        </span>
-                      </div>
+                const swapLabel = isLeverageIncrease
+                  ? 'Borrow to be swapped'
+                  : 'Collateral to be swapped'
+                const swapSuffix = isLeverageIncrease
+                  ? strategy.debtAsset.symbol
+                  : strategy.collateralAsset.symbol
+                const receiveLabel = isLeverageIncrease ? 'Added Collateral' : 'Debt Repay'
 
-                      <div className='flex justify-between'>
-                        <span className='text-muted-foreground'>Minimum Received</span>
-                        <span>
-                          <FormattedValue
-                            value={minimumReceived.toNumber()}
-                            maxDecimals={8}
-                            useCompactNotation={false}
-                            suffix={` ${toAssetSymbol}`}
-                          />
-                        </span>
-                      </div>
-                    </>
-                  )
-                })()}
-              </>
-            ) : (
-              <div className='flex items-center justify-center py-2'>
-                <span className='text-muted-foreground'>No route available</span>
-              </div>
-            )}
+                return (
+                  <>
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>{swapLabel}</span>
+                      <span>
+                        <FormattedValue
+                          value={borrowAmountForSwap}
+                          maxDecimals={8}
+                          useCompactNotation={false}
+                          suffix={` ${swapSuffix}`}
+                        />
+                      </span>
+                    </div>
+
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Rate</span>
+                      <span>
+                        {rate > 0 ? (
+                          <>
+                            1 {fromAssetSymbol} ≈{' '}
+                            <FormattedValue
+                              value={rate}
+                              maxDecimals={6}
+                              useCompactNotation={false}
+                              suffix={` ${toAssetSymbol}`}
+                            />
+                          </>
+                        ) : (
+                          <span className='inline-block h-4 w-28 bg-muted/40 rounded animate-pulse' />
+                        )}
+                      </span>
+                    </div>
+
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Price Impact</span>
+                      <span className={getPriceImpactColor(priceImpact)}>
+                        {priceImpact > 0 ? '+' : ''}
+                        <FormattedValue
+                          value={Math.abs(priceImpact)}
+                          maxDecimals={2}
+                          suffix='%'
+                          useCompactNotation={false}
+                        />
+                      </span>
+                    </div>
+
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>{receiveLabel}</span>
+                      <span>
+                        <FormattedValue
+                          value={minimumReceived.toNumber()}
+                          maxDecimals={8}
+                          useCompactNotation={false}
+                          suffix={` ${toAssetSymbol}`}
+                        />
+                      </span>
+                    </div>
+
+                    <div className='flex justify-between'>
+                      <span className='text-muted-foreground'>Total Exposure</span>
+                      <span>
+                        <FormattedValue
+                          value={positionCalcs.totalPosition}
+                          maxDecimals={8}
+                          useCompactNotation={false}
+                          suffix={` ${strategy.collateralAsset.symbol}`}
+                        />
+                      </span>
+                    </div>
+                  </>
+                )
+              } else {
+                return (
+                  <div className='flex items-center justify-center py-2'>
+                    <span className='text-muted-foreground'>No route available</span>
+                  </div>
+                )
+              }
+            })()}
           </div>
         )}
 
@@ -648,7 +686,7 @@ export function MarginCollateralCard({
                 marketData={marketData}
                 collateralSupplyApy={collateralSupplyApy}
                 debtBorrowApy={debtBorrowApy}
-                healthFactor={healthFactor}
+                simulatedHealthFactor={simulatedHealthFactor}
               />
             )}
           </>

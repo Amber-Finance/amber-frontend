@@ -22,7 +22,8 @@ export const getMaxAPY = (strategy: any, markets: any[], isWasmReady: boolean): 
 
 // Calculate net APY for a strategy
 export const calculateNetApy = (strategy: any): number => {
-  return strategy.netApy || strategy.supplyApy - strategy.borrowApy || 0
+  // Use pre-calculated netApy if available, otherwise calculate at 2x leverage
+  return strategy.netApy || strategy.supplyApy * 2 - strategy.borrowApy * 1 || 0
 }
 
 // Format leverage display

@@ -294,9 +294,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
             className='w-full'
             onClick={() => {
               const strategyId = `${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`
-              router.push(
-                `/strategies/deploy?strategy=${strategyId}&modify=true&accountId=${strategy.accountId}`,
-              )
+              router.push(`/strategies/${strategyId}`)
             }}
           >
             Manage

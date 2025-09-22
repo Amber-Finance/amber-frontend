@@ -20,7 +20,7 @@ interface NewPositionTableProps {
   }
   collateralSupplyApy: number
   debtBorrowApy: number
-  healthFactor: number
+  simulatedHealthFactor: number
 }
 
 export function NewPositionTable({
@@ -30,22 +30,30 @@ export function NewPositionTable({
   marketData,
   collateralSupplyApy,
   debtBorrowApy,
-  healthFactor,
+  simulatedHealthFactor,
 }: NewPositionTableProps) {
-  const currentAmount = parseFloat(collateralAmount || '0')
+  // Check if we have modify mode data (supplies and totalBorrows fields)
+  const isModifyMode =
+    (positionCalcs as any).supplies !== undefined &&
+    (positionCalcs as any).totalBorrows !== undefined
 
-  // Your supplies is your net supplied amount (what you put in from your wallet)
-  // If no amount entered but multiplier changed, use a small default for demonstration
-  const supplies = currentAmount > 0 ? currentAmount : 0.001
+  // Calculate supplies and borrows correctly based on mode
+  const supplies = isModifyMode
+    ? (positionCalcs as any).supplies // Use actual user supplies for modify mode
+    : positionCalcs.totalPosition - positionCalcs.borrowAmount // For deploy mode
 
-  // Calculate leverages based on multiplier
-  const longLeverage = positionCalcs.totalPosition / supplies // This equals the multiplier
+  const totalBorrows = isModifyMode
+    ? (positionCalcs as any).totalBorrows // Use total target borrows for modify mode
+    : positionCalcs.borrowAmount // For deploy mode, borrowAmount IS the total borrows
+
+  // Calculate leverages based on position
+  const longLeverage = supplies > 0 ? positionCalcs.totalPosition / supplies : 1 // This equals the multiplier
   const shortLeverage = longLeverage - 1 // Borrow ratio is multiplier - 1
 
   // Create Coin objects for TokenBalance
   const suppliesCoin = {
     denom: strategy.collateralAsset.denom,
-    amount: new BigNumber(currentAmount > 0 ? currentAmount : supplies)
+    amount: new BigNumber(supplies > 0 ? supplies : 0.001)
       .shiftedBy(strategy.collateralAsset.decimals || 8)
       .integerValue()
       .toString(),
@@ -61,7 +69,7 @@ export function NewPositionTable({
 
   const borrowCoin = {
     denom: strategy.debtAsset.denom,
-    amount: new BigNumber(positionCalcs.borrowAmount)
+    amount: new BigNumber(totalBorrows)
       .shiftedBy(strategy.debtAsset.decimals || 6)
       .integerValue()
       .toString(),
@@ -69,7 +77,7 @@ export function NewPositionTable({
 
   return (
     <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-xs'>
-      <div className='font-medium text-foreground mb-2'>Updated Position Overview</div>
+      <div className='font-medium text-foreground mb-2'>Position Overview</div>
       <div className='flex justify-between'>
         <span className='text-muted-foreground'>Your supplies:</span>
         <TokenBalance coin={suppliesCoin} size='sm' align='right' />
@@ -125,8 +133,8 @@ export function NewPositionTable({
             </TooltipContent>
           </Tooltip>
         </div>
-        <span className={`font-medium ${getHealthFactorColor(healthFactor)}`}>
-          {healthFactor?.toFixed(2) || '-'}
+        <span className={`font-medium ${getHealthFactorColor(simulatedHealthFactor)}`}>
+          {simulatedHealthFactor?.toFixed(2) || '-'}
         </span>
       </div>
       <div

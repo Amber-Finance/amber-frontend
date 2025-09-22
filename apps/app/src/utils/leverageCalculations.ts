@@ -36,15 +36,12 @@ export const calculateAdditionalBorrowAmount = (
 /**
  * Calculate collateral amount to withdraw to reach target leverage
  * When reducing leverage, we withdraw collateral, swap it to debt token, and repay debt
- * This reduces both collateral and debt proportionally
  *
- * Formula: targetCollateralUsd = targetLeverage * currentEquity
- * collateralToWithdraw = currentCollateralUsd - targetCollateralUsd
+ * Correct logic:
+ * - Target collateral = equity × targetLeverage
+ * - Collateral to withdraw = current collateral - target collateral
  *
- * Derivation:
- * - Target leverage L = collateral / equity
- * - Current equity stays the same during the transaction
- * - Therefore: targetCollateral = L × currentEquity
+ * This amount gets swapped to debt tokens to repay the excess debt.
  */
 export const calculateCollateralToWithdraw = (
   currentCollateralUsd: number,
@@ -52,7 +49,7 @@ export const calculateCollateralToWithdraw = (
   targetLeverage: number,
 ): number => {
   if (targetLeverage < 2.0) {
-    throw new Error('Target leverage must be at least 2.0x for positions with debt')
+    throw new Error('Target leverage must be at least 2.0x')
   }
 
   if (currentDebtUsd <= 0) {
@@ -187,7 +184,12 @@ export const calculateMaxSafeLeverage = (
 
 /**
  * Calculate debt amount to repay to reach target leverage
- * When reducing leverage, we need to repay some debt to reduce the leverage ratio
+ * When reducing leverage, we swap collateral to debt and repay to achieve target position
+ *
+ * Correct logic:
+ * - Target collateral = equity × targetLeverage
+ * - Target debt = target collateral - equity
+ * - Debt to repay = current debt - target debt
  */
 export const calculateDebtToRepay = (
   currentCollateralUsd: number,
@@ -207,11 +209,9 @@ export const calculateDebtToRepay = (
     throw new Error('Invalid position: negative or zero equity')
   }
 
-  // For target leverage: targetLeverage = collateral / equity
-  // Since we're only repaying debt, collateral stays the same
-  // So: targetLeverage = currentCollateral / (currentCollateral - targetDebt)
-  // Solving for targetDebt: targetDebt = currentCollateral - (currentCollateral / targetLeverage)
-  const targetDebtUsd = currentCollateralUsd - currentCollateralUsd / targetLeverage
+  // Calculate target position based on equity and target leverage
+  const targetCollateralUsd = currentEquity * targetLeverage
+  const targetDebtUsd = targetCollateralUsd - currentEquity
   const debtToRepayUsd = currentDebtUsd - targetDebtUsd
 
   // Cannot repay negative amount or more than current debt

@@ -96,10 +96,9 @@ export default function StrategyDeployPage() {
     const maxLeverage = Math.max(1, theoreticalMaxLeverage - 0.5)
     const liquidationThreshold = parseFloat(debtMarket.params.liquidation_threshold || '0.85')
 
-    // Calculate available liquidity
-    const totalCollateral = new BigNumber(debtMarket.metrics.collateral_total_amount || '0')
-    const totalDebt = new BigNumber(debtMarket.metrics.debt_total_amount || '0')
-    const availableLiquidity = BigNumber.max(0, totalCollateral.minus(totalDebt)).toNumber()
+    // Calculate max borrowable amount - equal to total supplied amount
+    const totalSupplied = new BigNumber(debtMarket.metrics.collateral_total_amount || '0')
+    const maxBorrowableAmount = totalSupplied.toNumber()
 
     const strategyData: Strategy = {
       id: strategyId,
@@ -112,8 +111,8 @@ export default function StrategyDeployPage() {
       rewards: '',
       multiplier: 2.0,
       isCorrelated: true,
-      liquidity: availableLiquidity,
-      liquidityDisplay: `$${(availableLiquidity / 1000000).toFixed(1)}M`,
+      liquidity: maxBorrowableAmount,
+      liquidityDisplay: `$${(maxBorrowableAmount / 1000000).toFixed(1)}M`,
       subText: `${(netApy * 100).toFixed(2)}% Net APY`,
 
       // Enhanced metrics for Δs (already in decimal format like StrategyCard)
@@ -125,8 +124,8 @@ export default function StrategyDeployPage() {
 
       // Additional strategy metadata
       maxLeverage,
-      maxBorrowCapacityUsd: availableLiquidity,
-      maxPositionSizeUsd: availableLiquidity * 2,
+      maxBorrowCapacityUsd: maxBorrowableAmount,
+      maxPositionSizeUsd: maxBorrowableAmount * 2,
 
       // APY breakdown (supply minus borrow - no staking)
       collateralStakingApy: 0,
