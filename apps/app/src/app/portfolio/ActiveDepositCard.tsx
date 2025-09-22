@@ -67,6 +67,7 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
                   src={token?.icon || ''}
                   alt={deposit.symbol}
                   fill
+                  sizes='(min-width: 350px) 64px, 48px'
                   className='w-full h-full object-contain'
                 />
               </div>

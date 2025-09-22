@@ -12,9 +12,41 @@ import chainConfig from '@/config/chain'
 
 // Helper function to get price impact color
 const getPriceImpactColor = (priceImpact: number): string => {
+  const absoluteImpact = Math.abs(priceImpact)
+  if (absoluteImpact >= 5) return 'text-red-500 font-medium'
+  if (absoluteImpact >= 2) return 'text-yellow-600 font-medium'
+  if (absoluteImpact >= 1) return 'text-yellow-500'
   if (priceImpact > 0) return 'text-green-500'
-  if (priceImpact < 0) return 'text-red-500'
   return 'text-muted-foreground'
+}
+
+// Helper function to get price impact warning
+const getPriceImpactWarning = (
+  priceImpact: number,
+): { type: 'info' | 'warning' | 'danger'; message: string } | null => {
+  const absoluteImpact = Math.abs(priceImpact)
+
+  if (absoluteImpact >= 5) {
+    return {
+      type: 'danger',
+      message:
+        'Very high price impact detected! You will lose a significant amount due to price impact. Consider reducing your trade size.',
+    }
+  }
+  if (absoluteImpact >= 2) {
+    return {
+      type: 'warning',
+      message:
+        'High price impact detected. This trade will move the market price significantly against you.',
+    }
+  }
+  if (absoluteImpact >= 1) {
+    return {
+      type: 'info',
+      message: 'Moderate price impact. Your trade will affect the market price slightly.',
+    }
+  }
+  return null
 }
 
 // Helper function to validate slippage
@@ -648,6 +680,63 @@ export function MarginCollateralCard({
             })()}
           </div>
         )}
+
+        {/* Price Impact Warning */}
+        {currentAmount > 0 &&
+          showSwapDetailsAndSlippage &&
+          swapRouteInfo &&
+          (() => {
+            const priceImpact = swapRouteInfo.priceImpact.toNumber()
+            const priceImpactWarning = getPriceImpactWarning(priceImpact)
+            if (!priceImpactWarning) return null
+
+            let variant: 'red' | 'yellow' | 'blue'
+            let title: string
+
+            if (priceImpactWarning.type === 'danger') {
+              variant = 'red'
+              title = 'HIGH PRICE IMPACT'
+            } else if (priceImpactWarning.type === 'warning') {
+              variant = 'yellow'
+              title = 'PRICE IMPACT WARNING'
+            } else {
+              variant = 'blue'
+              title = 'PRICE IMPACT INFO'
+            }
+
+            return (
+              <InfoAlert title={title} variant={variant} className='mb-4'>
+                <div className='flex items-start gap-2'>
+                  {priceImpactWarning.type === 'info' ? (
+                    <Info className='h-4 w-4 mt-0.5 flex-shrink-0 text-blue-600' />
+                  ) : (
+                    <AlertTriangle
+                      className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
+                        priceImpactWarning.type === 'danger' ? 'text-red-600' : 'text-yellow-600'
+                      }`}
+                    />
+                  )}
+                  <div className='space-y-1'>
+                    <span>{priceImpactWarning.message}</span>
+                    <div className='text-xs text-muted-foreground'>
+                      Price Impact: {Math.abs(priceImpact).toFixed(2)}% • Min Received:{' '}
+                      {swapRouteInfo.amountOut
+                        .shiftedBy(
+                          -(isLeverageIncrease
+                            ? strategy.collateralAsset.decimals || 8
+                            : strategy.debtAsset.decimals || 6),
+                        )
+                        .multipliedBy(1 - slippage / 100)
+                        .toFixed(6)}{' '}
+                      {isLeverageIncrease
+                        ? strategy.collateralAsset.symbol
+                        : strategy.debtAsset.symbol}
+                    </div>
+                  </div>
+                </div>
+              </InfoAlert>
+            )
+          })()}
 
         {/* New Position Table */}
         {showPositionTable && marketData && (

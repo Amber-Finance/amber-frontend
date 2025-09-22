@@ -113,6 +113,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
                   fill
+                  sizes='(max-width: 640px) 48px, 64px'
                   className='w-full h-full object-contain'
                 />
               </div>
@@ -121,6 +122,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
                   fill
+                  sizes='(max-width: 640px) 24px, 32px'
                   className=' w-full h-full'
                   unoptimized={true}
                 />

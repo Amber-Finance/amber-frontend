@@ -150,6 +150,10 @@ const generateSuccessMessage = (config: TransactionConfig): string => {
 
     case 'strategy': {
       switch (config.strategyType) {
+        case 'create':
+          return `Strategy deployed successfully at ${(config as any).multiplier?.toFixed(2) || 'N/A'}x leverage!`
+        case 'increase':
+          return `Strategy leverage increased successfully to ${(config as any).multiplier?.toFixed(2) || 'N/A'}x!`
         case 'update':
           return 'Strategy withdrawal successful!'
         case 'decrease':
@@ -245,17 +249,48 @@ export function useBroadcast() {
     }
   }
 
-  const executeStrategy = async (config: StrategyParams) => {
+  const executeStrategy = async (config: StrategyParams | DeployStrategyConfig) => {
     const client = await getWalletClient()
 
-    // For strategy operations, actions are provided directly
-    const actions = config.actions
-    const funds: any[] = [] // Strategy operations typically don't require funds
-
+    let actions: any[]
     let contractAddress: string
     let message: any
+    const funds: any[] = []
+
+    // Handle different config types
+    if ('actions' in config) {
+      // Standard StrategyParams with actions
+      actions = config.actions
+    } else {
+      // DeployStrategyConfig - convert to actions
+      actions = buildDeployActions(config)
+    }
 
     switch (config.strategyType) {
+      case 'create':
+        // New strategy deployment - create account and execute actions in one transaction
+        contractAddress = chainConfig.contracts.creditManager
+
+        // For deployment, we need to include the collateral as funds
+        if ('collateral' in config) {
+          const collateralAmount = formatAmount(
+            config.collateral.amount,
+            config.collateral.decimals,
+          )
+          funds.push({
+            denom: config.collateral.denom,
+            amount: collateralAmount,
+          })
+        }
+
+        message = {
+          update_credit_account: {
+            actions,
+          },
+        }
+        break
+
+      case 'increase':
       case 'update':
       case 'decrease':
         contractAddress = chainConfig.contracts.creditManager

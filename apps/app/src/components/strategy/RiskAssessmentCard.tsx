@@ -89,13 +89,6 @@ export function RiskAssessmentCard({
             <span className='text-muted-foreground'>Liquidation Threshold</span>
             <span className='font-medium text-foreground'>95%</span>
           </div>
-
-          <div className='flex justify-between items-center'>
-            <span className='text-muted-foreground'>Max Leverage</span>
-            <span className='font-medium text-foreground'>
-              {(strategy.maxLeverage || 5).toFixed(1)}x
-            </span>
-          </div>
         </div>
 
         <Separator />

@@ -12,7 +12,6 @@ import { TermsModalProvider } from '@/components/modals/TermsModalProvider'
 import { CosmosKitProvider, SkipProvider } from '@/components/providers'
 import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
-import { BackgroundGradient } from '@/components/ui/BackgroundGradient'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
 export const metadata: Metadata = metaData.home
@@ -35,8 +34,6 @@ export default function RootLayout({
               <SkipProvider>
                 <TermsModalProvider>
                   <div className='relative flex flex-col w-full h-full max-w-full overflow-x-hidden no-scrollbar bg-background'>
-                    {/* <BackgroundGradient /> */}
-
                     <Background />
 
                     <ThemedParticles

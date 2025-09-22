@@ -41,6 +41,7 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
               src={token.icon}
               alt={`${token.symbol} token icon`}
               fill
+              sizes='40px'
               className='object-contain'
             />
           </div>

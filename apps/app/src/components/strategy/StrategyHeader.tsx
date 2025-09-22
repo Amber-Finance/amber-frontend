@@ -62,11 +62,12 @@ export function StrategyHeader({
           <div className='flex flex-col sm:flex-row justify-center sm:justify-between items-center sm:items-start gap-4 p-4'>
             <div className='flex items-center justify-start gap-3'>
               <div className='relative'>
-                <div className='w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
+                <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
                   <Image
                     src={strategy.collateralAsset.icon}
                     alt={strategy.collateralAsset.symbol}
                     fill
+                    sizes='40px'
                     className='object-contain'
                   />
                 </div>
@@ -114,11 +115,12 @@ export function StrategyHeader({
         <div className='flex flex-col sm:flex-row justify-center sm:justify-between items-center sm:items-start gap-4 p-4'>
           <div className='flex items-center justify-start gap-3'>
             <div className='relative'>
-              <div className='w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
+              <div className='relative w-10 h-10 rounded-full overflow-hidden bg-secondary/80 border border-border/60 p-1'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
                   fill
+                  sizes='40px'
                   className='object-contain'
                 />
               </div>

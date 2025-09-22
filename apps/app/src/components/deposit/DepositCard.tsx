@@ -126,6 +126,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                   src={token.icon}
                   alt={token.symbol}
                   fill
+                  sizes='(min-width: 280px) 64px, 48px'
                   className='w-full h-full object-contain'
                 />
               </div>
@@ -137,6 +138,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
                     fill
+                    sizes='(min-width: 280px) 32px, 24px'
                     className=' w-full h-full p-1'
                     unoptimized={true}
                   />

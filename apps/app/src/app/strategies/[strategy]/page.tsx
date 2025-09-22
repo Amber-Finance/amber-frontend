@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
-
-import { BigNumber } from 'bignumber.js'
 
 import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
@@ -13,21 +11,24 @@ import { useMarkets } from '@/hooks'
 import { useStore } from '@/store/useStore'
 
 interface StrategyPageProps {
-  params: {
+  params: Promise<{
     strategy: string
-  }
+  }>
 }
 
 export default function StrategyPage({ params }: StrategyPageProps) {
   const router = useRouter()
   const [strategy, setStrategy] = useState<Strategy | null>(null)
 
+  // Unwrap params Promise using React.use()
+  const resolvedParams = use(params)
+
   useMarkets()
   const { markets } = useStore()
 
   useEffect(() => {
     // Parse strategy from URL params (e.g., maxBTC-WBTC)
-    const strategyId = params.strategy
+    const strategyId = resolvedParams.strategy
     if (!strategyId) {
       router.push('/strategies')
       return
@@ -110,7 +111,7 @@ export default function StrategyPage({ params }: StrategyPageProps) {
     }
 
     setStrategy(strategyInstance)
-  }, [params.strategy, markets, router])
+  }, [resolvedParams.strategy, markets, router])
 
   if (!strategy) {
     return (

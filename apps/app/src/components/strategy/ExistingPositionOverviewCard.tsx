@@ -16,9 +16,11 @@ interface PositionOverviewCardProps {
     totalPosition: number
     borrowAmount: number
     estimatedYearlyEarnings: number
+    supplies?: number // Net supplies (user's actual deposit)
   }
   getEstimatedEarningsUsd: () => string
   healthFactor: number
+  marketData?: any // Add marketData for price calculations
 }
 
 export function ExistingPositionOverviewCard({
@@ -28,11 +30,22 @@ export function ExistingPositionOverviewCard({
   positionCalcs,
   getEstimatedEarningsUsd,
   healthFactor,
+  marketData,
 }: PositionOverviewCardProps) {
   // Only render if there's an active strategy (existing position)
   if (!activeStrategy) {
     return null
   }
+
+  // Calculate position components
+  const netSupplies =
+    positionCalcs.supplies ||
+    activeStrategy.collateralAsset.amountFormatted - activeStrategy.debtAsset.amountFormatted
+  const netCollateral = activeStrategy.collateralAsset.amountFormatted
+  const netBorrowed = activeStrategy.debtAsset.amountFormatted
+  const netPosition = netCollateral - netBorrowed // This is the user's equity/net value
+
+  const currentPrice = marketData?.currentPrice || 0
 
   return (
     <InfoCard title='Existing Position Overview'>
@@ -70,35 +83,39 @@ export function ExistingPositionOverviewCard({
 
             <div className='space-y-1'>
               <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Long exposure</span>
+                <span className='text-muted-foreground'>Net Collateral</span>
                 <div className='text-right'>
                   <div className='font-medium text-foreground'>
-                    {activeStrategy
-                      ? `${activeStrategy.collateralAsset.amountFormatted.toFixed(6)} ${strategy.collateralAsset.symbol}`
-                      : `${positionCalcs.totalPosition.toFixed(6)} ${strategy.collateralAsset.symbol}`}
+                    {netCollateral.toFixed(6)} {strategy.collateralAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~
-                    {activeStrategy
-                      ? `$${activeStrategy.collateralAsset.usdValue.toFixed(2)}`
-                      : displayValues.usdValue(positionCalcs.totalPosition)}
+                    ~${activeStrategy.collateralAsset.usdValue.toFixed(2)}
                   </div>
                 </div>
               </div>
 
               <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Short exposure</span>
+                <span className='text-muted-foreground'>Net Borrowed</span>
                 <div className='text-right'>
                   <div className='font-medium text-foreground'>
-                    {activeStrategy
-                      ? `${activeStrategy.debtAsset.amountFormatted.toFixed(6)} ${strategy.debtAsset.symbol}`
-                      : `${positionCalcs.borrowAmount.toFixed(6)} ${strategy.debtAsset.symbol}`}
+                    {netBorrowed.toFixed(6)} {strategy.debtAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~
-                    {activeStrategy
-                      ? `$${activeStrategy.debtAsset.usdValue.toFixed(2)}`
-                      : displayValues.usdValue(positionCalcs.borrowAmount)}
+                    ~${activeStrategy.debtAsset.usdValue.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              <Separator className='my-2' />
+
+              <div className='flex justify-between items-center text-xs'>
+                <span className='text-muted-foreground'>Net Supplies</span>
+                <div className='text-right'>
+                  <div className='font-medium text-foreground'>
+                    {netSupplies.toFixed(6)} {strategy.collateralAsset.symbol}
+                  </div>
+                  <div className='text-xs text-muted-foreground'>
+                    ~${(netSupplies * currentPrice).toFixed(2)}
                   </div>
                 </div>
               </div>

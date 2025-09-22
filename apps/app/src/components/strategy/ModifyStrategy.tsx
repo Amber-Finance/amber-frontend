@@ -161,7 +161,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       isLeverageIncrease: borrowAmountChange > 0,
       // For NewPositionTable compatibility - use total target amounts
       totalBorrows: targetBorrows, // Total target borrows (not the change)
-      supplies: suppliesAmount, // User's actual supply amount
+      supplies: suppliesAmount, // User's actual supply amount (for ExistingPositionOverviewCard)
     }
   }, [strategyAccountData, effectiveLeverage, collateralSupplyApy, marketData.debtBorrowApy])
 

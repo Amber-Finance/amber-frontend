@@ -702,7 +702,7 @@ interface SwapConfig {
 }
 
 interface DeployStrategyConfig {
-  type: 'deploy_strategy'
+  type: 'strategy'
   strategyType: 'create' | 'increase'
   accountId?: string
   collateral: StrategyAsset
@@ -775,7 +775,7 @@ type TransactionConfig =
   | SwapTransactionConfig
   | StrategyParams
   | ModifyLeverageConfig
-  | StrategyParams
+  | DeployStrategyConfig
 
 interface ActiveStrategy {
   accountId: string

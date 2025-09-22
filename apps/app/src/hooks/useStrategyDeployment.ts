@@ -14,7 +14,7 @@ export const useStrategyDeployment = ({
 
       // Create config for broadcast's executeTransaction
       const config: DeployStrategyConfig = {
-        type: 'deploy_strategy',
+        type: 'strategy',
         strategyType: isModifying ? 'increase' : 'create',
         accountId: isModifying && modifyingAccountId ? modifyingAccountId : undefined,
         collateral: {
