@@ -465,8 +465,16 @@ export function useBroadcast() {
     const refreshMap: Record<string, string[]> = {
       deposit: [`${address}/positions`, `${address}/deposit/${(config as DepositConfig).denom}`],
       withdraw: [`${address}/positions`, `${address}/deposit/${(config as WithdrawConfig).denom}`],
-      modify_leverage: [`${address}/positions`, `${address}/credit-accounts`],
-      strategy: [`${address}/positions`, `${address}/credit-accounts`],
+      modify_leverage: [
+        `${address}/positions`,
+        `${address}/credit-accounts`,
+        `activeStrategies-${address}`,
+      ],
+      strategy: [
+        `${address}/positions`,
+        `${address}/credit-accounts`,
+        `activeStrategies-${address}`,
+      ],
     }
 
     const additionalRefreshes = refreshMap[config.type] || []

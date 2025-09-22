@@ -374,7 +374,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     try {
       const result = await withdrawFullStrategy(withdrawParams)
       if (result.success) {
-        router.push('/portfolio')
+        router.push('/strategies')
       }
     } catch (error) {
       console.error('❌ Strategy close failed:', error)
