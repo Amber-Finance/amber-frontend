@@ -94,7 +94,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
   }
 
   return (
-    <Card className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
+    <Card className='group relative w-full h-full flex flex-col bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg @container'>
       {/* FlickeringGrid in header area only */}
       <div className='absolute inset-x-0 top-0 h-32 z-0 flex justify-center items-center self-center overflow-hidden rounded-t-lg'>
         <FlickeringGrid
@@ -118,10 +118,10 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
       </div>
 
       <CardHeader className='relative z-20'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
+        <div className='flex flex-row items-center justify-between gap-4 mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-12 h-12 sm:w-16 sm:h-16'>
+              <div className='relative w-12 h-12 @[280px]:w-16 @[280px]:h-16'>
                 <Image
                   src={token.icon}
                   alt={token.symbol}
@@ -132,7 +132,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
 
               {/* Protocol Icon Badge */}
               {protocolIcon && (
-                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full border shadow-sm p-1 bg-background'>
+                <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 @[280px]:w-8 @[280px]:h-8 rounded-full border shadow-sm p-1 bg-background'>
                   <Image
                     src={protocolIcon}
                     alt={`${token.protocol} logo`}
@@ -145,16 +145,18 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
 
             <div className='flex flex-col'>
-              <CardTitle className='text-base sm:text-lg font-semibold'>{token.symbol}</CardTitle>
-              <CardDescription className='text-xs sm:text-sm text-muted-foreground'>
+              <CardTitle className='text-base @[280px]:text-lg font-semibold'>
+                {token.symbol}
+              </CardTitle>
+              <CardDescription className='text-xs @[350px]:text-sm text-muted-foreground'>
                 {token.protocol}
               </CardDescription>
             </div>
           </div>
 
-          <div className='text-center sm:text-right'>
+          <div className='text-center @[280px]:text-right'>
             <div
-              className='text-3xl sm:text-4xl font-funnel font-bold flex flex-row justify-center sm:justify-end whitespace-nowrap'
+              className='text-xl @[280px]:text-4xl font-funnel font-bold flex flex-row justify-center @[350px]:justify-end'
               style={{ color: token.brandColor }}
             >
               <CountingNumber value={metrics.totalApy} decimalPlaces={2} />%
@@ -182,7 +184,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           {/* TVL and Metrics Section */}
           <div className='space-y-6'>
             {/* Progress Bars Section */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
+            <div className='grid grid-cols-2 gap-6'>
               {/* Utilization Rate */}
               <div
                 className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40 flex flex-col items-center space-y-2'

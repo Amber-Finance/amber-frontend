@@ -34,6 +34,7 @@ export default function useUserPositions() {
     () => getUserPositions(chainConfig.contracts.redBank, address!),
     {
       fallbackData: { deposits: [], debts: [] },
+      refreshInterval: 60000,
       revalidateOnMount: true,
       revalidateOnFocus: true,
       onSuccess: (data) => {

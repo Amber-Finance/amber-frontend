@@ -191,6 +191,7 @@ type PnL =
 interface ChainConfig {
   name: string
   id: string
+  swapFee: number
   contracts: {
     redBank: string
     incentives: string

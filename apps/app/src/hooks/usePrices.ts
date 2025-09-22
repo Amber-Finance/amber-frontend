@@ -19,11 +19,10 @@ export const usePrices = () => {
 
   // Define a fetcher that checks all markets with an asset denom
   const fetchAllPrices = async () => {
-    if (!markets) return null
-
+    const currentMarkets = markets || []
     const results = []
 
-    for (const market of markets) {
+    for (const market of currentMarkets) {
       if (!market.asset?.denom) continue
 
       try {
@@ -47,7 +46,7 @@ export const usePrices = () => {
             price: new BigNumber(data.data.price).shiftedBy(decimalDifferenceToOracle).toString(),
           }
 
-          // Update market price directly here instead of in useEffect
+          // Update market price directly here
           updateMarketPrice(denom, priceData)
 
           // Store the result to return
@@ -61,17 +60,12 @@ export const usePrices = () => {
     return results
   }
 
-  // Use SWR with a key that depends on whether we have markets with asset denoms
-  const shouldFetch = markets?.some((market) => market.asset?.denom)
-
-  const { error, isLoading } = useSWR(shouldFetch && 'oraclePrices', fetchAllPrices, {
-    // Only fetch once on mount, no constant polling
+  // Always fetch prices with a consistent key, no conditional calling
+  const { error, isLoading } = useSWR('oraclePrices', fetchAllPrices, {
+    refreshInterval: 60000, // Refresh every minute
     revalidateOnMount: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    refreshWhenOffline: false,
-    refreshWhenHidden: false,
-    dedupingInterval: 300000, // 5 minutes - prevent unnecessary refetching
     errorRetryCount: 2,
     errorRetryInterval: 3000,
   })

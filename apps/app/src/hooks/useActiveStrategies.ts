@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
+import useSWR from 'swr'
 
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
@@ -64,158 +65,28 @@ const fetchAccountPositions = async (accountId: string): Promise<any> => {
   }
 }
 
-export function useActiveStrategies() {
-  const { address } = useChain(chainConfig.name)
-  const { markets, updateMarketPrice } = useStore()
-  const [activeStrategies, setActiveStrategies] = useState<ActiveStrategy[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+// Main fetcher function that processes all account data
+const fetchActiveStrategies = async (
+  address: string,
+  markets: Market[] | null,
+  maxBtcApy: number,
+  updateMarketPrice: (denom: string, priceData: PriceData) => void,
+): Promise<ActiveStrategy[]> => {
+  if (!markets?.length) return []
 
-  // Use price and APY hooks
-  usePrices() // Ensures prices are fetched and updated
-  const { apy: maxBtcApy } = useMaxBtcApy()
+  try {
+    // Get all credit accounts for the user
+    const creditAccounts = await fetchCreditAccounts(address)
+    if (creditAccounts.length === 0) return []
 
-  // Fetch missing prices for strategy tokens that aren't in markets
-  const fetchMissingPrice = useCallback(
-    async (denom: string, decimals: number) => {
-      try {
-        const query = btoa(JSON.stringify({ price: { denom } }))
-        const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.oracle}/smart/${query}`
-
-        const response = await fetch(url)
-        if (!response.ok) {
-          console.error(`Failed to fetch price for ${denom}: ${response.statusText}`)
-          return null
-        }
-
-        const data = await response.json()
-        const decimalDifferenceToOracle = decimals - 6
-
-        if (data?.data?.price) {
-          const priceData: PriceData = {
-            denom,
-            price: new BigNumber(data.data.price).shiftedBy(decimalDifferenceToOracle).toString(),
-          }
-
-          // Update the market price in the store
-          updateMarketPrice(denom, priceData)
-          return priceData
-        }
-      } catch (error) {
-        console.error(`Error fetching price for ${denom}:`, error)
-      }
-      return null
-    },
-    [updateMarketPrice],
-  )
-
-  // Get maxBTC denom for looping strategies
-  const maxBtcDenom = MAXBTC_DENOM
-
-  // Get all credit accounts for the user (now using REST)
-  const getUserCreditAccounts = async () => {
-    if (!address) return []
-    return await fetchCreditAccounts(address)
-  }
-
-  // Get positions for a specific account (now using REST)
-  const getAccountPositions = async (accountId: string) => {
-    return await fetchAccountPositions(accountId)
-  }
-
-  const hasActivePositions = (positions: any) => {
-    return positions && (positions.deposits?.length > 0 || positions.debts?.length > 0)
-  }
-
-  const createStrategy = (account: any, wbtcCollateral: any, debt: any, maxBtcApyValue: number) => {
-    const collateralToken = tokens.find((t) => t.denom === wbtcCollateral.denom)
-    const debtToken = tokens.find((t) => t.denom === debt.denom)
-    const collateralMarket = markets?.find((m) => m.asset.denom === wbtcCollateral.denom)
-    const debtMarket = markets?.find((m) => m.asset.denom === debt.denom)
-
-    if (!collateralToken || !debtToken || !collateralMarket || !debtMarket) return null
-
-    const collateralAmount = new BigNumber(wbtcCollateral.amount)
-      .shiftedBy(-collateralToken.decimals)
-      .toNumber()
-    const debtAmount = new BigNumber(debt.amount).shiftedBy(-debtToken.decimals).toNumber()
-
-    // Ensure we have valid price data before calculating USD values
-    const collateralPrice = collateralMarket.price?.price || '0'
-    const debtPrice = debtMarket.price?.price || '0'
-
-    // Only skip if BOTH prices are zero (indicating initial loading state)
-    if (collateralPrice === '0' && debtPrice === '0') {
-      return null
-    }
-
-    const collateralUsd = calculateUsdValueLegacy(
-      wbtcCollateral.amount,
-      collateralPrice,
-      collateralToken.decimals,
-    )
-    const debtUsd = calculateUsdValueLegacy(debt.amount, debtPrice, debtToken.decimals)
-
-    // Calculate leverage as collateral/equity ratio: collateral/(collateral-debt)
-    const equity = collateralUsd - debtUsd
-    const leverage = equity > 0 ? collateralUsd / equity : 0
-
-    // Use maxBTC APY for collateral supply APY, fallback to market metrics
-    const collateralSupplyApy =
-      maxBtcApyValue / 100 || parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
-    const debtBorrowApy = parseFloat(debtMarket.metrics?.borrow_rate || '0')
-    // Net APY = Supply APY × (1 + leverage) - Borrow APY × leverage
-    const netApy = collateralSupplyApy * (1 + leverage) - debtBorrowApy * leverage
-
-    return {
-      accountId: account.id,
-      collateralAsset: {
-        denom: wbtcCollateral.denom,
-        symbol: collateralToken.symbol,
-        amount: wbtcCollateral.amount,
-        amountFormatted: collateralAmount,
-        usdValue: collateralUsd,
-        decimals: collateralToken.decimals, // Add decimals for proper handling
-        icon: collateralToken.icon, // Add icon for display
-        brandColor: collateralToken.brandColor, // Add brandColor for styling
-      },
-      debtAsset: {
-        denom: debt.denom,
-        symbol: debtToken.symbol,
-        amount: debt.amount,
-        amountFormatted: debtAmount,
-        usdValue: debtUsd,
-        decimals: debtToken.decimals, // Add decimals for proper handling
-        icon: debtToken.icon, // Add icon for display
-        brandColor: debtToken.brandColor, // Add brandColor for styling
-      },
-      leverage,
-      netApy: netApy * 100, // Convert to percentage for display (same as StrategyCard expects)
-      isPositive: netApy > 0,
-      strategyId: `${collateralToken.symbol}-${debtToken.symbol}`,
-    }
-  }
-
-  // Get all user accounts with their positions (now using REST)
-  const getUserAccountsWithPositions = async () => {
-    // First, get all credit accounts for the user
-    const creditAccounts = await getUserCreditAccounts()
-
-    if (creditAccounts.length === 0) {
-      return []
-    }
-
-    // Then, query positions for each account in parallel with timeout
+    // Get positions for each account in parallel
     const accountsWithPositions = await Promise.allSettled(
       creditAccounts.map(async (account: any) => {
         try {
-          // Add timeout to prevent hanging
           const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Query timeout')), 10000),
           )
-
-          const positions = await Promise.race([getAccountPositions(account.id), timeoutPromise])
+          const positions = await Promise.race([fetchAccountPositions(account.id), timeoutPromise])
 
           if (hasActivePositions(positions)) {
             return {
@@ -232,93 +103,205 @@ export function useActiveStrategies() {
       }),
     )
 
-    // Filter out failed queries and null results
-    return accountsWithPositions
+    // Filter out failed queries and process accounts
+    const validAccounts = accountsWithPositions
       .filter(
         (result): result is PromiseFulfilledResult<any> =>
           result.status === 'fulfilled' && result.value !== null,
       )
       .map((result) => result.value)
+
+    // Process each account to extract strategies
+    const strategies = validAccounts.flatMap((account) =>
+      processAccount(account, markets, maxBtcApy),
+    )
+
+    // Fetch missing prices for maxBTC if needed
+    const maxBtcMarket = markets.find((m) => m.asset.denom === MAXBTC_DENOM)
+    const maxBtcToken = tokens.find((t) => t.denom === MAXBTC_DENOM)
+
+    if (maxBtcToken && (!maxBtcMarket?.price?.price || maxBtcMarket.price.price === '0')) {
+      await fetchMissingPrice(MAXBTC_DENOM, maxBtcToken.decimals, updateMarketPrice)
+    }
+
+    return strategies
+  } catch (error) {
+    console.error('Failed to fetch active strategies:', error)
+    throw error
   }
+}
 
-  const processAccount = (account: any) => {
-    const { deposits = [], debts = [] } = account.positions
-    const maxBtcCollateral = deposits.find((deposit: any) => deposit.denom === maxBtcDenom)
+export function useActiveStrategies() {
+  const { address } = useChain(chainConfig.name)
+  const { markets, updateMarketPrice } = useStore()
 
-    if (!maxBtcCollateral) return []
+  // Use price and APY hooks
+  usePrices() // Ensures prices are fetched and updated
+  const { apy: maxBtcApy } = useMaxBtcApy()
 
-    const btcDebts = debts.filter((debt: any) => {
-      const token = tokens.find((t) => t.denom === debt.denom)
-      return token && token.symbol.includes('BTC') && token.symbol !== 'maxBTC'
-    })
+  // Create SWR key that depends on address
+  const swrKey = address ? `activeStrategies-${address}` : null
 
-    return btcDebts
-      .map((debt: any) => createStrategy(account, maxBtcCollateral, debt, maxBtcApy))
-      .filter(Boolean)
-  }
-
-  const scanCreditAccounts = useCallback(async () => {
-    if (!address || !markets?.length) return
-    setIsLoading(true)
-    setError(null)
-    setHasAttemptedLoad(true)
-
-    // Check if maxBTC price is missing and fetch it
-    const maxBtcMarket = markets.find((m) => m.asset.denom === maxBtcDenom)
-    const maxBtcToken = tokens.find((t) => t.denom === maxBtcDenom)
-
-    if (maxBtcToken) {
-      if (!maxBtcMarket) {
-        await fetchMissingPrice(maxBtcDenom, maxBtcToken.decimals)
-      } else if (!maxBtcMarket.price?.price || maxBtcMarket.price.price === '0') {
-        await fetchMissingPrice(maxBtcDenom, maxBtcToken.decimals)
-      }
-    }
-
-    try {
-      // Get all user accounts with their positions using REST
-      const accountsWithPositions = await getUserAccountsWithPositions()
-
-      if (accountsWithPositions.length === 0) {
-        setActiveStrategies([])
-        return
-      }
-
-      // Process each account to extract strategies
-      const strategies = accountsWithPositions.flatMap(processAccount)
-
-      setActiveStrategies(strategies)
-    } catch (err) {
-      console.error('Failed to scan credit accounts:', err)
-      setError(err instanceof Error ? err.message : 'Failed to scan credit accounts')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [address, maxBtcDenom, markets, maxBtcApy, updateMarketPrice, fetchMissingPrice])
-
-  // Scan accounts when wallet connects or when markets/prices update
-  useEffect(() => {
-    if (address) {
-      scanCreditAccounts()
-    } else {
-      setActiveStrategies([])
-      setHasAttemptedLoad(false) // Reset when wallet disconnects
-    }
-  }, [address, markets, scanCreditAccounts]) // Also depend on markets to trigger when prices load
+  // Use SWR to fetch and cache active strategies
+  const {
+    data: activeStrategies,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR(swrKey, () => fetchActiveStrategies(address!, markets, maxBtcApy, updateMarketPrice), {
+    refreshInterval: 60000, // Refresh every minute
+    revalidateOnFocus: false,
+    revalidateOnMount: true,
+    fallbackData: [],
+    onError: (err) => {
+      console.error('Error fetching active strategies:', err)
+    },
+  })
 
   // Manual refresh function
   const refreshActiveStrategies = useCallback(() => {
-    if (address) {
-      scanCreditAccounts()
-    }
-  }, [address, scanCreditAccounts])
+    mutate()
+  }, [mutate])
 
   return {
-    activeStrategies,
+    activeStrategies: activeStrategies || [],
     isLoading,
-    isInitialLoading: !hasAttemptedLoad && !!address, // Show initial loading when connected but haven't attempted load yet
-    error,
+    isInitialLoading: isLoading && !activeStrategies,
+    error: error?.message || null,
     refreshActiveStrategies,
-    hasActiveStrategies: activeStrategies.length > 0,
+    hasActiveStrategies: (activeStrategies?.length || 0) > 0,
   }
+}
+
+// Helper function to fetch missing prices
+const fetchMissingPrice = async (
+  denom: string,
+  decimals: number,
+  updateMarketPrice: (denom: string, priceData: PriceData) => void,
+) => {
+  try {
+    const query = btoa(JSON.stringify({ price: { denom } }))
+    const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.oracle}/smart/${query}`
+
+    const response = await fetch(url)
+    if (!response.ok) {
+      console.error(`Failed to fetch price for ${denom}: ${response.statusText}`)
+      return null
+    }
+
+    const data = await response.json()
+    const decimalDifferenceToOracle = decimals - 6
+
+    if (data?.data?.price) {
+      const priceData: PriceData = {
+        denom,
+        price: new BigNumber(data.data.price).shiftedBy(decimalDifferenceToOracle).toString(),
+      }
+
+      // Update the market price in the store
+      updateMarketPrice(denom, priceData)
+      return priceData
+    }
+  } catch (error) {
+    console.error(`Error fetching price for ${denom}:`, error)
+  }
+  return null
+}
+
+// Helper function to check if positions are active
+const hasActivePositions = (positions: any) => {
+  return positions && (positions.deposits?.length > 0 || positions.debts?.length > 0)
+}
+
+// Helper function to create strategy object
+const createStrategy = (
+  account: any,
+  wbtcCollateral: any,
+  debt: any,
+  maxBtcApyValue: number,
+  markets: Market[],
+) => {
+  const collateralToken = tokens.find((t) => t.denom === wbtcCollateral.denom)
+  const debtToken = tokens.find((t) => t.denom === debt.denom)
+  const collateralMarket = markets.find((m) => m.asset.denom === wbtcCollateral.denom)
+  const debtMarket = markets.find((m) => m.asset.denom === debt.denom)
+
+  if (!collateralToken || !debtToken || !collateralMarket || !debtMarket) return null
+
+  const collateralAmount = new BigNumber(wbtcCollateral.amount)
+    .shiftedBy(-collateralToken.decimals)
+    .toNumber()
+  const debtAmount = new BigNumber(debt.amount).shiftedBy(-debtToken.decimals).toNumber()
+
+  // Ensure we have valid price data before calculating USD values
+  const collateralPrice = collateralMarket.price?.price || '0'
+  const debtPrice = debtMarket.price?.price || '0'
+
+  // Only skip if BOTH prices are zero (indicating initial loading state)
+  if (collateralPrice === '0' && debtPrice === '0') {
+    return null
+  }
+
+  const collateralUsd = calculateUsdValueLegacy(
+    wbtcCollateral.amount,
+    collateralPrice,
+    collateralToken.decimals,
+  )
+  const debtUsd = calculateUsdValueLegacy(debt.amount, debtPrice, debtToken.decimals)
+
+  // Calculate leverage as collateral/equity ratio: collateral/(collateral-debt)
+  const equity = collateralUsd - debtUsd
+  const leverage = equity > 0 ? collateralUsd / equity : 0
+
+  // Use maxBTC APY for collateral supply APY, fallback to market metrics
+  const collateralSupplyApy =
+    maxBtcApyValue / 100 || parseFloat(collateralMarket.metrics?.liquidity_rate || '0')
+  const debtBorrowApy = parseFloat(debtMarket.metrics?.borrow_rate || '0')
+  // Net APY = Supply APY × (1 + leverage) - Borrow APY × leverage
+  const netApy = collateralSupplyApy * (1 + leverage) - debtBorrowApy * leverage
+
+  return {
+    accountId: account.id,
+    collateralAsset: {
+      denom: wbtcCollateral.denom,
+      symbol: collateralToken.symbol,
+      amount: wbtcCollateral.amount,
+      amountFormatted: collateralAmount,
+      usdValue: collateralUsd,
+      decimals: collateralToken.decimals, // Add decimals for proper handling
+      icon: collateralToken.icon, // Add icon for display
+      brandColor: collateralToken.brandColor, // Add brandColor for styling
+    },
+    debtAsset: {
+      denom: debt.denom,
+      symbol: debtToken.symbol,
+      amount: debt.amount,
+      amountFormatted: debtAmount,
+      usdValue: debtUsd,
+      decimals: debtToken.decimals, // Add decimals for proper handling
+      icon: debtToken.icon, // Add icon for display
+      brandColor: debtToken.brandColor, // Add brandColor for styling
+    },
+    leverage,
+    netApy: netApy * 100, // Convert to percentage for display (same as StrategyCard expects)
+    isPositive: netApy > 0,
+    strategyId: `${collateralToken.symbol}-${debtToken.symbol}`,
+  }
+}
+
+// Helper function to process account data into strategies
+const processAccount = (account: any, markets: Market[], maxBtcApy: number) => {
+  const { deposits = [], debts = [] } = account.positions
+  const maxBtcCollateral = deposits.find((deposit: any) => deposit.denom === MAXBTC_DENOM)
+
+  if (!maxBtcCollateral) return []
+
+  const btcDebts = debts.filter((debt: any) => {
+    const token = tokens.find((t) => t.denom === debt.denom)
+    return token && token.symbol.includes('BTC') && token.symbol !== 'maxBTC'
+  })
+
+  return btcDebts
+    .map((debt: any) => createStrategy(account, maxBtcCollateral, debt, maxBtcApy, markets))
+    .filter(Boolean)
 }

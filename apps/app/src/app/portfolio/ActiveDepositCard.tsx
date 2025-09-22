@@ -54,14 +54,15 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
   }
 
   return (
-    <Card className='group relative bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
+    <Card className='group relative bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg @container'>
       {/* Card Header */}
 
       <CardHeader className='relative z-20'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
+        {/* below 350px width, show columns, above 350px width, show rows */}
+        <div className='flex flex-col @[350px]:flex-row @[350px]:items-center @[350px]:justify-between gap-4 mb-4'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-12 h-12 sm:w-16 sm:h-16'>
+              <div className='relative w-12 h-12 @[350px]:w-16 @[350px]:h-16'>
                 <Image
                   src={token?.icon || ''}
                   alt={deposit.symbol}
@@ -70,21 +71,22 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
                 />
               </div>
             </div>
+
             <div>
               <div className='flex flex-col'>
-                <CardTitle className='text-base sm:text-lg font-semibold'>
+                <CardTitle className='text-base @[350px]:text-lg font-semibold'>
                   {token?.symbol}
                 </CardTitle>
-                <CardDescription className='text-xs sm:text-sm text-muted-foreground'>
+                <CardDescription className='text-xs @[350px]:text-sm text-muted-foreground'>
                   {token?.protocol}
                 </CardDescription>
               </div>
             </div>
           </div>
 
-          <div className='text-center sm:text-right'>
+          <div className='text-center @[350px]:text-right'>
             <div
-              className='text-3xl sm:text-4xl font-funnel font-bold flex flex-row justify-center sm:justify-end'
+              className='text-3xl @[350px]:text-4xl font-funnel font-bold flex flex-row justify-center @[350px]:justify-end'
               style={{ color: token?.brandColor }}
             >
               <CountingNumber value={deposit.apy} decimalPlaces={2} /> %

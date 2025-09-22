@@ -21,7 +21,7 @@ interface PositionOverviewCardProps {
   healthFactor: number
 }
 
-export function PositionOverviewCard({
+export function ExistingPositionOverviewCard({
   strategy,
   activeStrategy,
   displayValues,
@@ -29,8 +29,13 @@ export function PositionOverviewCard({
   getEstimatedEarningsUsd,
   healthFactor,
 }: PositionOverviewCardProps) {
+  // Only render if there's an active strategy (existing position)
+  if (!activeStrategy) {
+    return null
+  }
+
   return (
-    <InfoCard title='Position Overview'>
+    <InfoCard title='Existing Position Overview'>
       <div>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
           <div className='space-y-2'>
@@ -162,6 +167,18 @@ export function PositionOverviewCard({
             </div>
 
             <div className='space-y-1 text-xs'>
+              <div className='flex justify-between items-center'>
+                <span className='text-muted-foreground'>Net APY</span>
+                <span
+                  className={`font-medium ${
+                    activeStrategy && activeStrategy.netApy >= 0
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {activeStrategy ? `${activeStrategy.netApy.toFixed(2)}%` : 'N/A'}
+                </span>
+              </div>
               <div className='flex justify-between items-center'>
                 <span className='text-muted-foreground'>Your health</span>
                 <span

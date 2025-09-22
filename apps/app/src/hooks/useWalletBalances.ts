@@ -14,9 +14,8 @@ export default function useWalletBalances() {
     swrKey,
     () => getWalletBalances(chainConfig, address!),
     {
-      // No longer using isPaused - we either have a key (address) or we don't
       fallbackData: [],
-      // Ensure we revalidate when component mounts or window gets focus
+      refreshInterval: 60000, // Refresh every minute
       revalidateOnMount: true,
       revalidateOnFocus: true,
     },

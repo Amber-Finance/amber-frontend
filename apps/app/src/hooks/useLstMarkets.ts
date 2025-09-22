@@ -74,9 +74,9 @@ export function useLstMarkets(): {
   )
 
   const lstMarkets = useMemo(() => {
-    if (!markets) return []
+    const currentMarkets = markets || []
 
-    return markets
+    return currentMarkets
       .map((market) => {
         // Find token info from tokens.ts
         const tokenData = tokens.find((token) => token.denom === market.asset.denom)
