@@ -11,15 +11,8 @@ import {
   YAxis,
 } from 'recharts'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import ChartWrapper from '@/components/charts/ChartWrapper'
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
@@ -67,7 +60,7 @@ export default function AllMarketsBarChart() {
       Object.entries(maxBtcDepositsData.data).forEach(([timestamp, deposits]) => {
         if (Array.isArray(deposits) && deposits.length > 0) {
           const totalAmount = deposits.reduce((sum, deposit) => {
-            return sum + parseFloat(deposit.total_amount || '0')
+            return sum + parseFloat(deposit.amount || '0')
           }, 0)
           maxBtcDepositsMap.set(timestamp, totalAmount)
         }
@@ -286,168 +279,145 @@ export default function AllMarketsBarChart() {
   }
 
   return (
-    <Card className='bg-card/20'>
-      <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
-        <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
-          All Deposits and Borrows
-        </CardTitle>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className='w-[160px] rounded-lg' aria-label='Select a value'>
-            <SelectValue placeholder='Last 7 days' />
-          </SelectTrigger>
-          <SelectContent className='rounded-xl'>
-            <SelectItem value='7' className='rounded-lg'>
-              Last 7 days
-            </SelectItem>
-            <SelectItem value='30' className='rounded-lg'>
-              Last 30 days
-            </SelectItem>
-            <SelectItem value='90' className='rounded-lg'>
-              Last 3 months
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </CardHeader>
-      <CardContent>
-        <div className='w-full h-[350px] overflow-hidden'>
-          {!processedData.length ? (
-            <div className='flex h-64 items-center justify-center text-muted-foreground'>
-              Loading...
-            </div>
-          ) : (
-            <ChartContainer config={chartConfig} className='h-full'>
-              <ResponsiveContainer width='100%' height='100%'>
-                <BarChart
-                  data={processedData}
-                  margin={{
-                    top: 10,
-                    right: -10,
-                    left: -10,
-                    bottom: 5,
+    <ChartWrapper title='All Deposits and Borrows' onTimeRangeChange={setTimeRange}>
+      <div className='w-full h-[350px] overflow-hidden'>
+        {!processedData.length ? (
+          <div className='flex h-64 items-center justify-center text-muted-foreground'>
+            Loading...
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className='h-full'>
+            <ResponsiveContainer width='100%' height='100%'>
+              <BarChart
+                data={processedData}
+                margin={{
+                  top: 10,
+                  right: -10,
+                  left: -10,
+                  bottom: 5,
+                }}
+                barCategoryGap='25%'
+                barGap={6}
+                stackOffset='sign'
+              >
+                <defs>
+                  {tokenInfo.map((token) => (
+                    <g key={token.symbol}>
+                      <linearGradient
+                        id={`depositGradient-${token.symbol}`}
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'
+                      >
+                        <stop offset='0%' stopColor={token.color} stopOpacity={0.7} />
+                        <stop offset='100%' stopColor={token.color} stopOpacity={0.3} />
+                      </linearGradient>
+                      <linearGradient
+                        id={`borrowGradient-${token.symbol}`}
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'
+                      >
+                        <stop offset='0%' stopColor={token.color} stopOpacity={0.5} />
+                        <stop offset='100%' stopColor={token.color} stopOpacity={0.7} />
+                      </linearGradient>
+                    </g>
+                  ))}
+                </defs>
+                <CartesianGrid
+                  strokeDasharray='1 3'
+                  stroke='rgba(255, 255, 255, 0.08)'
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey='formattedDate'
+                  fontSize={10}
+                  dy={10}
+                  stroke='rgba(255, 255, 255, 0.06)'
+                  interval={Math.ceil(processedData.length / 8)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  fontSize={10}
+                  stroke='rgba(255, 255, 255, 0.06)'
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => {
+                    const absValue = Math.abs(value)
+                    const sign = value < 0 ? '-' : ''
+                    return `${sign}$${(absValue / 1000).toFixed(0)}K`
                   }}
-                  barCategoryGap='25%'
-                  barGap={6}
-                  stackOffset='sign'
-                >
-                  <defs>
-                    {tokenInfo.map((token) => (
-                      <g key={token.symbol}>
-                        <linearGradient
-                          id={`depositGradient-${token.symbol}`}
-                          x1='0'
-                          y1='0'
-                          x2='0'
-                          y2='1'
-                        >
-                          <stop offset='0%' stopColor={token.color} stopOpacity={0.7} />
-                          <stop offset='100%' stopColor={token.color} stopOpacity={0.3} />
-                        </linearGradient>
-                        <linearGradient
-                          id={`borrowGradient-${token.symbol}`}
-                          x1='0'
-                          y1='0'
-                          x2='0'
-                          y2='1'
-                        >
-                          <stop offset='0%' stopColor={token.color} stopOpacity={0.5} />
-                          <stop offset='100%' stopColor={token.color} stopOpacity={0.7} />
-                        </linearGradient>
-                      </g>
-                    ))}
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray='1 3'
-                    stroke='rgba(255, 255, 255, 0.08)'
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey='formattedDate'
-                    fontSize={10}
-                    dy={10}
-                    stroke='rgba(255, 255, 255, 0.06)'
-                    interval={Math.ceil(processedData.length / 8)}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    fontSize={10}
-                    stroke='rgba(255, 255, 255, 0.06)'
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => {
-                      const absValue = Math.abs(value)
-                      const sign = value < 0 ? '-' : ''
-                      return `${sign}$${(absValue / 1000).toFixed(0)}K`
-                    }}
-                  />
-                  <ChartTooltip
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
-                            <p className='font-medium'>{label}</p>
-                            <div className='grid gap-1.5'>
-                              {payload.map((entry, index) => {
-                                const config = (
-                                  chartConfig as Record<string, { label: string; color: string }>
-                                )[entry.dataKey as string]
-                                const color = config?.color || entry.color
-                                return (
+                />
+                <ChartTooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
+                          <p className='font-medium'>{label}</p>
+                          <div className='grid gap-1.5'>
+                            {payload.map((entry, index) => {
+                              const config = (
+                                chartConfig as Record<string, { label: string; color: string }>
+                              )[entry.dataKey as string]
+                              const color = config?.color || entry.color
+                              return (
+                                <div
+                                  key={index}
+                                  className='flex w-full flex-wrap items-stretch gap-2'
+                                >
                                   <div
-                                    key={index}
-                                    className='flex w-full flex-wrap items-stretch gap-2'
-                                  >
-                                    <div
-                                      className='w-1 h-2.5 rounded-[2px] shrink-0'
-                                      style={{ backgroundColor: color }}
-                                    />
-                                    <div className='flex flex-1 justify-between leading-none gap-4 items-center'>
-                                      <span className='text-muted-foreground'>
-                                        {config?.label || entry.dataKey}
-                                      </span>
-                                      <span className='font-medium tabular-nums text-foreground'>
-                                        {entry.value && typeof entry.value === 'number'
-                                          ? `$ ${entry.value.toLocaleString()}`
-                                          : entry.value}
-                                      </span>
-                                    </div>
+                                    className='w-1 h-2.5 rounded-[2px] shrink-0'
+                                    style={{ backgroundColor: color }}
+                                  />
+                                  <div className='flex flex-1 justify-between leading-none gap-4 items-center'>
+                                    <span className='text-muted-foreground'>
+                                      {config?.label || entry.dataKey}
+                                    </span>
+                                    <span className='font-medium tabular-nums text-foreground'>
+                                      {entry.value && typeof entry.value === 'number'
+                                        ? `$ ${entry.value.toLocaleString()}`
+                                        : entry.value}
+                                    </span>
                                   </div>
-                                )
-                              })}
-                            </div>
+                                </div>
+                              )
+                            })}
                           </div>
-                        )
-                      }
-                      return null
-                    }}
-                    cursor={{
-                      opacity: 0.2,
-                      stroke: 'rgba(255, 255, 255, 0.2)',
-                      strokeWidth: 1,
-                    }}
-                  />
-                  {renderBars()}
+                        </div>
+                      )
+                    }
+                    return null
+                  }}
+                  cursor={{
+                    opacity: 0.2,
+                    stroke: 'rgba(255, 255, 255, 0.2)',
+                    strokeWidth: 1,
+                  }}
+                />
+                {renderBars()}
 
-                  <ReferenceLine y={0} stroke='rgba(255, 255, 255, 0.2)' strokeWidth={1} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          )}
-        </div>
+                <ReferenceLine y={0} stroke='rgba(255, 255, 255, 0.2)' strokeWidth={1} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        )}
+      </div>
 
-        {/* Chart Legend */}
-        <div className='mt-4 flex flex-wrap gap-4 justify-center'>
-          {tokenInfo.map((token) => (
-            <div key={token.symbol} className='flex items-center gap-2 text-sm'>
-              <div
-                className='h-2 w-2 shrink-0 rounded-[2px] opacity-70'
-                style={{ backgroundColor: token.color }}
-              />
-              <span className='text-foreground/60'>{token.symbol}</span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+      {/* Chart Legend */}
+      <div className='mt-4 flex flex-wrap gap-4 justify-center'>
+        {tokenInfo.map((token) => (
+          <div key={token.symbol} className='flex items-center gap-2 text-sm'>
+            <div
+              className='h-2 w-2 shrink-0 rounded-[2px] opacity-70'
+              style={{ backgroundColor: token.color }}
+            />
+            <span className='text-foreground/60'>{token.symbol}</span>
+          </div>
+        ))}
+      </div>
+    </ChartWrapper>
   )
 }

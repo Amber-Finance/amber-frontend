@@ -6,12 +6,13 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { BigNumber } from 'bignumber.js'
 
-import AllMarketsBarChart from '@/components/AllMarketsBarChart'
-import TokenApyLineChart from '@/components/TokenApyLineChart'
-import TokenDepositBorrowChart from '@/components/TokenDepositBorrowChart'
 import TokenIconsRow from '@/components/TokenIconsRow'
 import TokenMetricsCards from '@/components/TokenMetricsCards'
-import TokenPriceLineChart from '@/components/TokenPriceLineChart'
+import AllMarketsBarChart from '@/components/charts/AllMarketsBarChart'
+import TokenApyLineChart from '@/components/charts/TokenApyLineChart'
+import TokenDepositBorrowChart from '@/components/charts/TokenDepositBorrowChart'
+import TokenPriceLineChart from '@/components/charts/TokenPriceLineChart'
+import TotalDepositsBorrowsLineChart from '@/components/charts/TotalDepositsBorrowsLineChart'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
@@ -102,6 +103,7 @@ export default function Home() {
         ]}
       />
       <AllMarketsBarChart />
+      <TotalDepositsBorrowsLineChart />
       <TokenIconsRow selectedToken={selectedToken} onTokenSelect={handleTokenSelect} />
       <div className='flex flex-col sm:flex-row gap-4 mb-8'>
         <TokenApyLineChart selectedToken={selectedToken} />
