@@ -5,7 +5,7 @@ import { getUrl } from '@/utils/url'
 
 export default async function getAssetsTvl() {
   try {
-    const url = getUrl(chainConfig.endpoints.redBank, '/redbank_assets_tvl?chain=neutron')
+    const url = getUrl(chainConfig.endpoints.amberBackend, '/redbank_assets_tvl?chain=neutron')
     const response = await fetchWithTimeout(url, FETCH_TIMEOUT)
 
     if (!response.ok) {

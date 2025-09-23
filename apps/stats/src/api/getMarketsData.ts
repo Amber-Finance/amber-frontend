@@ -8,7 +8,7 @@ export default async function getMarketsData(denom?: string, days: number = 30) 
   try {
     const marketParam = denom ? `&market=${denom}` : ''
     const url = getUrl(
-      chainConfig.endpoints.redBank,
+      chainConfig.endpoints.amberBackend,
       `/redbank_markets_data?chain=neutron&days=${days}${marketParam}`,
     )
     const response = await fetchWithTimeout(url, FETCH_TIMEOUT)

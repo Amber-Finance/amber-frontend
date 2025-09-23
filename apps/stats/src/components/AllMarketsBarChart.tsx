@@ -1,9 +1,20 @@
 import React from 'react'
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { BigNumber } from 'bignumber.js'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ReferenceLine,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import {
   Select,
   SelectContent,
@@ -12,7 +23,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import tokens from '@/config/tokens'
+import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
+import useMaxBtcDeposits from '@/hooks/useMaxBtcDeposits'
 
 interface DailyData {
   date: string
@@ -40,8 +53,9 @@ interface TokenInfo {
 export default function AllMarketsBarChart() {
   const [timeRange, setTimeRange] = React.useState('7')
   const { data: marketsData } = useMarketsData(undefined, parseInt(timeRange))
+  const { data: maxBtcDepositsData } = useMaxBtcDeposits()
 
-  const { processedData, chartConfig, legendConfig, tokenInfo } = React.useMemo(() => {
+  const { processedData, chartConfig, tokenInfo } = React.useMemo(() => {
     if (!marketsData?.data || !Array.isArray(marketsData.data)) {
       return { processedData: [], chartConfig: {}, legendConfig: {}, tokenInfo: [] }
     }
@@ -49,9 +63,38 @@ export default function AllMarketsBarChart() {
     const tokenMap = new Map(tokens.map((token) => [token.denom, token]))
     const symbolToTokenMap = new Map<string, TokenInfo>()
 
+    // Process max BTC deposits data
+    const maxBtcDepositsMap = new Map<string, number>()
+    if (maxBtcDepositsData?.data) {
+      Object.entries(maxBtcDepositsData.data).forEach(([timestamp, deposits]) => {
+        if (Array.isArray(deposits) && deposits.length > 0) {
+          const totalAmount = deposits.reduce((sum, deposit) => {
+            return sum + parseFloat(deposit.total_amount || '0')
+          }, 0)
+          maxBtcDepositsMap.set(timestamp, totalAmount)
+        }
+      })
+    }
+
+    // Add maxBTC token to symbol map if it exists and has data
+    const maxBtcToken = tokens.find((token) => token.denom === MAXBTC_DENOM)
+    if (maxBtcToken && maxBtcDepositsMap.size > 0) {
+      symbolToTokenMap.set(maxBtcToken.symbol, {
+        symbol: maxBtcToken.symbol,
+        color: maxBtcToken.brandColor,
+        hasDeposits: false,
+        hasBorrows: false,
+      })
+    }
+
     marketsData.data.forEach((dayData: any) => {
       if (dayData.markets) {
         dayData.markets.forEach((market: MarketData) => {
+          // Filter out max BTC denom data
+          if (market.denom === MAXBTC_DENOM) {
+            return
+          }
+
           const token = tokenMap.get(market.denom)
           if (token && !symbolToTokenMap.has(market.symbol)) {
             symbolToTokenMap.set(market.symbol, {
@@ -89,6 +132,11 @@ export default function AllMarketsBarChart() {
 
         if (dayData.markets) {
           dayData.markets.forEach((market: MarketData) => {
+            // Filter out max BTC denom data
+            if (market.denom === MAXBTC_DENOM) {
+              return
+            }
+
             const token = tokenMap.get(market.denom)
             if (!token) return
 
@@ -112,6 +160,45 @@ export default function AllMarketsBarChart() {
             }
           })
         }
+        // Add max BTC deposits for this day - match by date
+        const marketsDate = new Date(parseInt(dayData.timestamp)).toDateString()
+        let maxBtcAmount = 0
+
+        // Find maxBTC data for the same date
+        for (const [maxBtcTimestamp, amount] of maxBtcDepositsMap.entries()) {
+          const maxBtcDate = new Date(parseInt(maxBtcTimestamp)).toDateString()
+          if (maxBtcDate === marketsDate) {
+            maxBtcAmount = amount
+            break
+          }
+        }
+
+        if (maxBtcAmount > 0) {
+          // Convert maxBTC from satoshis to BTC units
+          const maxBtcAmountInBtc = new BigNumber(maxBtcAmount).shiftedBy(-8).toNumber()
+
+          // Find BTC price from other BTC tokens
+          let btcPriceUsd = 0
+          if (dayData.markets) {
+            for (const market of dayData.markets) {
+              if (
+                market.symbol === 'WBTC' ||
+                market.symbol === 'LBTC' ||
+                market.symbol === 'eBTC'
+              ) {
+                btcPriceUsd = parseFloat(market.price_usd || '0')
+                break
+              }
+            }
+          }
+
+          if (btcPriceUsd > 0) {
+            const maxBtcValueUsd = maxBtcAmountInBtc * btcPriceUsd
+            dayResult['maxBTC_deposit'] = maxBtcValueUsd
+            const maxBtcTokenInfo = symbolToTokenMap.get('maxBTC')
+            if (maxBtcTokenInfo) maxBtcTokenInfo.hasDeposits = true
+          }
+        }
 
         return dayResult
       })
@@ -120,13 +207,13 @@ export default function AllMarketsBarChart() {
     tokenInfo.forEach((token) => {
       if (token.hasDeposits) {
         chartConfig[`${token.symbol}_deposit`] = {
-          label: token.symbol,
+          label: `${token.symbol} Deposit`,
           color: token.color,
         }
       }
       if (token.hasBorrows) {
         chartConfig[`${token.symbol}_borrow`] = {
-          label: token.symbol,
+          label: `${token.symbol} Borrow`,
           color: token.color,
         }
       }
@@ -141,21 +228,45 @@ export default function AllMarketsBarChart() {
     })
 
     return { processedData, chartConfig, legendConfig, tokenInfo }
-  }, [marketsData, timeRange])
+  }, [marketsData, timeRange, maxBtcDepositsData])
 
   const renderBars = () => {
     const bars: React.ReactElement[] = []
 
+    // Sort tokens by their average deposit value (largest to smallest)
+    const sortedTokens = [...tokenInfo].sort((a, b) => {
+      const aDepositKey = `${a.symbol}_deposit`
+      const bDepositKey = `${b.symbol}_deposit`
+
+      // Calculate average deposit value for each token
+      let aAvgDeposit = 0
+      let bAvgDeposit = 0
+
+      if (processedData.length > 0) {
+        aAvgDeposit =
+          processedData.reduce((sum, day) => sum + ((day[aDepositKey] as number) || 0), 0) /
+          processedData.length
+        bAvgDeposit =
+          processedData.reduce((sum, day) => sum + ((day[bDepositKey] as number) || 0), 0) /
+          processedData.length
+      }
+      return bAvgDeposit - aAvgDeposit // Sort largest to smallest
+    })
+
     // Render all deposits and borrows as separate bars (grouped by date)
-    tokenInfo.forEach((token) => {
+    sortedTokens.forEach((token) => {
       if (token.hasDeposits) {
         bars.push(
           <Bar
             key={`${token.symbol}_deposit`}
             dataKey={`${token.symbol}_deposit`}
-            fill={token.color}
+            fill={`url(#depositGradient-${token.symbol})`}
             name={`${token.symbol} Deposit`}
-            radius={[2, 2, 0, 0]}
+            stackId='deposits'
+            radius={[2, 2, 2, 2]}
+            stroke={token.color}
+            strokeWidth={1}
+            color={token.color}
           />,
         )
       }
@@ -164,9 +275,13 @@ export default function AllMarketsBarChart() {
           <Bar
             key={`${token.symbol}_borrow`}
             dataKey={`${token.symbol}_borrow`}
-            fill={token.color} // Same color as deposits, but negative values
+            fill={`url(#borrowGradient-${token.symbol})`}
             name={`${token.symbol} Borrow`}
-            radius={[2, 2, 0, 0]}
+            stackId='borrows'
+            radius={[2, 2, 2, 2]}
+            stroke={token.color}
+            strokeWidth={1}
+            color={token.color}
           />,
         )
       }
@@ -199,15 +314,28 @@ export default function AllMarketsBarChart() {
         </Select>
       </CardHeader>
       <CardContent>
-        {/* Custom Legend */}
-        <div className='flex flex-wrap gap-4 mb-4 justify-center'>
+        {/* Enhanced Legend */}
+        <div className='flex flex-wrap gap-6 mb-6 justify-center'>
           {tokenInfo.map((token) => (
-            <div key={token.symbol} className='flex items-center gap-2'>
-              <div className='w-1 h-2.5 rounded-[2px]' style={{ backgroundColor: token.color }} />
-              <span className='text-sm text-muted-foreground'>{token.symbol}</span>
+            <div
+              key={token.symbol}
+              className='flex items-center gap-3 bg-card/30 px-3 py-2 rounded-lg border border-border/20'
+            >
+              <div className='flex items-center gap-2'>
+                <div className='w-2 h-2 rounded-full' style={{ backgroundColor: token.color }} />
+                <span className='text-sm font-medium text-foreground'>{token.symbol}</span>
+              </div>
+              <div className='text-xs text-muted-foreground'>
+                {token.hasDeposits && token.hasBorrows
+                  ? 'Deposits & Borrows'
+                  : token.hasDeposits
+                    ? 'Deposits'
+                    : 'Borrows'}
+              </div>
             </div>
           ))}
         </div>
+
         <div className='w-full h-[350px] overflow-hidden'>
           {!processedData.length ? (
             <div className='flex h-64 items-center justify-center text-muted-foreground'>
@@ -224,20 +352,55 @@ export default function AllMarketsBarChart() {
                     left: -10,
                     bottom: 5,
                   }}
-                  barCategoryGap='10%'
-                  barGap={2}
+                  barCategoryGap='25%'
+                  barGap={6}
+                  stackOffset='sign'
                 >
-                  <CartesianGrid strokeDasharray='3 3' />
+                  <defs>
+                    {tokenInfo.map((token) => (
+                      <g key={token.symbol}>
+                        <linearGradient
+                          id={`depositGradient-${token.symbol}`}
+                          x1='0'
+                          y1='0'
+                          x2='0'
+                          y2='1'
+                        >
+                          <stop offset='0%' stopColor={token.color} stopOpacity={0.7} />
+                          <stop offset='100%' stopColor={token.color} stopOpacity={0.3} />
+                        </linearGradient>
+                        <linearGradient
+                          id={`borrowGradient-${token.symbol}`}
+                          x1='0'
+                          y1='0'
+                          x2='0'
+                          y2='1'
+                        >
+                          <stop offset='0%' stopColor={token.color} stopOpacity={0.5} />
+                          <stop offset='100%' stopColor={token.color} stopOpacity={0.7} />
+                        </linearGradient>
+                      </g>
+                    ))}
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray='1 3'
+                    stroke='rgba(255, 255, 255, 0.08)'
+                    vertical={false}
+                  />
                   <XAxis
                     dataKey='formattedDate'
                     fontSize={10}
                     dy={10}
                     stroke='rgba(255, 255, 255, 0.06)'
                     interval={Math.ceil(processedData.length / 8)}
+                    tickLine={false}
+                    axisLine={false}
                   />
                   <YAxis
                     fontSize={10}
                     stroke='rgba(255, 255, 255, 0.06)'
+                    tickLine={false}
+                    axisLine={false}
                     tickFormatter={(value) => {
                       const absValue = Math.abs(value)
                       const sign = value < 0 ? '-' : ''
@@ -245,10 +408,52 @@ export default function AllMarketsBarChart() {
                     }}
                   />
                   <ChartTooltip
-                    content={<ChartTooltipContent isCurrency indicator='line' />}
-                    cursor={{ opacity: 0.3 }}
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
+                            <p className='font-medium'>{label}</p>
+                            <div className='grid gap-1.5'>
+                              {payload.map((entry, index) => {
+                                const config = chartConfig[entry.dataKey as string]
+                                const color = config?.color || entry.color
+                                return (
+                                  <div
+                                    key={index}
+                                    className='flex w-full flex-wrap items-stretch gap-2'
+                                  >
+                                    <div
+                                      className='w-1 h-2.5 rounded-[2px] shrink-0'
+                                      style={{ backgroundColor: color }}
+                                    />
+                                    <div className='flex flex-1 justify-between leading-none gap-4 items-center'>
+                                      <span className='text-muted-foreground'>
+                                        {config?.label || entry.dataKey}
+                                      </span>
+                                      <span className='font-medium tabular-nums text-foreground'>
+                                        {entry.value && typeof entry.value === 'number'
+                                          ? `$ ${entry.value.toLocaleString()}`
+                                          : entry.value}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      }
+                      return null
+                    }}
+                    cursor={{
+                      opacity: 0.2,
+                      stroke: 'rgba(255, 255, 255, 0.2)',
+                      strokeWidth: 1,
+                    }}
                   />
                   {renderBars()}
+
+                  <ReferenceLine y={0} stroke='rgba(255, 255, 255, 0.2)' strokeWidth={1} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
