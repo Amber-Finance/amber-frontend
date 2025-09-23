@@ -12,8 +12,8 @@ interface TokenIconsRowProps {
 
 export default function TokenIconsRow({ selectedToken, onTokenSelect }: TokenIconsRowProps) {
   return (
-    <div className='flex justify-center items-center gap-6 p-8 mx-auto'>
-      <div className='flex items-center gap-4 flex-wrap justify-between w-full'>
+    <div className='flex justify-center items-center gap-6 p-2 sm:p-8 mx-auto'>
+      <div className='flex items-center gap-4 flex-wrap justify-center sm:justify-between w-full'>
         {tokens.map((token) => {
           const isActive = selectedToken.symbol === token.symbol
 

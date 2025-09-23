@@ -5,8 +5,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  ComposedChart,
-  Line,
   ReferenceLine,
   ResponsiveContainer,
   XAxis,
@@ -217,17 +215,14 @@ export default function AllMarketsBarChart() {
           color: token.color,
         }
       }
-    })
-
-    const legendConfig: Record<string, { label: string; color: string }> = {}
-    tokenInfo.forEach((token) => {
-      legendConfig[token.symbol] = {
+      // Add simplified legend entries for each token
+      chartConfig[token.symbol] = {
         label: token.symbol,
         color: token.color,
       }
     })
 
-    return { processedData, chartConfig, legendConfig, tokenInfo }
+    return { processedData, chartConfig, tokenInfo }
   }, [marketsData, timeRange, maxBtcDepositsData])
 
   const renderBars = () => {
@@ -292,12 +287,12 @@ export default function AllMarketsBarChart() {
 
   return (
     <Card className='bg-card/20'>
-      <CardHeader className='flex items-center border-b border-border/40'>
-        <CardTitle className='text-sm font-bold text-foreground'>
+      <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
+        <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
           All Deposits and Borrows
         </CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
+          <SelectTrigger className='w-[160px] rounded-lg' aria-label='Select a value'>
             <SelectValue placeholder='Last 7 days' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>
@@ -314,28 +309,6 @@ export default function AllMarketsBarChart() {
         </Select>
       </CardHeader>
       <CardContent>
-        {/* Enhanced Legend */}
-        <div className='flex flex-wrap gap-6 mb-6 justify-center'>
-          {tokenInfo.map((token) => (
-            <div
-              key={token.symbol}
-              className='flex items-center gap-3 bg-card/30 px-3 py-2 rounded-lg border border-border/20'
-            >
-              <div className='flex items-center gap-2'>
-                <div className='w-2 h-2 rounded-full' style={{ backgroundColor: token.color }} />
-                <span className='text-sm font-medium text-foreground'>{token.symbol}</span>
-              </div>
-              <div className='text-xs text-muted-foreground'>
-                {token.hasDeposits && token.hasBorrows
-                  ? 'Deposits & Borrows'
-                  : token.hasDeposits
-                    ? 'Deposits'
-                    : 'Borrows'}
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className='w-full h-[350px] overflow-hidden'>
           {!processedData.length ? (
             <div className='flex h-64 items-center justify-center text-muted-foreground'>
@@ -415,7 +388,9 @@ export default function AllMarketsBarChart() {
                             <p className='font-medium'>{label}</p>
                             <div className='grid gap-1.5'>
                               {payload.map((entry, index) => {
-                                const config = chartConfig[entry.dataKey as string]
+                                const config = (
+                                  chartConfig as Record<string, { label: string; color: string }>
+                                )[entry.dataKey as string]
                                 const color = config?.color || entry.color
                                 return (
                                   <div
@@ -458,6 +433,19 @@ export default function AllMarketsBarChart() {
               </ResponsiveContainer>
             </ChartContainer>
           )}
+        </div>
+
+        {/* Chart Legend */}
+        <div className='mt-4 flex flex-wrap gap-4 justify-center'>
+          {tokenInfo.map((token) => (
+            <div key={token.symbol} className='flex items-center gap-2 text-sm'>
+              <div
+                className='h-2 w-2 shrink-0 rounded-[2px] opacity-70'
+                style={{ backgroundColor: token.color }}
+              />
+              <span className='text-foreground/60'>{token.symbol}</span>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>

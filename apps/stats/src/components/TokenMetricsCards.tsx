@@ -49,7 +49,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
   }, [selectedMarket, redBankAssetsTvl, selectedToken.denom])
 
   return (
-    <div className='flex justify-end items-start gap-4'>
+    <div className='flex justify-center sm:justify-end items-start gap-4'>
       <div className='flex flex-col gap-4 w-80'>
         <FlipCard
           title='UTILIZATION'

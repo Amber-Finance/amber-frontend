@@ -103,11 +103,11 @@ export default function Home() {
       />
       <AllMarketsBarChart />
       <TokenIconsRow selectedToken={selectedToken} onTokenSelect={handleTokenSelect} />
-      <div className='flex gap-4 mb-8'>
+      <div className='flex flex-col sm:flex-row gap-4 mb-8'>
         <TokenApyLineChart selectedToken={selectedToken} />
         <TokenMetricsCards selectedToken={selectedToken} markets={markets} />
       </div>
-      <div className='flex gap-4 mb-8'>
+      <div className='flex flex-col lg:flex-row gap-4 mb-8'>
         <TokenPriceLineChart selectedToken={selectedToken} />
         <TokenDepositBorrowChart selectedToken={selectedToken} />
       </div>

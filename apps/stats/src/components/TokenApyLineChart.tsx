@@ -58,12 +58,12 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
 
   return (
     <Card className='bg-card/20 w-full'>
-      <CardHeader className='flex items-center border-b border-border/40'>
-        <CardTitle className='text-sm font-bold text-foreground'>
+      <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
+        <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
           {selectedToken.symbol} Deposit and Borrow APY
         </CardTitle>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
+          <SelectTrigger className='w-[160px] rounded-lg' aria-label='Select a value'>
             <SelectValue placeholder='Last 7 days' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>
