@@ -168,15 +168,11 @@ export default function AllMarketsBarChart() {
           // Convert maxBTC from satoshis to BTC units
           const maxBtcAmountInBtc = new BigNumber(maxBtcAmount).shiftedBy(-8).toNumber()
 
-          // Find BTC price from other BTC tokens
+          // Find maxBTC price
           let btcPriceUsd = 0
           if (dayData.markets) {
             for (const market of dayData.markets) {
-              if (
-                market.symbol === 'WBTC' ||
-                market.symbol === 'LBTC' ||
-                market.symbol === 'eBTC'
-              ) {
+              if (market.symbol === 'maxBTC') {
                 btcPriceUsd = parseFloat(market.price_usd || '0')
                 break
               }
