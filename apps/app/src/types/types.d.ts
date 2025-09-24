@@ -19,6 +19,15 @@ interface ActiveStrategy {
     decimals: number
     icon: string
   }
+  supply: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+    decimals: number
+    icon: string
+  }
   leverage: number
   netApy: number
   isPositive: boolean
@@ -109,12 +118,15 @@ interface MarketMetrics {
 interface StoreState {
   markets: Market[] | null
   hideZeroBalances: boolean
+  activeStrategies: ActiveStrategy[]
   setMarkets: (markets: Market[] | null) => void
   setHideZeroBalances: (hideZeroBalances: boolean) => void
   updateMarketPrice: (denom: string, priceData: PriceData) => void
   updateMarketMetrics: (denom: string, metrics: MarketDataItem) => void
   updateMarketPositions: (positions: { deposits: UserPosition[]; debts: UserPosition[] }) => void
   resetPositions: () => void
+  setActiveStrategies: (strategies: ActiveStrategy[]) => void
+  resetActiveStrategies: () => void
 }
 
 // API Responses

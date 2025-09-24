@@ -27,6 +27,7 @@ import { mutate } from 'swr'
 import chainConfig from '@/config/chain'
 import type { Action } from '@/types/generated/mars-credit-manager/MarsCreditManager.types'
 import { track } from '@/utils/analytics'
+import { getErrorSeverity, parseErrorMessage } from '@/utils/errorParsing'
 import { getMinAmountOutFromRouteInfo } from '@/utils/swap'
 
 const formatAmount = (amount: number, decimals: number): string => {
@@ -515,17 +516,30 @@ export function useBroadcast() {
       return { success: true, result }
     } catch (error) {
       console.error(`${config.type} transaction error:`, error)
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const rawErrorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+      // Parse the error into a user-friendly message
+      const userFriendlyMessage = parseErrorMessage(rawErrorMessage)
+      const errorSeverity = getErrorSeverity(rawErrorMessage)
+
+      // Determine toast type based on severity
+      const toastType = errorSeverity === 'warning' ? 'warning' : 'error'
 
       toast.update(pendingToastId, {
-        render: `${messages.error}: ${errorMessage}`,
-        type: 'error',
+        render: userFriendlyMessage,
+        type: toastType,
         isLoading: false,
-        autoClose: 4000,
+        autoClose: errorSeverity === 'warning' ? 6000 : 4000, // Longer for warnings so users can read
       })
 
-      track(`${config.type}_failed`, { error: errorMessage })
-      return { success: false, error: errorMessage }
+      // Track with both raw and parsed error for debugging
+      track(`${config.type}_failed`, {
+        rawError: rawErrorMessage,
+        parsedError: userFriendlyMessage,
+        severity: errorSeverity,
+      })
+
+      return { success: false, error: rawErrorMessage }
     }
   }
 

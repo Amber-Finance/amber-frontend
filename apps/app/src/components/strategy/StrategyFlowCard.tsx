@@ -32,6 +32,28 @@ export function StrategyFlowCard({
   collateralSupplyApy,
   debtBorrowApy,
 }: StrategyFlowCardProps) {
+  // Use actual strategy data if available, otherwise fall back to calculated values
+  const displayData = activeStrategy
+    ? {
+        supply:
+          activeStrategy.supply?.amountFormatted || activeStrategy.collateralAsset.amountFormatted,
+        borrow: activeStrategy.debtAsset.amountFormatted,
+        totalCollateral: activeStrategy.collateralAsset.amountFormatted,
+        leverage: activeStrategy.leverage,
+        netApy: activeStrategy.netApy / 100, // Convert from percentage
+      }
+    : {
+        supply: currentAmount,
+        borrow: positionCalcs.borrowAmount,
+        totalCollateral: positionCalcs.totalPosition,
+        leverage: multiplier,
+        netApy: positionCalcs.leveragedApy,
+      }
+
+  // Calculate correct leveraged APY: Supply APY × leverage - Borrow APY × (leverage - 1)
+  const correctLeveragedApy =
+    collateralSupplyApy * displayData.leverage - debtBorrowApy * (displayData.leverage - 1)
+
   return (
     <InfoCard title='Strategy Flow'>
       <div>
@@ -103,24 +125,19 @@ export function StrategyFlowCard({
             <InfoAlert title='Leverage Math' variant='blue' className='mt-2'>
               <div className='space-y-1'>
                 <div>
-                  • Supply: {currentAmount.toFixed(6)} {strategy.collateralAsset.symbol}
+                  • Net Supply: {displayData.supply.toFixed(6)} {strategy.collateralAsset.symbol}
                 </div>
                 <div>
-                  • Borrow: {positionCalcs.borrowAmount.toFixed(6)} {strategy.debtAsset.symbol}
+                  • Total Borrowed: {displayData.borrow.toFixed(6)} {strategy.debtAsset.symbol}
                 </div>
                 <div>
-                  • Total: {positionCalcs.totalPosition.toFixed(6)}{' '}
-                  {strategy.collateralAsset.symbol} ({multiplier.toFixed(2)}x exposure)
+                  • Total Collateral: {displayData.totalCollateral.toFixed(6)}{' '}
+                  {strategy.collateralAsset.symbol} ({displayData.leverage.toFixed(2)}x exposure)
                 </div>
                 <div>
-                  • Net APY: {(positionCalcs.leveragedApy * 100).toFixed(2)}% ( (
-                  {(collateralSupplyApy * 100).toFixed(2)}% - {(debtBorrowApy * 100).toFixed(2)}% )
-                  × {multiplier.toFixed(2)}x)
-                </div>
-                <Separator />
-                <div>
-                  Max leverage: {marketData.dynamicMaxLeverage.toFixed(2)}x (based on liquidation
-                  threshold)
+                  • Net APY: {(correctLeveragedApy * 100).toFixed(2)}% ={' '}
+                  {(collateralSupplyApy * 100).toFixed(2)}% × {displayData.leverage.toFixed(2)}x -
+                  {(debtBorrowApy * 100).toFixed(2)}% × {(displayData.leverage - 1).toFixed(2)}x
                 </div>
               </div>
             </InfoAlert>

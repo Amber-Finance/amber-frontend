@@ -85,12 +85,18 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
             </div>
           </div>
 
-          <div className='text-center @[350px]:text-right'>
+          <div className='text-center '>
             <div
               className='text-3xl @[350px]:text-4xl font-funnel font-bold flex flex-row justify-center @[350px]:justify-end'
               style={{ color: token?.brandColor }}
             >
-              <CountingNumber value={deposit.apy} decimalPlaces={2} /> %
+              <CountingNumber value={deposit.apy} decimalPlaces={2} />
+              <span
+                className={`text-lg @[350px]:text-xl self-end`}
+                style={{ color: (token as TokenInfo)?.brandColor || '#F97316' }}
+              >
+                %
+              </span>
             </div>
             <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>
               APY
@@ -140,7 +146,8 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
         <div className='flex pt-4 border-t border-border/20'>
           <Button
             variant='default'
-            className='w-full border-border/40 hover:bg-foreground/5 font-medium'
+            size='sm'
+            className='w-full'
             onClick={() => router.push(`/deposit?token=${deposit.symbol}`)}
           >
             Modify

@@ -77,7 +77,7 @@ export function NewPositionTable({
 
   return (
     <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-xs'>
-      <div className='font-medium text-foreground mb-2'>Position Overview</div>
+      <div className='font-medium text-foreground mb-2'>Updated Position Overview</div>
       <div className='flex justify-between'>
         <span className='text-muted-foreground'>Your supplies:</span>
         <TokenBalance coin={suppliesCoin} size='sm' align='right' />

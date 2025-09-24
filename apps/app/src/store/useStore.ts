@@ -25,6 +25,7 @@ export const useStore = create<StoreState>()(
         // Initial state
         markets: null,
         hideZeroBalances: getStoredHideZeroBalances(),
+        activeStrategies: [],
 
         setMarkets: (markets: Market[] | null): void => {
           if (!markets) return
@@ -124,11 +125,22 @@ export const useStore = create<StoreState>()(
             return { markets: updatedMarkets }
           })
         },
+
+        // Set active strategies
+        setActiveStrategies: (strategies: ActiveStrategy[]): void => {
+          set({ activeStrategies: strategies })
+        },
+
+        // Reset active strategies on disconnect
+        resetActiveStrategies: (): void => {
+          set({ activeStrategies: [] })
+        },
       }),
       {
         name: 'amberfi-storage', // storage key
         partialize: (state: StoreState) => ({
           markets: state.markets,
+          activeStrategies: state.activeStrategies,
           // You can exclude some state properties from persistence if needed
         }),
       },

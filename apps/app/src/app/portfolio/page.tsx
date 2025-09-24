@@ -7,6 +7,7 @@ import { useChain } from '@cosmos-kit/react'
 import { ActiveDepositCard } from '@/app/portfolio/ActiveDepositCard'
 import { ActiveStrategyCard } from '@/app/portfolio/ActiveStrategyCard'
 import Hero from '@/components/layout/Hero'
+import { WalletBalances } from '@/components/portfolio/WalletBalances'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
@@ -172,6 +173,9 @@ const Portfolio = () => {
           },
         ]}
       />
+
+      {/* Wallet Balances Section */}
+      <WalletBalances />
 
       <div className='w-full py-6  px-4 sm:px-6 lg:px-8'>
         <div className='w-full mx-auto'>

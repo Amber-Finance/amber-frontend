@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
+import { MAXBTC_DENOM } from '@/constants/query'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import useWalletBalances from '@/hooks/useWalletBalances'
@@ -61,6 +62,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
     [strategy, markets, isWasmReady],
   )
   const { collateralColor, debtColor } = useMemo(() => getGradientColors(strategy), [strategy])
+
+  // Check if user has maxBTC balance
+  const hasMaxBtcBalance = useMemo(() => {
+    if (!walletBalances || !isWalletConnected) return false
+    const maxBtcBalance = walletBalances.find((b) => b.denom === strategy.collateralAsset.denom)
+    return maxBtcBalance && parseFloat(maxBtcBalance.amount) > 0
+  }, [walletBalances, isWalletConnected, strategy.collateralAsset.denom])
 
   // Create coin object for TokenBalance component
   const debtCoin = useMemo((): Coin => {
@@ -244,17 +252,26 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             <div className='space-y-2 pt-2 flex-1'>
               <div className='flex items-center gap-2'>
                 <span className='text-sm font-semibold text-foreground'>Active Position</span>
-                <div className='px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium rounded-full'>
-                  Live
-                </div>
               </div>
 
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6'>
+                {/* Supply (Collateral-Borrowed) and in usd value */}
+                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
+                  <div className='flex flex-col items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>SUPPLY</span>
+                    <div className='text-center'>
+                      <div className='text-sm font-semibold text-foreground'>
+                        ${activeStrategy.supply.usdValue.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Leverage */}
                 <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
-                  <div className='flex items-center justify-between'>
-                    <span className='text-xs font-medium text-muted-foreground'>Leverage</span>
-                    <div className='text-right'>
+                  <div className='flex flex-col   items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>LEVERAGE</span>
+                    <div className='text-center'>
                       <div className='text-sm font-semibold text-foreground'>
                         {activeStrategy.leverage.toFixed(2)}x
                       </div>
@@ -264,11 +281,11 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
                 {/* Net APY */}
                 <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
-                  <div className='flex items-center justify-between'>
-                    <span className='text-xs font-medium text-muted-foreground'>Net APY</span>
-                    <div className='text-right'>
+                  <div className='flex flex-col items-center justify-between'>
+                    <span className='text-xs font-medium text-muted-foreground'>APY</span>
+                    <div className='text-center'>
                       <div
-                        className={`text-sm font-semibold ${
+                        className={`text-sm font-semibold text-center ${
                           activeStrategy.isPositive
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
@@ -283,13 +300,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               </div>
               {/* Deposited Balance */}
               <div className='flex justify-between items-center'>
-                <span className='text-sm text-foreground'>Deposited</span>
+                <span className='text-sm text-foreground'>Total Collateral</span>
                 <TokenBalance coin={activeStrategy.collateralAsset} size='md' />
               </div>
 
               {/* Borrowed Balance */}
               <div className='flex justify-between items-center'>
-                <span className='text-sm text-foreground'>Borrowed</span>
+                <span className='text-sm text-foreground'>Total Borrowed</span>
                 <TokenBalance coin={activeStrategy.debtAsset} size='md' />
               </div>
             </div>
@@ -338,9 +355,15 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
         {isWalletConnected && (
           <Button
-            onClick={() =>
-              (window.location.href = `/strategies/${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`)
-            }
+            onClick={() => {
+              // If no active strategy and no maxBTC balance, go to swap
+              if (!activeStrategy && !hasMaxBtcBalance) {
+                window.location.href = `/swap?to=${encodeURIComponent(MAXBTC_DENOM)}`
+              } else {
+                // Otherwise go to strategy page
+                window.location.href = `/strategies/${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`
+              }
+            }}
             variant='default'
             className='w-full'
             disabled={activeStrategiesLoading || isComingSoon}
@@ -348,7 +371,9 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             {(() => {
               if (activeStrategiesLoading) return 'Loading...'
               if (isComingSoon) return 'Temporary Disabled'
-              return activeStrategy ? 'Modify' : 'Deploy'
+              if (activeStrategy) return 'Modify'
+              if (!hasMaxBtcBalance) return 'Get maxBTC'
+              return 'Deploy'
             })()}
           </Button>
         )}

@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
@@ -133,11 +133,28 @@ const fetchActiveStrategies = async (
 
 export function useActiveStrategies() {
   const { address } = useChain(chainConfig.name)
-  const { markets, updateMarketPrice } = useStore()
+  const {
+    markets,
+    updateMarketPrice,
+    activeStrategies: cachedStrategies,
+    setActiveStrategies,
+    resetActiveStrategies,
+  } = useStore()
 
   // Use price and APY hooks
   usePrices() // Ensures prices are fetched and updated
   const { apy: maxBtcApy } = useMaxBtcApy()
+
+  // Track previous strategies with a ref to avoid unnecessary updates
+  const prevStrategiesRef = useRef<ActiveStrategy[] | null>(null)
+
+  // Reset strategies when address changes
+  useEffect(() => {
+    prevStrategiesRef.current = null
+    if (!address) {
+      resetActiveStrategies()
+    }
+  }, [address, resetActiveStrategies])
 
   // Create SWR key that depends on address
   const swrKey = address ? `activeStrategies-${address}` : null
@@ -152,24 +169,59 @@ export function useActiveStrategies() {
     refreshInterval: 60000, // Refresh every minute
     revalidateOnFocus: false,
     revalidateOnMount: true,
-    fallbackData: [],
+    fallbackData: cachedStrategies, // Use cached strategies as fallback
+    onSuccess: (data) => {
+      if (data && hasStrategiesChanged(prevStrategiesRef.current, data)) {
+        setActiveStrategies(data)
+        prevStrategiesRef.current = data
+      }
+    },
     onError: (err) => {
       console.error('Error fetching active strategies:', err)
     },
   })
+
+  // Helper function to check if strategies data has changed
+  const hasStrategiesChanged = (
+    prevStrategies: ActiveStrategy[] | null,
+    newStrategies: ActiveStrategy[],
+  ): boolean => {
+    if (!prevStrategies) return true
+
+    // Check if number of strategies has changed
+    if (prevStrategies.length !== newStrategies.length) {
+      return true
+    }
+
+    // Check if any strategy has changed
+    const strategiesChanged = newStrategies.some((newStrategy) => {
+      const prevStrategy = prevStrategies.find((s) => s.accountId === newStrategy.accountId)
+      return (
+        !prevStrategy ||
+        prevStrategy.collateralAsset.amount !== newStrategy.collateralAsset.amount ||
+        prevStrategy.debtAsset.amount !== newStrategy.debtAsset.amount ||
+        prevStrategy.netApy !== newStrategy.netApy
+      )
+    })
+
+    return strategiesChanged
+  }
 
   // Manual refresh function
   const refreshActiveStrategies = useCallback(() => {
     mutate()
   }, [mutate])
 
+  // Use cached strategies if available, otherwise use fetched data
+  const strategies = activeStrategies || cachedStrategies || []
+
   return {
-    activeStrategies: activeStrategies || [],
-    isLoading,
-    isInitialLoading: isLoading && !activeStrategies,
+    activeStrategies: strategies,
+    isLoading: address ? isLoading : false,
+    isInitialLoading: address ? isLoading && !cachedStrategies?.length : false,
     error: error?.message || null,
     refreshActiveStrategies,
-    hasActiveStrategies: (activeStrategies?.length || 0) > 0,
+    hasActiveStrategies: strategies.length > 0,
   }
 }
 
@@ -282,6 +334,16 @@ const createStrategy = (
       decimals: debtToken.decimals, // Add decimals for proper handling
       icon: debtToken.icon, // Add icon for display
       brandColor: debtToken.brandColor, // Add brandColor for styling
+    },
+    supply: {
+      amount: collateralAmount - debtAmount,
+      amountFormatted: collateralAmount - debtAmount,
+      usdValue: collateralUsd - debtUsd,
+      decimals: collateralToken.decimals,
+      icon: collateralToken.icon,
+      brandColor: collateralToken.brandColor,
+      symbol: collateralToken.symbol,
+      denom: collateralToken.denom,
     },
     leverage,
     netApy: netApy * 100, // Convert to percentage for display (same as StrategyCard expects)
