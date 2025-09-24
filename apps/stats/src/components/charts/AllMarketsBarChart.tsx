@@ -1,6 +1,5 @@
 import React from 'react'
 
-import { BigNumber } from 'bignumber.js'
 import {
   Bar,
   BarChart,
@@ -16,7 +15,7 @@ import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
-import useMaxBtcDeposits from '@/hooks/useMaxBtcDeposits'
+import useMaxBtcData from '@/hooks/useMaxBtcData'
 
 interface DailyData {
   date: string
@@ -44,7 +43,7 @@ interface TokenInfo {
 export default function AllMarketsBarChart() {
   const [timeRange, setTimeRange] = React.useState('7')
   const { data: marketsData } = useMarketsData(undefined, parseInt(timeRange))
-  const { data: maxBtcDepositsData } = useMaxBtcDeposits()
+  const { data: maxBtcData } = useMaxBtcData(parseInt(timeRange))
 
   const { processedData, chartConfig, tokenInfo } = React.useMemo(() => {
     if (!marketsData?.data || !Array.isArray(marketsData.data)) {
@@ -54,16 +53,10 @@ export default function AllMarketsBarChart() {
     const tokenMap = new Map(tokens.map((token) => [token.denom, token]))
     const symbolToTokenMap = new Map<string, TokenInfo>()
 
-    // Process max BTC deposits data
     const maxBtcDepositsMap = new Map<string, number>()
-    if (maxBtcDepositsData?.data) {
-      Object.entries(maxBtcDepositsData.data).forEach(([timestamp, deposits]) => {
-        if (Array.isArray(deposits) && deposits.length > 0) {
-          const totalAmount = deposits.reduce((sum, deposit) => {
-            return sum + parseFloat(deposit.amount || '0')
-          }, 0)
-          maxBtcDepositsMap.set(timestamp, totalAmount)
-        }
+    if (maxBtcData) {
+      maxBtcData.forEach((item) => {
+        maxBtcDepositsMap.set(item.date, item.depositAmountUsd)
       })
     }
 
@@ -153,38 +146,21 @@ export default function AllMarketsBarChart() {
         }
         // Add max BTC deposits for this day - match by date
         const marketsDate = new Date(parseInt(dayData.timestamp)).toDateString()
-        let maxBtcAmount = 0
+        let maxBtcValueUsd = 0
 
         // Find maxBTC data for the same date
         for (const [maxBtcTimestamp, amount] of maxBtcDepositsMap.entries()) {
           const maxBtcDate = new Date(parseInt(maxBtcTimestamp)).toDateString()
           if (maxBtcDate === marketsDate) {
-            maxBtcAmount = amount
+            maxBtcValueUsd = amount
             break
           }
         }
 
-        if (maxBtcAmount > 0) {
-          // Convert maxBTC from satoshis to BTC units
-          const maxBtcAmountInBtc = new BigNumber(maxBtcAmount).shiftedBy(-8).toNumber()
-
-          // Find maxBTC price
-          let btcPriceUsd = 0
-          if (dayData.markets) {
-            for (const market of dayData.markets) {
-              if (market.symbol === 'maxBTC') {
-                btcPriceUsd = parseFloat(market.price_usd || '0')
-                break
-              }
-            }
-          }
-
-          if (btcPriceUsd > 0) {
-            const maxBtcValueUsd = maxBtcAmountInBtc * btcPriceUsd
-            dayResult['maxBTC_deposit'] = maxBtcValueUsd
-            const maxBtcTokenInfo = symbolToTokenMap.get('maxBTC')
-            if (maxBtcTokenInfo) maxBtcTokenInfo.hasDeposits = true
-          }
+        if (maxBtcValueUsd > 0) {
+          dayResult['maxBTC_deposit'] = maxBtcValueUsd
+          const maxBtcTokenInfo = symbolToTokenMap.get('maxBTC')
+          if (maxBtcTokenInfo) maxBtcTokenInfo.hasDeposits = true
         }
 
         return dayResult
@@ -212,7 +188,7 @@ export default function AllMarketsBarChart() {
     })
 
     return { processedData, chartConfig, tokenInfo }
-  }, [marketsData, timeRange, maxBtcDepositsData])
+  }, [marketsData, timeRange, maxBtcData])
 
   const renderBars = () => {
     const bars: React.ReactElement[] = []

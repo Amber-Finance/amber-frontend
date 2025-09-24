@@ -6,7 +6,7 @@ import DistributionCard from '@/components/DistributionCard'
 import FlipCard from '@/components/FlipCard'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
-import useMaxBtcDeposits from '@/hooks/useMaxBtcDeposits'
+import useMaxBtcData from '@/hooks/useMaxBtcData'
 import { calculateUsdValueLegacy, formatNumber } from '@/utils/format'
 
 interface TokenMetricsCardsProps {
@@ -16,52 +16,16 @@ interface TokenMetricsCardsProps {
 
 export default function TokenMetricsCards({ selectedToken, markets }: TokenMetricsCardsProps) {
   const { data: redBankAssetsTvl } = useAssetsTvl()
-  const { data: maxBtcDeposits } = useMaxBtcDeposits()
+  const { latestData: maxBtcLatestData } = useMaxBtcData()
   const selectedMarket = markets?.find((market) => market.asset.denom === selectedToken.denom)
 
   const isMaxBtc = selectedToken.denom === MAXBTC_DENOM
 
   const metrics = useMemo(() => {
     if (isMaxBtc) {
-      // For maxBTC, get the latest deposit data from the API response
-      let depositedUsd = 0
-      let depositedAmount = 0
-
-      if (maxBtcDeposits?.data) {
-        // Get the latest timestamp (last entry in the data object)
-        const timestamps = Object.keys(maxBtcDeposits.data).sort()
-        const latestTimestamp = timestamps[timestamps.length - 1]
-        const latestData = maxBtcDeposits.data[latestTimestamp]
-
-        if (latestData && latestData.length > 0) {
-          // Sum up all deposits for the latest timestamp
-          depositedAmount = latestData.reduce((total: number, deposit: any) => {
-            return total + parseFloat(deposit.amount || '0')
-          }, 0)
-
-          // Get BTC price from other BTC tokens in markets
-          let btcPriceUsd = 0
-          if (markets) {
-            for (const market of markets) {
-              if (
-                market.asset.symbol === 'WBTC' ||
-                market.asset.symbol === 'LBTC' ||
-                market.asset.symbol === 'eBTC'
-              ) {
-                btcPriceUsd = parseFloat(market.price?.price || '0')
-                break
-              }
-            }
-          }
-
-          // Convert maxBTC amount to USD using BTC price
-          if (btcPriceUsd > 0) {
-            // Convert from satoshis to BTC units (maxBTC has 8 decimals)
-            const maxBtcAmountInBtc = depositedAmount / Math.pow(10, 8)
-            depositedUsd = maxBtcAmountInBtc * btcPriceUsd
-          }
-        }
-      }
+      // For maxBTC, use the latest data from the hook
+      const depositedUsd = maxBtcLatestData?.depositAmountUsd || 0
+      const depositedAmount = maxBtcLatestData?.depositAmount || 0
 
       return {
         utilizationRate: 0,
@@ -100,7 +64,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
       depositedAmount,
       tvlShare,
     }
-  }, [selectedMarket, redBankAssetsTvl, selectedToken.denom, isMaxBtc, maxBtcDeposits])
+  }, [selectedMarket, redBankAssetsTvl, selectedToken.denom, isMaxBtc, maxBtcLatestData])
 
   return (
     <div className='flex justify-center sm:justify-end items-start gap-4'>
