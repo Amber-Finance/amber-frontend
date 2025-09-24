@@ -2,7 +2,7 @@ import useSWR from 'swr'
 
 import getMaxBtcDeposits from '@/api/getMaxBtcDeposits'
 
-export default function useAssetsTvl() {
+export default function useMaxBtcDeposits() {
   return useSWR(
     `chains/neutron/maxBtcDeposits`,
     async () => {
