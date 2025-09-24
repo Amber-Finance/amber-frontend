@@ -78,7 +78,6 @@ export default function Home() {
     router.replace(`?${params.toString()}`, { scroll: false })
   }
 
-  console.log(markets, 'markets')
   const marketTotals = useMemo(() => calculateMarketTotals(markets), [markets])
 
   return (

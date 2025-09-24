@@ -55,7 +55,7 @@ export default function TotalDepositsBorrowsLineChart() {
     },
     {
       dataKey: 'totalBorrows',
-      color: '#dc2626',
+      color: '#ef4444',
       label: 'Total Borrows',
     },
     {

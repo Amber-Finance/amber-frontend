@@ -18,7 +18,6 @@ export default async function getBtcApy(asset: string, days: number = 7) {
     }
     const data = await response.json()
 
-    console.log('datadatadatadata:', data)
     return data
   } catch (error) {
     console.error('Could not fetch assets apy data.', error)

@@ -13,7 +13,6 @@ export default async function getMarketsData(denom?: string, days: number = 30) 
     )
     const response = await fetchWithTimeout(url, FETCH_TIMEOUT)
 
-    console.log(response, 'responseresponseresponseresponse')
     if (!response.ok) {
       return null
     }

@@ -8,7 +8,6 @@ export default function useBtcApy(asset: string, days: number = 7) {
     async () => {
       const response = await getBtcApy(asset, days)
 
-      console.log('response:', response)
       return response
     },
     {
