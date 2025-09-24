@@ -16,6 +16,7 @@ import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useMaxBtcData from '@/hooks/useMaxBtcData'
+import { formatChartDate } from '@/utils/chartDateFormatter'
 
 interface DailyData {
   date: string
@@ -56,7 +57,8 @@ export default function AllMarketsBarChart() {
     const maxBtcDepositsMap = new Map<string, number>()
     if (maxBtcData) {
       maxBtcData.forEach((item) => {
-        maxBtcDepositsMap.set(item.date, item.depositAmountUsd)
+        const formattedDate = formatChartDate(item.timestamp)
+        maxBtcDepositsMap.set(formattedDate, item.depositAmountUsd)
       })
     }
 
@@ -98,11 +100,7 @@ export default function AllMarketsBarChart() {
       .slice(0, parseInt(timeRange))
       .reverse() // Reverse to show most recent days first
       .map((dayData: any) => {
-        const date = new Date(parseInt(dayData.timestamp))
-        const formattedDate = date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-        })
+        const formattedDate = formatChartDate(dayData.timestamp)
 
         const dayResult: DailyData = {
           date: dayData.timestamp,
@@ -145,12 +143,11 @@ export default function AllMarketsBarChart() {
           })
         }
         // Add max BTC deposits for this day - match by date
-        const marketsDate = new Date(parseInt(dayData.timestamp)).toDateString()
+        const marketsDate = formatChartDate(dayData.timestamp)
         let maxBtcValueUsd = 0
 
         // Find maxBTC data for the same date
-        for (const [maxBtcTimestamp, amount] of maxBtcDepositsMap.entries()) {
-          const maxBtcDate = new Date(parseInt(maxBtcTimestamp)).toDateString()
+        for (const [maxBtcDate, amount] of maxBtcDepositsMap.entries()) {
           if (maxBtcDate === marketsDate) {
             maxBtcValueUsd = amount
             break

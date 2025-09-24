@@ -6,6 +6,7 @@ import AreaChartComponent from '@/components/charts/AreaChartComponent'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useBtcApy from '@/hooks/useBtcApy'
+import { formatChartDate } from '@/utils/chartDateFormatter'
 
 interface TokenApyLineChartProps {
   selectedToken: TokenInfo
@@ -33,10 +34,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
 
         return {
           date: timestamp,
-          formattedDate: new Date(parseInt(timestamp)).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
+          formattedDate: formatChartDate(timestamp),
           depositApy: depositApy,
           borrowApy: 0, // maxBTC has no borrow APY
         }
@@ -54,10 +52,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
 
         return {
           date: item.timestamp,
-          formattedDate: new Date(parseInt(item.timestamp)).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
+          formattedDate: formatChartDate(item.timestamp),
           depositApy: marketData ? parseFloat(marketData.deposit_apy || 0) : 0,
           borrowApy: marketData ? parseFloat(marketData.borrow_apy || 0) : 0,
         }

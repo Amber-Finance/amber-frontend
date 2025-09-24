@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react'
 import AreaChartComponent from '@/components/charts/AreaChartComponent'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
+import { formatChartDate } from '@/utils/chartDateFormatter'
+import { formatCurrency } from '@/utils/format'
 
 interface TokenPriceLineChartProps {
   selectedToken: TokenInfo
@@ -25,10 +27,7 @@ export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineCha
 
         return {
           date: item.timestamp,
-          formattedDate: new Date(parseInt(item.timestamp)).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
+          formattedDate: formatChartDate(item.timestamp),
           priceUsd: marketData ? parseFloat(marketData.price_usd || 0) : 0,
         }
       })
@@ -50,9 +49,7 @@ export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineCha
         areas={areas}
         title={`${selectedToken.symbol} Price (USD)`}
         onTimeRangeChange={setTimeRange}
-        yAxisFormatter={(value) =>
-          `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-        }
+        yAxisFormatter={formatCurrency(0)}
         yAxisDomain={['dataMin - 100', 'dataMax + 100']}
         xAxisInterval={timeRange === '7' ? 0 : 'preserveStartEnd'}
         tooltipType='currency'

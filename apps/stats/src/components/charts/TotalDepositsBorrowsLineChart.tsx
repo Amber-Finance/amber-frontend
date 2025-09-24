@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react'
 import AreaChartComponent from '@/components/charts/AreaChartComponent'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
+import { formatChartDate } from '@/utils/chartDateFormatter'
+import { formatCompactCurrency } from '@/utils/format'
 
 export default function TotalDepositsBorrowsLineChart() {
   const [timeRange, setTimeRange] = useState('7')
@@ -36,10 +38,7 @@ export default function TotalDepositsBorrowsLineChart() {
 
         return {
           date: dayData.timestamp,
-          formattedDate: new Date(parseInt(dayData.timestamp)).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
+          formattedDate: formatChartDate(dayData.timestamp),
           totalDeposits,
           totalBorrows,
           tvl: totalDeposits - totalBorrows,
@@ -73,10 +72,7 @@ export default function TotalDepositsBorrowsLineChart() {
         areas={areas}
         title='Total Deposits, Borrows & TVL'
         onTimeRangeChange={setTimeRange}
-        yAxisFormatter={(value) => {
-          const absValue = Math.abs(value)
-          return `$${(absValue / 1000).toFixed(0)}K`
-        }}
+        yAxisFormatter={formatCompactCurrency}
         tooltipType='currency'
       />
     </ChartWrapper>

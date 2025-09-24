@@ -7,6 +7,8 @@ import ChartWrapper from '@/components/charts/ChartWrapper'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useMaxBtcData from '@/hooks/useMaxBtcData'
+import { formatChartDate } from '@/utils/chartDateFormatter'
+import { formatCompactCurrency } from '@/utils/format'
 
 interface TokenDepositBorrowChartProps {
   selectedToken: TokenInfo
@@ -22,8 +24,8 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
     if (isMaxBtc) {
       // Use the new maxBTC data hook
       return maxBtcData.map((item) => ({
-        date: item.date,
-        formattedDate: item.formattedDate,
+        date: item.timestamp,
+        formattedDate: formatChartDate(item.timestamp),
         depositAmount: item.depositAmountUsd,
         borrowAmount: 0, // maxBTC has no borrows
       }))
@@ -44,10 +46,7 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
 
         return {
           date: item.timestamp,
-          formattedDate: new Date(parseInt(item.timestamp)).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
+          formattedDate: formatChartDate(item.timestamp),
           depositAmount: depositAmount * priceUsd,
           borrowAmount: borrowAmount * priceUsd,
         }
@@ -89,11 +88,7 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
             : `${selectedToken.symbol} Deposits & Borrows`
         }
         onTimeRangeChange={setTimeRange}
-        yAxisFormatter={(value) => {
-          const absValue = Math.abs(value)
-          const sign = value < 0 ? '-' : ''
-          return `${sign}$${(absValue / 1000).toFixed(0)}K`
-        }}
+        yAxisFormatter={formatCompactCurrency}
         yAxisDomain={['dataMin * 0.9', 'dataMax * 1.1']}
         xAxisInterval={timeRange === '7' ? 0 : 'preserveStartEnd'}
         tooltipType='currency'

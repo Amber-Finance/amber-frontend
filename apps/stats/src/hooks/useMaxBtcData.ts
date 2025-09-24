@@ -49,11 +49,7 @@ export default function useMaxBtcData(timeRange: number = 7) {
         const depositAmountUsd = maxBtcAmountInBtc * btcPriceUsd
 
         return {
-          date: timestamp,
-          formattedDate: new Date(parseInt(timestamp)).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-          }),
+          timestamp,
           depositAmount: maxBtcAmountInBtc,
           depositAmountUsd,
           btcPriceUsd,
