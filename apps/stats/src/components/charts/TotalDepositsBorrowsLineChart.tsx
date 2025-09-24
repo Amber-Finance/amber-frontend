@@ -2,10 +2,8 @@
 
 import { useMemo, useState } from 'react'
 
-import { Area, AreaChart, XAxis, YAxis } from 'recharts'
-
+import AreaChartComponent from '@/components/charts/AreaChartComponent'
 import ChartWrapper from '@/components/charts/ChartWrapper'
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 
 export default function TotalDepositsBorrowsLineChart() {
@@ -50,90 +48,37 @@ export default function TotalDepositsBorrowsLineChart() {
       .reverse()
   }, [marketsData, timeRange])
 
-  const chartConfig = {
-    totalDeposits: {
-      label: 'Total Deposits',
+  const areas = [
+    {
+      dataKey: 'totalDeposits',
       color: '#059669',
+      label: 'Total Deposits',
     },
-    totalBorrows: {
-      label: 'Total Borrows',
+    {
+      dataKey: 'totalBorrows',
       color: '#dc2626',
+      label: 'Total Borrows',
     },
-    tvl: {
-      label: 'TVL',
+    {
+      dataKey: 'tvl',
       color: '#d97706',
+      label: 'TVL',
     },
-  }
+  ]
 
   return (
     <ChartWrapper title='Total Deposits, Borrows & TVL' onTimeRangeChange={setTimeRange}>
-      <ChartContainer config={chartConfig} className='h-[350px] w-full'>
-        <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 10 }}>
-          <defs>
-            <linearGradient id='totalDepositsGradient' x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='5%' stopColor={chartConfig.totalDeposits.color} stopOpacity={0.3} />
-              <stop offset='95%' stopColor={chartConfig.totalDeposits.color} stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id='totalBorrowsGradient' x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='5%' stopColor={chartConfig.totalBorrows.color} stopOpacity={0.3} />
-              <stop offset='95%' stopColor={chartConfig.totalBorrows.color} stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id='tvlGradient' x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='5%' stopColor={chartConfig.tvl.color} stopOpacity={0.3} />
-              <stop offset='95%' stopColor={chartConfig.tvl.color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis
-            dataKey='formattedDate'
-            axisLine={true}
-            tickLine={false}
-            fontSize={10}
-            dy={10}
-            stroke='rgba(255, 255, 255, 0.06)'
-            interval={Math.ceil(chartData.length / 8)}
-          />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            dy={10}
-            stroke='rgba(255, 255, 255, 0.06)'
-            interval='preserveStartEnd'
-            tickFormatter={(value) => {
-              const absValue = Math.abs(value)
-              return `$${(absValue / 1000).toFixed(0)}K`
-            }}
-          />
-          <ChartTooltip content={<ChartTooltipContent indicator='line' isCurrency />} />
-          <Area
-            type='monotone'
-            dataKey='totalDeposits'
-            stroke={chartConfig.totalDeposits.color}
-            fill='url(#totalDepositsGradient)'
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: chartConfig.totalDeposits.color }}
-          />
-          <Area
-            type='monotone'
-            dataKey='totalBorrows'
-            stroke={chartConfig.totalBorrows.color}
-            fill='url(#totalBorrowsGradient)'
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: chartConfig.totalBorrows.color }}
-          />
-          <Area
-            type='monotone'
-            dataKey='tvl'
-            stroke={chartConfig.tvl.color}
-            fill='url(#tvlGradient)'
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: chartConfig.tvl.color }}
-          />
-        </AreaChart>
-      </ChartContainer>
+      <AreaChartComponent
+        data={chartData}
+        areas={areas}
+        title='Total Deposits, Borrows & TVL'
+        onTimeRangeChange={setTimeRange}
+        yAxisFormatter={(value) => {
+          const absValue = Math.abs(value)
+          return `$${(absValue / 1000).toFixed(0)}K`
+        }}
+        tooltipType='currency'
+      />
     </ChartWrapper>
   )
 }

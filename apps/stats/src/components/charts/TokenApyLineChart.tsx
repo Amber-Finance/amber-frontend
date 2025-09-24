@@ -2,10 +2,8 @@
 
 import { useMemo, useState } from 'react'
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
-
+import AreaChartComponent from '@/components/charts/AreaChartComponent'
 import ChartWrapper from '@/components/charts/ChartWrapper'
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 
 interface TokenApyLineChartProps {
@@ -38,73 +36,32 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
       .reverse()
   }, [marketsData, selectedToken.denom, timeRange])
 
-  const chartConfig = {
-    depositApy: {
-      label: 'Deposit APY',
+  const areas = [
+    {
+      dataKey: 'depositApy',
       color: selectedToken.brandColor,
+      label: 'Deposit APY',
     },
-    borrowApy: {
-      label: 'Borrow APY',
+    {
+      dataKey: 'borrowApy',
       color: '#ef4444',
+      label: 'Borrow APY',
     },
-  }
+  ]
 
   return (
     <ChartWrapper
       title={`${selectedToken.symbol} Deposit and Borrow APY`}
       onTimeRangeChange={setTimeRange}
     >
-      <ChartContainer config={chartConfig} className='h-[350px] w-full'>
-        <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -20, bottom: 10 }}>
-          <defs>
-            <linearGradient id='depositApyGradient' x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='5%' stopColor={chartConfig.depositApy.color} stopOpacity={0.3} />
-              <stop offset='95%' stopColor={chartConfig.depositApy.color} stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id='borrowApyGradient' x1='0' y1='0' x2='0' y2='1'>
-              <stop offset='5%' stopColor={chartConfig.borrowApy.color} stopOpacity={0.3} />
-              <stop offset='95%' stopColor={chartConfig.borrowApy.color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis
-            dataKey='formattedDate'
-            axisLine={true}
-            tickLine={false}
-            fontSize={10}
-            dy={10}
-            stroke='rgba(255, 255, 255, 0.06)'
-            // interval={timeRange === '7' ? 0 : 'preserveStartEnd'}
-            interval={Math.ceil(chartData.length / 8)}
-          />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            fontSize={10}
-            dy={10}
-            stroke='rgba(255, 255, 255, 0.06)'
-            interval='preserveStartEnd'
-          />
-          <ChartTooltip content={<ChartTooltipContent indicator='line' isPercentage />} />
-          <Area
-            type='monotone'
-            dataKey='depositApy'
-            stroke={chartConfig.depositApy.color}
-            fill='url(#depositApyGradient)'
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: chartConfig.depositApy.color }}
-          />
-          <Area
-            type='monotone'
-            dataKey='borrowApy'
-            stroke={chartConfig.borrowApy.color}
-            fill='url(#borrowApyGradient)'
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: chartConfig.borrowApy.color }}
-          />
-        </AreaChart>
-      </ChartContainer>
+      <AreaChartComponent
+        data={chartData}
+        areas={areas}
+        title={`${selectedToken.symbol} Deposit and Borrow APY`}
+        onTimeRangeChange={setTimeRange}
+        xAxisInterval={Math.ceil(chartData.length / 8)}
+        tooltipType='percentage'
+      />
     </ChartWrapper>
   )
 }
