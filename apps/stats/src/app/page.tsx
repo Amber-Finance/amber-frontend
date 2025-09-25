@@ -68,7 +68,7 @@ export default function Home() {
   const router = useRouter()
 
   // Get selected token from URL params, default to first token
-  const selectedTokenSymbol = searchParams.get('token') || tokens[0]?.symbol || 'LBTC'
+  const selectedTokenSymbol = searchParams.get('token') || tokens[5]?.symbol || 'WBTC'
   const selectedToken = tokens.find((token) => token.symbol === selectedTokenSymbol) || tokens[0]
 
   const handleTokenSelect = (tokenSymbol: string) => {

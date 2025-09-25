@@ -48,7 +48,7 @@ export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineCha
         data={chartData}
         areas={areas}
         yAxisFormatter={formatCompactCurrency}
-        yAxisDomain={['dataMin - 100', 'dataMax + 100']}
+        yAxisDomain={['dataMin - 100', 'dataMax + 100']} //so the chart is a bit more 'zoomed in'
         tooltipType='currency'
       />
     </ChartWrapper>
