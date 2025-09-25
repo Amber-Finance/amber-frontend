@@ -1,3 +1,4 @@
+type Theme = 'dark' | 'light' | 'system'
 interface ChainConfig {
   name: string
   id: string
@@ -183,4 +184,14 @@ interface FormatMetadata {
   // For subscript notation
   zeroCount?: number
   significantDigits?: string
+}
+
+interface TvlAsset {
+  denom: string
+  tvl: string
+  tvl_share: number
+}
+
+interface RedBankAssetsTvl {
+  assets: TvlAsset[]
 }

@@ -5,12 +5,12 @@ import Image from 'next/image'
 import tokens from '@/config/tokens'
 import { cn } from '@/utils/ui'
 
-interface TokenIconsRowProps {
+interface Props {
   selectedToken: (typeof tokens)[0]
   onTokenSelect: (tokenSymbol: string) => void
 }
 
-export default function TokenIconsRow({ selectedToken, onTokenSelect }: TokenIconsRowProps) {
+export default function TokenIconsRow({ selectedToken, onTokenSelect }: Props) {
   return (
     <div className='flex justify-center items-center gap-6 p-2 sm:p-8 mx-auto'>
       <div className='flex items-center gap-4 flex-wrap justify-center sm:justify-between w-full'>
@@ -24,7 +24,7 @@ export default function TokenIconsRow({ selectedToken, onTokenSelect }: TokenIco
                 onTokenSelect(token.symbol)
                 e.currentTarget.blur()
               }}
-              className='flex flex-col items-center gap-2 group transition-all duration-200 hover:scale-105 focus:outline-none rounded-lg p-2'
+              className='flex flex-col items-center gap-2 group transition-all duration-200 hover:scale-105 focus:outline-none rounded-lg p-2 cursor-pointer'
             >
               <div
                 className={cn(

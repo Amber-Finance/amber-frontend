@@ -19,10 +19,10 @@ interface Props {
   selectedTokenDenom: string
   markets: Market[] | null
   type: 'utilization' | 'deposited' | 'tvl'
-  redBankAssetsTvl?: any
+  redBankAssetsTvl?: RedBankAssetsTvl
 }
 
-export default function TokenDistributionCard({
+export default function FlipCardBackContent({
   selectedTokenDenom,
   markets,
   type,

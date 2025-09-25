@@ -4,14 +4,14 @@ import { ReactNode, useState } from 'react'
 
 import { Card, CardContent } from '@/components/ui/card'
 
-interface FlipCardProps {
+interface Props {
   title: string
   subtitle: string
   value: ReactNode
   backContent: ReactNode
 }
 
-export default function FlipCard({ title, subtitle, value, backContent }: FlipCardProps) {
+export default function FlipCard({ title, subtitle, value, backContent }: Props) {
   const [isFlipped, setIsFlipped] = useState(false)
 
   return (

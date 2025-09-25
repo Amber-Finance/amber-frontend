@@ -2,19 +2,19 @@
 
 import { useMemo } from 'react'
 
-import DistributionCard from '@/components/DistributionCard'
 import FlipCard from '@/components/FlipCard'
+import FlipCardBackContent from '@/components/FlipCardBackContent'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useMaxBtcData from '@/hooks/useMaxBtcData'
 import { calculateUsdValueLegacy, formatNumber } from '@/utils/format'
 
-interface TokenMetricsCardsProps {
+interface Props {
   selectedToken: TokenInfo
   markets: Market[] | null
 }
 
-export default function TokenMetricsCards({ selectedToken, markets }: TokenMetricsCardsProps) {
+export default function TokenMetricsCards({ selectedToken, markets }: Props) {
   const { data: redBankAssetsTvl } = useAssetsTvl()
   const { latestData: maxBtcLatestData } = useMaxBtcData()
   const selectedMarket = markets?.find((market) => market.asset.denom === selectedToken.denom)
@@ -79,7 +79,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
             </>
           }
           backContent={
-            <DistributionCard
+            <FlipCardBackContent
               selectedTokenDenom={selectedToken.denom}
               markets={markets}
               type='deposited'
@@ -98,7 +98,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
               </>
             }
             backContent={
-              <DistributionCard
+              <FlipCardBackContent
                 selectedTokenDenom={selectedToken.denom}
                 markets={markets}
                 type='utilization'
@@ -118,7 +118,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: TokenMetri
               </>
             }
             backContent={
-              <DistributionCard
+              <FlipCardBackContent
                 selectedTokenDenom={selectedToken.denom}
                 markets={markets}
                 type='tvl'
