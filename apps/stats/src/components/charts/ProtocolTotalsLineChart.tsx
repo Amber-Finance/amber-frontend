@@ -20,12 +20,12 @@ export default function ProtocolTotalsLineChart({ timeRange }: Props) {
     }
 
     return marketsData.data
-      .map((dayData: any) => {
+      .map((dayData: DailyMarketData) => {
         let totalDeposits = 0
         let totalBorrows = 0
 
         if (dayData.markets) {
-          dayData.markets.forEach((market: any) => {
+          dayData.markets.forEach((market: MarketData) => {
             const priceUsd = parseFloat(market.price_usd || '0')
             const depositAmount = parseFloat(market.deposit_amount || '0')
             const borrowAmount = parseFloat(market.borrow_amount || '0')
@@ -47,7 +47,7 @@ export default function ProtocolTotalsLineChart({ timeRange }: Props) {
         }
       })
       .reverse()
-  }, [marketsData, timeRange])
+  }, [marketsData])
 
   const areas = [
     {

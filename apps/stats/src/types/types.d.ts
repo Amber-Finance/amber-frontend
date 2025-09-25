@@ -195,3 +195,24 @@ interface TvlAsset {
 interface RedBankAssetsTvl {
   assets: TvlAsset[]
 }
+
+// Generic chart data point
+interface ChartDataPoint {
+  [key: string]: string | number
+  formattedDate: string
+}
+
+interface DailyMarketData {
+  timestamp: string
+  markets: MarketData[]
+}
+
+interface MarketData {
+  denom: string
+  symbol: string
+  price_usd: string
+  deposit_amount: string
+  borrow_amount: string
+  deposit_apy: string
+  borrow_apy: string
+}

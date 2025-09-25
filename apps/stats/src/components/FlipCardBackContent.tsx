@@ -102,11 +102,11 @@ export default function FlipCardBackContent({
       }
 
       distributionData = redBankAssetsTvl.assets
-        .filter((asset: any) => asset.tvl_share > 0)
-        .map((asset: any) => {
+        .filter((asset: TvlAsset) => asset.tvl_share > 0)
+        .map((asset: TvlAsset) => {
           const token = tokenMap.get(asset.denom)
           return {
-            name: token?.symbol || asset.symbol,
+            name: token?.symbol || 'Asset',
             value: parseFloat(asset.tvl_share.toString()),
             color: token?.brandColor || '#888888',
             denom: asset.denom,

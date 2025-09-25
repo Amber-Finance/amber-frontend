@@ -24,16 +24,6 @@ interface DailyData {
   [key: string]: string | number // Dynamic keys for each token's deposit/borrow values
 }
 
-interface MarketData {
-  denom: string
-  symbol: string
-  price_usd: string
-  deposit_amount: string
-  borrow_amount: string
-  deposit_apy: string
-  borrow_apy: string
-}
-
 interface TokenInfo {
   symbol: string
   color: string
@@ -76,7 +66,7 @@ export default function AllMarketsBarChart({ timeRange }: Props) {
       })
     }
 
-    marketsData.data.forEach((dayData: any) => {
+    marketsData.data.forEach((dayData: DailyMarketData) => {
       if (dayData.markets) {
         dayData.markets.forEach((market: MarketData) => {
           // Filter out max BTC denom data
@@ -102,7 +92,7 @@ export default function AllMarketsBarChart({ timeRange }: Props) {
     const processedData: DailyData[] = marketsData.data
       .slice(0, parseInt(timeRange))
       .reverse() // Reverse to show most recent days first
-      .map((dayData: any) => {
+      .map((dayData: DailyMarketData) => {
         const formattedDate = formatChartDate(dayData.timestamp)
 
         const dayResult: DailyData = {

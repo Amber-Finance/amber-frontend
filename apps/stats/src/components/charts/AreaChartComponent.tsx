@@ -11,7 +11,7 @@ interface AreaData {
 }
 
 interface AreaChartComponentProps {
-  data: any[]
+  data: ChartDataPoint[]
   areas: AreaData[]
   yAxisFormatter?: (value: number) => string
   yAxisDomain?: [string, string]

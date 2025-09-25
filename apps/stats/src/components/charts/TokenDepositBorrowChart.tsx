@@ -37,22 +37,24 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
     }
 
     return marketsData.data
-      .map((item: any) => {
-        const marketData = item.markets?.find((market: any) => market.denom === selectedToken.denom)
+      .map((dayData: DailyMarketData) => {
+        const marketData = dayData.markets?.find(
+          (market: MarketData) => market.denom === selectedToken.denom,
+        )
 
-        const priceUsd = marketData ? parseFloat(marketData.price_usd || 0) : 0
-        const depositAmount = marketData ? parseFloat(marketData.deposit_amount || 0) : 0
-        const borrowAmount = marketData ? parseFloat(marketData.borrow_amount || 0) : 0
+        const priceUsd = marketData ? parseFloat(marketData.price_usd || '0') : 0
+        const depositAmount = marketData ? parseFloat(marketData.deposit_amount || '0') : 0
+        const borrowAmount = marketData ? parseFloat(marketData.borrow_amount || '0') : 0
 
         return {
-          date: item.timestamp,
-          formattedDate: formatChartDate(item.timestamp),
+          date: dayData.timestamp,
+          formattedDate: formatChartDate(dayData.timestamp),
           depositAmount: depositAmount * priceUsd,
           borrowAmount: borrowAmount * priceUsd,
         }
       })
       .reverse()
-  }, [marketsData, selectedToken.denom, timeRange, isMaxBtc, maxBtcData])
+  }, [marketsData, selectedToken.denom, isMaxBtc, maxBtcData])
 
   const areas = [
     {

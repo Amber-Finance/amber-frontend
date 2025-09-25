@@ -47,18 +47,19 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
     }
 
     return marketsData.data
-      .map((item: any) => {
-        const marketData = item.markets?.find((market: any) => market.denom === selectedToken.denom)
-
+      .map((dayData: DailyMarketData) => {
+        const marketData = dayData.markets?.find(
+          (market: MarketData) => market.denom === selectedToken.denom,
+        )
         return {
-          date: item.timestamp,
-          formattedDate: formatChartDate(item.timestamp),
-          depositApy: marketData ? parseFloat(marketData.deposit_apy || 0) : 0,
-          borrowApy: marketData ? parseFloat(marketData.borrow_apy || 0) : 0,
+          date: dayData.timestamp,
+          formattedDate: formatChartDate(dayData.timestamp),
+          depositApy: marketData ? parseFloat(marketData.deposit_apy || '0') : 0,
+          borrowApy: marketData ? parseFloat(marketData.borrow_apy || '0') : 0,
         }
       })
       .reverse()
-  }, [marketsData, selectedToken.denom, timeRange, isMaxBtc, btcApyData])
+  }, [marketsData, selectedToken.denom, isMaxBtc, btcApyData])
 
   const areas = [
     {

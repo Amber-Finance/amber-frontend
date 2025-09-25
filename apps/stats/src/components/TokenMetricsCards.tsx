@@ -54,7 +54,7 @@ export default function TokenMetricsCards({ selectedToken, markets }: Props) {
       : 0
 
     const currentTokenTvlData = redBankAssetsTvl?.assets?.find(
-      (asset: any) => asset.denom === selectedToken.denom,
+      (asset: TvlAsset) => asset.denom === selectedToken.denom,
     )
     const tvlShare = currentTokenTvlData?.tvl_share || 0
 
