@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 
 import { metadata as defaultMetadata } from '@/app/metadata'
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Footer />
             </div>
           </div>
+          <Analytics />
         </Providers>
       </body>
     </html>

@@ -3,24 +3,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { GitHubLogoIcon, TwitterLogoIcon } from '@radix-ui/react-icons'
+import { GitHubLogoIcon } from '@radix-ui/react-icons'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { TelegramLogo, XLogo } from '@/utils/SocialIcons'
 import { cn } from '@/utils/ui'
-
-// Telegram Icon Component
-const TelegramIcon = ({ className }: { className?: string }) => (
-  <svg
-    role='img'
-    fill='currentColor'
-    viewBox='0 0 24 24'
-    xmlns='http://www.w3.org/2000/svg'
-    className={className}
-  >
-    <title>Telegram</title>
-    <path d='M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z' />
-  </svg>
-)
 
 interface Icon {
   icon: React.ReactElement
@@ -30,17 +17,17 @@ interface Icon {
 
 const icons: Icon[] = [
   {
-    icon: <TwitterLogoIcon className='h-5 w-5' />,
+    icon: <XLogo className='w-5 h-5' />,
     url: 'https://x.amberfi.io',
     label: 'X',
   },
   {
-    icon: <GitHubLogoIcon className='h-5 w-5' />,
+    icon: <GitHubLogoIcon className='w-5 h-5' />,
     url: 'https://github.amberfi.io',
     label: 'GitHub',
   },
   {
-    icon: <TelegramIcon className='h-5 w-5' />,
+    icon: <TelegramLogo className='w-5 h-5' />,
     url: 'https://telegram.amberfi.io',
     label: 'Mars Telegram',
   },
@@ -60,6 +47,7 @@ const footerSections = [
         url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
       },
       { title: 'Bridge', url: '/' },
+      { title: 'Statistics', url: 'https://stats.amberfi.io' },
     ],
   },
   {
@@ -77,11 +65,11 @@ export function Footer() {
   return (
     <footer className='mt-auto border-t border-border/50 bg-background/50 backdrop-blur-md'>
       {/* Main Footer Content */}
-      <div className='mx-auto max-w-6xl px-8 py-12 md:px-16'>
+      <div className='mx-auto max-w-6xl px-8 py-12  md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
-            <Link href='/' className='mb-4 flex items-center gap-x-3'>
+            <Link href='https://app.amberfi.io' className='mb-4 flex items-center gap-x-3'>
               <div className='relative h-10'>
                 <Image
                   src='/logo/logo-simple/logo-dark-400x140.svg'
@@ -105,30 +93,32 @@ export function Footer() {
                 />
               </div>
             </Link>
-            <p className='mb-6 max-w-md text-muted-foreground'>Connect with us:</p>
+            <div className='flex sm:flex-col gap-4 items-center sm:items-start justify-between'>
+              <p className='max-w-md text-muted-foreground'>Connect with us:</p>
 
-            {/* Social Links */}
-            <div className='flex items-center gap-x-4'>
-              {icons.map((icon) => (
-                <a
-                  key={icon.label}
-                  href={icon.url}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  aria-label={icon.label}
-                  className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/20 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
-                >
-                  {icon.icon}
-                </a>
-              ))}
+              {/* Social Links */}
+              <div className='flex items-center gap-x-4'>
+                {icons.map((icon) => (
+                  <a
+                    key={icon.label}
+                    href={icon.url}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-label={icon.label}
+                    className='flex h-10 w-10 items-center justify-center rounded-md border border-border/50 bg-card/20 text-muted-foreground transition-all duration-200 ease-linear hover:border-border hover:bg-card hover:text-foreground'
+                  >
+                    {icon.icon}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Link Sections Container */}
-          <div className='grid grid-cols-2 gap-8 text-right md:col-span-2 md:grid-cols-2'>
+          <div className='grid grid-cols-2 gap-8 text-right md:grid-cols-2 md:col-span-2'>
             {footerSections.map((section, index) => (
               <div key={`${section.title}-${index}`} className='text-right'>
-                <h3 className='mb-4 text-sm font-semibold uppercase tracking-wider text-foreground'>
+                <h3 className='mb-4 text-sm font-semibold tracking-wider uppercase text-foreground'>
                   {section.title}
                 </h3>
                 <ul className='space-y-3'>
@@ -139,14 +129,14 @@ export function Footer() {
                           href={link.url}
                           target='_blank'
                           rel='noopener noreferrer'
-                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm transition-all duration-200 ease-linear text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4'
                         >
                           {link.title}
                         </a>
                       ) : (
                         <Link
                           href={link.url}
-                          className='text-sm text-muted-foreground transition-all duration-200 ease-linear hover:text-foreground hover:underline hover:underline-offset-4'
+                          className='text-sm transition-all duration-200 ease-linear text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4'
                         >
                           {link.title}
                         </Link>
@@ -162,8 +152,8 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className='border-t border-border/50 bg-card/30'>
-        <div className='mx-auto max-w-6xl px-8 py-4 md:px-16'>
-          <p className='text-center text-sm text-muted-foreground'>
+        <div className='px-8 py-4 mx-auto max-w-6xl md:px-16'>
+          <p className='text-sm text-center text-muted-foreground'>
             © 2025 Amber Finance. All rights reserved.
           </p>
         </div>
