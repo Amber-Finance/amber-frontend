@@ -1,11 +1,11 @@
 {
-  "name": "stats",
+  "name": "@amber-finance/stats",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
     "dev": "npm run copy-public && next dev -p 3004",
-    "build": "next build",
+    "build": "npm run copy-public && next build",
     "start": "next start",
     "lint": "eslint"
   },
