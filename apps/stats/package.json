@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
-    "dev": "npm run copy-public && next dev -p 3004",
+    "dev": "npm run copy-public && next dev --port 3004",
     "build": "npm run copy-public && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.2",
