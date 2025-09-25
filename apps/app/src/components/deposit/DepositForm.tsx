@@ -76,20 +76,24 @@ export const DepositForm = ({
 
   return (
     <InfoCard title={isDepositing ? 'Deposit Amount' : 'Withdraw Amount'}>
-      <div className='space-y-2'>
+      <div className='space-y-4'>
         <div className='flex justify-between items-center text-xs'>
-          <span className='text-muted-foreground'>Wallet balance</span>
+          <span className='text-muted-foreground'>
+            {isDepositing ? 'Wallet balance' : 'Available to withdraw'}
+          </span>
           <span className='font-medium text-foreground'>{balance}</span>
         </div>
+
         <AmountInput
           value={currentAmount}
           onChange={(e) => onAmountChange(e.target.value)}
           token={token}
           balance={balance}
         />
+
         <Separator />
 
-        <div className='flex flex-col gap-4 mb-8'>
+        <div className='flex flex-col gap-4 mb-6'>
           <div className='flex justify-between items-center'>
             <span className='text-xs text-muted-foreground'>Amount</span>
             <span className='text-xs font-medium text-foreground'>
@@ -108,18 +112,18 @@ export const DepositForm = ({
         </div>
 
         <Button
-          variant='outline-gradient'
+          variant='default'
           gradientColor={token.brandColor}
           onClick={onClick}
           disabled={!isWalletConnected || isPending || !hasAmount}
-          className='w-full'
+          className='w-full shadow-md hover:shadow-lg'
         >
           {getButtonContent(isWalletConnected, isPending, isDepositing, token.symbol)}
         </Button>
 
         {/* Validation Error Display */}
         {validationError && (
-          <div className='mt-3 p-3 bg-red-50 dark:bg-red-900/20 border rounded-lg'>
+          <div className='mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg'>
             <p className='text-sm text-red-600 dark:text-red-400'>{validationError}</p>
           </div>
         )}

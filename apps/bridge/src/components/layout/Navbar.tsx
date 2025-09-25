@@ -123,7 +123,7 @@ export function Navbar() {
                     className={cn(
                       'relative tracking-wide flex items-center px-4 py-2 text-base rounded-full transition-all duration-500 ease-in-out',
                       isActive
-                        ? 'text-foreground nav-glow-active scale-105 shadow-lg'
+                        ? 'text-foreground nav-glow-active  shadow-lg'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/20',
                     )}
                   >
@@ -144,7 +144,7 @@ export function Navbar() {
                           ? pathname === '/' || (pathname && pathname.startsWith('/deposit'))
                           : pathname && pathname.startsWith(item.href),
                       )
-                      ? 'text-foreground nav-glow-active scale-105 shadow-lg'
+                      ? 'text-foreground nav-glow-active shadow-lg'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/20',
                   )}
                 >

@@ -1,7 +1,6 @@
 import Image from 'next/image'
 
 import { useTheme } from '@/components/providers/ThemeProvider'
-import { Badge } from '@/components/ui/badge'
 import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
 
 interface EarningPointsRowProps {
@@ -25,108 +24,61 @@ export function EarningPointsRow({
   const protocolPoints = getProtocolPoints(assetSymbol)
   const protocolPointsIcon = getProtocolPointsIcon(assetSymbol, theme)
 
-  // Helper function to get multipliers based on asset and type
-  const getMultipliers = () => {
-    const assetLower = assetSymbol.toLowerCase()
-
-    if (type === 'deposit') {
-      if (assetLower === 'wbtc') {
-        return {
-          neutron: '3x',
-          mars: '', // No multiplier shown for 1x
-          showStructured: false,
-        }
-      } else {
-        return {
-          neutron: '2x',
-          mars: '', // No multiplier shown for 1x
-          showStructured: false,
-        }
-      }
-    } else {
-      // strategy
-      return {
-        neutron: '', // No multiplier shown for 1x
-        mars: '', // No multiplier shown for 1x
-        showStructured: true,
-      }
-    }
-  }
-
-  const multipliers = getMultipliers()
-
   if (variant === 'full') {
     // Full variant - matches the deposits page exactly
     return (
       <div className={`space-y-3 ${className}`}>
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center justify-between'>
           <span className='text-sm font-semibold text-foreground'>Earning Points</span>
-        </div>
-        <div className='flex flex-wrap gap-2'>
-          {/* Protocol Points - Show first if they exist */}
-          {protocolPoints.protocolPoint && protocolPointsIcon && (
-            <Badge variant='secondary' className='text-xs gap-1.5'>
-              <div className='w-3 h-3 flex-shrink-0'>
-                <Image
-                  src={protocolPointsIcon}
-                  alt={protocolPoints.protocolPoint}
-                  width={12}
-                  height={12}
-                  className='object-contain w-full h-full'
-                  unoptimized={true}
-                />
-              </div>
-              <span>{protocolPoints.protocolPoint}</span>
-              <span className='font-semibold'>{protocolPoints.multiplier}</span>
-            </Badge>
-          )}
+          <div className='flex -space-x-2'>
+            {(() => {
+              const assetLower = assetSymbol.toLowerCase()
+              const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
 
-          {/* Structured Points - Show for strategies and WBTC deposits */}
-          {multipliers.showStructured && (
-            <Badge variant='secondary' className='text-xs gap-1.5'>
-              <div className='w-3 h-3 flex-shrink-0'>
-                <Image
-                  src='/images/structured.svg'
-                  alt='Structured Points'
-                  width={12}
-                  height={12}
-                  className='object-contain w-full h-full'
-                />
-              </div>
-              <span>Structured Points</span>
-              {type === 'strategy' && <span className='font-semibold'>2x</span>}
-            </Badge>
-          )}
+              const pointsData = []
 
-          {/* Neutron Rewards - Show for deposits and strategies */}
-          <Badge variant='secondary' className='text-xs gap-1.5'>
-            <div className='w-3 h-3 flex-shrink-0'>
-              <Image
-                src='/images/neutron/neutron.svg'
-                alt='Neutron'
-                width={12}
-                height={12}
-                className='object-contain w-full h-full'
-              />
-            </div>
-            <span>Neutron</span>
-            {multipliers.neutron && <span className='font-semibold'>{multipliers.neutron}</span>}
-          </Badge>
+              // Protocol Points - Show first if they exist
+              if (protocolPoints.protocolPoint && protocolPointsIcon) {
+                pointsData.push({
+                  icon: protocolPointsIcon,
+                  alt: protocolPoints.protocolPoint,
+                  tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                })
+              }
 
-          {/* Mars Fragments - Always show */}
-          <Badge variant='secondary' className='text-xs gap-1.5'>
-            <div className='w-3 h-3 flex-shrink-0'>
-              <Image
-                src='/points/mars-fragments.svg'
-                alt='Mars Fragments'
-                width={12}
-                height={12}
-                className='object-contain w-full h-full'
-              />
-            </div>
-            <span>Mars Fragments</span>
-            {multipliers.mars && <span className='font-semibold'>{multipliers.mars}</span>}
-          </Badge>
+              // Neutron Rewards
+              pointsData.push({
+                icon: '/images/neutron/neutron.svg',
+                alt: 'Neutron',
+                tooltip: `Neutron ${neutronMultiplier}`,
+              })
+
+              // Mars Fragments
+              pointsData.push({
+                icon: '/points/mars-fragments.svg',
+                alt: 'Mars Fragments',
+                tooltip: 'Mars Fragments',
+              })
+
+              return pointsData.map((point) => (
+                <div key={point.alt} className='group/icon relative inline-block'>
+                  <div className='relative inline-block size-8 rounded-full ring-2 ring-card group-hover/icon:ring-primary/20 bg-secondary border border-border group-hover/icon:border-primary/40 p-1.5 transition-all duration-200 group-hover/icon:z-10 cursor-pointer'>
+                    <Image
+                      src={point.icon}
+                      alt={point.alt}
+                      width={20}
+                      height={20}
+                      className='object-contain w-full h-full'
+                      unoptimized={true}
+                    />
+                  </div>
+                  <div className='opacity-0 group-hover/icon:opacity-100 invisible group-hover/icon:visible absolute z-50 bottom-full left-1/2 transform -translate-x-1/2 mb-2 py-1.5 px-2.5 bg-card text-popover-foreground text-xs rounded-lg border border-border shadow-lg transition-all duration-200 whitespace-nowrap pointer-events-none'>
+                    {point.tooltip}
+                  </div>
+                </div>
+              ))
+            })()}
+          </div>
         </div>
       </div>
     )
@@ -136,43 +88,53 @@ export function EarningPointsRow({
   return (
     <div className={`flex items-center justify-between ${className}`}>
       <span className='text-xs text-muted-foreground'>Earning Points:</span>
-      <div className='flex gap-1'>
+      <div className='flex -space-x-2'>
         {(() => {
-          const badges = []
+          const assetLower = assetSymbol.toLowerCase()
+          const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
 
-          // Add protocol points if they exist
-          if (protocolPoints.protocolPoint) {
-            badges.push(
-              <Badge key='protocol' variant='secondary' className='text-xs px-1.5 py-0.5'>
-                {protocolPoints.protocolPoint.split(' ')[0]} {protocolPoints.multiplier}
-              </Badge>,
-            )
+          const pointsData = []
+
+          // Protocol Points - Show first if they exist
+          if (protocolPoints.protocolPoint && protocolPointsIcon) {
+            pointsData.push({
+              icon: protocolPointsIcon,
+              alt: protocolPoints.protocolPoint,
+              tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+            })
           }
 
-          // Add Structured Points for strategies and WBTC deposits
-          if (multipliers.showStructured) {
-            badges.push(
-              <Badge key='structured' variant='secondary' className='text-xs px-1.5 py-0.5'>
-                Structured{type === 'strategy' ? ' 2x' : ''}
-              </Badge>,
-            )
-          }
+          // Neutron Rewards
+          pointsData.push({
+            icon: '/images/neutron/neutron.svg',
+            alt: 'Neutron',
+            tooltip: `Neutron ${neutronMultiplier}`,
+          })
 
-          // Add Neutron for both deposits and strategies
-          badges.push(
-            <Badge key='neutron' variant='secondary' className='text-xs px-1.5 py-0.5'>
-              NTRN{multipliers.neutron ? ` ${multipliers.neutron}` : ''}
-            </Badge>,
-          )
+          // Mars Fragments
+          pointsData.push({
+            icon: '/points/mars-fragments.svg',
+            alt: 'Mars Fragments',
+            tooltip: 'Mars Fragments',
+          })
 
-          // Always add Mars Fragments
-          badges.push(
-            <Badge key='mars' variant='secondary' className='text-xs px-1.5 py-0.5'>
-              MARS{multipliers.mars ? ` ${multipliers.mars}` : ''}
-            </Badge>,
-          )
-
-          return badges
+          return pointsData.map((point) => (
+            <div key={point.alt} className='group/icon relative inline-block'>
+              <div className='relative inline-block size-6 rounded-full ring-2 ring-card group-hover/icon:ring-primary/20 bg-secondary border border-border group-hover/icon:border-primary/40 p-1 transition-all duration-200 group-hover/icon:z-10 cursor-pointer'>
+                <Image
+                  src={point.icon}
+                  alt={point.alt}
+                  width={16}
+                  height={16}
+                  className='object-contain w-full h-full'
+                  unoptimized={true}
+                />
+              </div>
+              <div className='opacity-0 group-hover/icon:opacity-100 invisible group-hover/icon:visible absolute z-20 bottom-full left-1/2 transform -translate-x-1/2 mb-2 py-1.5 px-2.5 bg-popover text-popover-foreground text-xs rounded-lg border border-border shadow-lg transition-all duration-200 whitespace-nowrap pointer-events-none'>
+                {point.tooltip}
+              </div>
+            </div>
+          ))
         })()}
       </div>
     </div>

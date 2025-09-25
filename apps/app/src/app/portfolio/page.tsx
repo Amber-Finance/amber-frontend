@@ -4,20 +4,19 @@ import { useRouter } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 
+import { ActiveDepositCard } from '@/app/portfolio/ActiveDepositCard'
+import { ActiveStrategyCard } from '@/app/portfolio/ActiveStrategyCard'
 import Hero from '@/components/layout/Hero'
+import { WalletBalances } from '@/components/portfolio/WalletBalances'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
+import { CountingNumber } from '@/components/ui/CountingNumber'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import { useUserDeposits } from '@/hooks/useUserDeposits'
 import useUserPositions from '@/hooks/useUserPositions'
-
-import { ActivePositionCard } from './ActivePositionCard'
-import { DepositPositionCard } from './DepositPositionCard'
-
-// import useWalletBalances from '@/hooks/useWalletBalances' // Available for future features
 
 // Helper function to determine change type color
 const getChangeTypeColor = (changeType: string): string => {
@@ -49,9 +48,6 @@ const Portfolio = () => {
   // Ensure user positions are loaded (this hook manages the markets store)
   const { isLoading: positionsLoading } = useUserPositions()
 
-  // Note: walletBalances currently unused but available for future features
-  // const { data: walletBalances, isLoading: balancesLoading } = useWalletBalances()
-
   // Calculate totals from real data using proper position value calculation
   const totalStrategiesValue = activeStrategies.reduce((sum, strategy) => {
     // Position value = collateral - debt (net equity)
@@ -69,9 +65,9 @@ const Portfolio = () => {
     0,
   )
 
-  // Total assets = all deposits (from strategies) + all deposits (pure) + all strategies (equity)
-  // This includes the full collateral value from strategies plus pure deposits
-  const totalPortfolioValue = totalSuppliedValue + depositsValue
+  // Total assets = net equity from strategies (collateral - debt) + pure deposits
+  // For each strategy summed: (collateral - debt) + deposits
+  const totalPortfolioValue = totalStrategiesValue + depositsValue
 
   // Calculate total PnL based on strategy performance and deposit earnings
   const totalPnL =
@@ -110,10 +106,6 @@ const Portfolio = () => {
   // Helper functions for formatting
   const formatPercentage = (value: number) =>
     value === 0 ? '0.00%' : `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
-  const formatCurrency = (value: number) =>
-    value === 0
-      ? '$0.00'
-      : `${value >= 0 ? '+' : '-'}${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
   const getChangeType = (value: number) =>
     value === 0 ? 'neutral' : value >= 0 ? 'positive' : 'negative'
@@ -121,27 +113,42 @@ const Portfolio = () => {
   const stats = [
     {
       title: 'Total Assets',
-      value: `$${totalPortfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: totalPortfolioValue.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       change: formatPercentage(pnlPercentage),
       changeType: getChangeType(pnlPercentage),
+      prefix: '$ ',
     },
     {
       title: 'Active Positions',
-      value: `${totalActivePositions}`,
-      change: `$${(totalStrategiesValue + depositsValue).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      value: totalActivePositions.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+      change: (totalStrategiesValue + depositsValue).toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
       changeType: 'neutral',
     },
     {
       title: 'Unrealized P&L',
-      value: formatCurrency(totalPnL),
+      value: totalPnL.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       change: formatPercentage(pnlPercentage),
       changeType: getChangeType(totalPnL),
+      prefix: '$ ',
     },
     {
       title: 'Weighted APY',
-      value: formatPercentage(weightedApy),
-      change: weightedApy === 0 ? '0.00%' : `${Math.abs(weightedApy).toFixed(2)}%`,
+      value: weightedApy,
+      change: formatPercentage(weightedApy),
       changeType: getChangeType(weightedApy),
+      suffix: ' %',
     },
   ]
 
@@ -156,18 +163,19 @@ const Portfolio = () => {
             value: totalBorrowedValue,
             label: 'Total Borrow',
             isCurrency: true,
-            prefix: '$',
-            abbreviated: false,
+            prefix: '$ ',
           },
           {
             value: totalSuppliedValue + depositsValue,
             label: 'Total Supply',
             isCurrency: true,
-            prefix: '$',
-            abbreviated: false,
+            prefix: '$ ',
           },
         ]}
       />
+
+      {/* Wallet Balances Section */}
+      <WalletBalances />
 
       <div className='w-full py-6  px-4 sm:px-6 lg:px-8'>
         <div className='w-full mx-auto'>
@@ -177,14 +185,21 @@ const Portfolio = () => {
               return (
                 <Card
                   key={`stat-${stat.title}`}
-                  className='group relative overflow-hidden bg-card/20 border border-border/50 backdrop-blur-xl transition-all duration-300 '
+                  className='group relative overflow-hidden bg-card border border-border/50 backdrop-blur-xl transition-all duration-300 '
                 >
                   <CardContent className=''>
                     <div className='space-y-2'>
                       <p className='text-xs text-muted-foreground uppercase tracking-wider font-medium'>
                         {stat.title}
                       </p>
-                      <p className='text-2xl font-funnel font-bold text-foreground'>{stat.value}</p>
+                      <div className='flex flex-row items-center gap-1 text-base font-funnel sm:text-lg lg:text-2xl text-foreground transition-transform duration-300'>
+                        {stat.prefix && <span className='text-primary'>{stat.prefix}</span>}
+                        <CountingNumber
+                          value={Number(stat.value)}
+                          decimalPlaces={stat.prefix || stat.suffix ? 2 : 0}
+                        />
+                        {stat.suffix && <span className='text-primary'>{stat.suffix}</span>}
+                      </div>
                       <p className={`text-sm font-medium ${getChangeTypeColor(stat.changeType)}`}>
                         {stat.change}
                       </p>
@@ -260,11 +275,11 @@ const Portfolio = () => {
                         <div className='space-y-4 max-w-lg mx-auto'>
                           {/* Title */}
                           <h3 className='text-xl font-funnel font-semibold text-foreground'>
-                            <AuroraText>No Active Strategies</AuroraText>
+                            <span className='text-foreground text-md'>No Active Strategies</span>
                           </h3>
 
                           {/* Description */}
-                          <p className='text-muted-foreground leading-relaxed'>
+                          <p className='text-foreground/70 leading-relaxed'>
                             You don't have any active strategy positions yet. Deploy your first
                             strategy to start earning leveraged yield on your assets.
                           </p>
@@ -285,7 +300,7 @@ const Portfolio = () => {
                     </div>
                   ) : (
                     activeStrategies.map((strategy, index) => (
-                      <ActivePositionCard
+                      <ActiveStrategyCard
                         key={strategy.accountId}
                         strategy={strategy}
                         index={index}
@@ -303,11 +318,11 @@ const Portfolio = () => {
               <div className='space-y-6 max-w-lg mx-auto'>
                 {/* Title */}
                 <h3 className='text-2xl font-funnel font-semibold text-foreground'>
-                  <AuroraText>Connect Your Wallet</AuroraText>
+                  <span className='text-foreground text-md'>Connect Your Wallet</span>
                 </h3>
 
                 {/* Description */}
-                <p className='text-muted-foreground leading-relaxed'>
+                <p className='text-foreground/70 leading-relaxed'>
                   Connect your wallet to view your active strategies and deposit positions, and
                   start earning yield on your assets.
                 </p>
@@ -334,11 +349,11 @@ const Portfolio = () => {
                 <div className='space-y-6 max-w-lg mx-auto'>
                   {/* Title */}
                   <h3 className='text-2xl font-funnel font-semibold text-foreground'>
-                    <AuroraText>No Positions Found</AuroraText>
+                    <span className='text-foreground text-md'>No Positions Found</span>
                   </h3>
 
                   {/* Description */}
-                  <p className='text-muted-foreground leading-relaxed'>
+                  <p className='text-foreground/70 leading-relaxed'>
                     You don't have any active strategies or deposit positions yet. Deploy your first
                     strategy or make a deposit to start earning yield on your assets.
                   </p>
@@ -375,7 +390,7 @@ const Portfolio = () => {
                     <h2 className='text-2xl font-funnel font-bold text-foreground mb-2'>
                       Active Deposits
                     </h2>
-                    <p className='text-muted-foreground font-medium'>
+                    <p className='text-foreground/80 font-medium'>
                       Traditional yield-bearing positions
                     </p>
                   </div>
@@ -408,40 +423,54 @@ const Portfolio = () => {
               {/* Deposit Cards */}
               {!depositsLoading && !positionsLoading && (
                 <div>
-                  {deposits.length === 0 && activeStrategies.length > 0 ? (
-                    <div className='flex flex-col items-center justify-center py-12 px-8 text-center'>
-                      <div className='space-y-4 max-w-lg mx-auto'>
-                        {/* Title */}
-                        <h3 className='text-xl font-funnel font-semibold text-foreground'>
-                          <AuroraText>No Active Deposits</AuroraText>
-                        </h3>
+                  {(() => {
+                    if (deposits.length === 0 && activeStrategies.length > 0) {
+                      return (
+                        <div className='flex flex-col items-center justify-center py-12 px-8 text-center'>
+                          <div className='space-y-4 max-w-lg mx-auto'>
+                            {/* Title */}
+                            <h3 className='text-xl font-funnel font-semibold text-foreground'>
+                              <span className='text-foreground text-md'>No Active Deposits</span>
+                            </h3>
 
-                        {/* Description */}
-                        <p className='text-muted-foreground leading-relaxed'>
-                          You don't have any deposit positions yet. Make a deposit to start earning
-                          traditional yield on your assets.
-                        </p>
+                            {/* Description */}
+                            <p className='text-foreground/70 leading-relaxed'>
+                              You don't have any deposit positions yet. Make a deposit to start
+                              earning traditional yield on your assets.
+                            </p>
 
-                        {/* Action Button */}
-                        <div className='pt-2'>
-                          <Button
-                            variant='default'
-                            size='lg'
-                            onClick={() => router.push('/')}
-                            className='px-8'
-                          >
-                            View Deposits
-                          </Button>
+                            {/* Action Button */}
+                            <div className='pt-2'>
+                              <Button
+                                variant='default'
+                                size='lg'
+                                onClick={() => router.push('/')}
+                                className='px-8'
+                              >
+                                View Deposits
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ) : deposits.length > 0 ? (
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
-                      {deposits.map((deposit, index) => (
-                        <DepositPositionCard key={deposit.denom} deposit={deposit} index={index} />
-                      ))}
-                    </div>
-                  ) : null}
+                      )
+                    }
+
+                    if (deposits.length > 0) {
+                      return (
+                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
+                          {deposits.map((deposit, index) => (
+                            <ActiveDepositCard
+                              key={deposit.denom}
+                              deposit={deposit}
+                              index={index}
+                            />
+                          ))}
+                        </div>
+                      )
+                    }
+
+                    return null
+                  })()}
                 </div>
               )}
             </div>

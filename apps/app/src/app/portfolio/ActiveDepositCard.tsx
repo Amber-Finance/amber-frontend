@@ -3,8 +3,8 @@ import { useRouter } from 'next/navigation'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import { Button } from '@/components/ui/Button'
-import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { CountingNumber } from '@/components/ui/CountingNumber'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import tokens from '@/config/tokens'
 
 interface DepositPosition {
@@ -18,15 +18,13 @@ interface DepositPosition {
   ytdEarningsPercent: number
 }
 
-interface DepositPositionCardProps {
+interface ActiveDepositCardProps {
   deposit: DepositPosition
   index: number
 }
 
-export function DepositPositionCard({ deposit, index }: DepositPositionCardProps) {
+export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
   const router = useRouter()
-  const gradientVariants: ('purple' | 'blue' | 'secondary')[] = ['purple', 'blue', 'secondary']
-  const gradientClass = gradientVariants[index % gradientVariants.length]
 
   // Get token information from config
   const token = tokens.find((t) => t.denom === deposit.denom)
@@ -56,40 +54,53 @@ export function DepositPositionCard({ deposit, index }: DepositPositionCardProps
   }
 
   return (
-    <Card className='group relative overflow-hidden bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
-      {/* Subtle Gradient Background */}
-      <SubtleGradientBg variant={gradientClass} className='opacity-40' />
-
+    <Card className='group relative bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg @container'>
       {/* Card Header */}
-      <CardHeader className='relative pb-4'>
-        <div className='flex items-center justify-between'>
+
+      <CardHeader className='relative z-20'>
+        {/* below 350px width, show columns, above 350px width, show rows */}
+        <div className='flex flex-col @[350px]:flex-row @[350px]:items-center @[350px]:justify-between gap-4 mb-4'>
           <div className='flex items-center gap-4'>
-            <div className='w-12 h-12 rounded-2xl overflow-hidden bg-gradient-to-br from-secondary/30 to-secondary/20 p-3 border border-secondary/30'>
-              {token?.icon ? (
+            <div className='relative'>
+              <div className='relative w-12 h-12 @[350px]:w-16 @[350px]:h-16'>
                 <Image
-                  src={token.icon}
+                  src={token?.icon || ''}
                   alt={deposit.symbol}
-                  width={24}
-                  height={24}
+                  fill
+                  sizes='(min-width: 350px) 64px, 48px'
                   className='w-full h-full object-contain'
                 />
-              ) : (
-                <div className='w-full h-full bg-primary/30 rounded-xl flex items-center justify-center text-xs font-bold text-primary'>
-                  {deposit.symbol}
-                </div>
-              )}
+              </div>
             </div>
+
             <div>
-              <h3 className='font-funnel font-semibold text-foreground text-lg mb-1'>
-                {deposit.symbol}
-              </h3>
-              <p className='text-muted-foreground font-medium'>
-                {typeof deposit.apy === 'number' && !isNaN(deposit.apy)
-                  ? deposit.apy.toFixed(2)
-                  : '0.00'}
-                % APY
-              </p>
+              <div className='flex flex-col'>
+                <CardTitle className='text-base @[350px]:text-lg font-semibold'>
+                  {token?.symbol}
+                </CardTitle>
+                <CardDescription className='text-xs @[350px]:text-sm text-muted-foreground'>
+                  {token?.protocol}
+                </CardDescription>
+              </div>
             </div>
+          </div>
+
+          <div className='text-center '>
+            <div
+              className='text-3xl @[350px]:text-4xl font-funnel font-bold flex flex-row justify-center @[350px]:justify-end'
+              style={{ color: token?.brandColor }}
+            >
+              <CountingNumber value={deposit.apy} decimalPlaces={2} />
+              <span
+                className={`text-lg @[350px]:text-xl self-end`}
+                style={{ color: (token as TokenInfo)?.brandColor || '#F97316' }}
+              >
+                %
+              </span>
+            </div>
+            <p className='text-muted-foreground uppercase tracking-wider text-xs font-medium mt-1'>
+              APY
+            </p>
           </div>
         </div>
       </CardHeader>
@@ -135,7 +146,8 @@ export function DepositPositionCard({ deposit, index }: DepositPositionCardProps
         <div className='flex pt-4 border-t border-border/20'>
           <Button
             variant='default'
-            className='w-full border-border/40 hover:bg-foreground/5 font-medium'
+            size='sm'
+            className='w-full'
             onClick={() => router.push(`/deposit?token=${deposit.symbol}`)}
           >
             Modify

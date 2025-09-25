@@ -5,11 +5,12 @@ import React from 'react'
 import { BigNumber } from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
+import { usePrices } from '@/hooks/usePrices'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
 
-type Size = 'sm' | 'md' | 'lg'
+type Size = 'xs' | 'sm' | 'md' | 'lg'
 type Align = 'left' | 'right' | 'center'
 
 interface TokenBalanceProps {
@@ -32,17 +33,20 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   className = '',
   textClassName = '',
 }) => {
-  // Get markets data from the store
+  // Get markets data from the store and price loading state
   const { markets } = useStore()
+  const { isLoading: isPricesLoading } = usePrices()
 
   // Set font sizes based on size prop, with responsive variants
   const getAmountTextSize = (size: Size) => {
+    if (size === 'xs') return 'text-xxs'
     if (size === 'sm') return 'text-xs sm:text-sm'
     if (size === 'lg') return 'text-base sm:text-lg'
     return 'text-sm sm:text-base'
   }
 
   const getValueTextSize = (size: Size) => {
+    if (size === 'xs') return 'text-xxs'
     if (size === 'sm') return 'text-xxs sm:text-xs'
     if (size === 'lg') return 'text-sm sm:text-base'
     return 'text-xs sm:text-sm'
@@ -64,6 +68,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   let adjustedAmount: string
   let assetDecimals = 6
   let symbol = ''
+  let showUsdValue = true
 
   if (markets && coin.denom) {
     // Find the matching market for this coin
@@ -75,15 +80,23 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
     }
 
     if (coin.amount && market?.price?.price) {
+      // Price is available - calculate USD value
       usdValue = calculateUsdValueLegacy(coin.amount, market.price.price, assetDecimals).toString()
       adjustedAmount = new BigNumber(coin.amount).shiftedBy(-assetDecimals).toString()
+      // showUsdValue remains true (default)
+    } else if (isPricesLoading && coin.amount) {
+      // Prices are loading - show token amount but hide USD value
+      adjustedAmount = new BigNumber(coin.amount).shiftedBy(-assetDecimals).toString()
+      showUsdValue = false
     } else {
-      // Set default zero value with correct decimals for this asset
+      // No amount or price not loaded yet - show zero
       adjustedAmount = '0.' + '0'.repeat(assetDecimals)
+      showUsdValue = false
     }
   } else {
     // Set default zero value with correct decimals
     adjustedAmount = '0.' + '0'.repeat(assetDecimals)
+    showUsdValue = false
   }
 
   return (
@@ -94,7 +107,11 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
           textClassName || 'text-gray-900 dark:text-white font-medium truncate',
         )}
       >
-        <FormattedValue value={usdValue} isCurrency={true} />
+        {showUsdValue && <FormattedValue value={usdValue} isCurrency={true} />}
+        {!showUsdValue && isPricesLoading && (
+          <span className='text-muted-foreground text-xs'>Loading prices...</span>
+        )}
+        {!showUsdValue && !isPricesLoading && <FormattedValue value='0' isCurrency={true} />}
       </div>
       <div
         className={cn(

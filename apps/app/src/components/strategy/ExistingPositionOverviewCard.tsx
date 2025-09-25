@@ -3,9 +3,11 @@ import { Info } from 'lucide-react'
 import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
+import { getHealthFactorColor } from '@/utils/healthComputer'
 
 interface PositionOverviewCardProps {
   strategy: Strategy
+  activeStrategy?: ActiveStrategy // Add activeStrategy for modify mode
   displayValues: {
     currentPrice: string
     usdValue: (amount: number) => string
@@ -14,18 +16,39 @@ interface PositionOverviewCardProps {
     totalPosition: number
     borrowAmount: number
     estimatedYearlyEarnings: number
+    supplies?: number // Net supplies (user's actual deposit)
   }
   getEstimatedEarningsUsd: () => string
+  healthFactor: number
+  marketData?: any // Add marketData for price calculations
 }
 
-export function PositionOverviewCard({
+export function ExistingPositionOverviewCard({
   strategy,
+  activeStrategy,
   displayValues,
   positionCalcs,
   getEstimatedEarningsUsd,
+  healthFactor,
+  marketData,
 }: PositionOverviewCardProps) {
+  // Only render if there's an active strategy (existing position)
+  if (!activeStrategy) {
+    return null
+  }
+
+  // Calculate position components
+  const netSupplies =
+    positionCalcs.supplies ||
+    activeStrategy.collateralAsset.amountFormatted - activeStrategy.debtAsset.amountFormatted
+  const netCollateral = activeStrategy.collateralAsset.amountFormatted
+  const netBorrowed = activeStrategy.debtAsset.amountFormatted
+  const netPosition = netCollateral - netBorrowed // This is the user's equity/net value
+
+  const currentPrice = marketData?.currentPrice || 0
+
   return (
-    <InfoCard title='Position Overview'>
+    <InfoCard title='Existing Position Overview'>
       <div>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
           <div className='space-y-2'>
@@ -60,25 +83,39 @@ export function PositionOverviewCard({
 
             <div className='space-y-1'>
               <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Long exposure</span>
+                <span className='text-muted-foreground'>Net Collateral</span>
                 <div className='text-right'>
                   <div className='font-medium text-foreground'>
-                    {positionCalcs.totalPosition.toFixed(6)} {strategy.collateralAsset.symbol}
+                    {netCollateral.toFixed(6)} {strategy.collateralAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~{displayValues.usdValue(positionCalcs.totalPosition)}
+                    ~${activeStrategy.collateralAsset.usdValue.toFixed(2)}
                   </div>
                 </div>
               </div>
 
               <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Short exposure</span>
+                <span className='text-muted-foreground'>Net Borrowed</span>
                 <div className='text-right'>
                   <div className='font-medium text-foreground'>
-                    {positionCalcs.borrowAmount.toFixed(6)} {strategy.debtAsset.symbol}
+                    {netBorrowed.toFixed(6)} {strategy.debtAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~{displayValues.usdValue(positionCalcs.borrowAmount)}
+                    ~${activeStrategy.debtAsset.usdValue.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              <Separator className='my-2' />
+
+              <div className='flex justify-between items-center text-xs'>
+                <span className='text-muted-foreground'>Net Supplies</span>
+                <div className='text-right'>
+                  <div className='font-medium text-foreground'>
+                    {netSupplies.toFixed(6)} {strategy.collateralAsset.symbol}
+                  </div>
+                  <div className='text-xs text-muted-foreground'>
+                    ~${(netSupplies * currentPrice).toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -103,35 +140,69 @@ export function PositionOverviewCard({
                 Est. Annual Earnings
               </div>
               <div
-                className={`font-semibold text-sm ${
-                  positionCalcs.estimatedYearlyEarnings >= 0
+                className={`font-semibold text-sm ${(() => {
+                  const isPositive = activeStrategy
+                    ? activeStrategy.netApy > 0
+                    : positionCalcs.estimatedYearlyEarnings >= 0
+                  return isPositive
                     ? 'text-emerald-600 dark:text-emerald-300'
                     : 'text-red-600 dark:text-red-300'
-                }`}
+                })()}`}
               >
-                {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
-                {positionCalcs.estimatedYearlyEarnings.toFixed(6)} {strategy.collateralAsset.symbol}
+                {activeStrategy ? (
+                  <>
+                    {activeStrategy.netApy > 0 ? '+' : ''}
+                    {(
+                      (activeStrategy.collateralAsset.amountFormatted * activeStrategy.netApy) /
+                      100
+                    ).toFixed(6)}{' '}
+                    {strategy.collateralAsset.symbol}
+                  </>
+                ) : (
+                  <>
+                    {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
+                    {positionCalcs.estimatedYearlyEarnings.toFixed(6)}{' '}
+                    {strategy.collateralAsset.symbol}
+                  </>
+                )}
               </div>
               <div
-                className={`text-xs ${
-                  positionCalcs.estimatedYearlyEarnings >= 0
+                className={`text-xs ${(() => {
+                  const isPositive = activeStrategy
+                    ? activeStrategy.netApy > 0
+                    : positionCalcs.estimatedYearlyEarnings >= 0
+                  return isPositive
                     ? 'text-emerald-600/80 dark:text-emerald-400/80'
                     : 'text-red-600/80 dark:text-red-400/80'
-                }`}
+                })()}`}
               >
-                {getEstimatedEarningsUsd()}
+                ~
+                {activeStrategy
+                  ? `$${((activeStrategy.collateralAsset.usdValue * activeStrategy.netApy) / 100).toFixed(2)}`
+                  : getEstimatedEarningsUsd()}
               </div>
             </div>
 
             <div className='space-y-1 text-xs'>
               <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>Your LTV (LLTV)</span>
-                <span className='font-medium text-foreground'>∞ (-%)</span>
+                <span className='text-muted-foreground'>Net APY</span>
+                <span
+                  className={`font-medium ${
+                    activeStrategy && activeStrategy.netApy >= 0
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {activeStrategy ? `${activeStrategy.netApy.toFixed(2)}%` : 'N/A'}
+                </span>
               </div>
-
               <div className='flex justify-between items-center'>
                 <span className='text-muted-foreground'>Your health</span>
-                <span className='font-medium text-foreground'>-</span>
+                <span
+                  className={`font-medium text-foreground ${getHealthFactorColor(healthFactor)}`}
+                >
+                  {healthFactor?.toFixed(2) || '-'}
+                </span>
               </div>
             </div>
           </div>

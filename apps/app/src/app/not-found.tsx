@@ -21,6 +21,7 @@ export default function NotFound() {
                   src='/favicon.svg'
                   alt='Amber Finance'
                   fill
+                  sizes='(min-width: 768px) 80px, 64px'
                   className='object-contain'
                   priority
                 />

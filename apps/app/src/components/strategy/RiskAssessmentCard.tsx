@@ -46,8 +46,8 @@ export function RiskAssessmentCard({
               </TooltipTrigger>
               <TooltipContent>
                 <p className='text-xs max-w-xs'>
-                  Difference between collateral APY and borrow rate. Negative spread means you pay
-                  more to borrow than you earn from collateral.
+                  Difference between underlying staking APY and borrow rate. Negative spread means
+                  you pay more to borrow than you earn from staking.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -62,7 +62,7 @@ export function RiskAssessmentCard({
         {/* Risk Breakdown */}
         <div className='space-y-2'>
           <div className='flex justify-between items-center'>
-            <span className='text-muted-foreground'>Supply APY</span>
+            <span className='text-muted-foreground'>Underlying Staking APY</span>
             <span className='font-medium text-emerald-600 dark:text-emerald-400'>
               {(collateralSupplyApy * 100).toFixed(2)}%
             </span>
@@ -87,18 +87,7 @@ export function RiskAssessmentCard({
 
           <div className='flex justify-between items-center'>
             <span className='text-muted-foreground'>Liquidation Threshold</span>
-            <span className='font-medium text-foreground'>
-              {strategy.liquidationThreshold
-                ? `${(strategy.liquidationThreshold * 100).toFixed(0)}%`
-                : '85%'}
-            </span>
-          </div>
-
-          <div className='flex justify-between items-center'>
-            <span className='text-muted-foreground'>Max Leverage</span>
-            <span className='font-medium text-foreground'>
-              {(strategy.maxLeverage || 5).toFixed(1)}x
-            </span>
+            <span className='font-medium text-foreground'>95%</span>
           </div>
         </div>
 

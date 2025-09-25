@@ -162,3 +162,10 @@ export const updatePositions = (markets: Market[], action: ActionType, coin: Coi
   // Generate and return updated positions
   return generatePositions(updatedMarkets)
 }
+
+// Helper function to determine health factor color
+export const getHealthFactorColor = (healthFactor: number): string => {
+  if (healthFactor > 1.1) return 'text-green-500'
+  if (healthFactor > 1.05) return 'text-amber-500'
+  return 'text-red-500'
+}

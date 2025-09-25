@@ -48,7 +48,7 @@ export function calculateApyAfterAction(
   // Calculate new utilization rate
   const newUtilizationRate = newCollateralTotal.isZero()
     ? new BigNumber(0)
-    : newDebtTotal.dividedBy(newCollateralTotal)
+    : BigNumber.minimum(new BigNumber(1), newDebtTotal.dividedBy(newCollateralTotal)) // Cap at 100%
 
   // Extract interest rate model parameters
   const interestRateModel = marketData.interest_rate_model

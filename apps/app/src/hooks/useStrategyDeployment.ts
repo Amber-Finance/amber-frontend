@@ -14,7 +14,7 @@ export const useStrategyDeployment = ({
 
       // Create config for broadcast's executeTransaction
       const config: DeployStrategyConfig = {
-        type: 'deploy_strategy',
+        type: 'strategy',
         strategyType: isModifying ? 'increase' : 'create',
         accountId: isModifying && modifyingAccountId ? modifyingAccountId : undefined,
         collateral: {
@@ -29,7 +29,7 @@ export const useStrategyDeployment = ({
         },
         swap: {
           routeInfo: params.swapRouteInfo,
-          slippage: '0.5',
+          slippage: params.slippage?.toString() || '0.5',
           destDenom: strategy.collateralAsset.denom,
         },
         multiplier: params.multiplier,
@@ -51,94 +51,27 @@ export const useStrategyDeployment = ({
 
   const fetchSwapRoute = useCallback(
     async (borrowAmount: number) => {
-      const { route } = await import('@skip-go/client')
       const { BigNumber } = await import('bignumber.js')
+      const getNeutronRouteInfo = (await import('@/api/swap/getNeutronRouteInfo')).default
 
-      const formattedBorrowAmount = new BigNumber(borrowAmount)
-        .shiftedBy(strategy.debtAsset.decimals || 6)
-        .integerValue(BigNumber.ROUND_DOWN)
-        .toString()
+      const formattedBorrowAmount = new BigNumber(borrowAmount).shiftedBy(
+        strategy.debtAsset.decimals || 6,
+      )
 
       try {
-        const skipRouteParams = {
-          amount_in: formattedBorrowAmount,
-          source_asset_chain_id: chainConfig.id,
-          source_asset_denom: strategy.debtAsset.denom,
-          dest_asset_chain_id: chainConfig.id,
-          dest_asset_denom: strategy.collateralAsset.denom,
-          smart_relay: true,
-          experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
-          allow_multi_tx: true,
-          allow_unsafe: true,
-          smart_swap_options: {
-            split_routes: true,
-            evm_swaps: true,
-          },
-          // Force only Duality swaps for Mars strategies
-          swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
-          go_fast: false,
-        }
+        // Use the established getNeutronRouteInfo function to ensure consistent route formatting
+        const routeInfo = await getNeutronRouteInfo(
+          strategy.debtAsset.denom,
+          strategy.collateralAsset.denom,
+          formattedBorrowAmount,
+          [], // assets array - not needed for route structure
+          chainConfig,
+        )
 
-        const skipRouteResponse = await route(skipRouteParams as any)
-
-        if (!skipRouteResponse?.operations || skipRouteResponse?.operations?.length === 0) {
+        if (!routeInfo) {
           throw new Error(
             `No swap route found between ${strategy.debtAsset.symbol} and ${strategy.collateralAsset.symbol}`,
           )
-        }
-
-        // Extract swap operations from Skip response
-        const extractSwapOperations = (skipResponse: any): any[] => {
-          const firstOperation = skipResponse.operations?.[0]?.swap?.swapIn?.swapOperations
-          return firstOperation || []
-        }
-
-        // Create duality route from swap operations
-        const createDualityRoute = (
-          denomIn: string,
-          denomOut: string,
-          swapOperations: any[],
-        ): any => {
-          const swapDenoms: string[] = [denomIn]
-
-          swapOperations.forEach((op: any) => {
-            if (op.denomOut && !swapDenoms.includes(op.denomOut)) {
-              swapDenoms.push(op.denomOut)
-            }
-          })
-
-          // Ensure denomOut is included if not already present
-          if (!swapDenoms.includes(denomOut)) {
-            swapDenoms.push(denomOut)
-          }
-
-          return {
-            duality: {
-              from: denomIn,
-              swap_denoms: swapDenoms,
-              to: denomOut,
-            },
-          }
-        }
-
-        const swapOperations = extractSwapOperations(skipRouteResponse)
-        const marsRoute = createDualityRoute(
-          strategy.debtAsset.denom,
-          strategy.collateralAsset.denom,
-          swapOperations,
-        )
-
-        console.log('Skip route response:', skipRouteResponse)
-        console.log('Extracted swap operations:', swapOperations)
-        console.log('Mars route format:', marsRoute)
-
-        // Create SwapRouteInfo object
-        const routeInfo: SwapRouteInfo = {
-          amountOut: new BigNumber(skipRouteResponse.amountOut || '0'),
-          priceImpact: new BigNumber(skipRouteResponse.swapPriceImpactPercent || '0'),
-          fee: new BigNumber('0'),
-          description: `${strategy.debtAsset.symbol} → ${strategy.collateralAsset.symbol}`,
-          route: marsRoute,
         }
 
         return routeInfo

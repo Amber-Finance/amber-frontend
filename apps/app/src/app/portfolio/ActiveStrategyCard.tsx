@@ -7,22 +7,15 @@ import { Info } from 'lucide-react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import { Button } from '@/components/ui/Button'
-import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useStore } from '@/store/useStore'
+import { getHealthFactorColor } from '@/utils/healthComputer'
 
-interface ActivePositionCardProps {
+interface ActiveStrategyCardProps {
   strategy: ActiveStrategy
   index: number
-}
-
-// Helper function to determine health factor color
-const getHealthFactorColor = (healthFactor: number): string => {
-  if (healthFactor > 1.1) return 'text-green-500'
-  if (healthFactor > 1.05) return 'text-amber-500'
-  return 'text-red-500'
 }
 
 // Helper function to determine leverage color
@@ -32,11 +25,9 @@ const getLeverageColor = (leverage: number): string => {
   return 'text-red-600 dark:text-red-400'
 }
 
-export function ActivePositionCard({ strategy, index }: ActivePositionCardProps) {
+export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps) {
   const router = useRouter()
   const { markets } = useStore()
-
-  // Token decimals are now included in the strategy object from useActiveStrategies
 
   // Create positions for health computer using the specific account ID
   const updatedPositions = useMemo(
@@ -72,14 +63,13 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
 
   // Use health computer hook
   const { healthFactor: computedHealthFactor } = useHealthComputer(updatedPositions)
-
   // Real calculations using market data and health computer
   const calculations = useMemo(() => {
     if (!markets?.length) {
       return {
         positionValue: strategy.collateralAsset.usdValue,
         healthFactor: 0,
-        maxLeverage: 12.5,
+        maxLeverage: 12,
         pnl: 0,
         pnlPercent: 0,
       }
@@ -93,7 +83,7 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
       return {
         positionValue: strategy.collateralAsset.usdValue,
         healthFactor: 0,
-        maxLeverage: 12.5,
+        maxLeverage: 12,
         pnl: 0,
         pnlPercent: 0,
       }
@@ -106,7 +96,7 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
 
     // Calculate max leverage from LTV
     const ltv = parseFloat(collateralMarket.params?.max_loan_to_value || '0')
-    const theoreticalMaxLeverage = ltv > 0 ? 1 / (1 - ltv) : 12.5
+    const theoreticalMaxLeverage = ltv > 0 ? 1 / (1 - ltv) : 12
     // Apply 0.5x safety buffer
     const maxLeverage = Math.max(1, theoreticalMaxLeverage - 0.5)
 
@@ -131,9 +121,6 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
   }, [strategy, markets, computedHealthFactor])
 
   const { positionValue, healthFactor, pnl } = calculations
-
-  const gradientVariants: ('purple' | 'blue' | 'secondary')[] = ['purple', 'blue', 'secondary']
-  const gradientClass = gradientVariants[index % gradientVariants.length]
 
   // Format amounts for display with appropriate precision
   const formatAmount = (amount: number, tokenDecimals: number = 6, displayDecimals = 6): string => {
@@ -160,66 +147,52 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
   }
 
   return (
-    <Card className='group relative overflow-hidden bg-card/20 border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
-      {/* Subtle Gradient Background */}
-      <SubtleGradientBg variant={gradientClass} className='opacity-40' />
-
+    <Card className='group relative overflow-hidden bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* Card Header */}
-      <CardHeader className='relative pb-6'>
-        <div className='flex items-center justify-between mb-4'>
-          <div className='flex items-center gap-4'>
+      <CardHeader className='relative z-20'>
+        <div className='flex items-center justify-between mb-3'>
+          <div className='flex items-center gap-3'>
             <div className='relative'>
-              <div className='w-12 h-12 rounded-2xl overflow-hidden bg-background border border-border/20 p-2'>
-                {strategy.collateralAsset.icon ? (
-                  <Image
-                    src={strategy.collateralAsset.icon}
-                    alt={strategy.collateralAsset.symbol}
-                    width={32}
-                    height={32}
-                    className='w-full h-full object-contain'
-                  />
-                ) : (
-                  <div className='w-full h-full bg-primary/30 rounded-xl flex items-center justify-center text-xs font-bold text-primary'>
-                    {strategy.collateralAsset.symbol}
-                  </div>
-                )}
+              <div className='relative w-12 h-12'>
+                <Image
+                  src={strategy.collateralAsset.icon}
+                  alt={strategy.collateralAsset.symbol}
+                  fill
+                  sizes='48px'
+                  className='w-full h-full object-contain'
+                />
               </div>
-              <div className='absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-background/90 backdrop-blur-sm border border-border/30 p-1'>
-                {strategy.debtAsset.icon ? (
-                  <Image
-                    src={strategy.debtAsset.icon}
-                    alt={strategy.debtAsset.symbol}
-                    width={20}
-                    height={20}
-                    className='w-full h-full object-contain'
-                  />
-                ) : (
-                  <div className='w-full h-full bg-secondary/40 rounded-md flex items-center justify-center text-[10px] font-bold text-secondary'>
-                    {strategy.debtAsset.symbol}
-                  </div>
-                )}
+              <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full border shadow-sm p-0.5 bg-background'>
+                <Image
+                  src={strategy.debtAsset.icon}
+                  alt={strategy.debtAsset.symbol}
+                  fill
+                  sizes='24px'
+                  className=' w-full h-full'
+                  unoptimized={true}
+                />
               </div>
             </div>
-            <div>
-              <h3 className='font-funnel font-semibold text-foreground text-lg mb-1'>
+            <div className='flex flex-col'>
+              <CardTitle className='text-lg font-semibold'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
-              </h3>
-              <p className='text-muted-foreground text-sm font-medium'>
+              </CardTitle>
+              <CardDescription className='text-sm text-muted-foreground'>
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
-              </p>
+              </CardDescription>
             </div>
           </div>
         </div>
       </CardHeader>
 
       {/* Main APY Display */}
-      <CardContent className='relative space-y-6'>
-        <div className='text-center py-4'>
-          <div className='text-6xl font-funnel font-bold text-foreground mb-2'>
+      <CardContent className='relative space-y-4'>
+        <div className='text-center py-3'>
+          <div className='text-4xl sm:text-5xl font-funnel font-bold text-foreground mb-1'>
             {!strategy.isPositive ? '-' : ''}
             {Math.abs(strategy.netApy).toFixed(2)}
             <span
-              className={`text-3xl`}
+              className={`text-xl sm:text-2xl`}
               style={{ color: (strategy.debtAsset as any)?.brandColor || '#F97316' }}
             >
               %
@@ -233,22 +206,22 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
         {/* Earning Points Section */}
         <div className='pt-3 border-t border-border/20'>
           <EarningPointsRow
-            assetSymbol={strategy.collateralAsset.symbol}
+            assetSymbol={strategy.debtAsset.symbol}
             variant='full'
             type='strategy'
           />
         </div>
 
         {/* Strategy Metrics */}
-        <div className='grid grid-cols-2 gap-4 pt-3 border-t border-border/20'>
-          <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+        <div className='grid grid-cols-2 gap-3 pt-3 border-t border-border/20'>
+          <div className='bg-secondary/20 rounded-lg p-2.5 text-center border border-border/40'>
             <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>Leverage</p>
             <p className={`font-semibold text-sm ${getLeverageColor(strategy.leverage)}`}>
               {strategy.leverage.toFixed(2)}x
               {strategy.leverage > 11 && <span className='ml-1 text-xs'>⚠️</span>}
             </p>
           </div>
-          <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+          <div className='bg-secondary/20 rounded-lg p-2.5 text-center border border-border/40'>
             <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
               Unrealized P&L
             </p>
@@ -262,7 +235,7 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
         </div>
 
         {/* Position Details */}
-        <div className='space-y-3 pt-4 border-t border-border/20'>
+        <div className='space-y-3 pt-3 border-t border-border/20'>
           <div className='flex justify-between items-center'>
             <span className='text-muted-foreground text-sm'>Position Value</span>
             <span className='text-foreground font-medium'>{formatUsdValue(positionValue)}</span>
@@ -316,16 +289,14 @@ export function ActivePositionCard({ strategy, index }: ActivePositionCardProps)
         </div>
 
         {/* Action Button */}
-        <div className='flex pt-4'>
+        <div className='flex pt-3'>
           <Button
             variant='default'
             size='sm'
             className='w-full'
             onClick={() => {
               const strategyId = `${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`
-              router.push(
-                `/strategies/deploy?strategy=${strategyId}&modify=true&accountId=${strategy.accountId}`,
-              )
+              router.push(`/strategies/${strategyId}`)
             }}
           >
             Manage

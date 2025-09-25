@@ -12,6 +12,7 @@ export default function useAssetsApr(denom: string, days: number = 30) {
     `chains/neutron/redBank/assetsApr?denom=${denom}&days=${days}`,
     async () => await getAssetsApr(denom, days),
     {
+      refreshInterval: 60000,
       revalidateOnFocus: false,
     },
   )
