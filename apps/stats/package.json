@@ -1,0 +1,44 @@
+{
+  "name": "@amber-finance/stats",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
+    "dev": "npm run copy-public && next dev -p 3004",
+    "build": "npm run copy-public && next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "^1.3.2",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@vercel/analytics": "^1.5.0",
+    "bignumber.js": "^9.3.1",
+    "clsx": "^2.1.1",
+    "cpx": "^1.5.0",
+    "dayjs": "^1.11.18",
+    "lucide-react": "^0.542.0",
+    "motion": "^12.23.12",
+    "next": "15.5.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "recharts": "^3.1.2",
+    "swr": "^2.3.6",
+    "tailwind-merge": "^3.3.1",
+    "tw-animate-css": "^1.3.8",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/bignumber.js": "^5.0.4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.3",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
+  }
+}

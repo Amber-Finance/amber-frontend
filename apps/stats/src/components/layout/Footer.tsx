@@ -46,8 +46,11 @@ const footerSections = [
         title: 'Swap',
         url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
       },
-      { title: 'Bridge', url: '/' },
-      { title: 'Statistics', url: 'https://stats.amberfi.io' },
+      {
+        title: 'Bridge',
+        url: 'https://bridge.amberfi.io',
+      },
+      { title: 'Statistics', url: '/' },
     ],
   },
   {
@@ -69,29 +72,27 @@ export function Footer() {
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
-            <Link href='https://app.amberfi.io' className='mb-4 flex items-center gap-x-3'>
-              <div className='relative h-10'>
-                <Image
-                  src='/logo/logo-simple/logo-dark-400x140.svg'
-                  alt='Amber Finance'
-                  width={142}
-                  height={50}
-                  className={cn(
-                    'h-10 w-auto transition-opacity duration-700 ease-in-out',
-                    resolvedTheme === 'dark' ? 'opacity-0' : 'opacity-100',
-                  )}
-                />
-                <Image
-                  src='/logo/logo-simple/logo-light-400x140.svg'
-                  alt='Amber Finance'
-                  width={142}
-                  height={50}
-                  className={cn(
-                    'absolute inset-0 h-10 w-auto transition-opacity duration-700 ease-in-out',
-                    resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
-                  )}
-                />
-              </div>
+            <Link href='https://app.amberfi.io' className='flex gap-x-3 items-center mb-4 relative'>
+              <Image
+                src='/logo/logo-simple/logo-dark-400x140.svg'
+                alt='Amber Finance'
+                width={142}
+                height={50}
+                className={cn(
+                  'h-10 w-auto transition-opacity duration-700 ease-in-out',
+                  resolvedTheme === 'dark' ? 'opacity-0' : 'opacity-100',
+                )}
+              />
+              <Image
+                src='/logo/logo-simple/logo-light-400x140.svg'
+                alt='Amber Finance'
+                width={142}
+                height={50}
+                className={cn(
+                  'absolute inset-0 h-10 w-auto transition-opacity duration-700 ease-in-out',
+                  resolvedTheme === 'dark' ? 'opacity-100' : 'opacity-0',
+                )}
+              />
             </Link>
             <div className='flex sm:flex-col gap-4 items-center sm:items-start justify-between'>
               <p className='max-w-md text-muted-foreground'>Connect with us:</p>

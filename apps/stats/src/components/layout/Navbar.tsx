@@ -29,8 +29,8 @@ const moreNavigation = [
     name: 'Swap',
     href: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
   },
-  { name: 'Bridge', href: '/' },
-  { name: 'Statistics', href: 'https://stats.amberfi.io' },
+  { name: 'Bridge', href: 'https://bridge.amberfi.io' },
+  { name: 'Statistics', href: '/' },
 ]
 
 const allNavigation = [...mainNavigation, ...moreNavigation]
