@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/utils/ui'
 
 interface ChartWrapperProps {
@@ -19,6 +20,12 @@ interface ChartWrapperProps {
   onTimeRangeChange?: (timeRange: string) => void
   defaultTimeRange?: string
   showTimeRangeSelector?: boolean
+  tabs?: {
+    value: string
+    label: string
+  }[]
+  activeTab?: string
+  onTabChange?: (value: string) => void
 }
 
 export default function ChartWrapper({
@@ -28,6 +35,9 @@ export default function ChartWrapper({
   onTimeRangeChange,
   defaultTimeRange = '7',
   showTimeRangeSelector = true,
+  tabs,
+  activeTab,
+  onTabChange,
 }: ChartWrapperProps) {
   const [timeRange, setTimeRange] = useState(defaultTimeRange)
 
@@ -39,9 +49,25 @@ export default function ChartWrapper({
   return (
     <Card className={cn('bg-card/20 w-full', className)}>
       <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
-        <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
-          {title}
-        </CardTitle>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1'>
+          {tabs && tabs.length > 0 ? (
+            <div className='bg-card/20 backdrop-blur-lg rounded-lg p-1'>
+              <Tabs value={activeTab} onValueChange={onTabChange}>
+                <TabsList className='bg-transparent p-0'>
+                  {tabs.map((tab) => (
+                    <TabsTrigger key={tab.value} value={tab.value} className='text-sm font-bold'>
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+          ) : (
+            <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
+              {title}
+            </CardTitle>
+          )}
+        </div>
         {showTimeRangeSelector && (
           <Select value={timeRange} onValueChange={handleTimeRangeChange}>
             <SelectTrigger className='w-[160px] rounded-lg' aria-label='Select a value'>

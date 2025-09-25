@@ -1,15 +1,17 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import AreaChartComponent from '@/components/charts/AreaChartComponent'
-import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
 import { formatCompactCurrency } from '@/utils/format'
 
-export default function TotalDepositsBorrowsLineChart() {
-  const [timeRange, setTimeRange] = useState('7')
+interface Props {
+  timeRange: string
+}
+
+export default function ProtocolTotalsLineChart({ timeRange }: Props) {
   const { data: marketsData } = useMarketsData(undefined, parseInt(timeRange))
 
   const chartData = useMemo(() => {
@@ -66,15 +68,13 @@ export default function TotalDepositsBorrowsLineChart() {
   ]
 
   return (
-    <ChartWrapper title='Total Deposits, Borrows & TVL' onTimeRangeChange={setTimeRange}>
+    <div className='w-full h-[350px] overflow-hidden'>
       <AreaChartComponent
         data={chartData}
         areas={areas}
-        title='Total Deposits, Borrows & TVL'
-        onTimeRangeChange={setTimeRange}
         yAxisFormatter={formatCompactCurrency}
         tooltipType='currency'
       />
-    </ChartWrapper>
+    </div>
   )
 }

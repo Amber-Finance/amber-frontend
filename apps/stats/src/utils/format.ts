@@ -50,15 +50,21 @@ export const createApyFormatter =
 
 // Pure function for compact number formatting
 const formatCompactNumberPure = (bn: BigNumber): string => {
-  if (bn.isGreaterThanOrEqualTo(1_000_000_000)) {
-    return `${bn.dividedBy(1_000_000_000).toFormat(2)}B`
-  } else if (bn.isGreaterThanOrEqualTo(1_000_000)) {
-    return `${bn.dividedBy(1_000_000).toFormat(2)}M`
-  } else if (bn.isGreaterThanOrEqualTo(1_000)) {
-    return `${bn.dividedBy(1_000).toFormat(2)}K`
+  const isNegative = bn.isLessThan(0)
+  const absBn = bn.abs()
+
+  let formatted: string
+  if (absBn.isGreaterThanOrEqualTo(1_000_000_000)) {
+    formatted = `${absBn.dividedBy(1_000_000_000).toFormat(2)}B`
+  } else if (absBn.isGreaterThanOrEqualTo(1_000_000)) {
+    formatted = `${absBn.dividedBy(1_000_000).toFormat(2)}M`
+  } else if (absBn.isGreaterThanOrEqualTo(1_000)) {
+    formatted = `${absBn.dividedBy(1_000).toFormat(2)}K`
   } else {
-    return bn.toFormat(2)
+    formatted = absBn.toFormat(2)
   }
+
+  return isNegative ? `-${formatted}` : formatted
 }
 
 // Functional approach to compact number formatting
@@ -145,24 +151,32 @@ const formatLargeValue = (
   useCompactNotation: boolean,
   largeValueThreshold: number,
 ) => {
-  if (!useCompactNotation || !bnValue.isGreaterThanOrEqualTo(largeValueThreshold)) return null
+  const absValue = bnValue.abs()
+  if (!useCompactNotation || !absValue.isGreaterThanOrEqualTo(largeValueThreshold)) return null
 
-  if (bnValue.isGreaterThanOrEqualTo(1_000_000_000)) {
+  const isNegative = bnValue.isLessThan(0)
+  const sign = isNegative ? '-' : ''
+
+  if (absValue.isGreaterThanOrEqualTo(1_000_000_000)) {
     return {
       type: 'standard' as const,
-      value: `${bnValue.dividedBy(1_000_000_000).toFormat(2)}B`,
+      value: `${sign}${absValue.dividedBy(1_000_000_000).toFormat(2)}B`,
       prefix,
     }
   }
-  if (bnValue.isGreaterThanOrEqualTo(1_000_000)) {
+  if (absValue.isGreaterThanOrEqualTo(1_000_000)) {
     return {
       type: 'standard' as const,
-      value: `${bnValue.dividedBy(1_000_000).toFormat(2)}M`,
+      value: `${sign}${absValue.dividedBy(1_000_000).toFormat(2)}M`,
       prefix,
     }
   }
-  if (bnValue.isGreaterThanOrEqualTo(1_000)) {
-    return { type: 'standard' as const, value: `${bnValue.dividedBy(1_000).toFormat(2)}K`, prefix }
+  if (absValue.isGreaterThanOrEqualTo(1_000)) {
+    return {
+      type: 'standard' as const,
+      value: `${sign}${absValue.dividedBy(1_000).toFormat(2)}K`,
+      prefix,
+    }
   }
   return null
 }

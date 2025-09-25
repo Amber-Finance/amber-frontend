@@ -10,13 +10,13 @@ import {
   YAxis,
 } from 'recharts'
 
-import ChartWrapper from '@/components/charts/ChartWrapper'
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useMaxBtcData from '@/hooks/useMaxBtcData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
+import { formatCompactCurrency } from '@/utils/format'
 
 interface DailyData {
   date: string
@@ -41,8 +41,11 @@ interface TokenInfo {
   hasBorrows: boolean
 }
 
-export default function AllMarketsBarChart() {
-  const [timeRange, setTimeRange] = React.useState('7')
+interface Props {
+  timeRange: string
+}
+
+export default function AllMarketsBarChart({ timeRange }: Props) {
   const { data: marketsData } = useMarketsData(undefined, parseInt(timeRange))
   const { data: maxBtcData } = useMaxBtcData(parseInt(timeRange))
 
@@ -248,132 +251,127 @@ export default function AllMarketsBarChart() {
   }
 
   return (
-    <ChartWrapper title='All Deposits and Borrows' onTimeRangeChange={setTimeRange}>
-      <div className='w-full h-[350px] overflow-hidden'>
-        {!processedData.length ? (
-          <div className='flex h-64 items-center justify-center text-muted-foreground'>
-            Loading...
-          </div>
-        ) : (
-          <ChartContainer config={chartConfig} className='h-full'>
-            <ResponsiveContainer width='100%' height='100%'>
-              <BarChart
-                data={processedData}
-                margin={{
-                  top: 10,
-                  right: -10,
-                  left: -10,
-                  bottom: 5,
-                }}
-                barCategoryGap='25%'
-                barGap={6}
-                stackOffset='sign'
-              >
-                <defs>
-                  {tokenInfo.map((token) => (
-                    <g key={token.symbol}>
-                      <linearGradient
-                        id={`depositGradient-${token.symbol}`}
-                        x1='0'
-                        y1='0'
-                        x2='0'
-                        y2='1'
-                      >
-                        <stop offset='0%' stopColor={token.color} stopOpacity={0.7} />
-                        <stop offset='100%' stopColor={token.color} stopOpacity={0.3} />
-                      </linearGradient>
-                      <linearGradient
-                        id={`borrowGradient-${token.symbol}`}
-                        x1='0'
-                        y1='0'
-                        x2='0'
-                        y2='1'
-                      >
-                        <stop offset='0%' stopColor={token.color} stopOpacity={0.5} />
-                        <stop offset='100%' stopColor={token.color} stopOpacity={0.7} />
-                      </linearGradient>
-                    </g>
-                  ))}
-                </defs>
-                <CartesianGrid
-                  strokeDasharray='1 3'
-                  stroke='rgba(255, 255, 255, 0.08)'
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey='formattedDate'
-                  fontSize={10}
-                  dy={10}
-                  stroke='rgba(255, 255, 255, 0.06)'
-                  interval={Math.ceil(processedData.length / 8)}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  fontSize={10}
-                  stroke='rgba(255, 255, 255, 0.06)'
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => {
-                    const absValue = Math.abs(value)
-                    const sign = value < 0 ? '-' : ''
-                    return `${sign}$${(absValue / 1000).toFixed(0)}K`
-                  }}
-                />
-                <ChartTooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
-                          <p className='font-medium'>{label}</p>
-                          <div className='grid gap-1.5'>
-                            {payload.map((entry, index) => {
-                              const config = (
-                                chartConfig as Record<string, { label: string; color: string }>
-                              )[entry.dataKey as string]
-                              const color = config?.color || entry.color
-                              return (
+    <div className='w-full h-[350px] overflow-hidden'>
+      {!processedData.length ? (
+        <div className='flex h-64 items-center justify-center text-muted-foreground'>
+          Loading...
+        </div>
+      ) : (
+        <ChartContainer config={chartConfig} className='h-full'>
+          <ResponsiveContainer width='100%' height='100%'>
+            <BarChart
+              data={processedData}
+              margin={{
+                top: 10,
+                right: -10,
+                left: -10,
+                bottom: 5,
+              }}
+              barCategoryGap='25%'
+              barGap={6}
+              stackOffset='sign'
+            >
+              <defs>
+                {tokenInfo.map((token) => (
+                  <g key={token.symbol}>
+                    <linearGradient
+                      id={`depositGradient-${token.symbol}`}
+                      x1='0'
+                      y1='0'
+                      x2='0'
+                      y2='1'
+                    >
+                      <stop offset='0%' stopColor={token.color} stopOpacity={0.7} />
+                      <stop offset='100%' stopColor={token.color} stopOpacity={0.3} />
+                    </linearGradient>
+                    <linearGradient
+                      id={`borrowGradient-${token.symbol}`}
+                      x1='0'
+                      y1='0'
+                      x2='0'
+                      y2='1'
+                    >
+                      <stop offset='0%' stopColor={token.color} stopOpacity={0.5} />
+                      <stop offset='100%' stopColor={token.color} stopOpacity={0.7} />
+                    </linearGradient>
+                  </g>
+                ))}
+              </defs>
+              <CartesianGrid
+                strokeDasharray='1 3'
+                stroke='rgba(255, 255, 255, 0.08)'
+                vertical={false}
+              />
+              <XAxis
+                dataKey='formattedDate'
+                fontSize={10}
+                dy={10}
+                stroke='rgba(255, 255, 255, 0.06)'
+                interval={Math.ceil(processedData.length / 8)}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                fontSize={10}
+                dy={10}
+                stroke='rgba(255, 255, 255, 0.06)'
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={formatCompactCurrency}
+              />
+              <ChartTooltip
+                content={({ active, payload, label }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
+                        <p className='font-medium'>{label}</p>
+                        <div className='grid gap-1.5'>
+                          {payload.map((entry, index) => {
+                            const config = (
+                              chartConfig as Record<string, { label: string; color: string }>
+                            )[entry.dataKey as string]
+                            const color = config?.color || entry.color
+                            return (
+                              <div
+                                key={index}
+                                className='flex w-full flex-wrap items-stretch gap-2'
+                              >
                                 <div
-                                  key={index}
-                                  className='flex w-full flex-wrap items-stretch gap-2'
-                                >
-                                  <div
-                                    className='w-1 h-2.5 rounded-[2px] shrink-0'
-                                    style={{ backgroundColor: color }}
-                                  />
-                                  <div className='flex flex-1 justify-between leading-none gap-4 items-center'>
-                                    <span className='text-muted-foreground'>
-                                      {config?.label || entry.dataKey}
-                                    </span>
-                                    <span className='font-medium tabular-nums text-foreground'>
-                                      {entry.value && typeof entry.value === 'number'
-                                        ? `$ ${entry.value.toLocaleString()}`
-                                        : entry.value}
-                                    </span>
-                                  </div>
+                                  className='w-1 h-2.5 rounded-[2px] shrink-0'
+                                  style={{ backgroundColor: color }}
+                                />
+                                <div className='flex flex-1 justify-between leading-none gap-4 items-center'>
+                                  <span className='text-muted-foreground'>
+                                    {config?.label || entry.dataKey}
+                                  </span>
+                                  <span className='font-medium tabular-nums text-foreground'>
+                                    {entry.value && typeof entry.value === 'number'
+                                      ? `$ ${entry.value.toLocaleString()}`
+                                      : entry.value}
+                                  </span>
                                 </div>
-                              )
-                            })}
-                          </div>
+                              </div>
+                            )
+                          })}
                         </div>
-                      )
-                    }
-                    return null
-                  }}
-                  cursor={{
-                    opacity: 0.2,
-                    stroke: 'rgba(255, 255, 255, 0.2)',
-                    strokeWidth: 1,
-                  }}
-                />
-                {renderBars()}
+                      </div>
+                    )
+                  }
+                  return null
+                }}
+                cursor={{
+                  opacity: 0.2,
+                  stroke: 'rgba(255, 255, 255, 0.2)',
+                  strokeWidth: 1,
+                }}
+              />
+              {renderBars()}
 
-                <ReferenceLine y={0} stroke='rgba(255, 255, 255, 0.2)' strokeWidth={1} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        )}
-      </div>
+              <ReferenceLine y={0} stroke='rgba(255, 255, 255, 0.2)' strokeWidth={1} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      )}
 
       {/* Chart Legend */}
       <div className='mt-4 flex flex-wrap gap-4 justify-center'>
@@ -387,6 +385,6 @@ export default function AllMarketsBarChart() {
           </div>
         ))}
       </div>
-    </ChartWrapper>
+    </div>
   )
 }

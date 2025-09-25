@@ -6,7 +6,7 @@ import AreaChartComponent from '@/components/charts/AreaChartComponent'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
-import { formatCurrency } from '@/utils/format'
+import { formatCompactCurrency } from '@/utils/format'
 
 interface TokenPriceLineChartProps {
   selectedToken: TokenInfo
@@ -47,11 +47,8 @@ export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineCha
       <AreaChartComponent
         data={chartData}
         areas={areas}
-        title={`${selectedToken.symbol} Price (USD)`}
-        onTimeRangeChange={setTimeRange}
-        yAxisFormatter={formatCurrency(0)}
+        yAxisFormatter={formatCompactCurrency}
         yAxisDomain={['dataMin - 100', 'dataMax + 100']}
-        xAxisInterval={timeRange === '7' ? 0 : 'preserveStartEnd'}
         tooltipType='currency'
       />
     </ChartWrapper>

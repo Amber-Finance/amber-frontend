@@ -13,11 +13,8 @@ interface AreaData {
 interface AreaChartComponentProps {
   data: any[]
   areas: AreaData[]
-  title: string
-  onTimeRangeChange: (timeRange: string) => void
   yAxisFormatter?: (value: number) => string
   yAxisDomain?: [string, string]
-  xAxisInterval?: number | 'preserveStartEnd'
   tooltipType?: 'currency' | 'percentage'
   className?: string
 }
@@ -25,11 +22,8 @@ interface AreaChartComponentProps {
 export default function AreaChartComponent({
   data,
   areas,
-  title,
-  onTimeRangeChange,
   yAxisFormatter,
   yAxisDomain,
-  xAxisInterval,
   tooltipType = 'currency',
   className = 'h-[350px] w-full',
 }: AreaChartComponentProps) {
@@ -45,64 +39,72 @@ export default function AreaChartComponent({
   )
 
   return (
-    <ChartContainer config={chartConfig} className={className}>
-      <AreaChart data={data} margin={{ top: 10, right: 20, left: -20, bottom: 10 }}>
-        <defs>
-          {areas.map((area) => (
-            <linearGradient
-              key={`${area.dataKey}Gradient`}
-              id={`${area.dataKey}Gradient`}
-              x1='0'
-              y1='0'
-              x2='0'
-              y2='1'
-            >
-              <stop offset='5%' stopColor={area.color} stopOpacity={0.3} />
-              <stop offset='95%' stopColor={area.color} stopOpacity={0} />
-            </linearGradient>
-          ))}
-        </defs>
-        <XAxis
-          dataKey='formattedDate'
-          axisLine={true}
-          tickLine={false}
-          fontSize={10}
-          dy={10}
-          stroke='rgba(255, 255, 255, 0.06)'
-          interval={xAxisInterval || Math.ceil(data.length / 8)}
-        />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          fontSize={10}
-          dy={10}
-          stroke='rgba(255, 255, 255, 0.06)'
-          interval='preserveStartEnd'
-          domain={yAxisDomain}
-          tickFormatter={yAxisFormatter}
-        />
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              indicator='line'
-              isCurrency={tooltipType === 'currency'}
-              isPercentage={tooltipType === 'percentage'}
+    <div className={className}>
+      {!data.length ? (
+        <div className='flex h-64 items-center justify-center text-muted-foreground'>
+          Loading...
+        </div>
+      ) : (
+        <ChartContainer config={chartConfig} className='h-full'>
+          <AreaChart data={data} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
+            <defs>
+              {areas.map((area) => (
+                <linearGradient
+                  key={`${area.dataKey}Gradient`}
+                  id={`${area.dataKey}Gradient`}
+                  x1='0'
+                  y1='0'
+                  x2='0'
+                  y2='1'
+                >
+                  <stop offset='5%' stopColor={area.color} stopOpacity={0.3} />
+                  <stop offset='95%' stopColor={area.color} stopOpacity={0} />
+                </linearGradient>
+              ))}
+            </defs>
+            <XAxis
+              dataKey='formattedDate'
+              axisLine={true}
+              tickLine={false}
+              fontSize={10}
+              dy={10}
+              stroke='rgba(255, 255, 255, 0.06)'
+              interval={Math.ceil(data.length / 8)}
             />
-          }
-        />
-        {areas.map((area) => (
-          <Area
-            key={area.dataKey}
-            type='monotone'
-            dataKey={area.dataKey}
-            stroke={area.color}
-            fill={`url(#${area.dataKey}Gradient)`}
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: area.color }}
-          />
-        ))}
-      </AreaChart>
-    </ChartContainer>
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              fontSize={10}
+              dy={10}
+              stroke='rgba(255, 255, 255, 0.06)'
+              interval='preserveStartEnd'
+              domain={yAxisDomain}
+              tickFormatter={yAxisFormatter}
+            />
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  indicator='line'
+                  isCurrency={tooltipType === 'currency'}
+                  isPercentage={tooltipType === 'percentage'}
+                />
+              }
+            />
+            {areas.map((area) => (
+              <Area
+                key={area.dataKey}
+                type='monotone'
+                dataKey={area.dataKey}
+                stroke={area.color}
+                fill={`url(#${area.dataKey}Gradient)`}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, fill: area.color }}
+              />
+            ))}
+          </AreaChart>
+        </ChartContainer>
+      )}
+    </div>
   )
 }

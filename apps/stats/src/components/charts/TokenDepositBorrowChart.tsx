@@ -82,15 +82,8 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
       <AreaChartComponent
         data={chartData}
         areas={areas}
-        title={
-          isMaxBtc
-            ? `${selectedToken.symbol} Deposits`
-            : `${selectedToken.symbol} Deposits & Borrows`
-        }
-        onTimeRangeChange={setTimeRange}
         yAxisFormatter={formatCompactCurrency}
         yAxisDomain={['dataMin * 0.9', 'dataMax * 1.1']}
-        xAxisInterval={timeRange === '7' ? 0 : 'preserveStartEnd'}
         tooltipType='currency'
       />
     </ChartWrapper>

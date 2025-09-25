@@ -87,18 +87,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
       }
       onTimeRangeChange={setTimeRange}
     >
-      <AreaChartComponent
-        data={chartData}
-        areas={areas}
-        title={
-          isMaxBtc
-            ? `${selectedToken.symbol} Deposit APY`
-            : `${selectedToken.symbol} Deposit and Borrow APY`
-        }
-        onTimeRangeChange={setTimeRange}
-        xAxisInterval={Math.ceil(chartData.length / 8)}
-        tooltipType='percentage'
-      />
+      <AreaChartComponent data={chartData} areas={areas} tooltipType='percentage' />
     </ChartWrapper>
   )
 }
