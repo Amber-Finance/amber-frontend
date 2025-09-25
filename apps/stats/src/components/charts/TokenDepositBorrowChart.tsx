@@ -15,7 +15,7 @@ interface TokenDepositBorrowChartProps {
 }
 
 export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositBorrowChartProps) {
-  const [timeRange, setTimeRange] = useState('7')
+  const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
   const { data: maxBtcData } = useMaxBtcData(parseInt(timeRange))
   const isMaxBtc = selectedToken.denom === MAXBTC_DENOM

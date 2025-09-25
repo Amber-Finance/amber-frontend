@@ -13,7 +13,7 @@ interface TokenPriceLineChartProps {
 }
 
 export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineChartProps) {
-  const [timeRange, setTimeRange] = useState('7')
+  const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
 
   const chartData = useMemo(() => {
