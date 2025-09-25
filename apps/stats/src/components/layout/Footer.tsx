@@ -50,6 +50,7 @@ const footerSections = [
         title: 'Bridge',
         url: 'https://bridge.amberfi.io',
       },
+      { title: 'Statistics', url: '/' },
     ],
   },
   {

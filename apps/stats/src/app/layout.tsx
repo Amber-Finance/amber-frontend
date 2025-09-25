@@ -1,15 +1,15 @@
 import { Analytics } from '@vercel/analytics/next'
+import type { Metadata } from 'next'
 
 import '@/app/globals.css'
-// import type { Metadata } from 'next'
-
+import { metadata as defaultMetadata } from '@/app/metadata'
 import { Background } from '@/components/layout/Background'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
 
-// export const metadata: Metadata = defaultMetadata
+export const metadata: Metadata = defaultMetadata
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

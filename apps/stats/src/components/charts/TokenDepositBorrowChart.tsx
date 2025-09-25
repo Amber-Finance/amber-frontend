@@ -23,12 +23,14 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
   const chartData = useMemo(() => {
     if (isMaxBtc) {
       // Use the new maxBTC data hook
-      return maxBtcData.map((item) => ({
-        date: item.timestamp,
-        formattedDate: formatChartDate(item.timestamp),
-        depositAmount: item.depositAmountUsd,
-        borrowAmount: 0, // maxBTC has no borrows
-      }))
+      return maxBtcData
+        .map((item) => ({
+          date: item.timestamp,
+          formattedDate: formatChartDate(item.timestamp),
+          depositAmount: item.depositAmountUsd,
+          borrowAmount: 0, // maxBTC has no borrows
+        }))
+        .reverse()
     }
 
     // Handle regular tokens

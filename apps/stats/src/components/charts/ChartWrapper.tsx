@@ -33,7 +33,7 @@ export default function ChartWrapper({
   children,
   className = '',
   onTimeRangeChange,
-  defaultTimeRange = '7',
+  defaultTimeRange = '30',
   showTimeRangeSelector = true,
   tabs,
   activeTab,
@@ -47,7 +47,7 @@ export default function ChartWrapper({
   }
 
   return (
-    <Card className={cn('bg-card/20 w-full', className)}>
+    <Card className={cn('bg-background w-full', className)}>
       <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
         <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1'>
           {tabs && tabs.length > 0 ? (

@@ -47,6 +47,7 @@ const footerSections = [
         url: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
       },
       { title: 'Bridge', url: '/' },
+      { title: 'Statistics', url: 'https://stats.amberfi.io' },
     ],
   },
   {
