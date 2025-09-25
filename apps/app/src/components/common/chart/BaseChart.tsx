@@ -50,16 +50,11 @@ export function BaseChart({
   }
 
   return (
-    <Card className='bg-card pt-0 w-full min-w-0'>
-      <CardHeader className='flex items-center gap-2 space-y-0 border-b border-border/40 py-5 sm:flex-row'>
-        <div className='grid flex-1 gap-1'>
-          <CardTitle className='text-sm font-bold text-foreground'>{title}</CardTitle>
-        </div>
+    <Card className='bg-card/20 pt-0 w-full min-w-0'>
+      <CardHeader className='flex items-center border-b border-border/40 pt-6'>
+        <CardTitle className='text-sm font-bold text-foreground'>{title}</CardTitle>
         <Select value={timeRange} onValueChange={onTimeRangeChange}>
-          <SelectTrigger
-            className='hidden w-[160px] rounded-lg sm:ml-auto sm:flex'
-            aria-label='Select a value'
-          >
+          <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
             <SelectValue placeholder='Last 7 days' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>

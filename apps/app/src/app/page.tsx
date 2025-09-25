@@ -2,17 +2,34 @@
 
 import { useMemo } from 'react'
 
+import { BigNumber } from 'bignumber.js'
+
 import DepositCard from '@/components/deposit/DepositCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { useLstMarkets, useMarkets } from '@/hooks'
+import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import type { LstMarketData } from '@/hooks/useLstMarkets'
 import useUserPositions from '@/hooks/useUserPositions'
+
+const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl) => {
+  if (!redBankAssetsTvl?.assets || redBankAssetsTvl.assets.length === 0) {
+    return 0
+  }
+
+  return redBankAssetsTvl.assets
+    .reduce((total, asset) => {
+      const assetTvl = new BigNumber(asset.tvl).shiftedBy(-6)
+      return total.plus(assetTvl)
+    }, new BigNumber(0))
+    .toNumber()
+}
 
 export default function Home() {
   useMarkets()
   useUserPositions()
   const { data: lstMarkets, isLoading } = useLstMarkets()
+  const { data: redBankAssetsTvl } = useAssetsTvl()
 
   const sortedMarkets = useMemo((): LstMarketData[] => {
     if (!lstMarkets) return []
@@ -30,6 +47,8 @@ export default function Home() {
     })
   }, [lstMarkets])
 
+  const totalValueLocked = useMemo(() => calculateTotalTvl(redBankAssetsTvl), [redBankAssetsTvl])
+
   return (
     <>
       <Hero
@@ -38,7 +57,7 @@ export default function Home() {
         description='Bridge your Bitcoin Liquid Staking Tokens and earn maximum yield. Deposit supported assets to earn real yield.'
         stats={[
           {
-            value: sortedMarkets.reduce((sum, m) => sum + m.metrics.collateralTotalUsd, 0),
+            value: totalValueLocked,
             label: 'Total Value Locked',
             isCurrency: true,
             prefix: '$',

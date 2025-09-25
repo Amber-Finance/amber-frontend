@@ -12,6 +12,7 @@ import { useStore } from '@/store/useStore'
 const createInitialMarkets = (
   paramsData: AssetParamsResponse,
   tokensData: TokenInfo[],
+  existingMarkets?: Market[] | null,
 ): Market[] => {
   // First filter params to only include deposit-enabled assets
   // Convert to proper Market objects and filter out nulls
@@ -89,8 +90,9 @@ const createInitialMarkets = (
           },
         }
 
-        // Add price data directly from the token API
-        const price: PriceData = {
+        // Preserve existing price if available, otherwise default to '0'
+        const existingMarket = existingMarkets?.find((m) => m.asset.denom === param.denom)
+        const price: PriceData = existingMarket?.price || {
           denom: param.denom,
           price: '0',
         }
@@ -187,8 +189,8 @@ export const useMarkets = () => {
   }>('allMarketData', fetchAllMarketData, {
     onSuccess: (data) => {
       if (data?.paramsData?.data && data?.marketsData?.data) {
-        // Create initial markets
-        const initialMarkets = createInitialMarkets(data.paramsData, tokens)
+        // Create initial markets, preserving existing prices
+        const initialMarkets = createInitialMarkets(data.paramsData, tokens, markets)
 
         // Set the markets in the store
         setMarkets(initialMarkets)

@@ -1113,3 +1113,13 @@ interface YAxisConfig {
   orientation: 'left' | 'right'
   tickFormatter: (value: any) => string
 }
+
+interface TvlAsset {
+  denom: string
+  tvl: string
+  tvl_share: number
+}
+
+interface RedBankAssetsTvl {
+  assets: TvlAsset[]
+}
