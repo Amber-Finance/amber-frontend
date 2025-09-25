@@ -31,7 +31,7 @@ export default function useMaxBtcData(timeRange: number = 7) {
         let btcPriceUsd = 0
         if (marketsData?.data) {
           const depositDate = new Date(parseInt(timestamp)).toDateString()
-          const marketData = marketsData.data.find((item: any) => {
+          const marketData = marketsData.data.find((item: DailyMarketData) => {
             const marketDate = new Date(parseInt(item.timestamp)).toDateString()
             return marketDate === depositDate
           })

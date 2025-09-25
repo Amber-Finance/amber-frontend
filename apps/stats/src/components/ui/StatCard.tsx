@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
-import { formatLargeCurrency, formatLargeNumber, formatNumber } from '@/utils/format'
+import { formatNumber } from '@/utils/format'
 
 interface StatCardProps {
   value: number
