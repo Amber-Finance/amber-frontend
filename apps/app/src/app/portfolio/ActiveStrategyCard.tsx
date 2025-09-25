@@ -150,24 +150,24 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
     <Card className='group relative overflow-hidden bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
       {/* Card Header */}
       <CardHeader className='relative z-20'>
-        <div className='flex items-center justify-between mb-4'>
-          <div className='flex items-center gap-4'>
+        <div className='flex items-center justify-between mb-3'>
+          <div className='flex items-center gap-3'>
             <div className='relative'>
-              <div className='relative w-16 h-16'>
+              <div className='relative w-12 h-12'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
                   fill
-                  sizes='64px'
+                  sizes='48px'
                   className='w-full h-full object-contain'
                 />
               </div>
-              <div className='absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full border shadow-sm p-1 bg-background'>
+              <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full border shadow-sm p-0.5 bg-background'>
                 <Image
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
                   fill
-                  sizes='32px'
+                  sizes='24px'
                   className=' w-full h-full'
                   unoptimized={true}
                 />
@@ -186,13 +186,13 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
       </CardHeader>
 
       {/* Main APY Display */}
-      <CardContent className='relative space-y-6'>
-        <div className='text-center py-4'>
-          <div className='text-6xl font-funnel font-bold text-foreground mb-2'>
+      <CardContent className='relative space-y-4'>
+        <div className='text-center py-3'>
+          <div className='text-4xl sm:text-5xl font-funnel font-bold text-foreground mb-1'>
             {!strategy.isPositive ? '-' : ''}
             {Math.abs(strategy.netApy).toFixed(2)}
             <span
-              className={`text-3xl`}
+              className={`text-xl sm:text-2xl`}
               style={{ color: (strategy.debtAsset as any)?.brandColor || '#F97316' }}
             >
               %
@@ -213,15 +213,15 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
         </div>
 
         {/* Strategy Metrics */}
-        <div className='grid grid-cols-2 gap-4 pt-3 border-t border-border/20'>
-          <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+        <div className='grid grid-cols-2 gap-3 pt-3 border-t border-border/20'>
+          <div className='bg-secondary/20 rounded-lg p-2.5 text-center border border-border/40'>
             <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>Leverage</p>
             <p className={`font-semibold text-sm ${getLeverageColor(strategy.leverage)}`}>
               {strategy.leverage.toFixed(2)}x
               {strategy.leverage > 11 && <span className='ml-1 text-xs'>⚠️</span>}
             </p>
           </div>
-          <div className='bg-secondary/20 rounded-lg p-3 text-center border border-border/40'>
+          <div className='bg-secondary/20 rounded-lg p-2.5 text-center border border-border/40'>
             <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
               Unrealized P&L
             </p>
@@ -235,7 +235,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
         </div>
 
         {/* Position Details */}
-        <div className='space-y-3 pt-4 border-t border-border/20'>
+        <div className='space-y-3 pt-3 border-t border-border/20'>
           <div className='flex justify-between items-center'>
             <span className='text-muted-foreground text-sm'>Position Value</span>
             <span className='text-foreground font-medium'>{formatUsdValue(positionValue)}</span>
@@ -289,7 +289,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
         </div>
 
         {/* Action Button */}
-        <div className='flex pt-4'>
+        <div className='flex pt-3'>
           <Button
             variant='default'
             size='sm'

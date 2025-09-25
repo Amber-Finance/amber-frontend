@@ -113,24 +113,24 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
       />
 
       <CardHeader className='relative z-20'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3'>
           <div className='flex items-center gap-4'>
             <div className='relative'>
-              <div className='relative w-12 h-12 sm:w-16 sm:h-16'>
+              <div className='relative w-10 h-10 sm:w-12 sm:h-12'>
                 <Image
                   src={strategy.collateralAsset.icon}
                   alt={strategy.collateralAsset.symbol}
                   fill
-                  sizes='(max-width: 640px) 48px, 64px'
+                  sizes='(max-width: 640px) 40px, 48px'
                   className='w-full h-full object-contain'
                 />
               </div>
-              <div className='absolute -bottom-0.5 -right-0.5 w-6 h-6 sm:w-8 sm:h-8 rounded-full border shadow-sm p-1 bg-background'>
+              <div className='absolute -bottom-0.5 -right-0.5 w-5 h-5 sm:w-6 sm:h-6 rounded-full border shadow-sm p-0.5 bg-background'>
                 <Image
                   src={strategy.debtAsset.icon}
                   alt={strategy.debtAsset.symbol}
                   fill
-                  sizes='(max-width: 640px) 24px, 32px'
+                  sizes='(max-width: 640px) 20px, 24px'
                   className=' w-full h-full'
                   unoptimized={true}
                 />
@@ -161,15 +161,15 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
         )}
         <CardContent
-          className={cn('relative space-y-4 z-20 flex-1 flex flex-col', isComingSoon && 'blur-sm')}
+          className={cn('relative space-y-3 z-20 flex-1 flex flex-col', isComingSoon && 'blur-sm')}
         >
           {/* Main APY Display */}
           <div className='text-center'>
-            <div className='text-6xl font-funnel font-bold text-foreground mb-2'>
+            <div className='text-4xl sm:text-5xl font-funnel font-bold text-foreground mb-1'>
               {netApy < 0 ? '-' : ''}
               {Math.abs(maxAPY * 100).toFixed(2)}
               <span
-                className={`text-2xl`}
+                className={`text-xl sm:text-2xl`}
                 style={{ color: strategy.debtAsset?.brandColor || '#F97316' }}
               >
                 %
@@ -181,8 +181,8 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           {/* Strategy Metrics */}
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
-            <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
+            <div className='bg-secondary/50 rounded-lg p-2.5 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Base APY
               </p>
@@ -193,7 +193,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 {Math.abs(netApy * 100).toFixed(2)}%
               </p>
             </div>
-            <div className='bg-secondary/50 rounded-lg p-3 text-center border border-border/40'>
+            <div className='bg-secondary/50 rounded-lg p-2.5 text-center border border-border/40'>
               <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>
                 Max Leverage
               </p>
@@ -207,7 +207,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           </div>
 
           {/* Earning Points Section */}
-          <div className='pt-3'>
+          <div className='pt-2'>
             <EarningPointsRow
               assetSymbol={strategy.debtAsset.symbol}
               variant='full'
@@ -227,8 +227,8 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                   <Image
                     src={strategy.debtAsset.icon}
                     alt={strategy.debtAsset.symbol}
-                    width={32}
-                    height={32}
+                    width={24}
+                    height={24}
                     unoptimized={true}
                   />
                   <span className='text-sm font-medium text-foreground'>
@@ -254,9 +254,9 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 <span className='text-sm font-semibold text-foreground'>Active Position</span>
               </div>
 
-              <div className='grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6'>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4'>
                 {/* Supply (Collateral-Borrowed) and in usd value */}
-                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
+                <div className='bg-secondary/50 rounded-lg p-2.5 border border-border/40'>
                   <div className='flex flex-col items-center justify-between'>
                     <span className='text-xs font-medium text-muted-foreground'>SUPPLY</span>
                     <div className='text-center'>
@@ -268,7 +268,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 </div>
 
                 {/* Leverage */}
-                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
+                <div className='bg-secondary/50 rounded-lg p-2.5 border border-border/40'>
                   <div className='flex flex-col   items-center justify-between'>
                     <span className='text-xs font-medium text-muted-foreground'>LEVERAGE</span>
                     <div className='text-center'>
@@ -280,7 +280,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 </div>
 
                 {/* Net APY */}
-                <div className='bg-secondary/50 rounded-lg p-3 border border-border/40'>
+                <div className='bg-secondary/50 rounded-lg p-2.5 border border-border/40'>
                   <div className='flex flex-col items-center justify-between'>
                     <span className='text-xs font-medium text-muted-foreground'>APY</span>
                     <div className='text-center'>
@@ -341,7 +341,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           <div className='flex-1' />
         </CardContent>
       </div>
-      <CardFooter className='relative z-20 pt-3 h-full flex flex-col justify-end'>
+      <CardFooter className='relative z-20 pt-2 h-full flex flex-col justify-end'>
         {!isWalletConnected && (
           <Button
             onClick={isComingSoon ? undefined : connect}
