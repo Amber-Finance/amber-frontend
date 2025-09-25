@@ -30,7 +30,7 @@ export default function FlipCard({ title, subtitle, value, backContent }: Props)
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
       >
-        <Card className='bg-secondary/20'>
+        <Card className='bg-background'>
           <CardContent className='p-4 text-center'>
             <div className='text-muted-foreground text-xs uppercase tracking-wider mb-2'>
               {title}

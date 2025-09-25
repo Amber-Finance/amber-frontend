@@ -15,55 +15,26 @@ import TokenPriceLineChart from '@/components/charts/TokenPriceLineChart'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
+import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValueLegacy } from '@/utils/format'
 
-const calculateMarketTotals = (markets: Market[] | null) => {
-  if (!markets || markets.length === 0) {
-    return {
-      totalSupplyUsd: 0,
-      totalBorrowUsd: 0,
-    }
+const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl | null) => {
+  if (!redBankAssetsTvl?.assets || redBankAssetsTvl.assets.length === 0) {
+    return 0
   }
-
-  let totalSupplyUsd = new BigNumber(0)
-  let totalBorrowUsd = new BigNumber(0)
-
-  markets.forEach((market) => {
-    // Skip markets without required data
-    if (!market.price?.price || !market.metrics) return
-
-    // Calculate total supply (collateral) in USD
-    if (market.metrics.collateral_total_amount) {
-      const supplyUsd = calculateUsdValueLegacy(
-        market.metrics.collateral_total_amount,
-        market.price.price,
-        market.asset.decimals,
-      )
-      totalSupplyUsd = totalSupplyUsd.plus(supplyUsd)
-    }
-
-    // Calculate total borrows (debt) in USD
-    if (market.metrics.debt_total_amount) {
-      const borrowUsd = calculateUsdValueLegacy(
-        market.metrics.debt_total_amount,
-        market.price.price,
-        market.asset.decimals,
-      )
-      totalBorrowUsd = totalBorrowUsd.plus(borrowUsd)
-    }
-  })
-
-  return {
-    totalSupplyUsd: totalSupplyUsd.toNumber(),
-    totalBorrowUsd: totalBorrowUsd.toNumber(),
-  }
+  return redBankAssetsTvl.assets
+    .reduce((total, asset) => {
+      const assetTvl = new BigNumber(asset.tvl).shiftedBy(-6)
+      return total.plus(assetTvl)
+    }, new BigNumber(0))
+    .toNumber()
 }
 
 export default function Home() {
   useMarkets()
   const { markets } = useStore()
+  const { data: redBankAssetsTvl } = useAssetsTvl()
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -77,7 +48,7 @@ export default function Home() {
     router.replace(`?${params.toString()}`, { scroll: false })
   }
 
-  const marketTotals = useMemo(() => calculateMarketTotals(markets), [markets])
+  const totalValueLocked = useMemo(() => calculateTotalTvl(redBankAssetsTvl), [redBankAssetsTvl])
 
   return (
     <div className='space-y-8'>
@@ -87,14 +58,8 @@ export default function Home() {
         description='Analytics and monitoring dashboard of Amber Finance.'
         stats={[
           {
-            value: marketTotals.totalBorrowUsd,
-            label: 'Total Borrow',
-            isCurrency: true,
-            prefix: '$ ',
-          },
-          {
-            value: marketTotals.totalSupplyUsd,
-            label: 'Total Supply',
+            value: totalValueLocked,
+            label: 'Total Value Locked',
             isCurrency: true,
             prefix: '$ ',
           },

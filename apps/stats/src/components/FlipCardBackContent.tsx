@@ -121,7 +121,7 @@ export default function FlipCardBackContent({
 
   if (distributionData.length === 0) {
     return (
-      <Card className='bg-secondary/20 w-full h-full'>
+      <Card className='bg-background w-full h-full'>
         <CardContent className='p-2 h-full flex items-center justify-center'>
           <div className='text-muted-foreground text-xs text-center'>
             {markets ? `No ${type} data available` : 'Loading...'}
@@ -132,7 +132,7 @@ export default function FlipCardBackContent({
   }
 
   return (
-    <Card className='bg-secondary/20 w-full h-full'>
+    <Card className='bg-background w-full h-full'>
       <CardContent className='p-10 h-full flex flex-col justify-center'>
         <div className='space-y-1'>
           {distributionData.slice(0, 5).map((item: DistributionItem) => (
