@@ -14,7 +14,7 @@ export async function fetchWithTimeout(url: string, timeout: number) {
 
     clearTimeout(id)
     return response
-  } catch (error) {
+  } catch {
     clearTimeout(id)
     return new Response(null, {
       status: 408,

@@ -31,9 +31,6 @@ declare global {
 const chainNames = [chainConfig.name]
 const chainAssets = assetLists.filter((asset) => asset.chainName === chainConfig.name)
 
-// Regex for wallet name extraction
-const WALLET_NAME_REGEX = /(Leap|Cosmostation|XDEFI|OKX|Vectis|Keplr)/i
-
 // Combine all wallets (like before)
 const wallets = [
   ...keplrWallets,
@@ -62,29 +59,46 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     if (!isClient) return
 
-    // Override console.error to handle wallet initialization errors gracefully
-    const originalError = console.error
-
     console.error = (...args) => {
       // Convert arguments to string for analysis
       const message = args
         .map((arg) => (typeof arg === 'string' ? arg : JSON.stringify(arg)))
         .join(' ')
 
-      // Only handle specific wallet client initialization errors
-      if (message.includes('initClientError: Client Not Exist!')) {
+      // Suppress specific wallet initialization errors
+      if (
+        message.includes('initClientError: Client Not Exist!') ||
+        message.includes('initClientError: `projectId` is not provided') ||
+        message.includes('walletconnectOptions') ||
+        (message.includes('dummy-project-id') && message.includes('WalletConnect'))
+      ) {
         return
       }
 
       // Log all other errors normally (including WalletConnect core logs)
-      originalError(...args)
+      console.warn(...args)
     }
 
     // Cleanup function to restore original console methods
     return () => {
-      console.error = originalError
+      console.error = console.warn
     }
   }, [isClient])
+
+  // Always provide walletConnectOptions but handle missing project ID gracefully
+  const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+  const walletConnectOptions = {
+    signClient: {
+      projectId: walletConnectProjectId || 'dummy-project-id',
+      relayUrl: 'wss://relay.walletconnect.org',
+      metadata: {
+        name: 'Amber Finance',
+        description: 'Amber Finance - powered by Mars Protocol',
+        url: 'https://app.amberfi.io',
+        icons: ['https://app.amberfi.io/favicon-96x96.png'],
+      },
+    },
+  }
 
   return (
     <ChainProvider
@@ -92,18 +106,7 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       assetLists={chainAssets as any}
       wallets={availableWallets as any}
       throwErrors={false}
-      walletConnectOptions={{
-        signClient: {
-          projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
-          relayUrl: 'wss://relay.walletconnect.org',
-          metadata: {
-            name: 'Amber Finance',
-            description: 'Amber Finance - powered by Mars Protocol',
-            url: 'https://app.amberfi.io',
-            icons: ['https://app.amberfi.io/favicon-96x96.png'],
-          },
-        },
-      }}
+      walletConnectOptions={walletConnectOptions}
       signerOptions={{
         signingCosmwasm: () => {
           return {

@@ -35,7 +35,7 @@ export function MarketInfoCard({
 
           <div className='space-y-1 text-xs'>
             <div className='flex justify-between items-center'>
-              <span className='text-muted-foreground'>Supply APY</span>
+              <span className='text-muted-foreground'>Underlying Staking APY</span>
               <span className='font-medium text-accent-foreground'>{displayValues.supplyApy}</span>
             </div>
           </div>

@@ -4,8 +4,9 @@ import { calculateUsdValueLegacy, formatLargeCurrency } from '@/utils/format'
 import { pipe, safeParseNumber } from '@/utils/functional'
 
 // Pure functions for strategy calculations
+// Calculate base net APY at 2x leverage (2x supply income - 1x borrow cost)
 export const calculateBaseNetApy = (supplyApy: number, borrowApy: number): number =>
-  supplyApy - borrowApy
+  supplyApy * 2 - borrowApy * 1
 
 export const calculateMaxLeverage = (maxLTV: number): number => {
   if (maxLTV <= 0 || maxLTV >= 1) return 1
@@ -16,8 +17,8 @@ export const calculateMaxLeverage = (maxLTV: number): number => {
 
 // Removed: calculateCappedMaxLeverage - now using pure 1/(1-LTV) calculation without caps
 
-export const calculateBorrowCapacity = (totalCollateral: string, totalDebt: string): BigNumber =>
-  BigNumber.max(0, new BigNumber(totalCollateral).minus(totalDebt))
+export const calculateBorrowCapacity = (totalCollateral: string): BigNumber =>
+  BigNumber.max(0, new BigNumber(totalCollateral))
 
 export const calculateBorrowCapacityUsd = (
   borrowCapacity: BigNumber,
@@ -142,13 +143,9 @@ export const createStrategyGenerator =
 
     const metrics = calculateStrategyMetrics(market, maxBtcSupplyApy, maxLTV, liquidationThreshold)
 
-    // Calculate borrow capacity
+    // Calculate borrow capacity - max borrow equals total supplied amount
     const totalCollateral = new BigNumber(market.metrics.collateral_total_amount || '0')
-    const totalDebt = new BigNumber(market.metrics.debt_total_amount || '0')
-    const availableBorrowCapacity = calculateBorrowCapacity(
-      totalCollateral.toString(),
-      totalDebt.toString(),
-    )
+    const availableBorrowCapacity = calculateBorrowCapacity(totalCollateral.toString())
 
     const borrowCapacityUsd = calculateBorrowCapacityUsd(
       availableBorrowCapacity,

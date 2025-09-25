@@ -1,3 +1,21 @@
+/**
+ * Transaction Broadcasting Module
+ *
+ * This module handles two distinct types of blockchain operations:
+ *
+ * 1. RED BANK OPERATIONS (Simple lending pool interactions)
+ *    - Direct deposits/withdrawals to/from Mars Red Bank lending pools
+ *    - Simple borrow/repay operations
+ *    - Uses RedBank contract address
+ *    - Message structure follows MarsRedBank.types.ts
+ *
+ * 2. STRATEGY OPERATIONS (Complex credit account interactions)
+ *    - Multi-step leveraged strategy deployments
+ *    - Credit account management (deploy, manage, modify leverage)
+ *    - Uses Credit Manager contract address
+ *    - Message structure follows MarsCreditManager.types.ts
+ *    - Involves borrowing, swapping, and complex position management
+ */
 import { SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
 import { GasPrice } from '@cosmjs/stargate'
 import { useChain } from '@cosmos-kit/react'
@@ -9,6 +27,7 @@ import { mutate } from 'swr'
 import chainConfig from '@/config/chain'
 import type { Action } from '@/types/generated/mars-credit-manager/MarsCreditManager.types'
 import { track } from '@/utils/analytics'
+import { getErrorSeverity, parseErrorMessage } from '@/utils/errorParsing'
 import { getMinAmountOutFromRouteInfo } from '@/utils/swap'
 
 const formatAmount = (amount: number, decimals: number): string => {
@@ -33,8 +52,8 @@ const createSwapAction = (config: {
 
   return createAction('swap_exact_in', {
     coin_in: {
+      amount: { exact: config.coinIn.amount.toString() },
       denom: config.coinIn.denom,
-      amount: { exact: config.coinIn.amount },
     },
     denom_out: config.denomOut,
     min_receive: minReceive,
@@ -43,18 +62,17 @@ const createSwapAction = (config: {
 }
 
 const createDepositAction = (denom: string, amount: string) =>
-  createAction('deposit', { denom, amount })
+  createAction('deposit', { amount, denom })
 
 const createBorrowAction = (denom: string, amount: string) =>
-  createAction('borrow', { denom, amount })
+  createAction('borrow', { amount, denom })
 
-const createRepayAction = (accountId: string, denom: string) =>
+const createRepayAction = (denom: string) =>
   createAction('repay', {
     coin: {
       denom: denom,
       amount: 'account_balance',
     },
-    recipient_account_id: accountId,
   })
 
 const createRefundAction = () => createAction('refund_all_coin_balances', {})
@@ -85,25 +103,57 @@ const buildManageActions = (config: ManageStrategyConfig) => {
       slippage: config.swap.slippage || '0.5',
       routeInfo: config.swap.routeInfo,
     }),
-    createRepayAction(config.accountId, config.debt.denom),
+    createRepayAction(config.debt.denom),
     createRefundAction(),
   ]
 }
 
+const buildModifyLeverageActions = (config: ModifyLeverageConfig) => {
+  if (config.actionType === 'increase') {
+    // Increase leverage: borrow more debt, swap to collateral, deposit
+    const formattedDebt = formatAmount(config.debt.amount, config.debt.decimals)
+
+    return [
+      createBorrowAction(config.debt.denom, formattedDebt),
+      createSwapAction({
+        coinIn: { denom: config.debt.denom, amount: formattedDebt },
+        denomOut: config.collateral.denom,
+        slippage: config.swap.slippage || '0.5',
+        routeInfo: config.swap.routeInfo,
+      }),
+      // The swapped collateral will automatically be deposited as lent position
+    ]
+  } else {
+    // Decrease leverage: swap collateral to debt, repay debt
+    // No withdrawal needed - the swap and repay achieve the desired leverage reduction
+    // Use the collateral amount from reverse routing (already calculated precisely)
+    const formattedCollateral = formatAmount(config.collateral.amount, config.collateral.decimals)
+
+    return [
+      createSwapAction({
+        coinIn: { denom: config.collateral.denom, amount: formattedCollateral },
+        denomOut: config.debt.denom,
+        slippage: config.swap.slippage || '0.5',
+        routeInfo: config.swap.routeInfo,
+      }),
+      createRepayAction(config.debt.denom),
+    ]
+  }
+}
+
 const generateSuccessMessage = (config: TransactionConfig): string => {
   switch (config.type) {
-    case 'deploy_strategy': {
-      const action = config.strategyType === 'create' ? 'Deploying' : 'Increasing'
-      return `${action} strategy successful at ${config.multiplier.toFixed(2)}x leverage!`
-    }
-
-    case 'manage_strategy': {
-      const closure = config.actionType === 'close_full' ? 'fully closed' : 'partially closed'
-      return `Strategy ${closure} successfully! Collateral swapped back, debt repaid, and balances refunded.`
+    case 'modify_leverage': {
+      const action = config.actionType === 'increase' ? 'increased' : 'decreased'
+      return `Leverage ${action} successfully to ${config.targetLeverage.toFixed(2)}x!`
     }
 
     case 'strategy': {
       switch (config.strategyType) {
+        case 'create':
+          return `Strategy deployed successfully at ${(config as any).multiplier?.toFixed(2) || 'N/A'}x leverage!`
+        case 'increase':
+          return `Strategy leverage increased successfully to ${(config as any).multiplier?.toFixed(2) || 'N/A'}x!`
         case 'update':
           return 'Strategy withdrawal successful!'
         case 'decrease':
@@ -136,18 +186,10 @@ const generateSuccessMessage = (config: TransactionConfig): string => {
 }
 
 const generateTrackingEvent = (config: TransactionConfig): string => {
-  switch (config.type) {
-    case 'deploy_strategy':
-      return `strategy_${config.strategyType}_${config.multiplier}x`
-
-    case 'manage_strategy':
-      return `strategy_${config.actionType}`
-
-    case 'strategy':
-      return `strategy_${config.strategyType}`
-
-    default:
-      return `${config.type}_success`
+  if (config.type === 'strategy') {
+    return `strategy_${config.strategyType}`
+  } else {
+    return `${config.type}_success`
   }
 }
 
@@ -177,50 +219,14 @@ export function useBroadcast() {
     ...customMessages,
   })
 
-  const executeDeployStrategy = async (config: DeployStrategyConfig) => {
+  const executeModifyLeverage = async (config: ModifyLeverageConfig) => {
     const client = await getWalletClient()
 
-    const actions = buildDeployActions(config)
-    const funds = [
-      {
-        amount: formatAmount(config.collateral.amount, config.collateral.decimals),
-        denom: config.collateral.denom,
-      },
-    ]
+    const actions = buildModifyLeverageActions(config)
+    const funds: any[] = []
 
-    const msg = {
-      update_credit_account: {
-        account_id: config.strategyType === 'create' ? undefined : config.accountId,
-        actions,
-      },
-    }
-    console.log('executeDeployStrategy', msg)
-
-    await client.execute(
-      address!,
-      chainConfig.contracts.creditManager,
-      msg,
-      'auto',
-      undefined,
-      funds,
-    )
-
-    return {
-      successMessage: generateSuccessMessage(config),
-      trackingEvent: generateTrackingEvent(config),
-    }
-  }
-
-  const executeManageStrategy = async (config: ManageStrategyConfig) => {
-    const client = await getWalletClient()
-
-    const actions = buildManageActions(config)
-    const funds = [
-      {
-        amount: formatAmount(config.debt.amount, config.debt.decimals),
-        denom: config.debt.denom,
-      },
-    ]
+    // For increasing leverage, no funds needed (borrowing from protocol)
+    // For decreasing leverage, no funds needed (using existing collateral)
 
     const msg = {
       update_credit_account: {
@@ -228,7 +234,6 @@ export function useBroadcast() {
         actions,
       },
     }
-
     await client.execute(
       address!,
       chainConfig.contracts.creditManager,
@@ -244,17 +249,48 @@ export function useBroadcast() {
     }
   }
 
-  const executeStrategy = async (config: StrategyParams) => {
+  const executeStrategy = async (config: StrategyParams | DeployStrategyConfig) => {
     const client = await getWalletClient()
 
-    // For strategy operations, actions are provided directly
-    const actions = config.actions
-    const funds: any[] = [] // Strategy operations typically don't require funds
-
+    let actions: any[]
     let contractAddress: string
     let message: any
+    const funds: any[] = []
+
+    // Handle different config types
+    if ('actions' in config) {
+      // Standard StrategyParams with actions
+      actions = config.actions
+    } else {
+      // DeployStrategyConfig - convert to actions
+      actions = buildDeployActions(config)
+    }
 
     switch (config.strategyType) {
+      case 'create':
+        // New strategy deployment - create account and execute actions in one transaction
+        contractAddress = chainConfig.contracts.creditManager
+
+        // For deployment, we need to include the collateral as funds
+        if ('collateral' in config) {
+          const collateralAmount = formatAmount(
+            config.collateral.amount,
+            config.collateral.decimals,
+          )
+          funds.push({
+            denom: config.collateral.denom,
+            amount: collateralAmount,
+          })
+        }
+
+        message = {
+          update_credit_account: {
+            actions,
+          },
+        }
+        break
+
+      case 'increase':
       case 'update':
       case 'decrease':
         contractAddress = chainConfig.contracts.creditManager
@@ -285,7 +321,6 @@ export function useBroadcast() {
       undefined,
       funds,
     )
-    console.log('result', result)
 
     return {
       result,
@@ -320,11 +355,8 @@ export function useBroadcast() {
     const formattedAmount = formatAmount(Number(config.amount), config.decimals)
     const msg = {
       withdraw: {
-        account_id: null,
         amount: formattedAmount,
         denom: config.denom,
-        liquidation_related: null,
-        recipient: null,
       },
     }
 
@@ -405,13 +437,17 @@ export function useBroadcast() {
 
   const createExecutor = (config: TransactionConfig) => {
     const executorMap = {
-      deploy_strategy: () => executeDeployStrategy(config as DeployStrategyConfig),
-      manage_strategy: () => executeManageStrategy(config as ManageStrategyConfig),
+      // Strategy operations (Credit Manager contract)
+      modify_leverage: () => executeModifyLeverage(config as ModifyLeverageConfig),
       strategy: () => executeStrategy(config as StrategyParams),
+
+      // Red Bank operations (Red Bank contract)
       deposit: () => executeDeposit(config as DepositConfig),
       withdraw: () => executeWithdraw(config as WithdrawConfig),
       borrow: () => executeBorrow(config as BorrowConfig),
       repay: () => executeRepay(config as RepayConfig),
+
+      // Swap operations (Skip Protocol)
       swap: () => executeSwap(config as SwapTransactionConfig),
     }
 
@@ -429,9 +465,16 @@ export function useBroadcast() {
     const refreshMap: Record<string, string[]> = {
       deposit: [`${address}/positions`, `${address}/deposit/${(config as DepositConfig).denom}`],
       withdraw: [`${address}/positions`, `${address}/deposit/${(config as WithdrawConfig).denom}`],
-      deploy_strategy: [`${address}/positions`, `${address}/credit-accounts`],
-      manage_strategy: [`${address}/positions`, `${address}/credit-accounts`],
-      strategy: [`${address}/positions`, `${address}/credit-accounts`],
+      modify_leverage: [
+        `${address}/positions`,
+        `${address}/credit-accounts`,
+        `activeStrategies-${address}`,
+      ],
+      strategy: [
+        `${address}/positions`,
+        `${address}/credit-accounts`,
+        `activeStrategies-${address}`,
+      ],
     }
 
     const additionalRefreshes = refreshMap[config.type] || []
@@ -472,24 +515,36 @@ export function useBroadcast() {
       return { success: true, result }
     } catch (error) {
       console.error(`${config.type} transaction error:`, error)
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const rawErrorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+      // Parse the error into a user-friendly message
+      const userFriendlyMessage = parseErrorMessage(rawErrorMessage)
+      const errorSeverity = getErrorSeverity(rawErrorMessage)
+
+      // Determine toast type based on severity
+      const toastType = errorSeverity === 'warning' ? 'warning' : 'error'
 
       toast.update(pendingToastId, {
-        render: `${messages.error}: ${errorMessage}`,
-        type: 'error',
+        render: userFriendlyMessage,
+        type: toastType,
         isLoading: false,
-        autoClose: 4000,
+        autoClose: errorSeverity === 'warning' ? 6000 : 4000, // Longer for warnings so users can read
       })
 
-      track(`${config.type}_failed`, { error: errorMessage })
-      return { success: false, error: errorMessage }
+      // Track with both raw and parsed error for debugging
+      track(`${config.type}_failed`, {
+        rawError: rawErrorMessage,
+        parsedError: userFriendlyMessage,
+        severity: errorSeverity,
+      })
+
+      return { success: false, error: rawErrorMessage }
     }
   }
 
   return {
     executeTransaction,
-    executeDeployStrategy,
-    executeManageStrategy,
+    executeModifyLeverage,
     executeStrategy,
     executeDeposit,
     executeWithdraw,

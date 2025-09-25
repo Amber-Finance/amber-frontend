@@ -122,7 +122,6 @@ const FormattedValue: React.FC<FormattedValueProps> = ({
   if (formatData.type === 'subscript') {
     return renderSubscriptNotation(formatData, effectivePrefix, className, suffix)
   }
-  console.log(value)
   return (
     <span className={className}>
       {effectivePrefix || ''}

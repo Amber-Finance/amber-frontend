@@ -203,13 +203,14 @@ export const useMarkets = () => {
 
   // Set up a periodic refresh for just the market metrics data
   useSWR<MarketDataResponse>('metricsRefresh', () => marketsFetcher(marketsUrl), {
-    refreshInterval: 30000, // Refresh every 30 seconds
+    refreshInterval: 60000, // Refresh every minute
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     onSuccess: (data: MarketDataResponse) => {
-      // Update markets with metrics if we have both markets and market data
-      if (markets && data?.data) {
-        updateMarketsWithMetrics(markets, data, updateMarketMetrics)
+      // Always update markets with metrics when data arrives
+      if (data?.data) {
+        const currentMarkets = markets || []
+        updateMarketsWithMetrics(currentMarkets, data, updateMarketMetrics)
       }
     },
   })

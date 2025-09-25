@@ -17,20 +17,37 @@ export const convertAprToApy = (apr: string | number | BigNumber, decimals: numb
 
   // Handle different input types
   if (apr instanceof BigNumber) {
-    aprValue = apr.toNumber()
+    // Clamp BigNumber to safe JavaScript number range before conversion
+    if (apr.isGreaterThan(Number.MAX_SAFE_INTEGER)) {
+      aprValue = Number.MAX_SAFE_INTEGER
+    } else if (apr.isLessThan(-Number.MAX_SAFE_INTEGER)) {
+      aprValue = -Number.MAX_SAFE_INTEGER
+    } else if (!apr.isFinite()) {
+      aprValue = 0
+    } else {
+      aprValue = apr.toNumber()
+    }
   } else if (typeof apr === 'string') {
     aprValue = parseFloat(apr)
   } else {
     aprValue = apr
   }
 
-  // Handle invalid inputs
-  if (isNaN(aprValue) || aprValue === 0) {
+  // Handle invalid inputs and extreme values
+  if (isNaN(aprValue) || aprValue === 0 || !isFinite(aprValue)) {
     return '0'.padEnd(decimals + 2, '0')
   }
 
+  // Clamp APR to reasonable range (max 10000% APR = 100 as decimal)
+  aprValue = Math.max(-100, Math.min(100, aprValue))
+
   // Calculate APY with daily compounding (n=365)
   const apy = (Math.pow(1 + aprValue / 365, 365) - 1) * 100
+
+  // Ensure result is finite
+  if (!isFinite(apy)) {
+    return '0'.padEnd(decimals + 2, '0')
+  }
 
   return apy.toFixed(decimals)
 }
@@ -47,20 +64,37 @@ export const convertAprToApyAsBigNumber = (apr: string | number | BigNumber): Bi
 
   // Handle different input types
   if (apr instanceof BigNumber) {
-    aprValue = apr.toNumber()
+    // Clamp BigNumber to safe JavaScript number range before conversion
+    if (apr.isGreaterThan(Number.MAX_SAFE_INTEGER)) {
+      aprValue = Number.MAX_SAFE_INTEGER
+    } else if (apr.isLessThan(-Number.MAX_SAFE_INTEGER)) {
+      aprValue = -Number.MAX_SAFE_INTEGER
+    } else if (!apr.isFinite()) {
+      aprValue = 0
+    } else {
+      aprValue = apr.toNumber()
+    }
   } else if (typeof apr === 'string') {
     aprValue = parseFloat(apr)
   } else {
     aprValue = apr
   }
 
-  // Handle invalid inputs
-  if (isNaN(aprValue) || aprValue === 0) {
+  // Handle invalid inputs and extreme values
+  if (isNaN(aprValue) || aprValue === 0 || !isFinite(aprValue)) {
     return new BigNumber(0)
   }
 
+  // Clamp APR to reasonable range (max 10000% APR = 100 as decimal)
+  aprValue = Math.max(-100, Math.min(100, aprValue))
+
   // Calculate APY with daily compounding (n=365)
   const apy = Math.pow(1 + aprValue / 365, 365) - 1
+
+  // Ensure result is finite
+  if (!isFinite(apy)) {
+    return new BigNumber(0)
+  }
 
   return new BigNumber(apy)
 }

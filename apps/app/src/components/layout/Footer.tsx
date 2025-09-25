@@ -51,7 +51,7 @@ export function Footer() {
   const { resolvedTheme } = useTheme()
 
   return (
-    <footer className='mt-auto border-t backdrop-blur-md bg-background/50 border-border/50'>
+    <footer className='mt-auto border-t backdrop-blur-md bg-background/70 border-border/50'>
       {/* Main Footer Content */}
       <div className='px-8 py-12 mx-auto max-w-6xl md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
@@ -90,7 +90,7 @@ export function Footer() {
                   target='_blank'
                   rel='noopener noreferrer'
                   aria-label={icon.label}
-                  className='flex justify-center items-center w-10 h-10 rounded-md border transition-all duration-200 ease-linear border-border/50 bg-card/20 text-muted-foreground hover:text-foreground hover:border-border hover:bg-card'
+                  className='flex justify-center items-center w-10 h-10 rounded-md border transition-all duration-200 ease-linear border-border/50 bg-card text-muted-foreground hover:text-foreground hover:border-border hover:bg-card'
                 >
                   {icon.icon}
                 </a>
@@ -135,7 +135,7 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className='border-t border-border/50 bg-card/30'>
+      <div className='border-t border-border/50 bg-card'>
         <div className='px-8 py-4 mx-auto max-w-6xl md:px-16'>
           <p className='text-sm text-center text-muted-foreground'>
             © 2025 Amber Finance. All rights reserved.

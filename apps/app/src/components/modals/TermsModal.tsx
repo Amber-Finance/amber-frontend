@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
-import { SubtleGradientBg } from '@/components/ui/SubtleGradientBg'
 
 const TERMS_ACCEPTANCE_KEY = 'amberfi-terms-accepted'
 
@@ -35,11 +34,11 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onAccept }) => {
   return (
     <div className='fixed inset-0 z-[9998]'>
       {/* Backdrop */}
-      <div className='absolute inset-0 bg-card/20 backdrop-blur-md' />
+      <div className='absolute inset-0 bg-card backdrop-blur-md' />
 
       {/* Modal */}
       <div
-        className='absolute w-[calc(100%-2rem)] max-w-md bg-card/70 backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl z-[9999]'
+        className='absolute w-[calc(100%-2rem)] max-w-md bg-card backdrop-blur-xl border border-border/50 rounded-xl shadow-2xl z-[9999]'
         style={{
           position: 'absolute',
           top: '50%',
@@ -48,9 +47,6 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onAccept }) => {
           zIndex: 9999,
         }}
       >
-        {/* Gradient background */}
-        <SubtleGradientBg variant='primary' className='opacity-20' />
-
         <div className='relative p-6 space-y-6'>
           {/* Title */}
           <div className='text-center'>

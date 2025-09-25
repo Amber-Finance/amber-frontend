@@ -1,4 +1,4 @@
-import { route as skipRoute } from '@skip-go/client'
+import { RouteRequest, route as skipRoute } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
 import { BN, byDenom, toIntegerString } from '@/utils/helpers'
@@ -126,7 +126,7 @@ async function getNeutronRouteInfoInternal(
       go_fast: false,
     }
 
-    const skipRouteResponse = await skipRoute(skipRouteParams as any)
+    const skipRouteResponse = await skipRoute(skipRouteParams as RouteRequest)
 
     if (!skipRouteResponse) {
       throw new Error('No route response from Skip API')
@@ -161,6 +161,16 @@ async function getNeutronRouteInfoInternal(
     const description = createSwapDescription(denomIn, denomOut, assets)
 
     const routeInfo = buildSwapRouteInfo(skipRouteResponse, route, description, isReverse)
+
+    // For forward routing, add the amountIn from the route params
+    if (!isReverse && routeParams.amountIn) {
+      ;(routeInfo as any).amountIn = BN(routeParams.amountIn)
+    }
+
+    if (!routeInfo.amountOut.gt(0))
+      routeInfo.amountOut = routeInfo.amountOut
+        .times(1 - chainConfig.swapFee)
+        .integerValue(BigNumber.ROUND_FLOOR)
 
     return routeInfo
   } catch (error) {

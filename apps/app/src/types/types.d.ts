@@ -19,6 +19,15 @@ interface ActiveStrategy {
     decimals: number
     icon: string
   }
+  supply: {
+    denom: string
+    symbol: string
+    amount: string
+    amountFormatted: number
+    usdValue: number
+    decimals: number
+    icon: string
+  }
   leverage: number
   netApy: number
   isPositive: boolean
@@ -109,12 +118,19 @@ interface MarketMetrics {
 interface StoreState {
   markets: Market[] | null
   hideZeroBalances: boolean
+  activeStrategies: ActiveStrategy[]
+  cachedStrategies: Record<string, Strategy & { cachedAt: number }>
   setMarkets: (markets: Market[] | null) => void
   setHideZeroBalances: (hideZeroBalances: boolean) => void
   updateMarketPrice: (denom: string, priceData: PriceData) => void
   updateMarketMetrics: (denom: string, metrics: MarketDataItem) => void
   updateMarketPositions: (positions: { deposits: UserPosition[]; debts: UserPosition[] }) => void
   resetPositions: () => void
+  setActiveStrategies: (strategies: ActiveStrategy[]) => void
+  resetActiveStrategies: () => void
+  cacheStrategy: (strategyId: string, strategy: Strategy) => void
+  getCachedStrategy: (strategyId: string) => Strategy | null
+  clearStrategyCache: () => void
 }
 
 // API Responses
@@ -191,6 +207,7 @@ type PnL =
 interface ChainConfig {
   name: string
   id: string
+  swapFee: number
   contracts: {
     redBank: string
     incentives: string
@@ -225,6 +242,7 @@ type Coin = {
 type SwapRouteInfo = {
   amountOut: BigNumber
   priceImpact: BigNumber
+  amountIn?: BigNumber
   fee: BigNumber
   route: import('types/generated/mars-swapper-base/MarsSwapperBase.types').SwapperRoute
   description: string
@@ -551,8 +569,11 @@ interface SwapToken {
   chainId: string
 }
 interface SwapRouteInfo {
-  amountOut: string
-  priceImpact: number
+  amountOut?: BigNumber // Present in forward routing, target in reverse routing
+  amountIn?: BigNumber // Present in reverse routing, calculated amount needed
+  priceImpact: BigNumber
+  fee: BigNumber
+  description: string
   route: SwapperRoute
 }
 
@@ -697,7 +718,7 @@ interface SwapConfig {
 }
 
 interface DeployStrategyConfig {
-  type: 'deploy_strategy'
+  type: 'strategy'
   strategyType: 'create' | 'increase'
   accountId?: string
   collateral: StrategyAsset
@@ -714,6 +735,25 @@ interface ManageStrategyConfig {
   collateral: StrategyAsset
   debt: StrategyAsset
   swap: SwapConfig
+}
+
+interface ModifyLeverageConfig {
+  type: 'modify_leverage'
+  actionType: 'increase' | 'decrease'
+  accountId: string
+  currentLeverage: number
+  targetLeverage: number
+  collateral: StrategyAsset
+  debt: StrategyAsset
+  swap: SwapConfig
+}
+
+interface LeverageModificationParams {
+  currentLeverage: number
+  targetLeverage: number
+  collateralAmount: number
+  debtAmount: number
+  swapRouteInfo: SwapRouteInfo
 }
 
 interface DepositConfig extends BaseTransactionConfig {
@@ -745,13 +785,13 @@ interface SwapTransactionConfig {
 
 type TransactionConfig =
   | DepositConfig
-  | WithdrawConfig
+  | WithdrawConfig  
   | BorrowConfig
   | RepayConfig
   | SwapTransactionConfig
-  | DeployStrategyConfig
-  | ManageStrategyConfig
   | StrategyParams
+  | ModifyLeverageConfig
+  | DeployStrategyConfig
 
 interface ActiveStrategy {
   accountId: string
@@ -838,6 +878,7 @@ interface StrategyDeploymentParams {
   collateralAmount: number
   multiplier: number
   swapRouteInfo: SwapRouteInfo
+  slippage?: number
 }
 
 interface UseStrategyDeploymentProps {

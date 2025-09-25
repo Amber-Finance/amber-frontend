@@ -1,6 +1,7 @@
 const chainConfig: ChainConfig = {
   name: 'neutron',
   id: 'neutron-1',
+  swapFee: 0.005,
   contracts: {
     redBank: 'neutron1k8xyccg9nvfavagqjsqngh66w4z286utqweswl4txtnewaymkc9ss5f5e8',
     incentives: 'neutron1u9eg2njpcvdprtes8s78hwddayrxzgw9akkjpxx0umr0awvapxrshmjlsd',
