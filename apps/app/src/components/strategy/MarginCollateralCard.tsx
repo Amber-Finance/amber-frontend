@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 
+import { BigNumber } from 'bignumber.js'
 import { AlertTriangle, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
 import FormattedValue from '@/components/common/FormattedValue'
+import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard } from '@/components/deposit'
 import { NewPositionTable } from '@/components/strategy/NewPositionTable'
 import { AmountInput } from '@/components/ui/AmountInput'
@@ -16,6 +18,8 @@ const getPriceImpactColor = (priceImpact: number): string => {
   if (absoluteImpact >= 5) return 'text-red-500 font-medium'
   if (absoluteImpact >= 2) return 'text-yellow-600 font-medium'
   if (absoluteImpact >= 1) return 'text-yellow-500'
+  // Negative price impact (losing money) should be red, positive (gaining) should be green
+  if (priceImpact < 0) return 'text-red-500'
   if (priceImpact > 0) return 'text-green-500'
   return 'text-muted-foreground'
 }
@@ -153,10 +157,13 @@ export function MarginCollateralCard({
   targetLeverage,
 }: MarginCollateralCardProps) {
   const [swapRouteInfo, setSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
-  const [unitRateInfo, setUnitRateInfo] = useState<SwapRouteInfo | null>(null)
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const [swapError, setSwapError] = useState<Error | null>(null)
   const [lastFetchedAmount, setLastFetchedAmount] = useState<number>(0)
+  const [lastLeverageDirection, setLastLeverageDirection] = useState<boolean | null>(null)
+  const [lastCurrentLeverage, setLastCurrentLeverage] = useState<number | undefined>(undefined)
+  const [lastTargetLeverage, setLastTargetLeverage] = useState<number | undefined>(undefined)
+  const [routeFetchTimeout, setRouteFetchTimeout] = useState<NodeJS.Timeout | null>(null)
   const [slippage, setSlippage] = useState<number>(0.5) // Default 0.5%
   const [slippageInput, setSlippageInput] = useState<string>('0.5') // Input field value
   const [isSlippageExpanded, setIsSlippageExpanded] = useState(false)
@@ -227,134 +234,129 @@ export function MarginCollateralCard({
   const debtAssetSymbol = strategy.debtAsset.symbol
   const collateralAssetSymbol = strategy.collateralAsset.symbol
 
-  // Fetch unit rate (1 unit) to show accurate exchange rate based on swap direction
-  useEffect(() => {
-    const fetchUnitRate = async () => {
-      try {
-        const { BigNumber } = await import('bignumber.js')
-        const getNeutronRouteInfo = (await import('@/api/swap/getNeutronRouteInfo')).default
-
-        // Determine swap direction and use appropriate asset for unit rate
-        let fromDenom, toDenom, fromDecimals
-
-        if (isLeverageIncrease) {
-          // Increasing leverage: borrow debt asset, swap to collateral
-          fromDenom = debtAssetDenom
-          toDenom = collateralAssetDenom
-          fromDecimals = debtAssetDecimals
-        } else {
-          // Decreasing leverage: withdraw collateral, swap to debt asset
-          fromDenom = collateralAssetDenom
-          toDenom = debtAssetDenom
-          fromDecimals = strategy.collateralAsset.decimals || 8
-        }
-
-        // Use 1 unit of the "from" asset to get the true unit rate
-        const oneUnit = new BigNumber(1).shiftedBy(fromDecimals)
-
-        const routeInfo = await getNeutronRouteInfo(
-          fromDenom,
-          toDenom,
-          oneUnit,
-          [], // assets array - not needed for route structure
-          chainConfig,
-        )
-
-        setUnitRateInfo(routeInfo)
-      } catch (err) {
-        console.warn('Failed to fetch unit rate:', err)
-        setUnitRateInfo(null)
-      }
-    }
-
-    fetchUnitRate()
-  }, [
-    debtAssetDenom,
-    collateralAssetDenom,
-    debtAssetDecimals,
-    isLeverageIncrease,
-    strategy.collateralAsset.decimals,
-  ])
-
   // Fetch swap route when borrowAmountForSwap changes
   useEffect(() => {
-    const fetchSwapRoute = async () => {
-      if (!borrowAmountForSwap || borrowAmountForSwap <= 0) {
-        setSwapRouteInfo(null)
-        onSwapRouteLoaded?.(null)
-        setLastFetchedAmount(0)
-        return
-      }
-
-      // Skip if the amount hasn't changed significantly (less than 1% difference)
-      const percentageDiff =
-        Math.abs(borrowAmountForSwap - lastFetchedAmount) / Math.max(lastFetchedAmount, 1)
-      if (lastFetchedAmount > 0 && percentageDiff < 0.01) {
-        return
-      }
-
-      setIsSwapLoading(true)
-      setSwapError(null)
-      setLastFetchedAmount(borrowAmountForSwap)
-
-      try {
-        const { BigNumber } = await import('bignumber.js')
-        const getNeutronRouteInfo = (await import('@/api/swap/getNeutronRouteInfo')).default
-
-        // Determine swap direction and format amount accordingly
-        let fromDenom, toDenom, routeInfo
-
-        if (isLeverageIncrease) {
-          // Increasing leverage: borrow debt asset, swap to collateral
-          fromDenom = debtAssetDenom
-          toDenom = collateralAssetDenom
-          const swapAmount = new BigNumber(borrowAmountForSwap).shiftedBy(debtAssetDecimals)
-
-          // Forward routing: we know input amount (debt to borrow), get output amount (collateral)
-          routeInfo = await getNeutronRouteInfo(
-            fromDenom,
-            toDenom,
-            swapAmount,
-            [], // assets array - not needed for route structure
-            chainConfig,
-          )
-        } else {
-          // Decreasing leverage: withdraw collateral, swap to debt asset
-          fromDenom = collateralAssetDenom
-          toDenom = debtAssetDenom
-
-          // Reverse routing: we know output amount (debt to repay), get input amount (collateral)
-          const { getNeutronRouteInfoReverse } = await import('@/api/swap/getNeutronRouteInfo')
-          const debtAmountNeeded = new BigNumber(borrowAmountForSwap).shiftedBy(debtAssetDecimals)
-
-          routeInfo = await getNeutronRouteInfoReverse(
-            fromDenom,
-            toDenom,
-            debtAmountNeeded,
-            [], // assets array - not needed for route structure
-            chainConfig,
-            slippage, // Use current slippage
-          )
-        }
-
-        if (!routeInfo) {
-          throw new Error(
-            `No swap route found between ${debtAssetSymbol} and ${collateralAssetSymbol}`,
-          )
-        }
-
-        setSwapRouteInfo(routeInfo)
-        onSwapRouteLoaded?.(routeInfo)
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err : new Error('Failed to fetch swap route')
-        setSwapError(errorMessage)
-        onSwapRouteLoaded?.(null)
-      } finally {
-        setIsSwapLoading(false)
-      }
+    // Clear any existing timeout
+    if (routeFetchTimeout) {
+      clearTimeout(routeFetchTimeout)
     }
 
-    fetchSwapRoute()
+    // Debounce the route fetch to prevent multiple calls
+    const timeout = setTimeout(async () => {
+      const fetchSwapRoute = async () => {
+        // Don't fetch swap route if swap details are not supposed to be shown
+        if (!showSwapDetailsAndSlippage) {
+          setSwapRouteInfo(null)
+          onSwapRouteLoaded?.(null)
+          setLastFetchedAmount(0)
+          setLastLeverageDirection(null)
+          setLastCurrentLeverage(undefined)
+          setLastTargetLeverage(undefined)
+          return
+        }
+
+        if (!borrowAmountForSwap || borrowAmountForSwap <= 0) {
+          setSwapRouteInfo(null)
+          onSwapRouteLoaded?.(null)
+          setLastFetchedAmount(0)
+          setLastLeverageDirection(null)
+          setLastCurrentLeverage(undefined)
+          setLastTargetLeverage(undefined)
+          return
+        }
+
+        // Check if leverage direction has changed
+        const leverageDirectionChanged =
+          lastLeverageDirection !== null && lastLeverageDirection !== isLeverageIncrease
+
+        // Check if leverage values have changed
+        const leverageValuesChanged =
+          lastCurrentLeverage !== currentLeverage || lastTargetLeverage !== targetLeverage
+
+        if (
+          lastFetchedAmount > 0 &&
+          borrowAmountForSwap === lastFetchedAmount &&
+          !leverageDirectionChanged &&
+          !leverageValuesChanged
+        ) {
+          return
+        }
+
+        setIsSwapLoading(true)
+        setSwapError(null)
+        setLastFetchedAmount(borrowAmountForSwap)
+        setLastLeverageDirection(isLeverageIncrease)
+        setLastCurrentLeverage(currentLeverage)
+        setLastTargetLeverage(targetLeverage)
+
+        try {
+          const { BigNumber } = await import('bignumber.js')
+          const getNeutronRouteInfo = (await import('@/api/swap/getNeutronRouteInfo')).default
+
+          // Determine swap direction and format amount accordingly
+          let fromDenom, toDenom, routeInfo
+
+          if (isLeverageIncrease) {
+            // Increasing leverage: borrow debt asset, swap to collateral
+            fromDenom = debtAssetDenom
+            toDenom = collateralAssetDenom
+            const swapAmount = new BigNumber(borrowAmountForSwap).shiftedBy(debtAssetDecimals)
+
+            // Forward routing: we know input amount (debt to borrow), get output amount (collateral)
+            routeInfo = await getNeutronRouteInfo(
+              fromDenom,
+              toDenom,
+              swapAmount,
+              [], // assets array - not needed for route structure
+              chainConfig,
+            )
+          } else {
+            // Decreasing leverage: withdraw collateral, swap to debt asset
+            fromDenom = collateralAssetDenom
+            toDenom = debtAssetDenom
+
+            // Reverse routing: we know output amount (debt to repay), get input amount (collateral)
+            const { getNeutronRouteInfoReverse } = await import('@/api/swap/getNeutronRouteInfo')
+            const debtAmountNeeded = new BigNumber(borrowAmountForSwap).shiftedBy(debtAssetDecimals)
+
+            routeInfo = await getNeutronRouteInfoReverse(
+              fromDenom,
+              toDenom,
+              debtAmountNeeded,
+              [], // assets array - not needed for route structure
+              chainConfig,
+              slippage, // Use current slippage
+            )
+          }
+
+          if (!routeInfo) {
+            throw new Error(
+              `No swap route found between ${debtAssetSymbol} and ${collateralAssetSymbol}`,
+            )
+          }
+
+          setSwapRouteInfo(routeInfo)
+          onSwapRouteLoaded?.(routeInfo)
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err : new Error('Failed to fetch swap route')
+          setSwapError(errorMessage)
+          onSwapRouteLoaded?.(null)
+        } finally {
+          setIsSwapLoading(false)
+        }
+      }
+
+      await fetchSwapRoute()
+    }, 300) // 300ms debounce
+
+    setRouteFetchTimeout(timeout)
+
+    // Cleanup function
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
   }, [
     borrowAmountForSwap,
     debtAssetDecimals,
@@ -365,6 +367,9 @@ export function MarginCollateralCard({
     isLeverageIncrease,
     strategy.collateralAsset.decimals,
     onSwapRouteLoaded,
+    showSwapDetailsAndSlippage,
+    currentLeverage,
+    targetLeverage,
   ])
   return (
     <InfoCard title='Margin Collateral'>
@@ -516,7 +521,9 @@ export function MarginCollateralCard({
         {/* Swap Details */}
         {currentAmount > 0 && showSwapDetailsAndSlippage && (
           <>
-            {isCalculatingPositions || isSwapLoading || (!swapRouteInfo && !swapError) ? (
+            {isCalculatingPositions ||
+            (isSwapLoading && showSwapDetailsAndSlippage) ||
+            (!swapRouteInfo && !swapError && showSwapDetailsAndSlippage) ? (
               <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-4'>
                 <div className='h-5 w-28 bg-muted/40 rounded animate-pulse' />
                 <div className='space-y-3'>
@@ -528,7 +535,7 @@ export function MarginCollateralCard({
                 </div>
               </div>
             ) : (
-              <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-xs'>
+              <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-sm'>
                 <div className='font-medium text-foreground mb-2'>Swap Details</div>
                 {(() => {
                   if (swapError) {
@@ -538,122 +545,100 @@ export function MarginCollateralCard({
                       </div>
                     )
                   } else if (swapRouteInfo) {
-                    // Calculate unit rate from dedicated unit rate query (not trade-specific)
-                    let rate = 0
-                    let fromAssetSymbol, toAssetSymbol
+                    // Calculate rate directly from the swap route response
+                    let fromAssetDecimals, toAssetDecimals
 
                     if (isLeverageIncrease) {
-                      fromAssetSymbol = strategy.debtAsset.symbol
-                      toAssetSymbol = strategy.collateralAsset.symbol
+                      fromAssetDecimals = debtAssetDecimals
+                      toAssetDecimals = strategy.collateralAsset.decimals || 8
                     } else {
-                      fromAssetSymbol = strategy.collateralAsset.symbol
-                      toAssetSymbol = strategy.debtAsset.symbol
+                      fromAssetDecimals = strategy.collateralAsset.decimals || 8
+                      toAssetDecimals = debtAssetDecimals
                     }
 
-                    if (unitRateInfo?.amountOut?.gt(0)) {
-                      // Unit rate: 1 from asset = X to assets
-                      const toAssetDecimals = isLeverageIncrease
-                        ? (strategy.collateralAsset.decimals ?? 8)
-                        : (strategy.debtAsset.decimals ?? 6)
-
-                      const outValue = unitRateInfo.amountOut.shiftedBy(-toAssetDecimals)
-                      rate = outValue.toNumber() // This is already per 1 unit of from asset
+                    // Calculate actual price impact from amounts: (output - input) / input * 100
+                    // This gives the actual impact on the user's position
+                    let actualPriceImpact = 0
+                    if (swapRouteInfo.amountIn?.gt(0) && swapRouteInfo.amountOut?.gt(0)) {
+                      const inputAmount = swapRouteInfo.amountIn.shiftedBy(-fromAssetDecimals)
+                      const outputAmount = swapRouteInfo.amountOut.shiftedBy(-toAssetDecimals)
+                      actualPriceImpact =
+                        ((outputAmount.toNumber() - inputAmount.toNumber()) /
+                          inputAmount.toNumber()) *
+                        100
                     }
 
-                    const slippageMultiplier = 1 - slippage / 100
-                    const toAssetDecimals = isLeverageIncrease
-                      ? strategy.collateralAsset.decimals || 8
-                      : strategy.debtAsset.decimals || 6
-                    const minimumReceived = swapRouteInfo.amountOut
-                      .shiftedBy(-toAssetDecimals)
-                      .multipliedBy(slippageMultiplier)
-
-                    const priceImpact = swapRouteInfo.priceImpact.toNumber()
+                    const priceImpact = actualPriceImpact
 
                     const swapLabel = isLeverageIncrease
                       ? 'Borrow to be swapped'
                       : 'Collateral to be swapped'
-                    const swapSuffix = isLeverageIncrease
-                      ? strategy.debtAsset.symbol
-                      : strategy.collateralAsset.symbol
                     const receiveLabel = isLeverageIncrease ? 'Added Collateral' : 'Debt Repay'
 
                     return (
                       <>
                         <div className='flex justify-between'>
                           <span className='text-muted-foreground'>{swapLabel}</span>
-                          <span>
-                            <FormattedValue
-                              value={borrowAmountForSwap}
-                              maxDecimals={8}
-                              useCompactNotation={false}
-                              suffix={` ${swapSuffix}`}
-                            />
-                          </span>
+                          <TokenBalance
+                            coin={{
+                              denom: isLeverageIncrease ? debtAssetDenom : collateralAssetDenom,
+                              amount: swapRouteInfo.amountIn?.toString() || '0',
+                            }}
+                            size='xs'
+                            align='right'
+                          />
                         </div>
 
-                        <div className='flex justify-between'>
-                          <span className='text-muted-foreground'>Rate</span>
-                          <span>
-                            {rate > 0 ? (
-                              <>
-                                1 {fromAssetSymbol} ≈{' '}
+                        {(() => {
+                          let priceImpactSign = ''
+                          if (priceImpact < 0) {
+                            priceImpactSign = '-'
+                          } else if (priceImpact > 0) {
+                            priceImpactSign = '+'
+                          }
+
+                          return (
+                            <div className='flex justify-between'>
+                              <span className='text-muted-foreground'>Price Impact</span>
+                              <span className={getPriceImpactColor(priceImpact)}>
+                                {priceImpactSign}
                                 <FormattedValue
-                                  value={rate}
-                                  maxDecimals={6}
+                                  value={Math.abs(priceImpact)}
+                                  maxDecimals={2}
+                                  suffix='%'
                                   useCompactNotation={false}
-                                  suffix={` ${toAssetSymbol}`}
                                 />
-                              </>
-                            ) : (
-                              <span className='inline-block h-4 w-28 bg-muted/40 rounded animate-pulse' />
-                            )}
-                          </span>
-                        </div>
-
-                        <div className='flex justify-between'>
-                          <span className='text-muted-foreground'>Price Impact</span>
-                          <span className={getPriceImpactColor(priceImpact)}>
-                            {priceImpact > 0 ? '+' : ''}
-                            <FormattedValue
-                              value={Math.abs(priceImpact)}
-                              maxDecimals={2}
-                              suffix='%'
-                              useCompactNotation={false}
-                            />
-                          </span>
-                        </div>
+                              </span>
+                            </div>
+                          )
+                        })()}
 
                         <div className='flex justify-between'>
                           <span className='text-muted-foreground'>{receiveLabel}</span>
-                          <span>
-                            <FormattedValue
-                              value={minimumReceived.toNumber()}
-                              maxDecimals={8}
-                              useCompactNotation={false}
-                              suffix={` ${toAssetSymbol}`}
-                            />
-                          </span>
+                          <TokenBalance
+                            coin={{
+                              denom: isLeverageIncrease ? collateralAssetDenom : debtAssetDenom,
+                              amount: swapRouteInfo.amountOut.toString(),
+                            }}
+                            size='xs'
+                            align='right'
+                          />
                         </div>
 
                         <div className='flex justify-between'>
                           <span className='text-muted-foreground'>Total Exposure</span>
-                          <span>
-                            <FormattedValue
-                              value={positionCalcs.totalPosition}
-                              maxDecimals={8}
-                              useCompactNotation={false}
-                              suffix={` ${strategy.collateralAsset.symbol}`}
-                            />
-                          </span>
+                          <TokenBalance
+                            coin={{
+                              denom: collateralAssetDenom,
+                              amount: new BigNumber(positionCalcs.totalPosition)
+                                .shiftedBy(strategy.collateralAsset.decimals || 8)
+                                .toString(),
+                            }}
+                            size='xs'
+                            align='right'
+                          />
                         </div>
                       </>
-                    )
-                  } else {
-                    return (
-                      <div className='flex items-center justify-center py-2'>
-                        <span className='text-muted-foreground'>No route available</span>
-                      </div>
                     )
                   }
                 })()}
@@ -699,7 +684,7 @@ export function MarginCollateralCard({
                   )}
                   <div className='space-y-1'>
                     <span>{priceImpactWarning.message}</span>
-                    <div className='text-xs text-muted-foreground'>
+                    <div className='text-sm text-muted-foreground'>
                       Price Impact: {Math.abs(priceImpact).toFixed(2)}% • Min Received:{' '}
                       {swapRouteInfo.amountOut
                         .shiftedBy(
@@ -757,6 +742,8 @@ export function MarginCollateralCard({
                 collateralSupplyApy={collateralSupplyApy}
                 debtBorrowApy={debtBorrowApy}
                 simulatedHealthFactor={simulatedHealthFactor}
+                swapRouteInfo={swapRouteInfo}
+                isLeverageIncrease={isLeverageIncrease}
               />
             )}
           </>

@@ -26,6 +26,7 @@ export const useStore = create<StoreState>()(
         markets: null,
         hideZeroBalances: getStoredHideZeroBalances(),
         activeStrategies: [],
+        cachedStrategies: {},
 
         setMarkets: (markets: Market[] | null): void => {
           if (!markets) return
@@ -135,12 +136,42 @@ export const useStore = create<StoreState>()(
         resetActiveStrategies: (): void => {
           set({ activeStrategies: [] })
         },
+
+        // Strategy caching methods
+        cacheStrategy: (strategyId: string, strategy: Strategy): void => {
+          set((state: StoreState) => ({
+            cachedStrategies: {
+              ...state.cachedStrategies,
+              [strategyId]: {
+                ...strategy,
+                cachedAt: Date.now(),
+              },
+            },
+          }))
+        },
+
+        getCachedStrategy: (strategyId: string): Strategy | null => {
+          const state = useStore.getState()
+          const cached = state.cachedStrategies[strategyId]
+          if (!cached) return null
+
+          // Check if cache is less than 10 minutes old
+          const cacheAge = Date.now() - (cached.cachedAt || 0)
+          const maxCacheAge = 10 * 60 * 1000 // 10 minutes
+
+          return cacheAge < maxCacheAge ? cached : null
+        },
+
+        clearStrategyCache: (): void => {
+          set({ cachedStrategies: {} })
+        },
       }),
       {
         name: 'amberfi-storage', // storage key
         partialize: (state: StoreState) => ({
           markets: state.markets,
           activeStrategies: state.activeStrategies,
+          cachedStrategies: state.cachedStrategies,
           // You can exclude some state properties from persistence if needed
         }),
       },

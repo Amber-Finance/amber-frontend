@@ -67,13 +67,12 @@ const createDepositAction = (denom: string, amount: string) =>
 const createBorrowAction = (denom: string, amount: string) =>
   createAction('borrow', { amount, denom })
 
-const createRepayAction = (accountId: string, denom: string) =>
+const createRepayAction = (denom: string) =>
   createAction('repay', {
     coin: {
       denom: denom,
       amount: 'account_balance',
     },
-    recipient_account_id: accountId,
   })
 
 const createRefundAction = () => createAction('refund_all_coin_balances', {})
@@ -104,7 +103,7 @@ const buildManageActions = (config: ManageStrategyConfig) => {
       slippage: config.swap.slippage || '0.5',
       routeInfo: config.swap.routeInfo,
     }),
-    createRepayAction(config.accountId, config.debt.denom),
+    createRepayAction(config.debt.denom),
     createRefundAction(),
   ]
 }
@@ -137,7 +136,7 @@ const buildModifyLeverageActions = (config: ModifyLeverageConfig) => {
         slippage: config.swap.slippage || '0.5',
         routeInfo: config.swap.routeInfo,
       }),
-      createRepayAction(config.accountId, config.debt.denom),
+      createRepayAction(config.debt.denom),
     ]
   }
 }

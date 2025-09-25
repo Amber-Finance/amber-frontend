@@ -10,6 +10,8 @@ import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks'
+import { useActiveStrategies } from '@/hooks/useActiveStrategies'
+import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 
 export default function StrategyDeployPage() {
@@ -17,8 +19,12 @@ export default function StrategyDeployPage() {
   const searchParams = useSearchParams()
   const [strategy, setStrategy] = useState<Strategy | null>(null)
 
-  useMarkets()
-  const { markets } = useStore()
+  const { isLoading: marketsLoading } = useMarkets()
+  const { markets, cacheStrategy, getCachedStrategy } = useStore()
+
+  // Ensure all required data is fetched when visiting strategy page
+  useActiveStrategies() // Fetch user's active positions
+  usePrices() // Fetch current prices
 
   useEffect(() => {
     // Parse strategy from URL params (e.g., ?strategy=maxBTC-eBTC)
@@ -31,6 +37,11 @@ export default function StrategyDeployPage() {
     const [collateralSymbol, debtSymbol] = strategyId.split('-')
     if (!collateralSymbol || !debtSymbol) {
       router.push('/strategies')
+      return
+    }
+
+    // Wait for markets to load before proceeding
+    if (marketsLoading) {
       return
     }
 
@@ -61,7 +72,7 @@ export default function StrategyDeployPage() {
       return
     }
 
-    // Find debt market for real data
+    // Find debt market for real data - only check after markets have loaded
     const debtMarket = markets?.find((market) => market.asset.symbol === debtSymbol)
     if (!debtMarket) {
       router.push('/strategies')
@@ -136,7 +147,9 @@ export default function StrategyDeployPage() {
     }
 
     setStrategy(strategyData)
-  }, [searchParams, markets, router])
+
+    cacheStrategy(strategyId, strategyData)
+  }, [searchParams, markets, marketsLoading, router, cacheStrategy, getCachedStrategy])
 
   if (!strategy) {
     return (

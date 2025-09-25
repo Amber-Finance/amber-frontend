@@ -8,6 +8,8 @@ import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks'
+import { useActiveStrategies } from '@/hooks/useActiveStrategies'
+import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 
 interface StrategyPageProps {
@@ -23,8 +25,12 @@ export default function StrategyPage({ params }: StrategyPageProps) {
   // Unwrap params Promise using React.use()
   const resolvedParams = use(params)
 
-  useMarkets()
-  const { markets } = useStore()
+  const { isLoading: marketsLoading } = useMarkets()
+  const { markets, cacheStrategy, getCachedStrategy } = useStore()
+
+  // Ensure all required data is fetched when visiting strategy page
+  useActiveStrategies() // Fetch user's active positions
+  usePrices() // Fetch current prices
 
   useEffect(() => {
     // Parse strategy from URL params (e.g., maxBTC-WBTC)
@@ -37,6 +43,18 @@ export default function StrategyPage({ params }: StrategyPageProps) {
     const [collateralSymbol, debtSymbol] = strategyId.split('-')
     if (!collateralSymbol || !debtSymbol) {
       router.push('/strategies')
+      return
+    }
+
+    // Try to get cached strategy first
+    const cachedStrategy = getCachedStrategy(strategyId)
+    if (cachedStrategy) {
+      setStrategy(cachedStrategy)
+      return
+    }
+
+    // If no cache available, wait for markets to load before proceeding
+    if (marketsLoading) {
       return
     }
 
@@ -67,7 +85,7 @@ export default function StrategyPage({ params }: StrategyPageProps) {
       return
     }
 
-    // Find debt market for real data
+    // Find debt market for real data - only check after markets have loaded
     const debtMarket = markets?.find((market) => market.asset.symbol === debtSymbol)
     if (!debtMarket) {
       router.push('/strategies')
@@ -111,14 +129,22 @@ export default function StrategyPage({ params }: StrategyPageProps) {
     }
 
     setStrategy(strategyInstance)
-  }, [resolvedParams.strategy, markets, router])
+
+    cacheStrategy(strategyId, strategyInstance)
+  }, [resolvedParams.strategy, markets, marketsLoading, router, cacheStrategy, getCachedStrategy])
 
   if (!strategy) {
     return (
       <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
         <div className='bg-card rounded-lg p-6 text-center'>
-          <h2 className='text-xl font-bold text-foreground mb-2'>Loading Strategy...</h2>
-          <p className='text-muted-foreground'>Please wait while we load the strategy details.</p>
+          <h2 className='text-xl font-bold text-foreground mb-2'>
+            {marketsLoading ? 'Loading Strategy...' : 'Loading Strategy Configuration...'}
+          </h2>
+          <p className='text-muted-foreground'>
+            {marketsLoading
+              ? 'Fetching market data and strategy details...'
+              : 'Please wait while we load the strategy details.'}
+          </p>
         </div>
       </div>
     )

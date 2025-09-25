@@ -35,11 +35,12 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const { activeStrategies, isLoading: isActiveStrategiesLoading } = useActiveStrategies()
 
   // State management
-  const [targetLeverage, setTargetLeverage] = useState(2)
+  const [targetLeverage, setTargetLeverage] = useState(0) // Initialize to 0 to indicate not yet initialized
   const [isProcessing, setIsProcessing] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
   const [slippage, setSlippage] = useState(0.5)
   const [hasInitialized, setHasInitialized] = useState(false)
+  const [wasWalletConnected, setWasWalletConnected] = useState(false)
 
   const router = useRouter()
   const { address, connect } = useChain(chainConfig.name)
@@ -86,15 +87,29 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
 
   // Initialize target leverage from current position
   useEffect(() => {
-    if (strategyAccountData && !hasInitialized) {
+    if (strategyAccountData && !hasInitialized && strategyAccountData.leverage > 0) {
       setTargetLeverage(strategyAccountData.leverage)
       setHasInitialized(true)
     }
   }, [strategyAccountData, hasInitialized])
 
+  // Track wallet connection status and redirect if disconnected
+  useEffect(() => {
+    if (address && !wasWalletConnected) {
+      setWasWalletConnected(true)
+    } else if (!address && wasWalletConnected) {
+      // Wallet was disconnected, redirect to deploy mode
+      router.push(
+        `/strategies/deploy/${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`,
+      )
+    }
+  }, [address, wasWalletConnected, router, strategy])
+
   // Check if user has made changes
   const hasUserInteraction = useMemo(() => {
     if (!strategyAccountData) return false
+    // Don't consider it user interaction if targetLeverage is 0 (not yet initialized)
+    if (targetLeverage === 0) return false
     return Math.abs(targetLeverage - strategyAccountData.leverage) > 0.01
   }, [strategyAccountData, targetLeverage])
 
@@ -109,7 +124,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   // Position calculations using debounced values
   const effectiveLeverage = hasUserInteraction
     ? debouncedTargetLeverage
-    : strategyAccountData?.leverage || 2
+    : strategyAccountData?.leverage || targetLeverage || 2
 
   // Custom position calculations for modify mode
   const positionCalcs = useMemo(() => {
@@ -248,31 +263,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const leverageModification = useStrategyLeverageModification({
     strategy,
     accountId: strategyAccountData?.accountId || '',
-    activeStrategy: activeStrategy || {
-      accountId: '',
-      strategyId: `${strategy.collateralAsset.symbol}-${strategy.debtAsset.symbol}`,
-      collateralAsset: {
-        denom: strategy.collateralAsset.denom,
-        symbol: strategy.collateralAsset.symbol,
-        icon: strategy.collateralAsset.icon,
-        amount: '0',
-        amountFormatted: 0,
-        usdValue: 0,
-        decimals: strategy.collateralAsset.decimals || 8,
-      },
-      debtAsset: {
-        denom: strategy.debtAsset.denom,
-        symbol: strategy.debtAsset.symbol,
-        icon: strategy.debtAsset.icon,
-        amount: '0',
-        amountFormatted: 0,
-        usdValue: 0,
-        decimals: strategy.debtAsset.decimals || 6,
-      },
-      leverage: 1,
-      netApy: 0,
-      isPositive: true,
-    },
+    activeStrategy: activeStrategy!,
     slippage,
   })
 
@@ -462,7 +453,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           displayValues={displayValues}
           walletData={walletData}
           marketData={marketData}
-          debtBasedLimits={undefined} // TODO: Implement debt-based limits for ModifyStrategy
+          debtBasedLimits={undefined}
           positionCalcs={positionCalcs}
           riskStyles={riskStyles}
           strategyRiskStyles={strategyRiskStyles}

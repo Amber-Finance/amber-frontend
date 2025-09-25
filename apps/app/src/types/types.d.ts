@@ -119,6 +119,7 @@ interface StoreState {
   markets: Market[] | null
   hideZeroBalances: boolean
   activeStrategies: ActiveStrategy[]
+  cachedStrategies: Record<string, Strategy & { cachedAt: number }>
   setMarkets: (markets: Market[] | null) => void
   setHideZeroBalances: (hideZeroBalances: boolean) => void
   updateMarketPrice: (denom: string, priceData: PriceData) => void
@@ -127,6 +128,9 @@ interface StoreState {
   resetPositions: () => void
   setActiveStrategies: (strategies: ActiveStrategy[]) => void
   resetActiveStrategies: () => void
+  cacheStrategy: (strategyId: string, strategy: Strategy) => void
+  getCachedStrategy: (strategyId: string) => Strategy | null
+  clearStrategyCache: () => void
 }
 
 // API Responses

@@ -126,6 +126,7 @@ export function StrategyFormPanel({
     },
     maxLeverage: debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage,
     brandColor: strategy.collateralAsset.brandColor || '#F7931A',
+    disabled: !walletData.isWalletConnected,
   })
 
   // Use leverage slider hook for modify mode
@@ -142,6 +143,7 @@ export function StrategyFormPanel({
     maxLeverage: debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage || 12,
     existingPositionLeverage: activeStrategy?.leverage,
     brandColor: strategy.collateralAsset.brandColor || '#F7931A',
+    disabled: !walletData.isWalletConnected,
   })
 
   // Helper functions for button text
@@ -153,9 +155,7 @@ export function StrategyFormPanel({
 
   const getAdjustButtonText = () => {
     if (isProcessing) return 'Adjusting...'
-    const hasLeverageChanged =
-      activeStrategy && Math.abs(targetLeverage - activeStrategy.leverage) > 0.01
-    if (hasLeverageChanged) return `Adjust to ${targetLeverage.toFixed(2)}x`
+    if (hasUserInteraction) return `Adjust to ${targetLeverage.toFixed(2)}x`
     return 'Adjust Leverage'
   }
 
@@ -171,8 +171,6 @@ export function StrategyFormPanel({
   }
 
   const currentAmount = parseFloat(collateralAmount || '0')
-  const hasLeverageChanged =
-    activeStrategy && Math.abs(targetLeverage - activeStrategy.leverage) > 0.01
 
   return (
     <div className='flex-1 order-1 lg:order-2 space-y-4'>
@@ -195,7 +193,7 @@ export function StrategyFormPanel({
           simulatedHealthFactor={simulatedHealthFactor || computedHealthFactor || 0}
           showPositionTable={hasUserInteraction}
           isCalculatingPositions={isCalculatingPositions}
-          showSwapDetailsAndSlippage={true}
+          showSwapDetailsAndSlippage={walletData.isWalletConnected && hasUserInteraction}
         />
       )}
 
@@ -206,6 +204,7 @@ export function StrategyFormPanel({
           collateralAmount={activeStrategy.collateralAsset.amountFormatted.toString()}
           setCollateralAmount={() => {}} // Disabled for existing positions
           leverageSliderComponent={modifyLeverageSlider.SliderComponent}
+          showSwapDetailsAndSlippage={walletData.isWalletConnected && hasUserInteraction}
           displayValues={{
             walletBalance: '',
             usdValue: (amount: number) =>
@@ -224,7 +223,6 @@ export function StrategyFormPanel({
           simulatedHealthFactor={simulatedHealthFactor || computedHealthFactor || 0}
           showPositionTable={hasUserInteraction}
           isCalculatingPositions={isCalculatingPositions}
-          showSwapDetailsAndSlippage={hasLeverageChanged && hasUserInteraction}
           currentLeverage={activeStrategy.leverage}
           targetLeverage={targetLeverage}
         />
@@ -236,7 +234,7 @@ export function StrategyFormPanel({
           <Button
             onClick={onModifyLeverage}
             disabled={
-              isProcessing || isWithdrawing || !walletData.isWalletConnected || !hasLeverageChanged
+              isProcessing || isWithdrawing || !walletData.isWalletConnected || !hasUserInteraction
             }
             variant='default'
             className='flex-1 shadow-md hover:shadow-lg'

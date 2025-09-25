@@ -16,6 +16,8 @@ interface LeverageSliderProps {
   brandColor?: string
   /** Debounce delay in milliseconds */
   debounceMs?: number
+  /** Whether the slider is disabled */
+  disabled?: boolean
 }
 
 interface LeverageSliderReturn {
@@ -34,6 +36,7 @@ export function useLeverageSlider({
   existingPositionLeverage,
   brandColor = '#F7931A',
   debounceMs = 2000,
+  disabled = false,
 }: LeverageSliderProps): LeverageSliderReturn {
   // Debounce the leverage value
   const debouncedLeverage = useDebounce(leverage, debounceMs)
@@ -47,9 +50,15 @@ export function useLeverageSlider({
   const SliderComponent = (
     <div className='space-y-2'>
       <div className='flex justify-between items-center'>
-        <span className='text-xs font-medium text-foreground'>Multiplier</span>
+        <span
+          className={`text-xs font-medium ${disabled ? 'text-muted-foreground' : 'text-foreground'}`}
+        >
+          Multiplier
+        </span>
         <div className='flex items-center gap-2'>
-          <span className='text-sm font-semibold text-accent-foreground'>
+          <span
+            className={`text-sm font-semibold ${disabled ? 'text-muted-foreground' : 'text-accent-foreground'}`}
+          >
             {leverage.toFixed(2)}x
           </span>
           {existingPositionLeverage && (
@@ -62,12 +71,13 @@ export function useLeverageSlider({
 
       <Slider
         value={[leverage]}
-        onValueChange={onLeverageChange}
+        onValueChange={disabled ? undefined : onLeverageChange}
         max={maxLeverage}
         min={2.0}
         step={0.01}
-        className='w-full'
+        className={'w-full' + (disabled ? ' opacity-50' : '')}
         brandColor={brandColor}
+        disabled={disabled}
       />
 
       <div className='flex justify-between text-xs text-muted-foreground'>
@@ -97,6 +107,7 @@ export function LeverageSlider({
   existingPositionLeverage,
   brandColor = '#F7931A',
   debounceMs = 2000,
+  disabled = false,
   onDebouncedLeverageChange,
 }: StandaloneLeverageSliderProps) {
   const { debouncedLeverage, isModifying, SliderComponent } = useLeverageSlider({
@@ -106,6 +117,7 @@ export function LeverageSlider({
     existingPositionLeverage,
     brandColor,
     debounceMs,
+    disabled,
   })
 
   // Notify parent when debounced values change

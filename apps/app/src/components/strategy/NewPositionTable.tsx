@@ -21,6 +21,10 @@ interface NewPositionTableProps {
   collateralSupplyApy: number
   debtBorrowApy: number
   simulatedHealthFactor: number
+  // Optional swap route info for price impact calculations
+  swapRouteInfo?: SwapRouteInfo | null
+  // Whether this is a leverage increase or decrease
+  isLeverageIncrease?: boolean
 }
 
 export function NewPositionTable({
@@ -31,6 +35,8 @@ export function NewPositionTable({
   collateralSupplyApy,
   debtBorrowApy,
   simulatedHealthFactor,
+  swapRouteInfo,
+  isLeverageIncrease = true,
 }: NewPositionTableProps) {
   // Check if we have modify mode data (supplies and totalBorrows fields)
   const isModifyMode =
@@ -38,22 +44,63 @@ export function NewPositionTable({
     (positionCalcs as any).totalBorrows !== undefined
 
   // Calculate supplies and borrows correctly based on mode
-  const supplies = isModifyMode
+  // If we have swap route info, use actual amounts after price impact
+  let supplies = isModifyMode
     ? (positionCalcs as any).supplies // Use actual user supplies for modify mode
     : positionCalcs.totalPosition - positionCalcs.borrowAmount // For deploy mode
 
-  const totalBorrows = isModifyMode
+  let totalBorrows = isModifyMode
     ? (positionCalcs as any).totalBorrows // Use total target borrows for modify mode
     : positionCalcs.borrowAmount // For deploy mode, borrowAmount IS the total borrows
 
+  // If we have swap route information, calculate actual final position
+  if (swapRouteInfo && isModifyMode && (positionCalcs as any).supplies !== undefined) {
+    const currentSupplies = (positionCalcs as any).supplies
+    const currentDebt = (positionCalcs as any).currentBorrows || 0
+
+    if (swapRouteInfo.amountIn && swapRouteInfo.amountOut) {
+      const debtAssetDecimals = strategy.debtAsset.decimals || 6
+      const collateralAssetDecimals = strategy.collateralAsset.decimals || 8
+
+      // Use the passed isLeverageIncrease parameter instead of trying to determine from amounts
+
+      if (isLeverageIncrease) {
+        // Leverage increase: borrow debt, swap to collateral
+        const debtBorrowed = swapRouteInfo.amountIn.shiftedBy(-debtAssetDecimals).toNumber()
+
+        // Final supplies = current supplies (same)
+        // Final borrows = current debt + debt borrowed
+        supplies = currentSupplies
+        totalBorrows = currentDebt + debtBorrowed
+      } else {
+        // Leverage decrease: withdraw collateral, swap to debt
+        const collateralSpent = swapRouteInfo.amountIn
+          .shiftedBy(-collateralAssetDecimals)
+          .toNumber()
+        const debtReceived = swapRouteInfo.amountOut.shiftedBy(-debtAssetDecimals).toNumber()
+
+        // Final supplies = current supplies (unchanged - user equity stays the same)
+        // Final borrows = current debt - debt received (we pay back debt)
+        supplies = currentSupplies
+        totalBorrows = currentDebt - debtReceived
+      }
+    }
+  }
+
   // Calculate leverages based on position
-  const longLeverage = supplies > 0 ? positionCalcs.totalPosition / supplies : 1 // This equals the multiplier
+  // Use actual final collateral position if we have swap route info
+  const actualCollateral =
+    swapRouteInfo && isModifyMode && (positionCalcs as any).supplies !== undefined
+      ? supplies + totalBorrows // collateral = supplies + debt
+      : positionCalcs.totalPosition
+
+  const longLeverage = supplies > 0 ? actualCollateral / supplies : 1 // This equals the multiplier
   const shortLeverage = longLeverage - 1 // Borrow ratio is multiplier - 1
 
   // Create Coin objects for TokenBalance
   const suppliesCoin = {
     denom: strategy.collateralAsset.denom,
-    amount: new BigNumber(supplies > 0 ? supplies : 0.001)
+    amount: new BigNumber(supplies)
       .shiftedBy(strategy.collateralAsset.decimals || 8)
       .integerValue()
       .toString(),
@@ -61,7 +108,7 @@ export function NewPositionTable({
 
   const collateralCoin = {
     denom: strategy.collateralAsset.denom,
-    amount: new BigNumber(positionCalcs.totalPosition)
+    amount: new BigNumber(actualCollateral)
       .shiftedBy(strategy.collateralAsset.decimals || 8)
       .integerValue()
       .toString(),

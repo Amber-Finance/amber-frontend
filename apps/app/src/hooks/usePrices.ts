@@ -21,6 +21,7 @@ export const usePrices = () => {
   const fetchAllPrices = async () => {
     const currentMarkets = markets || []
     const results = []
+    const priceSet = new Set<string>()
 
     for (const market of currentMarkets) {
       if (!market.asset?.denom) continue
@@ -41,38 +42,46 @@ export const usePrices = () => {
         const decimalDifferenceToOracle = market.asset.decimals - 6
 
         if (data?.data?.price) {
+          const adjustedPrice = new BigNumber(data.data.price)
+            .shiftedBy(decimalDifferenceToOracle)
+            .toString()
+          priceSet.add(data.data.price)
+
           const priceData: PriceData = {
             denom,
-            price: new BigNumber(data.data.price).shiftedBy(decimalDifferenceToOracle).toString(),
+            price: adjustedPrice,
           }
 
-          // Update market price directly here
-          updateMarketPrice(denom, priceData)
-
           // Store the result to return
-          results.push({ denom, priceData })
+          results.push({ denom, priceData, rawPrice: data.data.price })
         }
       } catch (error) {
         console.error(`Error fetching price for ${market.asset.denom}:`, error)
       }
     }
 
+    results.forEach(({ denom, priceData }) => {
+      updateMarketPrice(denom, priceData)
+    })
+
     return results
   }
 
   // Always fetch prices with a consistent key, no conditional calling
-  const { error, isLoading } = useSWR('oraclePrices', fetchAllPrices, {
+  const { error, isLoading, mutate } = useSWR('oraclePrices', fetchAllPrices, {
     refreshInterval: 60000, // Refresh every minute
     revalidateOnMount: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    errorRetryCount: 2,
-    errorRetryInterval: 3000,
+    errorRetryCount: 3, // Increased retries for oracle warm-up
+    errorRetryInterval: 5000, // Longer interval for initial retries
+    dedupingInterval: 10000, // 10 seconds
   })
 
   return {
     markets,
     isLoading,
     error,
+    refetchPrices: mutate,
   }
 }

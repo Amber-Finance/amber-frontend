@@ -142,7 +142,7 @@ export function useActiveStrategies() {
   } = useStore()
 
   // Use price and APY hooks
-  usePrices() // Ensures prices are fetched and updated
+  const { isLoading: isPricesLoading, error: pricesError } = usePrices() // Ensures prices are fetched and updated
   const { apy: maxBtcApy } = useMaxBtcApy()
 
   // Track previous strategies with a ref to avoid unnecessary updates
@@ -156,8 +156,10 @@ export function useActiveStrategies() {
     }
   }, [address, resetActiveStrategies])
 
-  // Create SWR key that depends on address
-  const swrKey = address ? `activeStrategies-${address}` : null
+  // Create SWR key that depends on address AND price loading state
+  // Don't fetch strategies until prices are loaded successfully
+  const shouldFetchStrategies = address && !isPricesLoading && !pricesError
+  const swrKey = shouldFetchStrategies ? `activeStrategies-${address}` : null
 
   // Use SWR to fetch and cache active strategies
   const {
@@ -170,6 +172,8 @@ export function useActiveStrategies() {
     revalidateOnFocus: false,
     revalidateOnMount: true,
     fallbackData: cachedStrategies, // Use cached strategies as fallback
+    errorRetryCount: 3, // Retry on oracle warm-up failures
+    errorRetryInterval: 10000, // Wait 10 seconds between retries
     onSuccess: (data) => {
       if (data && hasStrategiesChanged(prevStrategiesRef.current, data)) {
         setActiveStrategies(data)
@@ -217,9 +221,9 @@ export function useActiveStrategies() {
 
   return {
     activeStrategies: strategies,
-    isLoading: address ? isLoading : false,
-    isInitialLoading: address ? isLoading && !cachedStrategies?.length : false,
-    error: error?.message || null,
+    isLoading: address ? isPricesLoading || isLoading : false,
+    isInitialLoading: address ? isPricesLoading || (isLoading && !cachedStrategies?.length) : false,
+    error: error?.message || pricesError?.message || null,
     refreshActiveStrategies,
     hasActiveStrategies: strategies.length > 0,
   }
@@ -288,11 +292,6 @@ const createStrategy = (
   // Ensure we have valid price data before calculating USD values
   const collateralPrice = collateralMarket.price?.price || '0'
   const debtPrice = debtMarket.price?.price || '0'
-
-  // Only skip if BOTH prices are zero (indicating initial loading state)
-  if (collateralPrice === '0' && debtPrice === '0') {
-    return null
-  }
 
   const collateralUsd = calculateUsdValueLegacy(
     wbtcCollateral.amount,

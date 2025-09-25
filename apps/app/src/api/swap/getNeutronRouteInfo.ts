@@ -162,6 +162,11 @@ async function getNeutronRouteInfoInternal(
 
     const routeInfo = buildSwapRouteInfo(skipRouteResponse, route, description, isReverse)
 
+    // For forward routing, add the amountIn from the route params
+    if (!isReverse && routeParams.amountIn) {
+      ;(routeInfo as any).amountIn = BN(routeParams.amountIn)
+    }
+
     if (!routeInfo.amountOut.gt(0))
       routeInfo.amountOut = routeInfo.amountOut
         .times(1 - chainConfig.swapFee)
