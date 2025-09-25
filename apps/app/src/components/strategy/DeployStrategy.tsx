@@ -135,7 +135,7 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
     <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
       {/* Back button */}
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push('/strategies')}
         className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer mb-3'
       >
         <ArrowLeft className='w-4 h-4' />

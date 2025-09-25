@@ -41,6 +41,8 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const [slippage, setSlippage] = useState(0.5)
   const [hasInitialized, setHasInitialized] = useState(false)
   const [wasWalletConnected, setWasWalletConnected] = useState(false)
+  // Keep cached swap route for consistency with DeployStrategy - may be used in future optimizations
+  const [cachedSwapRouteInfo, setCachedSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
 
   const router = useRouter()
   const { address, connect } = useChain(chainConfig.name)
@@ -255,9 +257,19 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     return strategy.liquidityDisplay || 'N/A'
   }, [marketData.debtMarket?.metrics, strategy])
 
-  const handleSwapRouteLoaded = useCallback(() => {
-    // Not needed for modify mode swap handling
-  }, [])
+  const handleSwapRouteLoaded = useCallback(
+    (routeInfo: SwapRouteInfo | null) => {
+      // Cache swap route info for potential reuse in modify mode
+      // This ensures consistent behavior with DeployStrategy
+      setCachedSwapRouteInfo(routeInfo)
+
+      // Log for debugging - can be used for performance optimizations later
+      if (cachedSwapRouteInfo && routeInfo) {
+        console.debug('Swap route updated in ModifyStrategy')
+      }
+    },
+    [cachedSwapRouteInfo],
+  )
 
   // Add leverage modification hook for modify mode
   const leverageModification = useStrategyLeverageModification({
@@ -379,7 +391,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     return (
       <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push('/strategies')}
           className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer mb-3'
         >
           <ArrowLeft className='w-4 h-4' />
@@ -400,7 +412,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     <div className='w-full max-w-6xl mx-auto px-4 py-4 sm:py-6'>
       {/* Back button */}
       <button
-        onClick={() => router.back()}
+        onClick={() => router.push('/strategies')}
         className='flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer mb-3'
       >
         <ArrowLeft className='w-4 h-4' />

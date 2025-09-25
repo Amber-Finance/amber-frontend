@@ -112,10 +112,10 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         }}
       />
 
-      <CardHeader className='relative z-20'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3'>
-          <div className='flex items-center gap-4'>
-            <div className='relative'>
+      <CardHeader className='relative z-20 h-20 sm:h-24 flex-shrink-0'>
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 h-full'>
+          <div className='flex items-center gap-4 h-full'>
+            <div className='relative flex-shrink-0'>
               <div className='relative w-10 h-10 sm:w-12 sm:h-12'>
                 <Image
                   src={strategy.collateralAsset.icon}
@@ -136,11 +136,19 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 />
               </div>
             </div>
-            <div className='flex flex-col'>
-              <CardTitle className='text-base sm:text-lg font-semibold'>
+            <div className='flex flex-col justify-center min-h-0 flex-1'>
+              <CardTitle className='text-base sm:text-lg font-semibold leading-tight'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
               </CardTitle>
-              <CardDescription className='text-xs sm:text-sm text-muted-foreground'>
+              <CardDescription
+                className='text-xs sm:text-sm text-muted-foreground leading-tight h-8 overflow-hidden'
+                style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  textOverflow: 'ellipsis',
+                }}
+              >
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
               </CardDescription>
             </div>
@@ -150,7 +158,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
 
       <div className='relative w-full'>
         {isComingSoon && (
-          <div className='absolute inset-0 flex flex-wrap gap-4 items-center content-center z-10'>
+          <div className='absolute inset-0 flex flex-wrap gap-4 items-center content-center z-30'>
             <h2 className='text-lg md:text-2xl font-funnel text-center w-full'>
               Temporary Disabled
             </h2>
