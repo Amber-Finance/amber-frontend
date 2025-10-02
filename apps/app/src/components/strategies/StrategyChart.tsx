@@ -25,7 +25,7 @@ export function StrategyChart({
   supplyApy,
   currentBorrowApy,
 }: StrategyChartProps) {
-  const [timeRange, setTimeRange] = useState('7')
+  const [timeRange, setTimeRange] = useState('30')
 
   const chartConfig = useMemo(
     () => ({

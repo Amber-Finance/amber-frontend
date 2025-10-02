@@ -50,12 +50,12 @@ export function BaseChart({
   }
 
   return (
-    <Card className='bg-card/20 pt-0 w-full min-w-0'>
+    <Card className='bg-card pt-0 w-full min-w-0'>
       <CardHeader className='flex items-center border-b border-border/40 pt-6'>
         <CardTitle className='text-sm font-bold text-foreground'>{title}</CardTitle>
         <Select value={timeRange} onValueChange={onTimeRangeChange}>
           <SelectTrigger className='w-[160px] rounded-lg ml-auto' aria-label='Select a value'>
-            <SelectValue placeholder='Last 7 days' />
+            <SelectValue placeholder='Last 30 days' />
           </SelectTrigger>
           <SelectContent className='rounded-xl'>
             <SelectItem value='7' className='rounded-lg'>

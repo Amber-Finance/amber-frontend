@@ -13,7 +13,7 @@ interface TokenApyLineChartProps {
 }
 
 export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartProps) {
-  const [timeRange, setTimeRange] = useState('7')
+  const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
   const { data: btcApyData } = useBtcApy(selectedToken.symbol, parseInt(timeRange))
 

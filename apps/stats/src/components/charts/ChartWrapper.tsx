@@ -71,7 +71,7 @@ export default function ChartWrapper({
         {showTimeRangeSelector && (
           <Select value={timeRange} onValueChange={handleTimeRangeChange}>
             <SelectTrigger className='w-[160px] rounded-lg' aria-label='Select a value'>
-              <SelectValue placeholder='Last 7 days' />
+              <SelectValue placeholder='Last 30 days' />
             </SelectTrigger>
             <SelectContent className='rounded-xl'>
               <SelectItem value='7' className='rounded-lg'>

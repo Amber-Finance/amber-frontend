@@ -7,6 +7,7 @@ import useSWR from 'swr'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
+import { fetchMissingPrice } from '@/hooks/fetchMissingPrice'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
 import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
@@ -227,41 +228,6 @@ export function useActiveStrategies() {
     refreshActiveStrategies,
     hasActiveStrategies: strategies.length > 0,
   }
-}
-
-// Helper function to fetch missing prices
-const fetchMissingPrice = async (
-  denom: string,
-  decimals: number,
-  updateMarketPrice: (denom: string, priceData: PriceData) => void,
-) => {
-  try {
-    const query = btoa(JSON.stringify({ price: { denom } }))
-    const url = `${chainConfig.endpoints.restUrl}/cosmwasm/wasm/v1/contract/${chainConfig.contracts.oracle}/smart/${query}`
-
-    const response = await fetch(url)
-    if (!response.ok) {
-      console.error(`Failed to fetch price for ${denom}: ${response.statusText}`)
-      return null
-    }
-
-    const data = await response.json()
-    const decimalDifferenceToOracle = decimals - 6
-
-    if (data?.data?.price) {
-      const priceData: PriceData = {
-        denom,
-        price: new BigNumber(data.data.price).shiftedBy(decimalDifferenceToOracle).toString(),
-      }
-
-      // Update the market price in the store
-      updateMarketPrice(denom, priceData)
-      return priceData
-    }
-  } catch (error) {
-    console.error(`Error fetching price for ${denom}:`, error)
-  }
-  return null
 }
 
 // Helper function to check if positions are active

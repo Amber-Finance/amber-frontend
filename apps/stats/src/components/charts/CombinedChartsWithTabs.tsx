@@ -8,7 +8,7 @@ import ProtocolTotalsLineChart from '@/components/charts/ProtocolTotalsLineChart
 
 export default function CombinedChartsWithTabs() {
   const [activeTab, setActiveTab] = useState('assets')
-  const [timeRange, setTimeRange] = useState('7')
+  const [timeRange, setTimeRange] = useState('30')
 
   const tabs = [
     { value: 'assets', label: 'Asset Totals' },
