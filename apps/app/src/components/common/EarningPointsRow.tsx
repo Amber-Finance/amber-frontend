@@ -37,28 +37,52 @@ export function EarningPointsRow({
 
               const pointsData = []
 
-              // Protocol Points - Show first if they exist
-              if (protocolPoints.protocolPoint && protocolPointsIcon) {
+              if (type === 'strategy') {
+                // For strategies: only show Structured Points (2x), Neutron Rewards, and Mars Fragments
                 pointsData.push({
-                  icon: protocolPointsIcon,
-                  alt: protocolPoints.protocolPoint,
-                  tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                  icon: '/images/structured.svg',
+                  alt: 'Structured Points',
+                  tooltip: 'Structured Points 2x',
+                })
+
+                // Neutron Rewards
+                pointsData.push({
+                  icon: '/images/neutron/neutron.svg',
+                  alt: 'Neutron',
+                  tooltip: `Neutron ${neutronMultiplier}`,
+                })
+
+                // Mars Fragments
+                pointsData.push({
+                  icon: '/points/mars-fragments.svg',
+                  alt: 'Mars Fragments',
+                  tooltip: 'Mars Fragments',
+                })
+              } else {
+                // For deposits: show all points including protocol-specific ones
+                // Protocol Points - Show first if they exist
+                if (protocolPoints.protocolPoint && protocolPointsIcon) {
+                  pointsData.push({
+                    icon: protocolPointsIcon,
+                    alt: protocolPoints.protocolPoint,
+                    tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                  })
+                }
+
+                // Neutron Rewards
+                pointsData.push({
+                  icon: '/images/neutron/neutron.svg',
+                  alt: 'Neutron',
+                  tooltip: `Neutron ${neutronMultiplier}`,
+                })
+
+                // Mars Fragments
+                pointsData.push({
+                  icon: '/points/mars-fragments.svg',
+                  alt: 'Mars Fragments',
+                  tooltip: 'Mars Fragments',
                 })
               }
-
-              // Neutron Rewards
-              pointsData.push({
-                icon: '/images/neutron/neutron.svg',
-                alt: 'Neutron',
-                tooltip: `Neutron ${neutronMultiplier}`,
-              })
-
-              // Mars Fragments
-              pointsData.push({
-                icon: '/points/mars-fragments.svg',
-                alt: 'Mars Fragments',
-                tooltip: 'Mars Fragments',
-              })
 
               return pointsData.map((point) => (
                 <div key={point.alt} className='group/icon relative inline-block'>
@@ -95,28 +119,52 @@ export function EarningPointsRow({
 
           const pointsData = []
 
-          // Protocol Points - Show first if they exist
-          if (protocolPoints.protocolPoint && protocolPointsIcon) {
+          if (type === 'strategy') {
+            // For strategies: only show Structured Points (2x), Neutron Rewards, and Mars Fragments
             pointsData.push({
-              icon: protocolPointsIcon,
-              alt: protocolPoints.protocolPoint,
-              tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+              icon: '/images/structured.svg',
+              alt: 'Structured Points',
+              tooltip: 'Structured Points 2x',
+            })
+
+            // Neutron Rewards
+            pointsData.push({
+              icon: '/images/neutron/neutron.svg',
+              alt: 'Neutron',
+              tooltip: `Neutron ${neutronMultiplier}`,
+            })
+
+            // Mars Fragments
+            pointsData.push({
+              icon: '/points/mars-fragments.svg',
+              alt: 'Mars Fragments',
+              tooltip: 'Mars Fragments',
+            })
+          } else {
+            // For deposits: show all points including protocol-specific ones
+            // Protocol Points - Show first if they exist
+            if (protocolPoints.protocolPoint && protocolPointsIcon) {
+              pointsData.push({
+                icon: protocolPointsIcon,
+                alt: protocolPoints.protocolPoint,
+                tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+              })
+            }
+
+            // Neutron Rewards
+            pointsData.push({
+              icon: '/images/neutron/neutron.svg',
+              alt: 'Neutron',
+              tooltip: `Neutron ${neutronMultiplier}`,
+            })
+
+            // Mars Fragments
+            pointsData.push({
+              icon: '/points/mars-fragments.svg',
+              alt: 'Mars Fragments',
+              tooltip: 'Mars Fragments',
             })
           }
-
-          // Neutron Rewards
-          pointsData.push({
-            icon: '/images/neutron/neutron.svg',
-            alt: 'Neutron',
-            tooltip: `Neutron ${neutronMultiplier}`,
-          })
-
-          // Mars Fragments
-          pointsData.push({
-            icon: '/points/mars-fragments.svg',
-            alt: 'Mars Fragments',
-            tooltip: 'Mars Fragments',
-          })
 
           return pointsData.map((point) => (
             <div key={point.alt} className='group/icon relative inline-block'>
