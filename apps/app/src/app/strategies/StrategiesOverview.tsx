@@ -83,7 +83,7 @@ export default function StrategiesOverview() {
   const { isLoading: marketsLoading, error: marketsError } = useMarkets()
   const { markets } = useStore()
 
-  // Fetch active strategies to ensure they're loaded/refreshed when navigating to strategies page
+  // Fetch active strategies (uses global portfolio data from provider)
   useActiveStrategies()
 
   // Fetch maxBTC APY data for strategy supply APY simulation

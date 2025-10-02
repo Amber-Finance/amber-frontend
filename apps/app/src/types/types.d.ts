@@ -32,6 +32,10 @@ interface ActiveStrategy {
   netApy: number
   isPositive: boolean
   strategyId: string
+  // Actual P&L based on initial_deposit
+  initialInvestment: number
+  actualPnl: number
+  actualPnlPercent: number
 }
 
 interface MarketParams {
@@ -120,6 +124,7 @@ interface StoreState {
   hideZeroBalances: boolean
   activeStrategies: ActiveStrategy[]
   cachedStrategies: Record<string, Strategy & { cachedAt: number }>
+  portfolioPositions: PortfolioPositionsResponse | null
   setMarkets: (markets: Market[] | null) => void
   setHideZeroBalances: (hideZeroBalances: boolean) => void
   updateMarketPrice: (denom: string, priceData: PriceData) => void
@@ -131,6 +136,8 @@ interface StoreState {
   cacheStrategy: (strategyId: string, strategy: Strategy) => void
   getCachedStrategy: (strategyId: string) => Strategy | null
   clearStrategyCache: () => void
+  setPortfolioPositions: (positions: PortfolioPositionsResponse | null) => void
+  resetPortfolioPositions: () => void
 }
 
 // API Responses
@@ -290,6 +297,47 @@ interface CollateralResponse {
 
 interface DebtResponse {
   data: UserPosition[]
+}
+
+// Portfolio Positions API Response Types
+interface PortfolioAccount {
+  account_id: string
+  deposits: Array<{
+    denom: string
+    amount: string
+  }>
+  debts: Array<{
+    denom: string
+    amount: string
+  }>
+  lends: Array<{
+    denom: string
+    amount: string
+  }>
+  initial_deposit: Array<{
+    denom: string
+    amount: string
+  }>
+}
+
+interface PortfolioPositionsResponse {
+  total_borrows: string
+  total_supplies: string
+  redbank_deposits: Array<{
+    denom: string
+    amount: string
+  }>
+  redbank_borrow: Array<{
+    denom: string
+    amount: string
+  }>
+  accounts: PortfolioAccount[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    total_pages: number
+  }
 }
 
 interface UserPosition {

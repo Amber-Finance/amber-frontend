@@ -29,7 +29,7 @@ export default function StrategyPage({ params }: StrategyPageProps) {
   const { markets, cacheStrategy, getCachedStrategy } = useStore()
 
   // Ensure all required data is fetched when visiting strategy page
-  useActiveStrategies() // Fetch user's active positions
+  useActiveStrategies() // Uses global portfolio data from provider
   usePrices() // Fetch current prices
 
   useEffect(() => {
