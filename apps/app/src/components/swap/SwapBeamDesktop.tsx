@@ -13,6 +13,7 @@ const tokens = [
   { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
   { symbol: 'eBTC', icon: '/images/eBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
+  { symbol: 'USDC', icon: '/images/USDC.svg' },
 ]
 
 interface SwapBeamDesktopProps {
@@ -23,7 +24,7 @@ interface SwapBeamDesktopProps {
 export default function SwapBeamDesktop({ fromToken, toToken }: SwapBeamDesktopProps) {
   const svgWidth = 2000
   const svgHeight = 500
-  const positions = Array.from({ length: 6 }, (_, i) => i / 5)
+  const positions = Array.from({ length: 7 }, (_, i) => i / 6)
   const path = `M 0 40 Q ${svgWidth / 2} ${svgHeight + 200} ${svgWidth} 40`
   const circleRadius = 32
 
