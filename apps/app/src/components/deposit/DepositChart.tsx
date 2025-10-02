@@ -19,7 +19,7 @@ interface ChartProps {
 }
 
 export function DepositChart({ denom, brandColor, className }: ChartProps) {
-  const [timeRange, setTimeRange] = useState('7')
+  const [timeRange, setTimeRange] = useState('30')
 
   const { data: assetMetrics, isLoading: tvlLoading } = useDenomData(denom, parseInt(timeRange))
   const { data: assetsApr, isLoading: aprLoading } = useAssetsApr(denom, parseInt(timeRange))
