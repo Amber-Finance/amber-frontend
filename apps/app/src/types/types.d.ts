@@ -1,3 +1,15 @@
+// Deposit position interface for portfolio components
+interface DepositPosition {
+  denom: string
+  symbol: string
+  amount: string
+  amountFormatted: number
+  usdValue: number
+  apy: number
+  actualPnl: number
+  actualPnlPercent: number
+}
+
 // Active strategy interface for portfolio components
 interface ActiveStrategy {
   accountId: string
@@ -122,7 +134,6 @@ interface MarketMetrics {
 interface StoreState {
   markets: Market[] | null
   hideZeroBalances: boolean
-  activeStrategies: ActiveStrategy[]
   cachedStrategies: Record<string, Strategy & { cachedAt: number }>
   portfolioPositions: PortfolioPositionsResponse | null
   setMarkets: (markets: Market[] | null) => void
@@ -131,8 +142,6 @@ interface StoreState {
   updateMarketMetrics: (denom: string, metrics: MarketDataItem) => void
   updateMarketPositions: (positions: { deposits: UserPosition[]; debts: UserPosition[] }) => void
   resetPositions: () => void
-  setActiveStrategies: (strategies: ActiveStrategy[]) => void
-  resetActiveStrategies: () => void
   cacheStrategy: (strategyId: string, strategy: Strategy) => void
   getCachedStrategy: (strategyId: string) => Strategy | null
   clearStrategyCache: () => void
@@ -328,6 +337,10 @@ interface PortfolioPositionsResponse {
     amount: string
   }>
   redbank_borrow: Array<{
+    denom: string
+    amount: string
+  }>
+  redbank_initial_deposits: Array<{
     denom: string
     amount: string
   }>

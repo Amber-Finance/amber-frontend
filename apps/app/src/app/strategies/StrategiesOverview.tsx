@@ -9,9 +9,9 @@ import { StrategiesContent } from '@/components/strategies/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
-import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
+import { useActiveStrategies } from '@/hooks/usePortfolioData'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
 import { generateStrategies, processStrategies } from '@/utils/strategyUtils'
@@ -83,7 +83,7 @@ export default function StrategiesOverview() {
   const { isLoading: marketsLoading, error: marketsError } = useMarkets()
   const { markets } = useStore()
 
-  // Fetch active strategies (uses global portfolio data from provider)
+  // Fetch active strategies (uses global portfolio data, refreshed automatically on navigation)
   useActiveStrategies()
 
   // Fetch maxBTC APY data for strategy supply APY simulation

@@ -1,31 +1,115 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
+import { useChain } from '@cosmos-kit/react'
+import useSWR from 'swr'
+
+import getPortfolioPositions from '@/api/getPortfolioPositions'
+import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useLstMarkets } from '@/hooks/useLstMarkets'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
-import { usePortfolioPositions } from '@/hooks/usePortfolioPositions'
 import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
 
-interface DepositPosition {
-  denom: string
-  symbol: string
-  amount: string
-  amountFormatted: number
-  usdValue: number
-  apy: number
-  ytdEarnings: number
-  ytdEarningsPercent: number
+/**
+ * Centralized Portfolio Data Hook
+ * Fetches portfolio data and stores RAW data in Zustand
+ *
+ * This is the single source of truth for portfolio data fetching.
+ * Components should use selector hooks (useDeposits, useActiveStrategies) to get processed data.
+ *
+ * @returns Portfolio data, loading states, and refresh function
+ */
+export function usePortfolioData() {
+  const { address } = useChain(chainConfig.name)
+  const {
+    portfolioPositions: cachedPositions,
+    setPortfolioPositions,
+    resetPortfolioPositions,
+  } = useStore()
+
+  // Reset positions when wallet disconnects
+  useEffect(() => {
+    if (!address) {
+      resetPortfolioPositions()
+    }
+  }, [address, resetPortfolioPositions])
+
+  // Create SWR key - only fetch when wallet is connected
+  const swrKey = address ? `portfolio-positions-${address}` : null
+
+  // Use SWR to fetch and cache portfolio positions
+  const {
+    data: portfolioPositions,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  } = useSWR(
+    swrKey,
+    async () => {
+      const data = await getPortfolioPositions(address!)
+      return data || cachedPositions || null
+    },
+    {
+      refreshInterval: 60000, // Refresh every 60 seconds (1 minute)
+      revalidateOnFocus: true,
+      revalidateOnMount: true, // Fetch immediately when wallet connects
+      revalidateOnReconnect: true,
+      fallbackData: cachedPositions || undefined,
+      dedupingInterval: 5000,
+      keepPreviousData: true,
+      shouldRetryOnError: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 10000,
+      onSuccess: (data) => {
+        if (data) {
+          setPortfolioPositions(data)
+        }
+      },
+      onError: (err) => {
+        console.error('Error fetching portfolio positions:', err)
+      },
+    },
+  )
+
+  // Calculate derived data
+  const totalPositions = portfolioPositions
+    ? portfolioPositions.accounts.length + portfolioPositions.redbank_deposits.length
+    : 0
+
+  const totalBorrows = portfolioPositions ? parseFloat(portfolioPositions.total_borrows) : 0
+  const totalSupplies = portfolioPositions ? parseFloat(portfolioPositions.total_supplies) : 0
+  const totalSupplied = totalSupplies - totalBorrows
+
+  return {
+    // Raw data
+    portfolioPositions,
+
+    // Derived metrics
+    totalPositions,
+    totalBorrows,
+    totalSupplies,
+    totalSupplied,
+
+    // Loading states
+    isLoading,
+    isValidating,
+    error,
+
+    // Actions
+    mutate,
+  }
 }
 
 /**
- * Hook to process portfolio positions data into deposits
- * Transforms raw API data from usePortfolioPositions into formatted deposit data
+ * Selector hook to get deposits from Zustand
+ * Processes raw portfolioPositions into deposit format
  */
-export function usePortfolioDeposits() {
-  const { portfolioPositions, isLoading: isPositionsLoading } = usePortfolioPositions()
-  const { markets } = useStore()
+export function useDeposits() {
+  const portfolioPositions = useStore((state) => state.portfolioPositions)
+  const markets = useStore((state) => state.markets)
   const { data: lstMarkets } = useLstMarkets()
 
   // Ensure prices are loaded
@@ -36,7 +120,6 @@ export function usePortfolioDeposits() {
 
     const depositPositions: DepositPosition[] = []
 
-    // Process redbank deposits
     portfolioPositions.redbank_deposits.forEach((deposit) => {
       const token = tokens.find((t) => t.denom === deposit.denom)
       if (!token) return
@@ -51,14 +134,23 @@ export function usePortfolioDeposits() {
         token.decimals,
       )
 
-      // Get APY data from lstMarkets
       const lstMarket = lstMarkets?.find((lst) => lst.token.denom === deposit.denom)
       const supplyApy = lstMarket?.metrics.totalApy || 0
 
-      // Calculate estimated YTD earnings
-      const timeEstimate = 0.5 // 6 months average
-      const estimatedEarnings = usdValue * (supplyApy / 100) * timeEstimate
-      const earningsPercent = usdValue > 0 ? (estimatedEarnings / usdValue) * 100 : 0
+      const initialDepositItem = portfolioPositions.redbank_initial_deposits?.find(
+        (init) => init.denom === deposit.denom,
+      )
+      const initialDepositUsdValue = initialDepositItem
+        ? calculateUsdValueLegacy(
+            initialDepositItem.amount,
+            market.price?.price || '0',
+            token.decimals,
+          )
+        : 0
+
+      const actualPnl = usdValue - initialDepositUsdValue
+      const actualPnlPercent =
+        initialDepositUsdValue > 0 ? (actualPnl / initialDepositUsdValue) * 100 : 0
 
       depositPositions.push({
         denom: deposit.denom,
@@ -67,32 +159,24 @@ export function usePortfolioDeposits() {
         amountFormatted: isNaN(amountFormatted) ? 0 : amountFormatted,
         usdValue: isNaN(usdValue) ? 0 : usdValue,
         apy: isNaN(supplyApy) ? 0 : supplyApy,
-        ytdEarnings: isNaN(estimatedEarnings) ? 0 : estimatedEarnings,
-        ytdEarningsPercent: isNaN(earningsPercent) ? 0 : earningsPercent,
+        actualPnl: isNaN(actualPnl) ? 0 : actualPnl,
+        actualPnlPercent: isNaN(actualPnlPercent) ? 0 : actualPnlPercent,
       })
     })
 
     return depositPositions.sort((a, b) => b.usdValue - a.usdValue)
   }, [portfolioPositions, markets, lstMarkets])
 
-  const totalValue = deposits.reduce((sum, deposit) => sum + deposit.usdValue, 0)
-  const totalEarnings = deposits.reduce((sum, deposit) => sum + deposit.ytdEarnings, 0)
-
-  return {
-    deposits,
-    totalValue,
-    totalEarnings,
-    isLoading: isPositionsLoading,
-  }
+  return deposits
 }
 
 /**
- * Hook to process portfolio positions data into active strategies
- * Transforms raw API data from usePortfolioPositions into formatted strategy data
+ * Selector hook to get active strategies from Zustand
+ * Processes raw portfolioPositions into strategy format
  */
-export function usePortfolioStrategies() {
-  const { portfolioPositions, isLoading: isPositionsLoading } = usePortfolioPositions()
-  const { markets } = useStore()
+export function useActiveStrategies() {
+  const portfolioPositions = useStore((state) => state.portfolioPositions)
+  const markets = useStore((state) => state.markets)
   const { apy: maxBtcApy } = useMaxBtcApy()
 
   // Ensure prices are loaded
@@ -104,7 +188,6 @@ export function usePortfolioStrategies() {
     const strategies: ActiveStrategy[] = []
 
     portfolioPositions.accounts.forEach((account) => {
-      // A strategy has both deposits (collateral) and debts
       if (account.deposits.length === 0 || account.debts.length === 0) return
 
       account.deposits.forEach((depositItem) => {
@@ -119,7 +202,6 @@ export function usePortfolioStrategies() {
 
           if (!collateralMarket || !debtMarket) return
 
-          // Calculate formatted amounts and USD values
           const collateralAmountFormatted =
             parseFloat(depositItem.amount) / Math.pow(10, collateralToken.decimals)
           const collateralUsdValue = calculateUsdValueLegacy(
@@ -135,7 +217,6 @@ export function usePortfolioStrategies() {
             debtToken.decimals,
           )
 
-          // Calculate initial investment from initial_deposit
           const initialDepositItem = account.initial_deposit.find(
             (init) => init.denom === depositItem.denom,
           )
@@ -147,23 +228,17 @@ export function usePortfolioStrategies() {
               )
             : 0
 
-          // Calculate actual P&L
-          // Current position value (equity) = collateral - debt
           const currentPositionValue = collateralUsdValue - debtUsdValue
-          // Actual P&L = current value - initial investment
           const actualPnl = currentPositionValue - initialDepositUsdValue
           const actualPnlPercent =
             initialDepositUsdValue > 0 ? (actualPnl / initialDepositUsdValue) * 100 : 0
 
-          // Calculate leverage
           const leverage =
             collateralUsdValue > 0 ? collateralUsdValue / (collateralUsdValue - debtUsdValue) : 1
 
-          // Calculate APYs and net APY
           const collateralApy = parseFloat(collateralMarket.metrics?.liquidity_rate || '0') * 100
           const debtApy = parseFloat(debtMarket.metrics?.borrow_rate || '0') * 100
 
-          // Add maxBTC staking APY if collateral is maxBTC
           const stakingApy = collateralToken.symbol === 'maxBTC' ? maxBtcApy : 0
           const totalCollateralApy = collateralApy + stakingApy
 
@@ -194,7 +269,7 @@ export function usePortfolioStrategies() {
               symbol: collateralToken.symbol,
               amount: depositItem.amount,
               amountFormatted: collateralAmountFormatted - debtAmountFormatted,
-              usdValue: collateralUsdValue - debtUsdValue, // Net equity: collateral - debt
+              usdValue: collateralUsdValue - debtUsdValue,
               decimals: collateralToken.decimals,
               icon: collateralToken.icon,
             },
@@ -202,7 +277,6 @@ export function usePortfolioStrategies() {
             netApy,
             isPositive: netApy >= 0,
             strategyId: `${collateralToken.symbol}-${debtToken.symbol}`,
-            // Add actual P&L data
             initialInvestment: initialDepositUsdValue,
             actualPnl,
             actualPnlPercent,
@@ -218,8 +292,14 @@ export function usePortfolioStrategies() {
     })
   }, [portfolioPositions, markets, maxBtcApy])
 
-  return {
-    activeStrategies,
-    isLoading: isPositionsLoading,
-  }
+  return activeStrategies
+}
+
+/**
+ * Selector hook to get portfolio positions from Zustand
+ * Returns raw portfolio data
+ */
+export function usePortfolioPositions() {
+  const portfolioPositions = useStore((state) => state.portfolioPositions)
+  return portfolioPositions
 }

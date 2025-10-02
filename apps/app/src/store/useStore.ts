@@ -25,7 +25,6 @@ export const useStore = create<StoreState>()(
         // Initial state
         markets: null,
         hideZeroBalances: getStoredHideZeroBalances(),
-        activeStrategies: [], // Kept for backward compatibility, populated from portfolioPositions
         cachedStrategies: {},
         portfolioPositions: null,
 
@@ -128,16 +127,6 @@ export const useStore = create<StoreState>()(
           })
         },
 
-        // Set active strategies
-        setActiveStrategies: (strategies: ActiveStrategy[]): void => {
-          set({ activeStrategies: strategies })
-        },
-
-        // Reset active strategies on disconnect
-        resetActiveStrategies: (): void => {
-          set({ activeStrategies: [] })
-        },
-
         // Strategy caching methods
         cacheStrategy: (strategyId: string, strategy: Strategy): void => {
           set((state: StoreState) => ({
@@ -182,7 +171,6 @@ export const useStore = create<StoreState>()(
           markets: state.markets,
           cachedStrategies: state.cachedStrategies,
           portfolioPositions: state.portfolioPositions,
-          // activeStrategies is derived from portfolioPositions, no need to persist separately
         }),
       },
     ),

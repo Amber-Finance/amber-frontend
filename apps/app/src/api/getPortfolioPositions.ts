@@ -1,4 +1,7 @@
 import chainConfig from '@/config/chain'
+import { FETCH_TIMEOUT } from '@/constants/query'
+import { fetchWithTimeout } from '@/utils/fetch'
+import { getUrl } from '@/utils/url'
 
 /**
  * Fetches portfolio positions for a given wallet address
@@ -9,27 +12,29 @@ import chainConfig from '@/config/chain'
 export default async function getPortfolioPositions(
   address: string,
   chain: string = 'neutron',
-): Promise<PortfolioPositionsResponse> {
+): Promise<PortfolioPositionsResponse | null> {
   if (!address) {
-    throw new Error('Address is required')
+    console.warn('Address is required for portfolio positions')
+    return null
   }
 
   try {
-    const url = `${chainConfig.endpoints.redBank}/account_portfolio?chain=${chain}&address=${address}`
+    const url = getUrl(
+      chainConfig.endpoints.redBank,
+      `/account_portfolio?chain=${chain}&address=${address}`,
+    )
 
-    const response = await fetch(url, {
-      method: 'GET',
-      // No headers needed for simple GET requests - avoids CORS preflight
-    })
+    const response = await fetchWithTimeout(url, FETCH_TIMEOUT)
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch portfolio positions: ${response.statusText}`)
+      console.warn(`Failed to fetch portfolio positions: ${response.status} ${response.statusText}`)
+      return null
     }
 
     const data: PortfolioPositionsResponse = await response.json()
     return data
   } catch (error) {
     console.error('Error fetching portfolio positions:', error)
-    throw error
+    return null
   }
 }

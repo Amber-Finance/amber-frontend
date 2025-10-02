@@ -19,8 +19,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
-import { usePortfolioDeposits, usePortfolioStrategies } from '@/hooks/usePortfolioData'
-import { usePortfolioPositions } from '@/hooks/usePortfolioPositions'
+import { useActiveStrategies, useDeposits, usePortfolioPositions } from '@/hooks/usePortfolioData'
 
 // Helper function to determine change type color
 const getChangeTypeColor = (changeType: string): string => {
@@ -34,17 +33,19 @@ const Portfolio = () => {
   const router = useRouter()
   const { address, connect } = useChain(chainConfig.name)
 
-  // Get portfolio data from global provider
-  const { portfolioPositions, totalBorrows, totalSupplies, isLoading, error } =
-    usePortfolioPositions()
+  // Get all data from Zustand (populated by PortfolioDataManager)
+  const portfolioPositions = usePortfolioPositions()
+  const deposits = useDeposits()
+  const activeStrategies = useActiveStrategies()
 
-  // Process portfolio data into deposits and strategies
-  const {
-    deposits,
-    totalValue: depositsValue,
-    totalEarnings: depositsEarnings,
-  } = usePortfolioDeposits()
-  const { activeStrategies } = usePortfolioStrategies()
+  // Calculate loading state - if no data yet and wallet connected, show loading
+  const isLoading = !portfolioPositions && !!address
+
+  // Calculate totals from raw positions data
+  const totalBorrows = portfolioPositions ? parseFloat(portfolioPositions.total_borrows) : 0
+  const totalSupplies = portfolioPositions ? parseFloat(portfolioPositions.total_supplies) : 0
+  const depositsValue = deposits.reduce((sum, deposit) => sum + deposit.usdValue, 0)
+  const depositsEarnings = deposits.reduce((sum, deposit) => sum + deposit.actualPnl, 0)
 
   // Calculate totals from real data using proper position value calculation
   const totalStrategiesValue = activeStrategies.reduce((sum, strategy) => {
@@ -83,23 +84,6 @@ const Portfolio = () => {
         totalPositionValue
       : 0
 
-  // Total active positions (strategies + deposits)
-  const totalActivePositions = activeStrategies.length + deposits.length
-
-  // Calculate P&L percentage
-  const pnlPercentage = totalPositionValue > 0 ? (totalPnL / totalPositionValue) * 100 : 0
-
-  // Helper functions for formatting
-  const formatPercentage = (value: number) => {
-    if (value === 0) return '0.00%'
-    return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
-  }
-
-  const getChangeType = (value: number) => {
-    if (value === 0) return 'neutral'
-    return value >= 0 ? 'positive' : 'negative'
-  }
-
   const stats = [
     {
       title: 'Total Assets',
@@ -107,18 +91,23 @@ const Portfolio = () => {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
-      change: formatPercentage(pnlPercentage),
-      changeType: getChangeType(pnlPercentage),
+      change: '',
+      changeType: 'neutral',
       prefix: '$ ',
     },
     {
-      title: 'Active Positions',
-      value: totalActivePositions.toLocaleString('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }),
-      change: `${activeStrategies.length} Strategies, ${deposits.length} Deposits`,
+      title: 'Total Strategies',
+      value: activeStrategies.reduce((sum, strategy) => sum + strategy.supply.usdValue, 0),
+      change: '',
       changeType: 'neutral',
+      prefix: '$ ',
+    },
+    {
+      title: 'Total Deposits',
+      value: deposits.reduce((sum, deposit) => sum + deposit.usdValue, 0),
+      change: '',
+      changeType: 'neutral',
+      prefix: '$ ',
     },
     {
       title: 'Unrealized P&L',
@@ -126,15 +115,15 @@ const Portfolio = () => {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
-      change: formatPercentage(pnlPercentage),
-      changeType: getChangeType(totalPnL),
+      change: '',
+      changeType: 'neutral',
       prefix: '$ ',
     },
     {
       title: 'Weighted APY',
       value: weightedApy,
-      change: formatPercentage(weightedApy),
-      changeType: getChangeType(weightedApy),
+      change: '',
+      changeType: 'neutral',
       suffix: ' %',
     },
   ]
@@ -167,10 +156,10 @@ const Portfolio = () => {
       <div className='w-full py-6  px-4 sm:px-6 lg:px-8'>
         <div className='w-full mx-auto'>
           {/* Portfolio Overview Stats */}
-          <div className='grid grid-cols-1 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-4'>
+          <div className='grid grid-cols-1 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>
             {isLoading && !portfolioPositions
               ? // Show skeleton loading
-                Array.from({ length: 4 }).map((_, i) => (
+                Array.from({ length: 5 }).map((_, i) => (
                   <SkeletonStatsCard key={`skeleton-stat-${i}`} />
                 ))
               : stats.map((stat, index) => {
@@ -235,25 +224,8 @@ const Portfolio = () => {
                 </div>
               )}
 
-              {/* Error State */}
-              {error && (
-                <div className='text-center py-12'>
-                  <div className='max-w-md mx-auto space-y-3'>
-                    <div className='w-12 h-12 mx-auto bg-red-500/20 rounded-full flex items-center justify-center'>
-                      <div className='w-6 h-6 bg-red-500/40 rounded-full' />
-                    </div>
-                    <h3 className='text-base font-semibold text-red-500'>
-                      Error Loading Positions
-                    </h3>
-                    <p className='text-sm text-muted-foreground'>
-                      Failed to fetch your positions. Please try again.
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {/* Strategy Cards */}
-              {!isLoading && !error && portfolioPositions && (
+              {!isLoading && portfolioPositions && (
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20'>
                   {activeStrategies.length === 0 && deposits.length > 0 ? (
                     <div className='col-span-full'>
