@@ -109,6 +109,24 @@ const tokens: TokenInfo[] = [
     },
     comingSoon: false,
   },
+  {
+    chainId: 'neutron-1',
+    denom: 'ibc/B559A80D62249C8AA07A380E2A2BEA6E5CA9A6F079C912C3A9E9B494105E4F81',
+    symbol: 'USDC',
+    icon: '/images/USDC.svg',
+    description: 'USD Coin',
+    protocolIconLight: '/images/USDC.svg',
+    protocolIconDark: '/images/USDC.svg',
+    decimals: 6,
+    isLST: false,
+    protocol: 'Circle',
+    brandColor: '#2775CA', // USDC blue
+    origin: {
+      chainId: '1',
+      tokenAddress: '0xA0b86a33E6441b8C4C8C0d4b0c8B8C8B8C8B8C8B',
+    },
+    comingSoon: false,
+  },
   // {
   //   chainId: 'neutron-1',
   //   denom: 'ibc/2EB30350120BBAFC168F55D0E65551A27A724175E8FBCC7B37F9A71618FE136B',

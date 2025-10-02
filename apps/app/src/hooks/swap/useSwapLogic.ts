@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 import tokens from '@/config/tokens'
 import { useMarkets, useTokenPreselection } from '@/hooks'
 import useRouteInfo, { useRouteInfoReverse } from '@/hooks/swap/useRouteInfo'
+import { useUSDCPrice } from '@/hooks/useUSDCPrice'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
@@ -19,9 +20,10 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
   useMarkets()
   const { markets } = useStore()
   const { data: walletBalances } = useWalletBalances()
+  const { usdcPrice } = useUSDCPrice()
 
   const swapTokens = useMemo(() => {
-    if (!markets || !walletBalances) return []
+    if (!walletBalances || !markets) return []
     const isConnected = !!address
 
     return tokens.map((token) => {
@@ -29,16 +31,23 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
       const walletBalance = walletBalances.find((b) => b.denom === token.denom)
       const decimals = market?.asset?.decimals ?? token.decimals ?? 8
 
+      // Use market price or USDC local price
+      const price = market?.price?.price
+        ? parseFloat(market.price.price)
+        : token.symbol === 'USDC'
+          ? parseFloat(usdcPrice)
+          : 0
+
       const rawBalance = isConnected && walletBalance?.amount ? Number(walletBalance.amount) : 0
 
       const adjustedBalance =
         rawBalance > 0 ? new BigNumber(walletBalance!.amount).shiftedBy(-decimals).toNumber() : 0
 
       const usdValue =
-        isConnected && walletBalance?.amount && market?.price?.price && rawBalance > 0
+        isConnected && walletBalance?.amount && price > 0 && rawBalance > 0
           ? calculateUsdValueLegacy(
               Number(walletBalance.amount),
-              market.price.price,
+              price.toString(),
               decimals,
             ).toString()
           : '0'
@@ -49,7 +58,7 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
         icon: token.icon,
         balance: adjustedBalance.toString(),
         rawBalance,
-        price: market?.price?.price ? parseFloat(market.price.price) : 0,
+        price,
         denom: token.denom,
         usdValue,
         decimals,
@@ -60,7 +69,7 @@ export const useSwapLogic = ({ state, actions, address }: SwapLogicProps) => {
         brandColor: token.brandColor,
       }
     })
-  }, [markets, walletBalances, address])
+  }, [markets, walletBalances, address, usdcPrice])
 
   const { bestToken, shouldInitialize, markInitialized } = useTokenPreselection(
     swapTokens,
