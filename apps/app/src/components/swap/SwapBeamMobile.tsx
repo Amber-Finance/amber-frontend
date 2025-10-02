@@ -13,6 +13,7 @@ const tokens = [
   { symbol: 'maxBTC', icon: '/images/maxBTC.png' },
   { symbol: 'eBTC', icon: '/images/eBTC.svg' },
   { symbol: 'solvBTC', icon: '/images/solvBTC.svg' },
+  { symbol: 'USDC', icon: '/images/USDC.svg' },
 ]
 
 interface SwapBeamMobileProps {
@@ -40,7 +41,7 @@ export default function SwapBeamMobile({ fromToken, toToken }: SwapBeamMobilePro
   const toTokenIndex = toToken ? tokens.findIndex((t) => t.symbol === toToken) : -1
 
   /** Angle used to place each token around the ellipse */
-  const angleForIndex = (i: number) => (i / 6) * Math.PI * 2 - Math.PI / 2
+  const angleForIndex = (i: number) => (i / 7) * Math.PI * 2 - Math.PI / 2
   const getOrbitPosition = (index: number, isSelected = false) => {
     const angle = angleForIndex(index)
     const baseX = Math.cos(angle) * ellipseRadiusX
