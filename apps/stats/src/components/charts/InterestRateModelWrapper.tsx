@@ -18,6 +18,10 @@ export default function InterestRateModelWrapper({ selectedToken, markets }: Pro
     return null
   }
 
+  const optimalUtilizationRate =
+    parseFloat(market.metrics.interest_rate_model.optimal_utilization_rate) * 100
+  const reserveFactor = parseFloat(market.metrics.reserve_factor || '0') * 100
+
   return (
     <ChartWrapper
       title={
@@ -34,14 +38,15 @@ export default function InterestRateModelWrapper({ selectedToken, markets }: Pro
                 asset. The utilization rate is the ratio between the total borrowed amount and the
                 total supplied amount.
                 <br />
-                When utilization is below the optimal level (80%), interest rates increase gradually
-                to incentivize borrowing. Above the optimal level, rates increase more steeply to
-                encourage more deposits and less borrowing, ensuring liquidity for withdrawals.
+                When utilization is below the optimal level ({optimalUtilizationRate.toFixed(0)}%),
+                interest rates increase gradually to incentivize borrowing. Above the optimal level,
+                rates increase more steeply to encourage more deposits and less borrowing, ensuring
+                liquidity for withdrawals.
                 <br />
                 The model adjusts dynamically to market conditions, targeting an equilibrium that
                 maximizes capital efficiency while maintaining adequate liquidity. The reserve
-                factor (10%) determines how much of the interest paid by borrowers is kept as
-                protocol reserves versus distributed to suppliers.
+                factor ({reserveFactor.toFixed(0)}%) determines how much of the interest paid by
+                borrowers is kept as protocol reserves versus distributed to suppliers.
               </p>
             </TooltipContent>
           </Tooltip>
