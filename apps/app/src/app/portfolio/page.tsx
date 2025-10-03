@@ -21,14 +21,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies, useDeposits, usePortfolioPositions } from '@/hooks/usePortfolioData'
 
-// Helper function to determine change type color
-const getChangeTypeColor = (changeType: string): string => {
-  if (changeType === 'positive') return 'text-green-500'
-  if (changeType === 'negative') return 'text-red-500'
-  if (changeType === 'neutral') return 'text-muted-foreground'
-  return 'text-muted-foreground'
-}
-
 const Portfolio = () => {
   const router = useRouter()
   const { address, connect } = useChain(chainConfig.name)
@@ -109,8 +101,6 @@ const Portfolio = () => {
     {
       title: 'Total Assets',
       value: totalPortfolioValue || 0,
-      change: '',
-      changeType: 'neutral',
       prefix: '$ ',
     },
     {
@@ -119,29 +109,21 @@ const Portfolio = () => {
         (sum, strategy) => sum + (strategy.supply?.usdValue || 0),
         0,
       ),
-      change: '',
-      changeType: 'neutral',
       prefix: '$ ',
     },
     {
       title: 'Total Deposits',
       value: (deposits || []).reduce((sum, deposit) => sum + (deposit.usdValue || 0), 0),
-      change: '',
-      changeType: 'neutral',
       prefix: '$ ',
     },
     {
       title: 'Unrealized P&L',
       value: totalPnL || 0,
-      change: '',
-      changeType: 'neutral',
       prefix: '$ ',
     },
     {
       title: 'Weighted APY',
       value: weightedApy,
-      change: '',
-      changeType: 'neutral',
       suffix: ' %',
     },
   ]
@@ -199,11 +181,6 @@ const Portfolio = () => {
                             />
                             {stat.suffix && <span className='text-primary'>{stat.suffix}</span>}
                           </div>
-                          <p
-                            className={`text-sm font-medium ${getChangeTypeColor(stat.changeType)}`}
-                          >
-                            {stat.change}
-                          </p>
                         </div>
                       </CardContent>
                     </Card>
