@@ -21,7 +21,7 @@ export default function ConnectButton() {
   const { connect, isWalletConnecting, isWalletConnected, address, username, wallet, disconnect } =
     useChain(chainConfig.name)
 
-  const { resetPositions, resetActiveStrategies } = useStore()
+  const { resetPositions, resetPortfolioPositions } = useStore()
 
   // Handle connection
   const handleClick = () => {
@@ -35,7 +35,7 @@ export default function ConnectButton() {
   // Handle disconnect
   const handleDisconnect = () => {
     resetPositions()
-    resetActiveStrategies()
+    resetPortfolioPositions()
     disconnect()
     setShowDropdown(false)
   }
