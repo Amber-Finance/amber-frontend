@@ -2,17 +2,17 @@
 
 import { useMemo, useState } from 'react'
 
-import AreaChartComponent from '@/components/charts/AreaChartComponent'
+import BaseAreaChart from '@/components/charts/BaseAreaChart'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
 import { formatCompactCurrency } from '@/utils/format'
 
-interface TokenPriceLineChartProps {
+interface Props {
   selectedToken: TokenInfo
 }
 
-export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineChartProps) {
+export default function TokenPriceLineChart({ selectedToken }: Props) {
   const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
 
@@ -46,7 +46,7 @@ export default function TokenPriceLineChart({ selectedToken }: TokenPriceLineCha
 
   return (
     <ChartWrapper title={`${selectedToken.symbol} Price (USD)`} onTimeRangeChange={setTimeRange}>
-      <AreaChartComponent
+      <BaseAreaChart
         data={chartData}
         areas={areas}
         yAxisFormatter={formatCompactCurrency}

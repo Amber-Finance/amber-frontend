@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { CartesianGrid, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { ChartContainer } from '@/components/ui/chart'
+import { convertAprToApy } from '@/utils/format'
 
 type InterestRateModelParams = {
   optimal_utilization_rate: string
@@ -13,21 +14,36 @@ type InterestRateModelParams = {
   slope_2: string
 }
 
-interface InterestRateChartProps {
+interface Props {
   interestRateModel: InterestRateModelParams
   reserveFactor: number
   currentUtilization: number
   brandColor?: string
 }
 
-const convertFromAprToApy = (apr: number): number => {
-  const compoundingPeriods = 365 // Daily compounding
-  const aprDecimal = apr / 100
-  const apy = (Math.pow(1 + aprDecimal / compoundingPeriods, compoundingPeriods) - 1) * 100
-  return parseFloat(apy.toFixed(2))
+interface TooltipData {
+  utilization: number
+  borrowRate: number
+  supplyRate: number
+  borrowApr: number
+  supplyApr: number
+}
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: Array<{ payload: TooltipData }>
+  brandColor?: string
 }
 
-const CustomTooltip = ({ active, payload, label, brandColor }: any) => {
+// Default colors
+const COLORS = {
+  borrowApy: '#ef4444',
+  supplyApy: '#F59E0B',
+  borrowApr: '#fca5a5',
+  supplyApr: '#FDE68A',
+  referenceLine: '#ffff',
+} as const
+
+const CustomTooltip = ({ active, payload, brandColor }: CustomTooltipProps) => {
   if (!active || !payload?.length) {
     return null
   }
@@ -35,17 +51,17 @@ const CustomTooltip = ({ active, payload, label, brandColor }: any) => {
   const data = payload[0].payload
 
   return (
-    <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
-      <div className='font-medium'>Utilization: {data.utilization}%</div>
+    <div className='grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
+      <div>Utilization: {data.utilization}%</div>
       <div className='grid gap-1.5'>
         {[
-          { label: 'Borrow APY', value: data.borrowRate, color: '#ef4444' },
-          { label: 'Supply APY', value: data.supplyRate, color: brandColor || '#F59E0B' },
-          { label: 'Borrow APR', value: data.borrowApr, color: '#fca5a5' },
+          { label: 'Borrow APY', value: data.borrowRate, color: COLORS.borrowApy },
+          { label: 'Supply APY', value: data.supplyRate, color: brandColor || COLORS.supplyApy },
+          { label: 'Borrow APR', value: data.borrowApr, color: COLORS.borrowApr },
           {
             label: 'Supply APR',
             value: data.supplyApr,
-            color: brandColor ? `${brandColor}80` : '#FDE68A',
+            color: brandColor ? `${brandColor}80` : COLORS.supplyApr,
           },
         ].map(({ label, value, color }) => (
           <div key={label} className='flex w-full flex-wrap items-stretch gap-2'>
@@ -66,11 +82,9 @@ export default function InterestRateChart({
   reserveFactor,
   currentUtilization,
   brandColor,
-}: InterestRateChartProps) {
+}: Props) {
   const interestRateData = useMemo(() => {
     const dataPoints = []
-
-    // Get interest rate model parameters
     const optimalUtilizationRate = parseFloat(interestRateModel.optimal_utilization_rate) * 100
     const base = parseFloat(interestRateModel.base) * 100
     const slope1 = parseFloat(interestRateModel.slope_1) * 100
@@ -90,9 +104,8 @@ export default function InterestRateChart({
       }
 
       const supplyRate = borrowRate * (i / 100) * (1 - reserveFactorValue)
-
-      const borrowApy = convertFromAprToApy(borrowRate)
-      const supplyApy = convertFromAprToApy(supplyRate)
+      const borrowApy = convertAprToApy(borrowRate)
+      const supplyApy = convertAprToApy(supplyRate)
 
       dataPoints.push({
         utilization: i,
@@ -119,8 +132,8 @@ export default function InterestRateChart({
       }
       const supplyRate = borrowRate * (exactCurrentUtil / 100) * (1 - reserveFactorValue)
 
-      const borrowApy = convertFromAprToApy(borrowRate)
-      const supplyApy = convertFromAprToApy(supplyRate)
+      const borrowApy = convertAprToApy(borrowRate)
+      const supplyApy = convertAprToApy(supplyRate)
 
       dataPoints.push({
         utilization: exactCurrentUtil,
@@ -142,23 +155,23 @@ export default function InterestRateChart({
   const chartConfig = {
     utilizationFormatted: {
       label: 'Utilization',
-      color: '#ffff',
+      color: COLORS.referenceLine,
     },
     borrowRate: {
       label: 'Borrow APY',
-      color: '#ef4444',
+      color: COLORS.borrowApy,
     },
     supplyRate: {
       label: 'Supply APY',
-      color: brandColor || '#F59E0B',
+      color: brandColor || COLORS.supplyApy,
     },
     borrowApr: {
       label: 'Borrow APR',
-      color: '#fca5a5',
+      color: COLORS.borrowApr,
     },
     supplyApr: {
       label: 'Supply APR',
-      color: brandColor ? `${brandColor}80` : '#FDE68A',
+      color: brandColor ? `${brandColor}80` : COLORS.supplyApr,
     },
   }
 
@@ -200,7 +213,7 @@ export default function InterestRateChart({
             {/* Current utilization reference line */}
             <ReferenceLine
               x={currentUtilizationValue}
-              stroke='#ffff'
+              stroke={COLORS.referenceLine}
               strokeWidth={1.5}
               strokeDasharray='5 5'
               ifOverflow='extendDomain'
@@ -208,9 +221,9 @@ export default function InterestRateChart({
                 value: `Current: ${currentUtilizationValue}%`,
                 position: 'top',
                 offset: 10,
-                fill: '#ffff',
+                fill: COLORS.referenceLine,
                 style: {
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 'bold',
                   textAnchor: 'middle',
                 },
@@ -220,7 +233,7 @@ export default function InterestRateChart({
             {/* Optimal utilization reference line */}
             <ReferenceLine
               x={optimalUtilizationRate}
-              stroke='#ffff'
+              stroke={COLORS.referenceLine}
               strokeWidth={1.5}
               strokeDasharray='3 3'
               ifOverflow='extendDomain'
@@ -228,7 +241,7 @@ export default function InterestRateChart({
                 value: `Optimal: ${optimalUtilizationRate.toFixed(0)}%`,
                 position: 'top',
                 offset: 10,
-                fill: '#ffff',
+                fill: COLORS.referenceLine,
                 style: {
                   fontSize: 10,
                   fontWeight: 'bold',
@@ -241,36 +254,36 @@ export default function InterestRateChart({
             <Line
               type='monotone'
               dataKey='borrowApr'
-              stroke='#fca5a5'
+              stroke={COLORS.borrowApr}
               strokeWidth={1.5}
               dot={false}
-              activeDot={{ r: 4, fill: '#fca5a5' }}
+              activeDot={{ r: 4, fill: COLORS.borrowApr }}
             />
             <Line
               type='monotone'
               dataKey='supplyApr'
-              stroke={brandColor ? `${brandColor}80` : '#FDE68A'}
+              stroke={brandColor ? `${brandColor}80` : COLORS.supplyApr}
               strokeWidth={1.5}
               dot={false}
-              activeDot={{ r: 4, fill: brandColor ? `${brandColor}80` : '#FDE68A' }}
+              activeDot={{ r: 4, fill: brandColor ? `${brandColor}80` : COLORS.supplyApr }}
             />
 
             {/* APY Lines */}
             <Line
               type='monotone'
               dataKey='borrowRate'
-              stroke='#ef4444'
+              stroke={COLORS.borrowApy}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: '#ef4444' }}
+              activeDot={{ r: 4, fill: COLORS.borrowApy }}
             />
             <Line
               type='monotone'
               dataKey='supplyRate'
-              stroke={brandColor || '#F59E0B'}
+              stroke={brandColor || COLORS.supplyApy}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: brandColor || '#F59E0B' }}
+              activeDot={{ r: 4, fill: brandColor || COLORS.supplyApy }}
             />
           </LineChart>
         </ChartContainer>

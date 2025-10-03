@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/utils/ui'
 
 interface ChartWrapperProps {
-  title: string
+  title: string | ReactNode
   children: ReactNode
   className?: string
   onTimeRangeChange?: (timeRange: string) => void
@@ -63,7 +63,7 @@ export default function ChartWrapper({
               </Tabs>
             </div>
           ) : (
-            <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
+            <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left w-full'>
               {title}
             </CardTitle>
           )}
