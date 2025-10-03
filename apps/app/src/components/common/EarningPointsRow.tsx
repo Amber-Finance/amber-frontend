@@ -8,7 +8,7 @@ interface EarningPointsRowProps {
   assetSymbol: string
   /** Layout variant - 'full' shows the full section like on deposit cards, 'compact' shows abbreviated badges */
   variant?: 'full' | 'compact'
-  /** Type of position - 'strategy' only shows structured points + Mars, 'deposit' shows all points including Neutron */
+  /** Type of position - 'strategy' only shows structured points + Mars + Neutron, 'deposit' shows all points */
   type?: 'strategy' | 'deposit'
   /** Optional custom class name */
   className?: string
@@ -32,34 +32,30 @@ export function EarningPointsRow({
           <span className='text-sm font-semibold text-foreground'>Earning Points</span>
           <div className='flex -space-x-2'>
             {(() => {
-              const assetLower = assetSymbol.toLowerCase()
-              const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
               const pointsData = []
 
               if (type === 'strategy') {
-                // For strategies: only show Structured Points (2x), Neutron Rewards, and Mars Fragments
+                // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
                 pointsData.push({
                   icon: '/images/structured.svg',
                   alt: 'Structured Points',
                   tooltip: 'Structured Points 2x',
                 })
-
-                // Neutron Rewards
                 pointsData.push({
                   icon: '/images/neutron/neutron.svg',
                   alt: 'Neutron',
-                  tooltip: `Neutron ${neutronMultiplier}`,
+                  tooltip: 'Neutron 2x',
                 })
-
-                // Mars Fragments
                 pointsData.push({
                   icon: '/points/mars-fragments.svg',
                   alt: 'Mars Fragments',
                   tooltip: 'Mars Fragments',
                 })
               } else {
-                // For deposits: show all points including protocol-specific ones
+                // Deposit points: Protocol-specific, Neutron, Mars Fragments
+                const assetLower = assetSymbol.toLowerCase()
+                const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
+
                 // Protocol Points - Show first if they exist
                 if (protocolPoints.protocolPoint && protocolPointsIcon) {
                   pointsData.push({
@@ -114,34 +110,30 @@ export function EarningPointsRow({
       <span className='text-xs text-muted-foreground'>Earning Points:</span>
       <div className='flex -space-x-2'>
         {(() => {
-          const assetLower = assetSymbol.toLowerCase()
-          const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
           const pointsData = []
 
           if (type === 'strategy') {
-            // For strategies: only show Structured Points (2x), Neutron Rewards, and Mars Fragments
+            // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
             pointsData.push({
               icon: '/images/structured.svg',
               alt: 'Structured Points',
               tooltip: 'Structured Points 2x',
             })
-
-            // Neutron Rewards
             pointsData.push({
               icon: '/images/neutron/neutron.svg',
               alt: 'Neutron',
-              tooltip: `Neutron ${neutronMultiplier}`,
+              tooltip: 'Neutron 2x',
             })
-
-            // Mars Fragments
             pointsData.push({
               icon: '/points/mars-fragments.svg',
               alt: 'Mars Fragments',
               tooltip: 'Mars Fragments',
             })
           } else {
-            // For deposits: show all points including protocol-specific ones
+            // Deposit points: Protocol-specific, Neutron, Mars Fragments
+            const assetLower = assetSymbol.toLowerCase()
+            const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
+
             // Protocol Points - Show first if they exist
             if (protocolPoints.protocolPoint && protocolPointsIcon) {
               pointsData.push({

@@ -90,7 +90,7 @@ export default function DepositClient() {
 
   const { data: assetsTvl } = useAssetsTvl()
   const { data: assetMetrics } = useDenomData(tokenData?.denom || '')
-  const marketMetrics = useMarketMetrics(market)
+  const marketMetrics = useMarketMetrics(market!)
 
   const currentTokenTvlData = assetsTvl?.assets?.find(
     (asset: any) => asset.denom === tokenData?.denom,
