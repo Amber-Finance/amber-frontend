@@ -133,6 +133,6 @@ export const useStore = create<StoreState>()(
         }),
       },
     ),
-    { name: 'neve-store' }, // Name for Redux DevTools
+    { name: 'amberfi-store' }, // Name for Redux DevTools
   ),
 )

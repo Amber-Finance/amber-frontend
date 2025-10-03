@@ -6,6 +6,8 @@ import { MarketInfoCard } from '@/components/strategy/MarketInfoCard'
 import { RiskAssessmentCard } from '@/components/strategy/RiskAssessmentCard'
 import { Button } from '@/components/ui/Button'
 
+import { StrategyPointsCard } from './StrategyPointsCard'
+
 // Loading skeleton component
 const CardSkeleton = ({ className = '' }: { className?: string }) => (
   <div className={`bg-card rounded-lg border border-border/20 p-4 space-y-4 ${className}`}>
@@ -272,6 +274,7 @@ export function StrategyFormPanel({
         displayValues={displayValues}
         getAvailableLiquidityDisplay={getAvailableLiquidityDisplay}
       />
+      <StrategyPointsCard strategy={strategy} />
 
       <RiskAssessmentCard
         strategy={strategy}

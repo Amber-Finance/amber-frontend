@@ -8,7 +8,7 @@ interface EarningPointsRowProps {
   assetSymbol: string
   /** Layout variant - 'full' shows the full section like on deposit cards, 'compact' shows abbreviated badges */
   variant?: 'full' | 'compact'
-  /** Type of position - 'strategy' only shows structured points + Mars, 'deposit' shows all points including Neutron */
+  /** Type of position - 'strategy' only shows structured points + Mars + Neutron, 'deposit' shows all points */
   type?: 'strategy' | 'deposit'
   /** Optional custom class name */
   className?: string
@@ -32,33 +32,53 @@ export function EarningPointsRow({
           <span className='text-sm font-semibold text-foreground'>Earning Points</span>
           <div className='flex -space-x-2'>
             {(() => {
-              const assetLower = assetSymbol.toLowerCase()
-              const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
               const pointsData = []
 
-              // Protocol Points - Show first if they exist
-              if (protocolPoints.protocolPoint && protocolPointsIcon) {
+              if (type === 'strategy') {
+                // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
                 pointsData.push({
-                  icon: protocolPointsIcon,
-                  alt: protocolPoints.protocolPoint,
-                  tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                  icon: '/images/structured.svg',
+                  alt: 'Structured Points',
+                  tooltip: 'Structured Points 2x',
+                })
+                pointsData.push({
+                  icon: '/images/neutron/neutron.svg',
+                  alt: 'Neutron',
+                  tooltip: 'Neutron 2x',
+                })
+                pointsData.push({
+                  icon: '/points/mars-fragments.svg',
+                  alt: 'Mars Fragments',
+                  tooltip: 'Mars Fragments',
+                })
+              } else {
+                // Deposit points: Protocol-specific, Neutron, Mars Fragments
+                const assetLower = assetSymbol.toLowerCase()
+                const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
+
+                // Protocol Points - Show first if they exist
+                if (protocolPoints.protocolPoint && protocolPointsIcon) {
+                  pointsData.push({
+                    icon: protocolPointsIcon,
+                    alt: protocolPoints.protocolPoint,
+                    tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+                  })
+                }
+
+                // Neutron Rewards
+                pointsData.push({
+                  icon: '/images/neutron/neutron.svg',
+                  alt: 'Neutron',
+                  tooltip: `Neutron ${neutronMultiplier}`,
+                })
+
+                // Mars Fragments
+                pointsData.push({
+                  icon: '/points/mars-fragments.svg',
+                  alt: 'Mars Fragments',
+                  tooltip: 'Mars Fragments',
                 })
               }
-
-              // Neutron Rewards
-              pointsData.push({
-                icon: '/images/neutron/neutron.svg',
-                alt: 'Neutron',
-                tooltip: `Neutron ${neutronMultiplier}`,
-              })
-
-              // Mars Fragments
-              pointsData.push({
-                icon: '/points/mars-fragments.svg',
-                alt: 'Mars Fragments',
-                tooltip: 'Mars Fragments',
-              })
 
               return pointsData.map((point) => (
                 <div key={point.alt} className='group/icon relative inline-block'>
@@ -90,33 +110,53 @@ export function EarningPointsRow({
       <span className='text-xs text-muted-foreground'>Earning Points:</span>
       <div className='flex -space-x-2'>
         {(() => {
-          const assetLower = assetSymbol.toLowerCase()
-          const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
           const pointsData = []
 
-          // Protocol Points - Show first if they exist
-          if (protocolPoints.protocolPoint && protocolPointsIcon) {
+          if (type === 'strategy') {
+            // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
             pointsData.push({
-              icon: protocolPointsIcon,
-              alt: protocolPoints.protocolPoint,
-              tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+              icon: '/images/structured.svg',
+              alt: 'Structured Points',
+              tooltip: 'Structured Points 2x',
+            })
+            pointsData.push({
+              icon: '/images/neutron/neutron.svg',
+              alt: 'Neutron',
+              tooltip: 'Neutron 2x',
+            })
+            pointsData.push({
+              icon: '/points/mars-fragments.svg',
+              alt: 'Mars Fragments',
+              tooltip: 'Mars Fragments',
+            })
+          } else {
+            // Deposit points: Protocol-specific, Neutron, Mars Fragments
+            const assetLower = assetSymbol.toLowerCase()
+            const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
+
+            // Protocol Points - Show first if they exist
+            if (protocolPoints.protocolPoint && protocolPointsIcon) {
+              pointsData.push({
+                icon: protocolPointsIcon,
+                alt: protocolPoints.protocolPoint,
+                tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
+              })
+            }
+
+            // Neutron Rewards
+            pointsData.push({
+              icon: '/images/neutron/neutron.svg',
+              alt: 'Neutron',
+              tooltip: `Neutron ${neutronMultiplier}`,
+            })
+
+            // Mars Fragments
+            pointsData.push({
+              icon: '/points/mars-fragments.svg',
+              alt: 'Mars Fragments',
+              tooltip: 'Mars Fragments',
             })
           }
-
-          // Neutron Rewards
-          pointsData.push({
-            icon: '/images/neutron/neutron.svg',
-            alt: 'Neutron',
-            tooltip: `Neutron ${neutronMultiplier}`,
-          })
-
-          // Mars Fragments
-          pointsData.push({
-            icon: '/points/mars-fragments.svg',
-            alt: 'Mars Fragments',
-            tooltip: 'Mars Fragments',
-          })
 
           return pointsData.map((point) => (
             <div key={point.alt} className='group/icon relative inline-block'>

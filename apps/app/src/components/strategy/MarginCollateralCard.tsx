@@ -589,30 +589,6 @@ export function MarginCollateralCard({
                           />
                         </div>
 
-                        {(() => {
-                          let priceImpactSign = ''
-                          if (priceImpact < 0) {
-                            priceImpactSign = '-'
-                          } else if (priceImpact > 0) {
-                            priceImpactSign = '+'
-                          }
-
-                          return (
-                            <div className='flex justify-between'>
-                              <span className='text-muted-foreground'>Price Impact</span>
-                              <span className={getPriceImpactColor(priceImpact)}>
-                                {priceImpactSign}
-                                <FormattedValue
-                                  value={Math.abs(priceImpact)}
-                                  maxDecimals={2}
-                                  suffix='%'
-                                  useCompactNotation={false}
-                                />
-                              </span>
-                            </div>
-                          )
-                        })()}
-
                         <div className='flex justify-between'>
                           <span className='text-muted-foreground'>{receiveLabel}</span>
                           <TokenBalance
@@ -638,6 +614,30 @@ export function MarginCollateralCard({
                             align='right'
                           />
                         </div>
+
+                        {(() => {
+                          let priceImpactSign = ''
+                          if (priceImpact < 0) {
+                            priceImpactSign = '-'
+                          } else if (priceImpact > 0) {
+                            priceImpactSign = '+'
+                          }
+
+                          return (
+                            <div className='flex justify-between'>
+                              <span className='text-muted-foreground'>Price Impact</span>
+                              <span className={getPriceImpactColor(priceImpact)}>
+                                {priceImpactSign}
+                                <FormattedValue
+                                  value={Math.abs(priceImpact)}
+                                  maxDecimals={2}
+                                  suffix='%'
+                                  useCompactNotation={false}
+                                />
+                              </span>
+                            </div>
+                          )
+                        })()}
                       </>
                     )
                   }

@@ -90,7 +90,7 @@ export default function DepositClient() {
 
   const { data: assetsTvl } = useAssetsTvl()
   const { data: assetMetrics } = useDenomData(tokenData?.denom || '')
-  const marketMetrics = useMarketMetrics(market)
+  const marketMetrics = useMarketMetrics(market!)
 
   const currentTokenTvlData = assetsTvl?.assets?.find(
     (asset: any) => asset.denom === tokenData?.denom,
@@ -139,13 +139,11 @@ export default function DepositClient() {
       return {
         neutron: { value: '3x', suffix: ' multiplier' },
         mars: { value: '', suffix: '' },
-        showStructured: true,
       }
     } else {
       return {
         neutron: { value: '2x', suffix: ' multiplier' },
         mars: { value: '', suffix: '' },
-        showStructured: false,
       }
     }
   }
@@ -325,16 +323,6 @@ export default function DepositClient() {
                       label={protocolPoints.protocolPoint}
                       value={protocolPoints.multiplier}
                       suffix=' multiplier'
-                      brandColor={token.brandColor}
-                    />
-                  )}
-                  {/* Structured Points - Show for WBTC deposits */}
-                  {depositMultipliers.showStructured && (
-                    <MetricRow
-                      customIcon='/images/structured.svg'
-                      label='Structured Points'
-                      value=''
-                      suffix=''
                       brandColor={token.brandColor}
                     />
                   )}

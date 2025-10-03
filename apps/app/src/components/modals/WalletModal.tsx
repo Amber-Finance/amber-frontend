@@ -44,16 +44,16 @@ const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose }) => {
   const { disconnect, address, wallet, username } = useChain(chainConfig.name)
 
   // Get the store data
-  const { markets, resetPositions, resetActiveStrategies } = useStore()
+  const { markets, resetPositions, resetPortfolioPositions } = useStore()
 
   // Get wallet balances - the hook automatically uses the connected wallet address
   const { data: walletBalances, isLoading: walletBalancesLoading } = useWalletBalances()
 
   // Handle disconnect
   const handleDisconnect = () => {
-    // Reset positions and strategies before disconnecting to clear all cached data
+    // Reset positions and portfolio data before disconnecting to clear all cached data
     resetPositions()
-    resetActiveStrategies()
+    resetPortfolioPositions()
     disconnect()
     onClose()
   }

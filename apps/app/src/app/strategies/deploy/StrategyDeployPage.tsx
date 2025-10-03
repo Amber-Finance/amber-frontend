@@ -10,7 +10,7 @@ import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks'
-import { useActiveStrategies } from '@/hooks/useActiveStrategies'
+import { useActiveStrategies } from '@/hooks/usePortfolioData'
 import { usePrices } from '@/hooks/usePrices'
 import { useStore } from '@/store/useStore'
 
@@ -23,7 +23,7 @@ export default function StrategyDeployPage() {
   const { markets, cacheStrategy, getCachedStrategy } = useStore()
 
   // Ensure all required data is fetched when visiting strategy page
-  useActiveStrategies() // Fetch user's active positions
+  useActiveStrategies() // Uses global portfolio data (refreshed automatically on navigation)
   usePrices() // Fetch current prices
 
   useEffect(() => {

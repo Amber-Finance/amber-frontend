@@ -12,10 +12,10 @@ import { StrategyDisplayPanel } from '@/components/strategy/StrategyDisplayPanel
 import { StrategyFormPanel } from '@/components/strategy/StrategyFormPanel'
 import { StrategyHeader } from '@/components/strategy/StrategyHeader'
 import chainConfig from '@/config/chain'
-import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import { useDebounceWithStatus } from '@/hooks/useDebounce'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
+import { useActiveStrategies } from '@/hooks/usePortfolioData'
 import { useMarketData, useWalletData } from '@/hooks/useStrategyCalculations'
 import { useStrategyLeverageModification } from '@/hooks/useStrategyLeverageModification'
 import { useStrategyWithdrawal } from '@/hooks/useStrategyWithdrawal'
@@ -32,7 +32,7 @@ interface ModifyStrategyProps {
 
 export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   // Use existing active strategies data
-  const { activeStrategies, isLoading: isActiveStrategiesLoading } = useActiveStrategies()
+  const activeStrategies = useActiveStrategies()
 
   // State management
   const [targetLeverage, setTargetLeverage] = useState(0) // Initialize to 0 to indicate not yet initialized
@@ -52,7 +52,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   // Find active strategy for this collateral/debt pair
   const activeStrategy = useMemo(() => {
     return activeStrategies.find(
-      (active) =>
+      (active: ActiveStrategy) =>
         active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
         active.debtAsset.symbol === strategy.debtAsset.symbol,
     )
@@ -84,8 +84,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   // Derived values
   const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy || 0
   const collateralSupplyApy = effectiveMaxBtcApy / 100
-  const isDataLoading =
-    isActiveStrategiesLoading || !markets || markets.length === 0 || maxBtcApy === null
+  const isDataLoading = !markets || markets.length === 0 || maxBtcApy === null
 
   // Initialize target leverage from current position
   useEffect(() => {
