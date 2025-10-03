@@ -42,15 +42,19 @@ const Portfolio = () => {
   const isLoading = !portfolioPositions && !!address
 
   // Calculate totals from raw positions data
-  const totalBorrows = portfolioPositions ? parseFloat(portfolioPositions.total_borrows) : 0
-  const totalSupplies = portfolioPositions ? parseFloat(portfolioPositions.total_supplies) : 0
-  const depositsValue = deposits.reduce((sum, deposit) => sum + deposit.usdValue, 0)
-  const depositsEarnings = deposits.reduce((sum, deposit) => sum + deposit.actualPnl, 0)
+  const totalBorrows = portfolioPositions ? parseFloat(portfolioPositions.total_borrows) || 0 : 0
+  const totalSupplies = portfolioPositions ? parseFloat(portfolioPositions.total_supplies) || 0 : 0
+  const depositsValue = (deposits || []).reduce((sum, deposit) => sum + (deposit.usdValue || 0), 0)
+  const depositsEarnings = (deposits || []).reduce(
+    (sum, deposit) => sum + (deposit.actualPnl || 0),
+    0,
+  )
 
   // Calculate totals from real data using proper position value calculation
-  const totalStrategiesValue = activeStrategies.reduce((sum, strategy) => {
+  const totalStrategiesValue = (activeStrategies || []).reduce((sum, strategy) => {
     // Position value = collateral - debt (net equity)
-    const positionValue = strategy.collateralAsset.usdValue - strategy.debtAsset.usdValue
+    const positionValue =
+      (strategy.collateralAsset?.usdValue || 0) - (strategy.debtAsset?.usdValue || 0)
     return sum + Math.max(positionValue, 0) // Only count positive position values
   }, 0)
 
@@ -58,29 +62,32 @@ const Portfolio = () => {
   const totalBorrowedValue = totalBorrows
   const totalSuppliedValue = totalSupplies
 
-  // Total assets = net equity from strategies (collateral - debt) + pure deposits
-  // For each strategy summed: (collateral - debt) + deposits
-  const totalPortfolioValue = totalStrategiesValue + depositsValue
+  // Total assets = total_supplies - total_borrows (API provides aggregated values)
+  // This represents net equity: all collateral minus all debt
+  const totalPortfolioValue = totalSupplies - totalBorrows
 
   // Calculate total PnL using actual P&L from strategies and estimated earnings from deposits
   const totalPnL =
-    activeStrategies.reduce((sum, strategy) => {
+    (activeStrategies || []).reduce((sum, strategy) => {
       // Use actual P&L calculated from initial_deposit
       return sum + (strategy.actualPnl || 0)
-    }, 0) + depositsEarnings
+    }, 0) + (depositsEarnings || 0)
 
   // Calculate weighted APY based on position values
-  const totalPositionValue = totalStrategiesValue + depositsValue
+  const totalPositionValue = (totalStrategiesValue || 0) + (depositsValue || 0)
   const weightedApy =
     totalPositionValue > 0
-      ? (activeStrategies.reduce((sum, strategy) => {
+      ? ((activeStrategies || []).reduce((sum, strategy) => {
           const positionValue = Math.max(
-            strategy.collateralAsset.usdValue - strategy.debtAsset.usdValue,
+            (strategy.collateralAsset?.usdValue || 0) - (strategy.debtAsset?.usdValue || 0),
             0,
           )
-          return sum + strategy.netApy * positionValue
+          return sum + (strategy.netApy || 0) * positionValue
         }, 0) +
-          deposits.reduce((sum, deposit) => sum + deposit.apy * deposit.usdValue, 0)) /
+          (deposits || []).reduce(
+            (sum, deposit) => sum + (deposit.apy || 0) * (deposit.usdValue || 0),
+            0,
+          )) /
         totalPositionValue
       : 0
 
