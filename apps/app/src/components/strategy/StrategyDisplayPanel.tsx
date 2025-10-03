@@ -3,6 +3,7 @@
 import { StrategyChart } from '@/components/strategies/StrategyChart'
 import { ExistingPositionOverviewCard } from '@/components/strategy/ExistingPositionOverviewCard'
 import { StrategyFlowCard } from '@/components/strategy/StrategyFlowCard'
+import { StrategyPointsCard } from '@/components/strategy/StrategyPointsCard'
 
 interface StrategyDisplayPanelProps {
   strategy: Strategy
@@ -82,6 +83,8 @@ export function StrategyDisplayPanel({
         currentBorrowApy={debtBorrowApy}
         className='w-[494px] h-[350px]'
       />
+
+      <StrategyPointsCard strategy={strategy} />
 
       <StrategyFlowCard
         strategy={strategy}

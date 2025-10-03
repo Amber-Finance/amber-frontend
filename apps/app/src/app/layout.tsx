@@ -10,6 +10,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { TermsModalProvider } from '@/components/modals/TermsModalProvider'
 import { CosmosKitProvider, SkipProvider } from '@/components/providers'
+import { PortfolioDataManager } from '@/components/providers/PortfolioDataManager'
 import { SWRProvider } from '@/components/providers/SWRProvider'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { ThemedParticles } from '@/components/ui/ThemedParticles'
@@ -33,6 +34,7 @@ export default function RootLayout({
             <CosmosKitProvider>
               <SkipProvider>
                 <TermsModalProvider>
+                  <PortfolioDataManager />
                   <div className='relative flex flex-col w-full h-full max-w-full overflow-x-hidden no-scrollbar bg-background'>
                     <Background />
 

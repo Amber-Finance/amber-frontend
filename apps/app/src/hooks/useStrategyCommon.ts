@@ -8,10 +8,10 @@ import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 
 import chainConfig from '@/config/chain'
-import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import { useDebounceWithStatus } from '@/hooks/useDebounce'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
+import { useActiveStrategies } from '@/hooks/usePortfolioData'
 import { usePrices } from '@/hooks/usePrices'
 import { useMarketData, useWalletData } from '@/hooks/useStrategyCalculations'
 import { usePositionCalculationsWithSimulatedApy } from '@/hooks/useStrategySimulatedApy'
@@ -49,7 +49,7 @@ export function useStrategyCommon({ strategy, mode, accountId }: UseStrategyComm
   const { apy: maxBtcApy, error: maxBtcError } = useMaxBtcApy()
   const { address, connect } = useChain(chainConfig.name)
   const { data: walletBalances, isLoading: isBalancesLoading } = useWalletBalances()
-  const { activeStrategies } = useActiveStrategies()
+  const activeStrategies = useActiveStrategies()
   usePrices()
 
   // Derived state
@@ -106,10 +106,10 @@ export function useStrategyCommon({ strategy, mode, accountId }: UseStrategyComm
   // Find active strategy
   const activeStrategy = useMemo(() => {
     if (isModifying && accountId) {
-      return activeStrategies.find((active) => active.accountId === accountId)
+      return activeStrategies.find((active: ActiveStrategy) => active.accountId === accountId)
     }
     return activeStrategies.find(
-      (active) =>
+      (active: ActiveStrategy) =>
         active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
         active.debtAsset.symbol === strategy.debtAsset.symbol,
     )

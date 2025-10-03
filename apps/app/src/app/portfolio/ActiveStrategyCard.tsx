@@ -104,19 +104,16 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
     const fallbackHealthFactor = depositsUsd > 0 ? depositsUsd / (borrowsUsd || 1) : 0
     const healthFactor = computedHealthFactor ?? fallbackHealthFactor
 
-    // Calculate P&L based on strategy performance (same as StrategyCard)
-    // Use the netApy directly from strategy (already calculated correctly in useActiveStrategies)
-    const netApyDecimal = strategy.netApy / 100 // Convert percentage to decimal
-    const timeEstimate = 1 / 12 // Assume 1 month average holding
-    const estimatedPnl = positionValue * netApyDecimal * timeEstimate
-    const pnlPercent = positionValue > 0 ? (estimatedPnl / positionValue) * 100 : 0
+    // Use actual P&L from strategy (calculated from initial_deposit)
+    const actualPnl = strategy.actualPnl || 0
+    const actualPnlPercent = strategy.actualPnlPercent || 0
 
     return {
       positionValue: Math.max(positionValue, 0), // Ensure non-negative
       healthFactor: Math.max(healthFactor, 0),
       maxLeverage,
-      pnl: estimatedPnl,
-      pnlPercent,
+      pnl: actualPnl,
+      pnlPercent: actualPnlPercent,
     }
   }, [strategy, markets, computedHealthFactor])
 

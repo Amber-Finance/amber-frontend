@@ -14,8 +14,8 @@ interface DepositPosition {
   amountFormatted: number
   usdValue: number
   apy: number
-  ytdEarnings: number
-  ytdEarningsPercent: number
+  actualPnl: number
+  actualPnlPercent: number
 }
 
 interface ActiveDepositCardProps {
@@ -114,23 +114,30 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
               Position Value
             </p>
             <p className='text-2xl font-funnel font-bold text-foreground'>
-              {formatUsdValue(Number(deposit.usdValue.toFixed(2)))}
+              <span className='text-primary'>$ </span>
+              <CountingNumber value={deposit.usdValue} decimalPlaces={2} />
             </p>
             <p className='text-sm text-muted-foreground font-medium mt-1'>
               {formatAmount(deposit.amountFormatted, token?.decimals)} {deposit.symbol}
             </p>
           </div>
           <div>
-            <p className='text-xs text-muted-foreground uppercase tracking-wider mb-2'>
-              YTD Earnings
+            <p className='text-xs text-muted-foreground uppercase tracking-wider mb-2'>P&L</p>
+            <p
+              className={`text-2xl font-funnel font-bold ${
+                deposit.actualPnl >= 0 ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              {deposit.actualPnl >= 0 ? '+' : '-'}${Math.abs(deposit.actualPnl || 0).toFixed(2)}
             </p>
-            <p className='text-2xl font-funnel font-bold text-green-500'>
-              {deposit.ytdEarnings >= 0 ? '+' : '-'}${Math.abs(deposit.ytdEarnings || 0).toFixed(2)}
-            </p>
-            <p className='text-sm text-green-500 font-medium mt-1'>
-              {(deposit.ytdEarningsPercent || 0) >= 0 ? '+' : '-'}
-              {typeof deposit.ytdEarningsPercent === 'number' && !isNaN(deposit.ytdEarningsPercent)
-                ? deposit.ytdEarningsPercent.toFixed(2)
+            <p
+              className={`text-sm font-medium mt-1 ${
+                deposit.actualPnlPercent >= 0 ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              {deposit.actualPnlPercent >= 0 ? '+' : ''}
+              {typeof deposit.actualPnlPercent === 'number' && !isNaN(deposit.actualPnlPercent)
+                ? deposit.actualPnlPercent.toFixed(2)
                 : '0.00'}
               %
             </p>

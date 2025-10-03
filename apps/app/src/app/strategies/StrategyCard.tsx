@@ -21,8 +21,8 @@ import {
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
 import { MAXBTC_DENOM } from '@/constants/query'
-import { useActiveStrategies } from '@/hooks/useActiveStrategies'
 import useHealthComputer from '@/hooks/useHealthComputer'
+import { useActiveStrategies } from '@/hooks/usePortfolioData'
 import useWalletBalances from '@/hooks/useWalletBalances'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
@@ -42,14 +42,16 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
   const { data: walletBalances } = useWalletBalances()
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
-  const { activeStrategies, isLoading: activeStrategiesLoading } = useActiveStrategies()
+  const activeStrategies = useActiveStrategies()
 
   // Find active strategy for this collateral/debt pair
-  const activeStrategy = activeStrategies.find(
-    (active) =>
+  const activeStrategy = activeStrategies?.find(
+    (active: ActiveStrategy) =>
       active.collateralAsset.symbol === strategy.collateralAsset.symbol &&
       active.debtAsset.symbol === strategy.debtAsset.symbol,
   )
+
+  const activeStrategiesLoading = !activeStrategies
 
   const maxAPY = useMemo(
     () => getMaxAPY(strategy, markets || [], isWasmReady),
