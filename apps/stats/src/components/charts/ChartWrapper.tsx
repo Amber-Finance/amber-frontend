@@ -48,7 +48,7 @@ export default function ChartWrapper({
 
   return (
     <Card className={cn('bg-background w-full', className)}>
-      <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
+      <CardHeader className='flex flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
         <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1'>
           {tabs && tabs.length > 0 ? (
             <div className='bg-card/20 backdrop-blur-lg rounded-lg p-1'>
