@@ -108,10 +108,7 @@ const Portfolio = () => {
   const stats = [
     {
       title: 'Total Assets',
-      value: (totalPortfolioValue || 0).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
+      value: totalPortfolioValue || 0,
       change: '',
       changeType: 'neutral',
       prefix: '$ ',
@@ -135,10 +132,7 @@ const Portfolio = () => {
     },
     {
       title: 'Unrealized P&L',
-      value: (totalPnL || 0).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
+      value: totalPnL || 0,
       change: '',
       changeType: 'neutral',
       prefix: '$ ',
