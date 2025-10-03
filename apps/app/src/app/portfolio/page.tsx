@@ -41,9 +41,15 @@ const Portfolio = () => {
   // Calculate loading state - if no data yet and wallet connected, show loading
   const isLoading = !portfolioPositions && !!address
 
-  // Calculate totals from raw positions data
-  const totalBorrows = portfolioPositions ? parseFloat(portfolioPositions.total_borrows) || 0 : 0
-  const totalSupplies = portfolioPositions ? parseFloat(portfolioPositions.total_supplies) || 0 : 0
+  // Calculate totals from raw positions data (API returns strings)
+  const parseTotalValue = (value: string | undefined | null): number => {
+    if (!value) return 0
+    const parsed = parseFloat(String(value))
+    return !isNaN(parsed) && isFinite(parsed) ? parsed : 0
+  }
+
+  const totalBorrows = parseTotalValue(portfolioPositions?.total_borrows)
+  const totalSupplies = parseTotalValue(portfolioPositions?.total_supplies)
   const depositsValue = (deposits || []).reduce((sum, deposit) => sum + (deposit.usdValue || 0), 0)
   const depositsEarnings = (deposits || []).reduce(
     (sum, deposit) => sum + (deposit.actualPnl || 0),
@@ -64,18 +70,24 @@ const Portfolio = () => {
 
   // Total assets = total_supplies - total_borrows (API provides aggregated values)
   // This represents net equity: all collateral minus all debt
-  const totalPortfolioValue = totalSupplies - totalBorrows
+  const totalPortfolioValueCalc = (totalSupplies || 0) - (totalBorrows || 0)
+  const totalPortfolioValue =
+    !isNaN(totalPortfolioValueCalc) && isFinite(totalPortfolioValueCalc)
+      ? totalPortfolioValueCalc
+      : 0
 
   // Calculate total PnL using actual P&L from strategies and estimated earnings from deposits
-  const totalPnL =
+  const totalPnLRaw =
     (activeStrategies || []).reduce((sum, strategy) => {
       // Use actual P&L calculated from initial_deposit
       return sum + (strategy.actualPnl || 0)
     }, 0) + (depositsEarnings || 0)
 
+  const totalPnL = !isNaN(totalPnLRaw) ? totalPnLRaw : 0
+
   // Calculate weighted APY based on position values
   const totalPositionValue = (totalStrategiesValue || 0) + (depositsValue || 0)
-  const weightedApy =
+  const weightedApyRaw =
     totalPositionValue > 0
       ? ((activeStrategies || []).reduce((sum, strategy) => {
           const positionValue = Math.max(
@@ -91,10 +103,12 @@ const Portfolio = () => {
         totalPositionValue
       : 0
 
+  const weightedApy = !isNaN(weightedApyRaw) ? weightedApyRaw : 0
+
   const stats = [
     {
       title: 'Total Assets',
-      value: totalPortfolioValue.toLocaleString('en-US', {
+      value: (totalPortfolioValue || 0).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
@@ -104,21 +118,24 @@ const Portfolio = () => {
     },
     {
       title: 'Total Strategies',
-      value: activeStrategies.reduce((sum, strategy) => sum + strategy.supply.usdValue, 0),
+      value: (activeStrategies || []).reduce(
+        (sum, strategy) => sum + (strategy.supply?.usdValue || 0),
+        0,
+      ),
       change: '',
       changeType: 'neutral',
       prefix: '$ ',
     },
     {
       title: 'Total Deposits',
-      value: deposits.reduce((sum, deposit) => sum + deposit.usdValue, 0),
+      value: (deposits || []).reduce((sum, deposit) => sum + (deposit.usdValue || 0), 0),
       change: '',
       changeType: 'neutral',
       prefix: '$ ',
     },
     {
       title: 'Unrealized P&L',
-      value: totalPnL.toLocaleString('en-US', {
+      value: (totalPnL || 0).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
