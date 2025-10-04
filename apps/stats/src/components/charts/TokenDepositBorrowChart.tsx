@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 
-import AreaChartComponent from '@/components/charts/AreaChartComponent'
+import BaseAreaChart from '@/components/charts/BaseAreaChart'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
@@ -10,11 +10,11 @@ import useMaxBtcData from '@/hooks/useMaxBtcData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
 import { formatCompactCurrency } from '@/utils/format'
 
-interface TokenDepositBorrowChartProps {
+interface Props {
   selectedToken: TokenInfo
 }
 
-export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositBorrowChartProps) {
+export default function TokenDepositBorrowChart({ selectedToken }: Props) {
   const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
   const { data: maxBtcData } = useMaxBtcData(parseInt(timeRange))
@@ -83,7 +83,7 @@ export default function TokenDepositBorrowChart({ selectedToken }: TokenDepositB
       }
       onTimeRangeChange={setTimeRange}
     >
-      <AreaChartComponent
+      <BaseAreaChart
         data={chartData}
         areas={areas}
         yAxisFormatter={formatCompactCurrency}

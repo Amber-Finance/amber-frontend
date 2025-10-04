@@ -48,6 +48,14 @@ export const createApyFormatter =
     return `${sign}${value.toFixed(2)}%`
   }
 
+// Convert APR to APY with daily compounding
+export const convertAprToApy = (apr: number): number => {
+  const compoundingPeriods = 365 // Daily compounding
+  const aprDecimal = apr / 100
+  const apy = (Math.pow(1 + aprDecimal / compoundingPeriods, compoundingPeriods) - 1) * 100
+  return parseFloat(apy.toFixed(2))
+}
+
 // Pure function for compact number formatting
 const formatCompactNumberPure = (bn: BigNumber): string => {
   const isNegative = bn.isLessThan(0)

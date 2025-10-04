@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/utils/ui'
 
 interface ChartWrapperProps {
-  title: string
+  title: string | ReactNode
   children: ReactNode
   className?: string
   onTimeRangeChange?: (timeRange: string) => void
@@ -48,7 +48,7 @@ export default function ChartWrapper({
 
   return (
     <Card className={cn('bg-background w-full', className)}>
-      <CardHeader className='flex flex-col sm:flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
+      <CardHeader className='flex flex-row items-center sm:justify-between gap-4 border-b border-border/40'>
         <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1'>
           {tabs && tabs.length > 0 ? (
             <div className='bg-card/20 backdrop-blur-lg rounded-lg p-1'>
@@ -63,7 +63,7 @@ export default function ChartWrapper({
               </Tabs>
             </div>
           ) : (
-            <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left'>
+            <CardTitle className='text-sm font-bold text-foreground text-center sm:text-left w-full'>
               {title}
             </CardTitle>
           )}

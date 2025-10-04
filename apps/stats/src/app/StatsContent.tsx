@@ -9,6 +9,7 @@ import { BigNumber } from 'bignumber.js'
 import TokenIconsRow from '@/components/TokenIconsRow'
 import TokenMetricsCards from '@/components/TokenMetricsCards'
 import CombinedChartsWithTabs from '@/components/charts/CombinedChartsWithTabs'
+import InterestRateModelWrapper from '@/components/charts/InterestRateModelWrapper'
 import TokenApyLineChart from '@/components/charts/TokenApyLineChart'
 import TokenDepositBorrowChart from '@/components/charts/TokenDepositBorrowChart'
 import TokenPriceLineChart from '@/components/charts/TokenPriceLineChart'
@@ -75,6 +76,7 @@ export default function StatsContent() {
         <TokenPriceLineChart selectedToken={selectedToken} />
         <TokenDepositBorrowChart selectedToken={selectedToken} />
       </div>
+      <InterestRateModelWrapper selectedToken={selectedToken} markets={markets} />
     </div>
   )
 }
