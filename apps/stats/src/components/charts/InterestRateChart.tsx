@@ -25,8 +25,6 @@ interface TooltipData {
   utilization: number
   borrowRate: number
   supplyRate: number
-  borrowApr: number
-  supplyApr: number
 }
 interface CustomTooltipProps {
   active?: boolean
