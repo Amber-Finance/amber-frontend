@@ -38,8 +38,6 @@ interface CustomTooltipProps {
 const COLORS = {
   borrowApy: '#ef4444',
   supplyApy: '#F59E0B',
-  borrowApr: '#fca5a5',
-  supplyApr: '#FDE68A',
   referenceLine: '#ffff',
 } as const
 
@@ -57,12 +55,6 @@ const CustomTooltip = ({ active, payload, brandColor }: CustomTooltipProps) => {
         {[
           { label: 'Borrow APY', value: data.borrowRate, color: COLORS.borrowApy },
           { label: 'Supply APY', value: data.supplyRate, color: brandColor || COLORS.supplyApy },
-          { label: 'Borrow APR', value: data.borrowApr, color: COLORS.borrowApr },
-          {
-            label: 'Supply APR',
-            value: data.supplyApr,
-            color: brandColor ? `${brandColor}80` : COLORS.supplyApr,
-          },
         ].map(({ label, value, color }) => (
           <div key={label} className='flex w-full flex-wrap items-stretch gap-2'>
             <div className='shrink-0 w-1 rounded-[2px]' style={{ backgroundColor: color }} />
@@ -110,8 +102,6 @@ export default function InterestRateChart({
       dataPoints.push({
         utilization: i,
         utilizationFormatted: `${i}%`,
-        borrowApr: parseFloat(borrowRate.toFixed(2)),
-        supplyApr: parseFloat(supplyRate.toFixed(2)),
         borrowRate: borrowApy,
         supplyRate: supplyApy,
       })
@@ -138,8 +128,6 @@ export default function InterestRateChart({
       dataPoints.push({
         utilization: exactCurrentUtil,
         utilizationFormatted: `${exactCurrentUtil}%`,
-        borrowApr: parseFloat(borrowRate.toFixed(2)),
-        supplyApr: parseFloat(supplyRate.toFixed(2)),
         borrowRate: borrowApy,
         supplyRate: supplyApy,
       })
@@ -164,14 +152,6 @@ export default function InterestRateChart({
     supplyRate: {
       label: 'Supply APY',
       color: brandColor || COLORS.supplyApy,
-    },
-    borrowApr: {
-      label: 'Borrow APR',
-      color: COLORS.borrowApr,
-    },
-    supplyApr: {
-      label: 'Supply APR',
-      color: brandColor ? `${brandColor}80` : COLORS.supplyApr,
     },
   }
 
@@ -248,24 +228,6 @@ export default function InterestRateChart({
                   textAnchor: 'middle',
                 },
               }}
-            />
-
-            {/* APR Lines */}
-            <Line
-              type='monotone'
-              dataKey='borrowApr'
-              stroke={COLORS.borrowApr}
-              strokeWidth={1.5}
-              dot={false}
-              activeDot={{ r: 4, fill: COLORS.borrowApr }}
-            />
-            <Line
-              type='monotone'
-              dataKey='supplyApr'
-              stroke={brandColor ? `${brandColor}80` : COLORS.supplyApr}
-              strokeWidth={1.5}
-              dot={false}
-              activeDot={{ r: 4, fill: brandColor ? `${brandColor}80` : COLORS.supplyApr }}
             />
 
             {/* APY Lines */}
