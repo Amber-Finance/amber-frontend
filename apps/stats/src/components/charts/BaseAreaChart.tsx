@@ -10,7 +10,7 @@ interface AreaData {
   label: string
 }
 
-interface AreaChartComponentProps {
+interface Props {
   data: ChartDataPoint[]
   areas: AreaData[]
   yAxisFormatter?: (value: number) => string
@@ -19,14 +19,14 @@ interface AreaChartComponentProps {
   className?: string
 }
 
-export default function AreaChartComponent({
+export default function BaseAreaChart({
   data,
   areas,
   yAxisFormatter,
   yAxisDomain,
   tooltipType = 'currency',
   className = 'h-[350px] w-full',
-}: AreaChartComponentProps) {
+}: Props) {
   const chartConfig = areas.reduce(
     (config, area) => {
       config[area.dataKey] = {

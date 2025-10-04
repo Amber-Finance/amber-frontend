@@ -4,7 +4,6 @@ import { fetchWithTimeout } from '@/utils/fetch'
 import { getUrl } from '@/utils/url'
 
 export default async function getMarketsData(denom?: string, days: number = 30) {
-  console.log(denom, days, 'denom, days')
   try {
     const marketParam = denom ? `&market=${denom}` : ''
     const url = getUrl(

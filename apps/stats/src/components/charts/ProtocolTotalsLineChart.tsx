@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 
-import AreaChartComponent from '@/components/charts/AreaChartComponent'
+import AreaChartComponent from '@/components/charts/BaseAreaChart'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
 import { formatCompactCurrency } from '@/utils/format'

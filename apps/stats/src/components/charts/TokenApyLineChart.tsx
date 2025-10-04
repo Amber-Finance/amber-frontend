@@ -2,17 +2,17 @@
 
 import { useMemo, useState } from 'react'
 
-import AreaChartComponent from '@/components/charts/AreaChartComponent'
+import BaseAreaChart from '@/components/charts/BaseAreaChart'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useBtcApy from '@/hooks/useBtcApy'
 import { formatChartDate } from '@/utils/chartDateFormatter'
 
-interface TokenApyLineChartProps {
+interface Props {
   selectedToken: TokenInfo
 }
 
-export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartProps) {
+export default function TokenApyLineChart({ selectedToken }: Props) {
   const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
   const { data: btcApyData } = useBtcApy(selectedToken.symbol, parseInt(timeRange))
@@ -88,7 +88,7 @@ export default function TokenApyLineChart({ selectedToken }: TokenApyLineChartPr
       }
       onTimeRangeChange={setTimeRange}
     >
-      <AreaChartComponent data={chartData} areas={areas} tooltipType='percentage' />
+      <BaseAreaChart data={chartData} areas={areas} tooltipType='percentage' />
     </ChartWrapper>
   )
 }
