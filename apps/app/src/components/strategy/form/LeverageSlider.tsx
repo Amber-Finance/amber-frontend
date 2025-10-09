@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 
 import { Slider } from '@/components/ui/slider'
-import useDebounce from '@/hooks/useDebounce'
+import { useDebounce } from '@/hooks/common'
 
 interface LeverageSliderProps {
   /** Current leverage value for the slider */

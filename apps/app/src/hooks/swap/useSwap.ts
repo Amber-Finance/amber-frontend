@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import { mutate } from 'swr'
 
 import chainConfig from '@/config/chain'
-import { getSwapExactInAction } from '@/utils/swap'
+import { getSwapExactInAction } from '@/utils/data/swap'
 
 export function useSwap() {
   const [isExecuting, setIsExecuting] = useState(false)

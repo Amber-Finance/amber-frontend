@@ -8,9 +8,9 @@ import DepositCard from '@/components/deposit/DepositCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { useLstMarkets, useMarkets } from '@/hooks'
+import type { LstMarketData } from '@/hooks/market/useLstMarkets'
+import { useUserPositions } from '@/hooks/portfolio'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
-import type { LstMarketData } from '@/hooks/useLstMarkets'
-import useUserPositions from '@/hooks/useUserPositions'
 
 const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl) => {
   if (!redBankAssetsTvl?.assets || redBankAssetsTvl.assets.length === 0) {

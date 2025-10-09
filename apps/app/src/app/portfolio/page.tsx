@@ -19,7 +19,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
-import { useActiveStrategies, useDeposits, usePortfolioPositions } from '@/hooks/usePortfolioData'
+import { useActiveStrategies, useDeposits, usePortfolioPositions } from '@/hooks/portfolio'
 
 const Portfolio = () => {
   const router = useRouter()
@@ -160,7 +160,7 @@ const Portfolio = () => {
             {isLoading && !portfolioPositions
               ? // Show skeleton loading
                 Array.from({ length: 5 }).map((_, i) => (
-                  <SkeletonStatsCard key={`skeleton-stat-${i}`} />
+                  <SkeletonStatsCard key={`skeleton-stat-${i + 1}`} />
                 ))
               : stats.map((stat, index) => {
                   return (
@@ -214,7 +214,7 @@ const Portfolio = () => {
               {isLoading && !portfolioPositions && (
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20'>
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <SkeletonStrategyCard key={`skeleton-strategy-${i}`} />
+                    <SkeletonStrategyCard key={`skeleton-strategy-${i + 1}`} />
                   ))}
                 </div>
               )}
@@ -360,7 +360,7 @@ const Portfolio = () => {
               {isLoading && !portfolioPositions && (
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <SkeletonDepositCard key={`skeleton-deposit-${i}`} />
+                    <SkeletonDepositCard key={`skeleton-deposit-${i + 1}`} />
                   ))}
                 </div>
               )}

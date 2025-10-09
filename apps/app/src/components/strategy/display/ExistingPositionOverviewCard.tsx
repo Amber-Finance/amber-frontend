@@ -3,7 +3,7 @@ import { Info } from 'lucide-react'
 import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
-import { getHealthFactorColor } from '@/utils/healthComputer'
+import { getHealthFactorColor } from '@/utils/blockchain/healthComputer'
 
 interface PositionOverviewCardProps {
   strategy: Strategy

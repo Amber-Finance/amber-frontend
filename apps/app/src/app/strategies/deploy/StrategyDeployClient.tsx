@@ -6,7 +6,7 @@ import { useChain } from '@cosmos-kit/react'
 
 import { DeployStrategy, ModifyStrategy } from '@/components/strategy/pages'
 import chainConfig from '@/config/chain'
-import { useActiveStrategies } from '@/hooks/usePortfolioData'
+import { useActiveStrategies } from '@/hooks/portfolio'
 
 interface StrategyDeployClientProps {
   strategy: Strategy

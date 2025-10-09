@@ -9,12 +9,11 @@ import { StrategiesContent } from '@/components/strategy/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
-import { useMarkets } from '@/hooks/useMarkets'
-import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
-import { useActiveStrategies } from '@/hooks/usePortfolioData'
+import { useMarkets, useMaxBtcApy } from '@/hooks/market'
+import { useActiveStrategies } from '@/hooks/portfolio'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValueLegacy } from '@/utils/format'
-import { generateStrategies, processStrategies } from '@/utils/strategyUtils'
+import { calculateUsdValueLegacy } from '@/utils/formatting/format'
+import { generateStrategies, processStrategies } from '@/utils/strategy/strategyUtils'
 
 // Pure function to create default maxBTC token
 const createDefaultMaxBtcToken = () => ({

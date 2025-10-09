@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { formatLargeNumber } from '@/utils/format'
+import { formatLargeNumber } from '@/utils/formatting/format'
 
 interface AnimatedCircularProgressBarProps {
   max: number

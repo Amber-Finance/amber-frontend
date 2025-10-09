@@ -143,6 +143,31 @@ import { useStore } from '../../../store/useStore'
 import chainConfig from '../../config/chain'
 ```
 
+### Strict Rule: No Relative Imports Anywhere
+
+- Never import using './' or '../' anywhere in the codebase, including barrel files (`index.ts`).
+- Always use the `@/*` alias for all internal imports.
+- This applies to components, hooks, utils, api, and re-exports in barrels.
+
+Patterns that are forbidden:
+
+```text
+./*
+../*
+```
+
+Recommended ESLint enforcement:
+
+```js
+// eslint.config.mjs
+'no-restricted-imports': [
+  'error',
+  {
+    patterns: ['./*', '../*'],
+  },
+],
+```
+
 ### Import Order
 
 1. External dependencies (React, Next.js, third-party libraries)
@@ -174,6 +199,14 @@ import { useDebounceWithStatus } from '@/hooks/useDebounce'
 import useHealthComputer from '@/hooks/useHealthComputer'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/format'
+
+// Example of proper import order
+
+// Example of proper import order
+
+// Example of proper import order
+
+// Example of proper import order
 
 // Example of proper import order
 

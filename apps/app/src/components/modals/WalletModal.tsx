@@ -11,9 +11,9 @@ import TokenBalance from '@/components/common/TokenBalance'
 import Modal from '@/components/modals/Modal'
 import { Button } from '@/components/ui/Button'
 import chainConfig from '@/config/chain'
-import useWalletBalances from '@/hooks/useWalletBalances'
+import { useWalletBalances } from '@/hooks/wallet'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValueLegacy } from '@/utils/format'
+import { calculateUsdValueLegacy } from '@/utils/formatting/format'
 
 interface WalletModalProps {
   isOpen: boolean

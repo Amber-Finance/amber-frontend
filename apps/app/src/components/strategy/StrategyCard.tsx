@@ -21,9 +21,9 @@ import {
 import { Separator } from '@/components/ui/separator'
 import chainConfig from '@/config/chain'
 import { MAXBTC_DENOM } from '@/constants/query'
-import useHealthComputer from '@/hooks/useHealthComputer'
-import { useActiveStrategies } from '@/hooks/usePortfolioData'
-import useWalletBalances from '@/hooks/useWalletBalances'
+import { useHealthComputer } from '@/hooks/common'
+import { useActiveStrategies } from '@/hooks/portfolio'
+import { useWalletBalances } from '@/hooks/wallet'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
 import {
@@ -31,7 +31,7 @@ import {
   formatLeverage,
   getGradientColors,
   getMaxAPY,
-} from '@/utils/strategyCardHelpers'
+} from '@/utils/strategy/strategyCardHelpers'
 
 interface StrategyCardProps {
   strategy: Strategy

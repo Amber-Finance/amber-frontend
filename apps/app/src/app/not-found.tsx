@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
 import { BookOpen, HomeIcon, MapIcon } from 'lucide-react'
 
+import { XLogo } from '@/components/common/SocialIcons'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
-import { XLogo } from '@/utils/SocialIcons'
 
 export default function NotFound() {
   return (

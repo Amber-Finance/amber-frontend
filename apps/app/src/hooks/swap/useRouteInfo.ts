@@ -2,7 +2,7 @@ import useSWR from 'swr'
 
 import getNeutronRouteInfo, { getNeutronRouteInfoReverse } from '@/api/swap/getNeutronRouteInfo'
 import chainConfig from '@/config/chain'
-import useDebounce from '@/hooks/useDebounce'
+import { useDebounce } from '@/hooks/common'
 
 export default function useRouteInfo(
   denomIn: string,

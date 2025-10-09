@@ -5,10 +5,10 @@ import React from 'react'
 import { BigNumber } from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
-import { usePrices } from '@/hooks/usePrices'
+import { usePrices } from '@/hooks/market'
 import { cn } from '@/lib/utils'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValueLegacy } from '@/utils/format'
+import { calculateUsdValueLegacy } from '@/utils/formatting/format'
 
 type Size = 'xs' | 'sm' | 'md' | 'lg'
 type Align = 'left' | 'right' | 'center'

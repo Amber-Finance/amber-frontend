@@ -1,7 +1,7 @@
 import { route as skipRoute } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
-import { BN, byDenom, toIntegerString } from '@/utils/helpers'
+import { BN, byDenom, toIntegerString } from '@/utils/common/helpers'
 
 type VenueType = 'duality' | 'unknown'
 
@@ -41,8 +41,8 @@ function analyzeVenues(skipRouteResponse: any): VenueType {
 function extractSwapOperations(skipRouteResponse: any): any[] {
   // Check both camelCase and snake_case for swap operations
   const firstOperation =
-    (skipRouteResponse.operations?.[0] as any)?.swap?.swapIn?.swapOperations ||
-    (skipRouteResponse.operations?.[0] as any)?.swap?.swap_in?.swap_operations
+    skipRouteResponse.operations?.[0]?.swap?.swapIn?.swapOperations ||
+    skipRouteResponse.operations?.[0]?.swap?.swap_in?.swap_operations
   return firstOperation || []
 }
 
@@ -375,6 +375,7 @@ async function binarySearchReverseRouting(
         low = mid.plus(1) // Ensure we don't get stuck
       }
     } catch (error) {
+      console.error('There was an error getting the route info', error)
       low = mid.plus(1) // Try higher amount on error (keep integers)
     }
   }

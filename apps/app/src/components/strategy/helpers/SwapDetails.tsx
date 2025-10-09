@@ -6,8 +6,7 @@ import { BigNumber } from 'bignumber.js'
 
 import FormattedValue from '@/components/common/FormattedValue'
 import TokenBalance from '@/components/common/TokenBalance'
-
-import { getPriceImpactColor } from './strategyHelpers'
+import { getPriceImpactColor } from '@/components/strategy/helpers'
 
 interface SwapDetailsProps {
   isCalculatingPositions: boolean

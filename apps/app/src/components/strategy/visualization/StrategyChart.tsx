@@ -6,7 +6,7 @@ import moment from 'moment'
 
 import { BaseChart } from '@/components/common/chart/BaseChart'
 import useAssetsApr from '@/hooks/redBank/useAssetsApr'
-import { convertAprToApy } from '@/utils/finance'
+import { convertAprToApy } from '@/utils/data/finance'
 
 interface StrategyChartProps {
   denom: string

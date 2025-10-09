@@ -11,20 +11,22 @@ import { ArrowLeft } from 'lucide-react'
 import { StrategyFormPanel } from '@/components/strategy/StrategyFormPanel'
 import { StrategyHeader } from '@/components/strategy/StrategyHeader'
 import { StrategyDisplayPanel } from '@/components/strategy/display/StrategyDisplayPanel'
-import chainConfig from '@/config/chain'
-import { useDebounceWithStatus } from '@/hooks/useDebounce'
-import useHealthComputer from '@/hooks/useHealthComputer'
-import { useMaxBtcApy } from '@/hooks/useMaxBtcApy'
-import { useActiveStrategies } from '@/hooks/usePortfolioData'
-import { useMarketData, useWalletData } from '@/hooks/useStrategyCalculations'
-import { useStrategyLeverageModification } from '@/hooks/useStrategyLeverageModification'
-import { useStrategyWithdrawal } from '@/hooks/useStrategyWithdrawal'
-import { useStore } from '@/store/useStore'
 import {
   createDisplayValues,
   createRiskStyles,
   createStrategyRiskStyles,
-} from '@/utils/strategyDisplayUtils'
+} from '@/components/strategy/helpers/displayUtils'
+import chainConfig from '@/config/chain'
+import { useDebounceWithStatus, useHealthComputer } from '@/hooks/common'
+import { useMaxBtcApy } from '@/hooks/market'
+import { useActiveStrategies } from '@/hooks/portfolio'
+import {
+  useMarketData,
+  useStrategyLeverageModification,
+  useStrategyWithdrawal,
+  useWalletData,
+} from '@/hooks/strategy'
+import { useStore } from '@/store/useStore'
 
 interface ModifyStrategyProps {
   strategy: Strategy

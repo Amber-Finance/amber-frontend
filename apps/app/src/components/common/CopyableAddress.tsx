@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 
-import { formatAddress } from '@/utils/address'
-import { copyToClipboard } from '@/utils/clipboard'
+import { formatAddress } from '@/utils/blockchain/address'
+import { copyToClipboard } from '@/utils/ui/clipboard'
 
 interface CopyableAddressProps {
   address: string

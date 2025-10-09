@@ -3,8 +3,8 @@ import Image from 'next/image'
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
 import { BookOpen } from 'lucide-react'
 
+import { TelegramLogo, XLogo } from '@/components/common/SocialIcons'
 import { AuroraText } from '@/components/ui/AuroraText'
-import { TelegramLogo, XLogo } from '@/utils/SocialIcons'
 
 export function ComingSoonOverlay() {
   return (

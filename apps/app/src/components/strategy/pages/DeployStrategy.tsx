@@ -8,8 +8,7 @@ import { ArrowLeft } from 'lucide-react'
 import { StrategyFormPanel } from '@/components/strategy/StrategyFormPanel'
 import { StrategyHeader } from '@/components/strategy/StrategyHeader'
 import { StrategyDisplayPanel } from '@/components/strategy/display/StrategyDisplayPanel'
-import { useStrategyCommon } from '@/hooks/useStrategyCommon'
-import { useStrategyDeployment } from '@/hooks/useStrategyDeployment'
+import { useStrategyCommon, useStrategyDeployment } from '@/hooks/strategy'
 
 interface DeployStrategyProps {
   strategy: Strategy

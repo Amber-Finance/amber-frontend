@@ -1,7 +1,37 @@
 import { ReactNode } from 'react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
-import { formatLargeCurrency, formatLargeNumber } from '@/utils/format'
+import { formatLargeCurrency, formatLargeNumber } from '@/utils/formatting/format'
+
+// Helper to determine width class based on formatted value suffix
+const getWidthForSuffix = (formattedValue: string, isCurrency: boolean): string => {
+  if (formattedValue.includes('B')) return isCurrency ? 'min-w-[120px]' : 'min-w-[110px]'
+  if (formattedValue.includes('M')) return isCurrency ? 'min-w-[100px]' : 'min-w-[90px]'
+  if (formattedValue.includes('k')) return isCurrency ? 'min-w-[80px]' : 'min-w-[70px]'
+  return isCurrency ? 'min-w-[90px]' : 'min-w-[80px]'
+}
+
+// Helper to render large currency with colored dollar sign
+const renderLargeCurrency = (value: number) => {
+  const formattedValue = formatLargeCurrency(value)
+  const dollarSign = formattedValue.startsWith('-$') ? '-$ ' : '$ '
+  const numberPart = formattedValue.replace(/^(-\$|\$)/, '')
+
+  return (
+    <>
+      <span className='text-primary'>{dollarSign}</span>
+      <span className='text-foreground'>{numberPart}</span>
+    </>
+  )
+}
+
+// Helper to render small currency with colored dollar sign
+const renderSmallCurrency = (value: number, decimalPlaces: number) => (
+  <>
+    <span className='text-primary'>$ </span>
+    <CountingNumber value={value} decimalPlaces={decimalPlaces} />
+  </>
+)
 
 interface StatCardProps {
   value: number
@@ -22,35 +52,12 @@ export function StatCard({
   suffix = '',
   abbreviated = true,
 }: StatCardProps) {
+  const isLargeValue = value >= 10000 && abbreviated
+
   const renderValue = () => {
-    if (isCurrency && value >= 10000 && abbreviated) {
-      // For currency, we need to separate the dollar sign and number for different colors
-      const formattedValue = formatLargeCurrency(value)
-      const dollarSign = formattedValue.startsWith('-$') ? '-$ ' : '$ '
-      const numberPart = formattedValue.replace(/^(-\$|\$)/, '')
-
-      return (
-        <>
-          <span className='text-primary'>{dollarSign}</span>
-          <span className='text-foreground'>{numberPart}</span>
-        </>
-      )
-    }
-
-    // For currency values below 10k, show dollar sign in primary color
-    if (isCurrency) {
-      return (
-        <>
-          <span className='text-primary'>$ </span>
-          <CountingNumber value={value} decimalPlaces={decimalPlaces} />
-        </>
-      )
-    }
-
-    // Use abbreviated formatting for large numbers
-    if (value >= 10000 && abbreviated) {
-      return formatLargeNumber(decimalPlaces)(value)
-    }
+    if (isCurrency && isLargeValue) return renderLargeCurrency(value)
+    if (isCurrency) return renderSmallCurrency(value, decimalPlaces)
+    if (isLargeValue) return formatLargeNumber(decimalPlaces)(value)
 
     return (
       <>
@@ -63,22 +70,13 @@ export function StatCard({
 
   // Calculate dynamic width based on content length
   const getDynamicWidth = () => {
-    if (isCurrency && value >= 10000 && abbreviated) {
-      const formattedValue = formatLargeCurrency(value)
-      if (formattedValue.includes('B')) return 'min-w-[120px]'
-      if (formattedValue.includes('M')) return 'min-w-[100px]'
-      if (formattedValue.includes('k')) return 'min-w-[80px]'
-      return 'min-w-[90px]'
-    }
+    if (!isLargeValue) return 'min-w-[80px]'
 
-    if (value >= 10000 && abbreviated) {
-      const formattedValue = formatLargeNumber(decimalPlaces)(value)
-      if (formattedValue.includes('B')) return 'min-w-[110px]'
-      if (formattedValue.includes('M')) return 'min-w-[90px]'
-      if (formattedValue.includes('k')) return 'min-w-[70px]'
-    }
+    const formattedValue = isCurrency
+      ? formatLargeCurrency(value)
+      : formatLargeNumber(decimalPlaces)(value)
 
-    return 'min-w-[80px]'
+    return getWidthForSuffix(formattedValue, isCurrency)
   }
 
   return (
