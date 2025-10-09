@@ -4,8 +4,7 @@ import { useSearchParams } from 'next/navigation'
 
 import { useChain } from '@cosmos-kit/react'
 
-import { DeployStrategy } from '@/components/strategy/DeployStrategy'
-import { ModifyStrategy } from '@/components/strategy/ModifyStrategy'
+import { DeployStrategy, ModifyStrategy } from '@/components/strategy/pages'
 import chainConfig from '@/config/chain'
 import { useActiveStrategies } from '@/hooks/usePortfolioData'
 
@@ -29,19 +28,9 @@ export default function StrategyDeployClient({ strategy }: StrategyDeployClientP
       active.debtAsset.symbol === strategy.debtAsset.symbol,
   )
 
-  // Determine mode and accountId
-  let shouldShowModify = false
-  let accountId = ''
-
-  if (forceModifying && explicitAccountId) {
-    // Explicit URL parameters take precedence (backwards compatibility)
-    shouldShowModify = true
-    accountId = explicitAccountId
-  } else if (address && existingStrategy) {
-    // Auto-detect: user is connected and has existing position
-    shouldShowModify = true
-    accountId = existingStrategy.accountId
-  }
+  // Determine mode: explicit URL params or auto-detect existing strategy
+  const shouldShowModify =
+    (forceModifying && explicitAccountId) || Boolean(address && existingStrategy)
 
   // Render appropriate component
   if (shouldShowModify) {

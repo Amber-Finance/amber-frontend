@@ -43,7 +43,7 @@ export function ExistingPositionOverviewCard({
     activeStrategy.collateralAsset.amountFormatted - activeStrategy.debtAsset.amountFormatted
   const netCollateral = activeStrategy.collateralAsset.amountFormatted
   const netBorrowed = activeStrategy.debtAsset.amountFormatted
-  const netPosition = netCollateral - netBorrowed // This is the user's equity/net value
+  // netPosition derived as netCollateral - netBorrowed but not used currently
 
   const currentPrice = marketData?.currentPrice || 0
 

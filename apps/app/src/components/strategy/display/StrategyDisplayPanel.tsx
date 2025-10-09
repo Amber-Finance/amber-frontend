@@ -1,9 +1,8 @@
 'use client'
 
-import { ExistingPositionOverviewCard } from '@/components/strategy/ExistingPositionOverviewCard'
-import { StrategyChart } from '@/components/strategy/StrategyChart'
-import { StrategyFlowCard } from '@/components/strategy/StrategyFlowCard'
-import { StrategyPointsCard } from '@/components/strategy/StrategyPointsCard'
+import { StrategyPointsCard } from '@/components/strategy/cards/StrategyPointsCard'
+import { ExistingPositionOverviewCard } from '@/components/strategy/display/ExistingPositionOverviewCard'
+import { StrategyChart, StrategyFlowCard } from '@/components/strategy/visualization'
 
 interface StrategyDisplayPanelProps {
   strategy: Strategy
@@ -22,6 +21,18 @@ interface StrategyDisplayPanelProps {
   isLoading?: boolean
 }
 
+// Loading skeleton component (moved out of component to satisfy linter)
+const CardSkeleton = ({ className = '' }: { className?: string }) => (
+  <div className={`bg-card rounded-lg border border-border/20 p-4 space-y-4 ${className}`}>
+    <div className='h-6 w-32 bg-muted/40 rounded animate-pulse' />
+    <div className='space-y-3'>
+      <div className='h-4 w-full bg-muted/40 rounded animate-pulse' />
+      <div className='h-4 w-3/4 bg-muted/40 rounded animate-pulse' />
+      <div className='h-4 w-1/2 bg-muted/40 rounded animate-pulse' />
+    </div>
+  </div>
+)
+
 export function StrategyDisplayPanel({
   strategy,
   mode,
@@ -38,19 +49,9 @@ export function StrategyDisplayPanel({
   multiplier,
   isLoading = false,
 }: StrategyDisplayPanelProps) {
-  // Loading skeleton component
-  const CardSkeleton = ({ className = '' }: { className?: string }) => (
-    <div className={`bg-card rounded-lg border border-border/20 p-4 space-y-4 ${className}`}>
-      <div className='h-6 w-32 bg-muted/40 rounded animate-pulse' />
-      <div className='space-y-3'>
-        <div className='h-4 w-full bg-muted/40 rounded animate-pulse' />
-        <div className='h-4 w-3/4 bg-muted/40 rounded animate-pulse' />
-        <div className='h-4 w-1/2 bg-muted/40 rounded animate-pulse' />
-      </div>
-    </div>
-  )
+  // CardSkeleton is defined at module scope above to satisfy linter
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <div className='flex-1 space-y-4 order-2 lg:order-1'>
         <CardSkeleton className='h-48' />
@@ -58,7 +59,6 @@ export function StrategyDisplayPanel({
         <CardSkeleton className='h-64' />
       </div>
     )
-  }
 
   return (
     <div className='flex-1 space-y-4 order-2 lg:order-1'>

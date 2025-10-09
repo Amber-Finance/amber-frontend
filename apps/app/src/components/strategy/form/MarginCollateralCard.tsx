@@ -3,15 +3,16 @@ import { useEffect, useState } from 'react'
 import { AlertTriangle, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
 import { InfoCard } from '@/components/deposit'
-import { NewPositionTable } from '@/components/strategy/NewPositionTable'
+import { NewPositionTable } from '@/components/strategy/cards/NewPositionTable'
+import {
+  SwapDetails,
+  getLeverageWarning,
+  getPriceImpactWarning,
+} from '@/components/strategy/helpers'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { InfoAlert } from '@/components/ui/InfoAlert'
 import { Separator } from '@/components/ui/separator'
-// chainConfig no longer needed here; used inside hook
 import useSwapRoute from '@/hooks/swap/useSwapRoute'
-
-import SwapDetails from './SwapDetails'
-import { getLeverageWarning, getPriceImpactWarning } from './strategyHelpers'
 
 // helper functions moved to `strategyHelpers.ts`
 

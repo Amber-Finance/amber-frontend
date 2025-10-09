@@ -2,12 +2,14 @@ import { BigNumber } from 'bignumber.js'
 import { Info } from 'lucide-react'
 
 import TokenBalance from '@/components/common/TokenBalance'
-import { getPriceImpactColor } from '@/components/strategy/strategyHelpers'
+import {
+  computePositionAfterSwap,
+  computeSwapImpact,
+  getPriceImpactColor,
+} from '@/components/strategy/helpers'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
 import { getHealthFactorColor } from '@/utils/healthComputer'
-
-import { computePositionAfterSwap, computeSwapImpact } from './newPositionHelpers'
 
 interface NewPositionTableProps {
   strategy: Strategy

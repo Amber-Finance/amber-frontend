@@ -1,9 +1,8 @@
 import { ArrowRight, RotateCcw, TrendingUp, Wallet } from 'lucide-react'
 
 import { InfoCard } from '@/components/deposit'
-import { StrategyFlow } from '@/components/strategy/StrategyFlow'
+import { StrategyFlow } from '@/components/strategy/visualization/StrategyFlow'
 import { InfoAlert } from '@/components/ui/InfoAlert'
-import { Separator } from '@/components/ui/separator'
 
 interface StrategyFlowCardProps {
   strategy: Strategy
