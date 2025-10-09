@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { BigNumber } from 'bignumber.js'
 
 import Hero from '@/components/layout/Hero'
-import { StrategiesContent } from '@/components/strategies/StrategiesContent'
+import { StrategiesContent } from '@/components/strategy/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'

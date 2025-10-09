@@ -1,4 +1,4 @@
-import { StrategyCard } from '@/app/strategies/StrategyCard'
+import { StrategyCard } from '@/components/strategy/StrategyCard'
 
 interface StrategiesContentProps {
   marketsLoading: boolean

@@ -1,0 +1,1981 @@
+# AmberFi Frontend Development Guidelines
+
+## 🎯 Core Philosophy
+
+- Write clean, maintainable, and well-documented code
+- Prioritize readability and developer experience
+- Follow functional programming patterns where possible
+- Extract reusable logic into custom hooks
+- Keep components focused and composable
+- Always use TypeScript for type safety
+
+---
+
+## 📁 Project Structure & File Organization
+
+### Feature-Based Architecture Philosophy
+
+Our codebase follows a **hybrid feature-based architecture** adapted for Next.js:
+
+- Features are organized by domain (deposit, strategy, swap, portfolio)
+- Shared code lives in common areas (components/common, utils/, hooks/)
+- Each feature owns its components, hooks, and logic
+- Avoid cross-feature dependencies—extract shared code to common areas
+- Keep related code close together for better maintainability
+
+### Folder Structure
+
+```
+src/
+├── api/              # API client functions for data fetching
+│   ├── [domain]/     # Domain-specific API functions (redBank/, swap/)
+│   └── *.ts          # Shared API utilities
+├── app/              # Next.js app directory (pages, layouts, metadata)
+│   ├── deposit/      # Deposit feature (page.tsx, components)
+│   ├── strategies/   # Strategies feature
+│   ├── swap/         # Swap feature
+│   ├── portfolio/    # Portfolio feature
+│   └── layout.tsx    # Root layout
+├── components/       # React components
+│   ├── common/       # Shared/reusable components (TokenBalance, FormattedValue)
+│   ├── layout/       # Layout components (Navbar, Footer, Hero)
+│   ├── ui/           # Base UI components (Button, Card, Input)
+│   ├── deposit/      # Deposit-specific components
+│   ├── strategy/     # Strategy-specific components
+│   ├── swap/         # Swap-specific components
+│   └── portfolio/    # Portfolio-specific components
+├── config/           # Configuration files (chain, tokens, etc.)
+├── constants/        # Application constants
+├── hooks/            # Custom React hooks
+│   ├── [domain]/     # Domain-specific hooks (swap/, redBank/)
+│   └── *.ts          # Shared hooks
+├── lib/              # Third-party library wrappers
+├── store/            # Zustand stores for global state
+├── theme/            # Theme configuration
+├── types/            # TypeScript type definitions
+│   ├── generated/    # Auto-generated types (CosmWasm contracts)
+│   ├── classes/      # Class definitions
+│   └── types.d.ts    # Global type definitions
+└── utils/            # Utility functions
+    └── [domain]/     # Domain-specific utilities (health_computer/)
+```
+
+### Feature Organization Rules
+
+1. **Feature Boundaries**
+   - Each feature (deposit, strategy, swap) should be self-contained
+   - Feature components go in `components/[feature]/`
+   - Feature-specific hooks go in `hooks/[feature]/` or `hooks/use[Feature]*.ts`
+   - Feature pages go in `app/[feature]/`
+
+2. **Shared Code Extraction**
+
+   ```typescript
+   // ❌ BAD - Importing from another feature
+   import { SwapButton } from '@/components/strategy/SwapButton'
+
+   // ✅ GOOD - Extract to common
+   import { SwapButton } from '@/components/common/SwapButton'
+
+   // ❌ BAD - Duplicating logic across features
+   // deposit/DepositForm.tsx and strategy/StrategyForm.tsx both have same validation
+
+   // ✅ GOOD - Extract to shared hook
+   import { useFormValidation } from '@/hooks/useFormValidation'
+   ```
+
+3. **Domain Models & Types**
+   - Centralize domain types in `types/types.d.ts`
+   - Create specific type files for complex domains (e.g., `types/strategy.d.ts`)
+   - Keep generated types separate in `types/generated/`
+
+4. **API Organization**
+
+   ```
+   api/
+   ├── cosmwasm-client.ts        # Shared client setup
+   ├── getPortfolioPositions.ts  # Shared API calls
+   ├── redBank/                  # RedBank domain
+   │   ├── getDenomData.ts
+   │   ├── getAssetsApr.ts
+   │   └── getAssetsTvl.ts
+   └── swap/                     # Swap domain
+       └── getNeutronRouteInfo.ts
+   ```
+
+5. **Avoid Cross-Feature Imports**
+
+   ```typescript
+   // ❌ BAD
+   // Used in deposit feature - this creates tight coupling
+   // ✅ GOOD - Option 1: Make it common if truly shared
+   import { Card } from '@/components/common/Card'
+   // ✅ GOOD - Option 2: Create feature-specific version if logic differs
+   import { DepositCard } from '@/components/deposit/DepositCard'
+   import { StrategyCard } from '@/components/strategy/StrategyCard'
+   ```
+
+### File Naming Conventions
+
+- **Components**: PascalCase (e.g., `StrategyFormPanel.tsx`, `ConnectButton.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `usePortfolioData.ts`, `useSwapState.ts`)
+- **Utilities**: camelCase (e.g., `format.ts`, `broadcast.ts`, `errorParsing.ts`)
+- **API functions**: camelCase (e.g., `getPortfolioPositions.ts`, `getDenomData.ts`)
+- **Types**: PascalCase interfaces in `types.d.ts` or dedicated type files
+- **Config**: camelCase (e.g., `chain.ts`, `tokens.ts`)
+
+---
+
+## 📦 Import Guidelines
+
+### ALWAYS Use Absolute Imports
+
+```typescript
+// ✅ CORRECT - Use @ alias for absolute imports
+import { useStore } from '@/store/useStore'
+import chainConfig from '@/config/chain'
+import { formatNumber } from '@/utils/format'
+import { Button } from '@/components/ui/Button'
+import { usePortfolioData } from '@/hooks/usePortfolioData'
+
+// ❌ WRONG - Never use relative imports
+import { useStore } from '../../../store/useStore'
+import chainConfig from '../../config/chain'
+```
+
+### Import Order
+
+1. External dependencies (React, Next.js, third-party libraries)
+2. Internal absolute imports grouped by type:
+   - Components (`@/components/`)
+   - Hooks (`@/hooks/`)
+   - Utils (`@/utils/`)
+   - Store (`@/store/`)
+   - Config (`@/config/`)
+   - Types (`@/types/`)
+
+```typescript
+// Example of proper import order
+'use client'
+
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useRouter } from 'next/navigation'
+
+import { useChain } from '@cosmos-kit/react'
+import { BigNumber } from 'bignumber.js'
+import { ArrowLeft } from 'lucide-react'
+
+import { StrategyDisplayPanel } from '@/components/strategy/StrategyDisplayPanel'
+import { StrategyFormPanel } from '@/components/strategy/StrategyFormPanel'
+import { Button } from '@/components/ui/Button'
+import chainConfig from '@/config/chain'
+import { useDebounceWithStatus } from '@/hooks/useDebounce'
+import useHealthComputer from '@/hooks/useHealthComputer'
+import { useStore } from '@/store/useStore'
+import { calculateUsdValueLegacy } from '@/utils/format'
+
+// Example of proper import order
+
+// Example of proper import order
+```
+
+### Export Patterns
+
+- **Named exports** for hooks and utilities: `export function usePortfolioData() {}`
+- **Default exports** for components (when single component per file): `export default function ConnectButton() {}`
+- **Barrel exports** for related components: Create `index.ts` to re-export
+
+```typescript
+// components/deposit/index.ts - Barrel export pattern
+export { default as InfoCard } from '@/components/deposit/InfoCard'
+export { default as BalanceRow } from '@/components/deposit/BalanceRow'
+export { default as MetricRow } from '@/components/deposit/MetricRow'
+```
+
+---
+
+## 🎣 Data Fetching with useSWR
+
+### Standard useSWR Pattern
+
+```typescript
+import useSWR from 'swr'
+
+export function useMarketData(denom: string) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    // Key: Use null to prevent fetching, or a unique string/array
+    denom ? `market-data-${denom}` : null,
+
+    // Fetcher: Async function to fetch data
+    async () => {
+      const response = await fetch(`/api/markets/${denom}`)
+      return response.json()
+    },
+
+    // Options: Configure caching, revalidation, etc.
+    {
+      refreshInterval: 60000, // Refresh every 60 seconds
+      revalidateOnFocus: true, // Revalidate when window regains focus
+      revalidateOnMount: true, // Fetch on mount
+      revalidateOnReconnect: true, // Revalidate on network reconnect
+      dedupingInterval: 5000, // Dedupe requests within 5 seconds
+      keepPreviousData: true, // Keep previous data while revalidating
+      shouldRetryOnError: true, // Retry on error
+      errorRetryCount: 3, // Max retry count
+      errorRetryInterval: 10000, // Wait 10s between retries
+
+      // Success callback
+      onSuccess: (data) => {
+        console.log('Data fetched successfully:', data)
+        // Update global state if needed
+      },
+
+      // Error callback
+      onError: (err) => {
+        console.error('Error fetching data:', err)
+      },
+    },
+  )
+
+  return {
+    data,
+    isLoading,
+    isValidating,
+    error,
+    mutate, // Use for manual revalidation
+  }
+}
+```
+
+### useSWR with Conditional Fetching
+
+```typescript
+// Only fetch when address exists (wallet connected)
+const swrKey = address ? `portfolio-positions-${address}` : null
+
+const { data, error, isLoading, mutate } = useSWR(
+  swrKey,
+  async () => await getPortfolioPositions(address!),
+  { refreshInterval: 60000 },
+)
+```
+
+### useSWRImmutable for Static Data
+
+```typescript
+import useSWRImmutable from 'swr/immutable'
+
+// For data that doesn't change often (markets config, asset params)
+const { data, error, isLoading } = useSWRImmutable('allMarketData', fetchAllMarketData, {
+  onSuccess: (data) => {
+    // Store in Zustand for global access
+    setMarkets(data)
+  },
+})
+```
+
+### Important SWR Rules
+
+1. **Always provide a unique key** - Use template strings with variables: `\`${address}/positions\``
+2. **Use `null` key to prevent fetching** - When dependencies aren't ready
+3. **Return early if loading** - Check `isLoading` before accessing data
+4. **Use `mutate()` for manual refresh** - After mutations or user actions
+5. **Handle errors gracefully** - Always check for `error` state
+6. **Configure appropriate intervals** - Balance freshness with performance
+
+---
+
+## 🏪 State Management with Zustand
+
+### Store Structure
+
+```typescript
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
+
+interface StoreState {
+  // State
+  markets: Market[] | null
+  hideZeroBalances: boolean
+  portfolioPositions: PortfolioPositionsResponse | null
+
+  // Actions
+  setMarkets: (markets: Market[] | null) => void
+  setHideZeroBalances: (hide: boolean) => void
+  updateMarketPrice: (denom: string, priceData: PriceData) => void
+  updateMarketMetrics: (denom: string, metrics: MarketDataItem) => void
+  resetPositions: () => void
+}
+
+export const useStore = create<StoreState>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        // Initial state
+        markets: null,
+        hideZeroBalances: true,
+        portfolioPositions: null,
+
+        // Actions - Always use immutable updates
+        setMarkets: (markets) => {
+          if (!markets) return
+          set({ markets })
+        },
+
+        updateMarketPrice: (denom, priceData) => {
+          set((state) => {
+            if (!state.markets) return state
+
+            // Create new array with updated market
+            const updatedMarkets = state.markets.map((market) =>
+              market.asset.denom === denom ? { ...market, price: priceData } : market,
+            )
+
+            return { markets: updatedMarkets }
+          })
+        },
+
+        resetPositions: () => {
+          set({ portfolioPositions: null })
+        },
+      }),
+      {
+        name: 'amberfi-storage', // localStorage key
+        partialize: (state) => ({
+          // Only persist specific fields
+          markets: state.markets,
+          portfolioPositions: state.portfolioPositions,
+        }),
+      },
+    ),
+    { name: 'amberfi-store' }, // Redux DevTools name
+  ),
+)
+```
+
+### Using Zustand in Components
+
+```typescript
+import { useStore } from '@/store/useStore'
+
+function MyComponent() {
+  // Select only what you need (avoids unnecessary re-renders)
+  const markets = useStore((state) => state.markets)
+  const updateMarketPrice = useStore((state) => state.updateMarketPrice)
+
+  // Or destructure multiple values
+  const { hideZeroBalances, setHideZeroBalances } = useStore()
+
+  // Use in effects or handlers
+  useEffect(() => {
+    if (markets) {
+      // Do something with markets
+    }
+  }, [markets])
+}
+```
+
+### Selector Hooks Pattern (Domain Models)
+
+Create dedicated selector hooks to process and access Zustand state. This separates data access from business logic.
+
+```typescript
+// hooks/usePortfolioData.ts - Data fetching hook (stores RAW data in Zustand)
+export function usePortfolioData() {
+  const { portfolioPositions, setPortfolioPositions } = useStore()
+
+  const { data, error, isLoading, mutate } = useSWR(
+    address ? `portfolio-${address}` : null,
+    () => getPortfolioPositions(address!),
+    {
+      onSuccess: (data) => setPortfolioPositions(data),
+    },
+  )
+
+  return { portfolioPositions: data, isLoading, error, mutate }
+}
+
+// hooks/useDeposits.ts - Selector hook (processes data from Zustand)
+export function useDeposits(): Deposit[] {
+  const { portfolioPositions } = useStore()
+
+  return useMemo(() => {
+    if (!portfolioPositions?.redbank_deposits) return []
+
+    return portfolioPositions.redbank_deposits.map((deposit) => ({
+      denom: deposit.denom,
+      amount: deposit.amount,
+      // ... process into friendly format
+    }))
+  }, [portfolioPositions])
+}
+
+// hooks/useActiveStrategies.ts - Selector hook (processes data from Zustand)
+export function useActiveStrategies(): ActiveStrategy[] {
+  const { portfolioPositions } = useStore()
+
+  return useMemo(() => {
+    if (!portfolioPositions?.accounts) return []
+
+    return portfolioPositions.accounts.map((account) => ({
+      accountId: account.id,
+      leverage: calculateLeverage(account),
+      // ... process into friendly format
+    }))
+  }, [portfolioPositions])
+}
+```
+
+**Benefits of Selector Pattern:**
+
+- ✅ Single source of truth (Zustand stores RAW API data)
+- ✅ Computed values are derived consistently
+- ✅ Components don't need to know data structure
+- ✅ Easy to test selectors independently
+- ✅ Avoids data duplication across components
+
+### Zustand Best Practices
+
+1. **Use selectors to minimize re-renders** - Only select what component needs
+2. **Keep actions pure** - No side effects in reducers
+3. **Use immutable updates** - Always create new objects/arrays
+4. **Persist selectively** - Only persist what's needed across sessions
+5. **Store RAW data** - Compute derived data in components/hooks via selectors
+6. **Reset on logout** - Clear sensitive data when wallet disconnects
+7. **Create selector hooks** - Don't process data directly in components
+
+---
+
+## 🪝 Custom Hooks Patterns
+
+### When to Extract a Hook
+
+Extract logic into a custom hook when:
+
+- ✅ Logic is reused in multiple components
+- ✅ Component has complex state management (>50 lines)
+- ✅ Side effects need to be isolated and tested
+- ✅ Business logic should be separated from UI
+- ✅ Multiple useState/useEffect calls can be grouped
+
+### Hook Naming Convention
+
+- Prefix with `use`: `usePortfolioData`, `useSwapState`, `useHealthComputer`
+- Be descriptive: `useDebounceWithStatus` vs `useDebounce`
+- Group related hooks: `useMarkets`, `useMarketData`, `useMarketMetrics`
+
+### Hook Organization & Categories
+
+Organize hooks into clear categories for better maintainability:
+
+```
+hooks/
+├── index.ts                    # Export all hooks (barrel export)
+├── redBank/                    # Domain-specific: RedBank
+│   ├── useAssetsApr.ts
+│   ├── useAssetsTvl.ts
+│   └── useDenomData.ts
+├── swap/                       # Domain-specific: Swap
+│   ├── useSwap.ts
+│   ├── useSwapState.ts
+│   ├── useSwapLogic.ts
+│   └── useRouteInfo.ts
+├── usePortfolioData.ts         # Data fetching hooks
+├── usePrices.ts
+├── useMarkets.ts
+├── useWalletBalances.ts
+├── useDepositState.ts          # State management hooks
+├── useSwapState.ts
+├── useStrategyState.ts
+├── useStrategyCommon.ts        # Business logic hooks
+├── useStrategyDeployment.ts
+├── useStrategyCalculations.ts
+├── useHealthComputer.ts        # Computation hooks
+├── useSimulatedApy.ts
+├── useDebounce.ts              # Utility hooks
+├── useTransactions.ts
+└── useTokenPreselection.ts
+```
+
+**Hook Categories:**
+
+1. **Data Fetching Hooks** - Fetch data via useSWR and store in Zustand
+
+   ```typescript
+   // Example: usePortfolioData, useMarkets, usePrices
+   export function usePortfolioData() {
+     const { data, error, isLoading, mutate } = useSWR(...)
+     return { portfolioPositions: data, isLoading, error, mutate }
+   }
+   ```
+
+2. **Selector Hooks** - Process and select data from Zustand
+
+   ```typescript
+   // Example: useDeposits, useActiveStrategies
+   export function useDeposits(): Deposit[] {
+     const { portfolioPositions } = useStore()
+     return useMemo(() => processDeposits(portfolioPositions), [portfolioPositions])
+   }
+   ```
+
+3. **State Management Hooks** - Complex local state with useReducer
+
+   ```typescript
+   // Example: useDepositState, useSwapState, useStrategyState
+   export function useDepositState() {
+     const [state, dispatch] = useReducer(depositReducer, initialState)
+     return { state, actions, computed }
+   }
+   ```
+
+4. **Business Logic Hooks** - Complex calculations and orchestration
+
+   ```typescript
+   // Example: useStrategyCommon, useHealthComputer
+   export function useStrategyCommon({ strategy, mode }) {
+     // Combines multiple hooks and calculations
+     const marketData = useMarketData(strategy, markets)
+     const walletData = useWalletData(strategy, balances)
+     // ... business logic
+     return {
+       /* all derived state and helpers */
+     }
+   }
+   ```
+
+5. **Utility Hooks** - Generic reusable hooks
+   ```typescript
+   // Example: useDebounce, useModal, useTransactions
+   export function useDebounce<T>(value: T, delay: number): T {
+     // Generic debouncing logic
+   }
+   ```
+
+**Hook Dependencies:**
+
+```
+Data Fetching Hooks (useSWR)
+    ↓ (stores raw data)
+Zustand Store
+    ↓ (reads data)
+Selector Hooks (useMemo)
+    ↓ (consumes processed data)
+Components
+```
+
+### Data Fetching Hook Pattern
+
+```typescript
+/**
+ * Centralized Portfolio Data Hook
+ * Fetches portfolio data and stores RAW data in Zustand
+ *
+ * This is the single source of truth for portfolio data fetching.
+ * Components should use selector hooks (useDeposits, useActiveStrategies)
+ * to get processed data.
+ */
+export function usePortfolioData() {
+  const { address } = useChain(chainConfig.name)
+  const { portfolioPositions, setPortfolioPositions, resetPortfolioPositions } = useStore()
+
+  // Reset when wallet disconnects
+  useEffect(() => {
+    if (!address) {
+      resetPortfolioPositions()
+    }
+  }, [address, resetPortfolioPositions])
+
+  // SWR key - only fetch when wallet connected
+  const swrKey = address ? `portfolio-positions-${address}` : null
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    swrKey,
+    async () => {
+      const data = await getPortfolioPositions(address!)
+      return data || portfolioPositions || null
+    },
+    {
+      refreshInterval: 60000,
+      revalidateOnFocus: true,
+      onSuccess: (data) => {
+        if (data) setPortfolioPositions(data)
+      },
+    },
+  )
+
+  return {
+    portfolioPositions: data,
+    totalPositions: data?.accounts.length ?? 0,
+    isLoading,
+    error,
+    mutate, // For manual refresh
+  }
+}
+```
+
+### Selector Hook Pattern
+
+```typescript
+/**
+ * Selector hook to get active strategies from portfolio data
+ * Processes raw portfolioPositions into strategy format
+ */
+export function useActiveStrategies(): ActiveStrategy[] {
+  const { portfolioPositions } = useStore()
+
+  return useMemo(() => {
+    if (!portfolioPositions?.accounts) return []
+
+    return portfolioPositions.accounts.map((account) => ({
+      accountId: account.id,
+      leverage: calculateLeverage(account),
+      // ... process data
+    }))
+  }, [portfolioPositions])
+}
+```
+
+### Complex State Hook with useReducer
+
+```typescript
+interface DepositState {
+  activeTab: 'deposit' | 'withdraw'
+  depositAmount: string
+  withdrawAmount: string
+  sliderPercentage: number
+}
+
+type DepositAction =
+  | { type: 'SET_ACTIVE_TAB'; payload: 'deposit' | 'withdraw' }
+  | { type: 'SET_DEPOSIT_AMOUNT'; payload: string }
+  | { type: 'RESET_STATE' }
+
+const depositReducer = (state: DepositState, action: DepositAction): DepositState => {
+  switch (action.type) {
+    case 'SET_ACTIVE_TAB':
+      return { ...state, activeTab: action.payload }
+    case 'SET_DEPOSIT_AMOUNT':
+      return { ...state, depositAmount: action.payload }
+    case 'RESET_STATE':
+      return initialState
+    default:
+      return state
+  }
+}
+
+export const useDepositState = () => {
+  const [state, dispatch] = useReducer(depositReducer, initialState)
+
+  // Action creators (memoized)
+  const actions = {
+    setActiveTab: useCallback(
+      (tab: 'deposit' | 'withdraw') => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab }),
+      [],
+    ),
+    setDepositAmount: useCallback(
+      (amount: string) => dispatch({ type: 'SET_DEPOSIT_AMOUNT', payload: amount }),
+      [],
+    ),
+    resetState: useCallback(() => dispatch({ type: 'RESET_STATE' }), []),
+  }
+
+  // Derived state (computed values)
+  const computed = {
+    currentAmount: state.activeTab === 'deposit' ? state.depositAmount : state.withdrawAmount,
+    hasAmount: state.depositAmount !== '' && parseFloat(state.depositAmount) > 0,
+  }
+
+  return { state, actions, computed }
+}
+```
+
+### Performance Optimization Hooks
+
+```typescript
+// Debounce with status tracking
+export function useDebounceWithStatus<T>(value: T, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+  const [isDebouncing, setIsDebouncing] = useState(false)
+
+  useEffect(() => {
+    setIsDebouncing(true)
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+      setIsDebouncing(false)
+    }, delay)
+
+    return () => clearTimeout(handler)
+  }, [value, delay])
+
+  return { debouncedValue, isDebouncing }
+}
+```
+
+### Hook Best Practices
+
+1. **Document complex hooks** - Use JSDoc comments
+2. **Return objects, not arrays** - Easier to destructure: `{ data, error }` vs `[data, error]`
+3. **Group return values logically** - `{ state, actions, computed }`
+4. **Use proper dependencies** - Always include all dependencies in useEffect/useCallback
+5. **Memoize expensive computations** - Use useMemo for derived data
+6. **Handle cleanup** - Return cleanup functions from useEffect
+7. **Test hooks independently** - Write unit tests for complex hooks
+
+---
+
+## 🧩 Component Composition & Splitting
+
+### When to Split Components
+
+Split a component when:
+
+- ✅ Component exceeds 200-300 lines
+- ✅ A section has its own state/logic
+- ✅ A section is reusable across multiple pages
+- ✅ Readability suffers from complexity
+- ✅ Testing individual parts becomes difficult
+
+### Component Hierarchy Example
+
+```typescript
+// ❌ BAD - Everything in one component (500+ lines)
+export function DeployStrategy({ strategy }: Props) {
+  // Massive component with all logic
+  return (
+    <div>
+      {/* Header */}
+      {/* Display Panel */}
+      {/* Form Panel */}
+      {/* Multiple cards */}
+      {/* Complex logic mixed with UI */}
+    </div>
+  )
+}
+
+// ✅ GOOD - Split into focused subcomponents
+export function DeployStrategy({ strategy }: Props) {
+  const strategyCommon = useStrategyCommon({ strategy, mode: 'deploy' })
+
+  return (
+    <div className="container">
+      <StrategyHeader
+        strategy={strategy}
+        onBack={() => router.back()}
+      />
+
+      <div className="flex gap-6">
+        <StrategyDisplayPanel
+          strategy={strategy}
+          mode="deploy"
+          displayValues={displayValues}
+          positionCalcs={positionCalcs}
+          {...otherProps}
+        />
+
+        <StrategyFormPanel
+          strategy={strategy}
+          mode="deploy"
+          collateralAmount={collateralAmount}
+          setCollateralAmount={setCollateralAmount}
+          {...otherProps}
+        />
+      </div>
+    </div>
+  )
+}
+```
+
+### Subcomponent Organization
+
+```typescript
+// components/strategy/
+//   ├── DeployStrategy.tsx          // Main orchestrator
+//   ├── ModifyStrategy.tsx          // Main orchestrator
+//   ├── StrategyHeader.tsx          // Shared header
+//   ├── StrategyDisplayPanel.tsx    // Left panel (charts, cards)
+//   ├── StrategyFormPanel.tsx       // Right panel (inputs, actions)
+//   ├── StrategyChart.tsx           // Chart component
+//   ├── StrategyFlowCard.tsx        // Flow visualization card
+//   ├── MarginCollateralCard.tsx    // Input card
+//   ├── RiskAssessmentCard.tsx      // Risk info card
+//   └── LeverageSlider.tsx          // Slider component
+
+// Each component has clear responsibility and props interface
+```
+
+### Component Props Pattern
+
+```typescript
+// Define clear, typed interfaces for props
+interface StrategyDisplayPanelProps {
+  strategy: Strategy
+  mode: 'deploy' | 'modify'
+  displayValues: DisplayValues
+  positionCalcs: PositionCalculations
+  marketData: MarketData
+  collateralSupplyApy: number
+  debtBorrowApy: number
+  getEstimatedEarningsUsd: () => string
+  healthFactor: number
+  currentAmount: number
+  multiplier: number
+  isLoading?: boolean // Optional props at the end
+}
+
+export function StrategyDisplayPanel({
+  strategy,
+  mode,
+  displayValues,
+  // ... destructure all props
+}: StrategyDisplayPanelProps) {
+  // Component implementation
+}
+```
+
+### Shared Logic Extraction
+
+```typescript
+// ❌ BAD - Duplicated logic in DeployStrategy and ModifyStrategy
+export function DeployStrategy() {
+  const [collateralAmount, setCollateralAmount] = useState('')
+  const [multiplier, setMultiplier] = useState(2)
+  const marketData = useMarketData(strategy, markets)
+  const walletData = useWalletData(strategy, balances)
+  // 200+ lines of shared logic...
+}
+
+export function ModifyStrategy() {
+  const [collateralAmount, setCollateralAmount] = useState('')
+  const [multiplier, setMultiplier] = useState(2)
+  const marketData = useMarketData(strategy, markets)
+  const walletData = useWalletData(strategy, balances)
+  // 200+ lines of duplicated logic...
+}
+
+// ✅ GOOD - Extract shared logic into hook
+export function useStrategyCommon({ strategy, mode }: Props) {
+  const [collateralAmount, setCollateralAmount] = useState('')
+  const [multiplier, setMultiplier] = useState(2)
+  const marketData = useMarketData(strategy, markets)
+  const walletData = useWalletData(strategy, balances)
+
+  // All shared logic here
+
+  return {
+    collateralAmount,
+    setCollateralAmount,
+    multiplier,
+    setMultiplier,
+    marketData,
+    walletData,
+    // ... all shared state and helpers
+  }
+}
+
+// Now both components are simple:
+export function DeployStrategy({ strategy }: Props) {
+  const strategyCommon = useStrategyCommon({ strategy, mode: 'deploy' })
+  const deployment = useStrategyDeployment(strategyCommon)
+
+  return <StrategyUI {...strategyCommon} {...deployment} />
+}
+```
+
+### Component Best Practices
+
+1. **One component per file** - Except for small, tightly-coupled helper components
+2. **Props over children complexity** - Clear props are better than complex children patterns
+3. **Compose from bottom-up** - Build small components, compose into larger ones
+4. **Keep render logic simple** - Extract complex JSX into subcomponents
+5. **Use loading skeletons** - Show placeholders while data loads
+6. **Memoize expensive renders** - Use React.memo for pure components
+
+---
+
+## 🎨 Styling Guidelines
+
+### Tailwind CSS Usage
+
+```typescript
+import { cn } from '@/lib/utils'
+
+// Use cn() utility for conditional classes
+<div className={cn(
+  'base-classes',
+  'more-base-classes',
+  condition && 'conditional-class',
+  variantClass,
+  className  // Allow parent to override
+)}>
+
+// Responsive design - mobile first
+<div className="text-sm sm:text-base lg:text-lg">
+
+// Dark mode support
+<div className="bg-white dark:bg-card">
+<p className="text-gray-900 dark:text-white">
+```
+
+### Component Variants with CVA
+
+```typescript
+import { type VariantProps, cva } from 'class-variance-authority'
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-white hover:bg-primary/90',
+        outline: 'border border-input hover:bg-accent',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+      },
+      size: {
+        default: 'h-10 px-4 py-2',
+        sm: 'h-9 rounded-md px-3',
+        lg: 'h-11 rounded-md px-8',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  },
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
+```
+
+---
+
+## 🛠 Utility Functions & Formatting
+
+### Pure Functions
+
+```typescript
+// ✅ GOOD - Pure functions with functional approach
+export const formatNumber =
+  (decimals = 2) =>
+  (num: number | string): string => {
+    const parsedNum = safeParseNumber()(num)
+    return parsedNum.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    })
+  }
+
+// Higher-order function for composition
+export const formatCurrency =
+  (decimals = 2) =>
+  (num: number | string): string => {
+    const formatted = formatNumber(decimals)(num)
+    return `$${formatted}`
+  }
+
+// Usage
+const formatter = formatCurrency(2)
+const result = formatter(1234.567) // "$1,234.57"
+```
+
+### Backward Compatibility
+
+```typescript
+// Provide legacy wrappers for gradual migration
+export const formatNumberLegacy = (num: number | string, decimals = 2): string =>
+  formatNumber(decimals)(num)
+
+export const formatCurrencyLegacy = (num: number | string, decimals = 2): string =>
+  formatCurrency(decimals)(num)
+```
+
+### Error-Safe Parsing
+
+```typescript
+import { BigNumber } from 'bignumber.js'
+
+export const safeParseNumber =
+  (defaultValue = 0) =>
+  (value: any): number => {
+    if (value === null || value === undefined) return defaultValue
+    if (typeof value === 'number' && !isNaN(value)) return value
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value)
+      return isNaN(parsed) ? defaultValue : parsed
+    }
+    return defaultValue
+  }
+
+// Using BigNumber for precise calculations
+export const calculateUsdValue =
+  (decimals = 6) =>
+  (price: string | number) =>
+  (amount: string | number): number => {
+    if (!amount || !price) return 0
+
+    const parsedAmount = new BigNumber(amount).shiftedBy(-decimals)
+    const parsedPrice = new BigNumber(price)
+
+    return parsedAmount.multipliedBy(parsedPrice).toNumber()
+  }
+```
+
+### Helper Function Patterns
+
+```typescript
+// Break complex functions into smaller helpers
+const createDefaultMetadata = (isCurrency: boolean, decimals = 6): FormatMetadata => ({
+  type: 'standard',
+  value: isCurrency ? '0.00' : '0.' + '0'.repeat(decimals),
+  prefix: isCurrency ? '$' : '',
+})
+
+const extractPrefix = (value: string, isCurrency: boolean) => {
+  if (value.startsWith('$')) {
+    return { workingValue: value.substring(1), prefix: '$', isCurrency: true }
+  }
+  return { workingValue: value, prefix: isCurrency ? '$' : '', isCurrency }
+}
+
+// Main function composes helpers
+export const formatValue = (value: string | number, options = {}): FormatMetadata => {
+  if (!value && value !== 0) return createDefaultMetadata(options.isCurrency)
+
+  const { workingValue, prefix, isCurrency } = extractPrefix(value.toString(), options.isCurrency)
+
+  // ... rest of logic using helpers
+}
+```
+
+---
+
+## ⚠️ Error Handling
+
+### API Error Handling
+
+```typescript
+export default async function getPortfolioPositions(
+  address: string,
+): Promise<PortfolioPositionsResponse | null> {
+  // Early validation
+  if (!address) {
+    console.warn('Address is required for portfolio positions')
+    return null
+  }
+
+  try {
+    const url = getUrl(chainConfig.endpoints.redBank, `/account_portfolio?address=${address}`)
+    const response = await fetchWithTimeout(url, FETCH_TIMEOUT)
+
+    if (!response.ok) {
+      console.warn(`Failed to fetch: ${response.status} ${response.statusText}`)
+      return null
+    }
+
+    const data: PortfolioPositionsResponse = await response.json()
+    return data
+  } catch (error) {
+    console.error('Error fetching portfolio positions:', error)
+    return null // Return null, not throw - let UI handle gracefully
+  }
+}
+```
+
+### User-Friendly Error Messages
+
+```typescript
+// utils/errorParsing.ts - Parse blockchain errors into friendly messages
+export function parseErrorMessage(errorMessage: string): string {
+  // Health Factor / LTV errors
+  if (errorMessage.includes('exceeding maximum allowed loan-to-value')) {
+    return `⚠️ Leverage too high! Your position would exceed the maximum allowed loan-to-value ratio. Please reduce the leverage amount.`
+  }
+
+  // Insufficient liquidity
+  if (errorMessage.includes('insufficient liquidity')) {
+    return `💧 Insufficient liquidity available. Please reduce the amount or try again later.`
+  }
+
+  // Wallet issues
+  if (errorMessage.includes('wallet not connected')) {
+    return `👛 Wallet connection issue. Please reconnect your wallet and try again.`
+  }
+
+  // Generic cleanup
+  return cleanGenericError(errorMessage)
+}
+```
+
+### Transaction Error Handling
+
+```typescript
+export function useBroadcast() {
+  const executeTransaction = async (
+    config: TransactionConfig,
+    customMessages?: ToastMessages,
+  ): Promise<TransactionResult> => {
+    if (!address || !isWalletConnected) {
+      toast.error('Wallet not connected')
+      return { success: false, error: 'Wallet not connected' }
+    }
+
+    const pendingToastId = toast.loading('Transaction pending...', { autoClose: false })
+
+    try {
+      const result = await executor()
+
+      toast.update(pendingToastId, {
+        render: 'Transaction successful!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 4000,
+      })
+
+      await refreshData(config)
+      track('transaction_success')
+
+      return { success: true, result }
+    } catch (error) {
+      console.error('Transaction error:', error)
+      const userFriendlyMessage = parseErrorMessage(error.message)
+
+      toast.update(pendingToastId, {
+        render: userFriendlyMessage,
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+      })
+
+      track('transaction_failed', { error: error.message })
+      return { success: false, error: error.message }
+    }
+  }
+
+  return { executeTransaction }
+}
+```
+
+### RPC Fallback Pattern
+
+```typescript
+const getClientWithFallback = async (primaryRpc: string, fallbackRpcs: string[] = []) => {
+  const allRpcs = [primaryRpc, ...fallbackRpcs]
+
+  for (const rpc of allRpcs) {
+    try {
+      return await getClient(rpc)
+    } catch (error) {
+      console.warn(`Failed to connect to RPC ${rpc}:`, error)
+
+      if (rpc === allRpcs[allRpcs.length - 1]) {
+        throw new Error(`Failed to connect to any RPC endpoint`)
+      }
+      // Continue to next RPC
+    }
+  }
+}
+```
+
+---
+
+## 📝 TypeScript Best Practices
+
+### Interface Definitions
+
+```typescript
+// Define clear interfaces for all data structures
+interface Strategy {
+  id: string
+  name: string
+  collateralAsset: Asset
+  debtAsset: Asset
+  isCorrelated: boolean
+  riskLevel: 'low' | 'medium' | 'high'
+  liquidityDisplay: string
+}
+
+interface Asset {
+  denom: string
+  symbol: string
+  name: string
+  decimals: number
+  brandColor?: string
+}
+
+// Props interfaces
+interface StrategyCardProps {
+  strategy: Strategy
+  onClick?: () => void
+  className?: string
+}
+
+// API Response types
+interface PortfolioPositionsResponse {
+  accounts: Account[]
+  redbank_deposits: RedbankDeposit[]
+  total_borrows: string
+  total_supplies: string
+}
+```
+
+### Type vs Interface
+
+```typescript
+// Use interface for object shapes (preferred)
+interface User {
+  id: string
+  name: string
+}
+
+// Use type for unions, intersections, primitives
+type Status = 'idle' | 'loading' | 'success' | 'error'
+type ID = string | number
+type UserWithRole = User & { role: string }
+```
+
+### Generic Types
+
+```typescript
+// Generic hook types
+export function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+  // ...
+  return debouncedValue
+}
+
+// Generic utility types
+export const createFetcher =
+  <T>(url: string) =>
+  async (): Promise<T> => {
+    const response = await fetch(url)
+    return response.json()
+  }
+```
+
+### Avoid Any
+
+```typescript
+// ❌ BAD
+function processData(data: any) {
+  return data.value
+}
+
+// ✅ GOOD
+function processData(data: unknown) {
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return data.value
+  }
+  throw new Error('Invalid data structure')
+}
+
+// ✅ BETTER - Define proper types
+interface DataWithValue {
+  value: string
+}
+
+function processData(data: DataWithValue) {
+  return data.value
+}
+```
+
+### Function Complexity Limits
+
+- **Cyclomatic complexity**: target ≤ **10**. If a function exceeds 10, split it into smaller helpers. Absolute maximum **15** with a clear rationale and tests.
+- **Function length**: target ≤ **50** lines; refactor if > **80** lines. Prefer extracting helpers or hooks.
+- **Nesting depth**: keep ≤ **2** levels. Use guard clauses and early returns to flatten control flow.
+- **Parameters**: keep ≤ **5**. Prefer a single options object for many parameters.
+- **Side effects**: keep pure by default. Isolate I/O and effects behind small, focused functions/hooks.
+
+---
+
+## ⚡ Performance Optimization
+
+### Memoization
+
+```typescript
+// useMemo for expensive computations
+const sortedMarkets = useMemo(() => {
+  if (!markets) return []
+  return markets.sort((a, b) => b.tvl - a.tvl)
+}, [markets])
+
+// useCallback for function references
+const handleDeposit = useCallback(async () => {
+  await executeDeposit(amount, denom)
+}, [amount, denom])
+
+// React.memo for pure components
+export const StrategyCard = React.memo(({ strategy, onClick }: Props) => {
+  return <div onClick={onClick}>{strategy.name}</div>
+}, (prevProps, nextProps) => {
+  // Custom comparison
+  return prevProps.strategy.id === nextProps.strategy.id
+})
+```
+
+### Debouncing User Input
+
+```typescript
+// Always debounce user input before calculations
+const [collateralAmount, setCollateralAmount] = useState('')
+const [multiplier, setMultiplier] = useState(2)
+
+// Debounce with status tracking
+const { debouncedValue: debouncedAmount, isDebouncing: isAmountDebouncing } = useDebounceWithStatus(
+  collateralAmount,
+  2000,
+)
+
+const { debouncedValue: debouncedMultiplier, isDebouncing: isMultiplierDebouncing } =
+  useDebounceWithStatus(multiplier, 2000)
+
+const isCalculatingPositions = isAmountDebouncing || isMultiplierDebouncing
+
+// Use debounced values for expensive calculations
+const positionCalcs = usePositionCalculations(debouncedAmount, debouncedMultiplier, marketData)
+```
+
+### Lazy Loading
+
+```typescript
+// Lazy load heavy components
+const HeavyChart = lazy(() => import('@/components/charts/HeavyChart'))
+
+function Dashboard() {
+  return (
+    <Suspense fallback={<ChartSkeleton />}>
+      <HeavyChart data={data} />
+    </Suspense>
+  )
+}
+```
+
+### Conditional Rendering
+
+```typescript
+// Return early to prevent unnecessary renders
+if (isLoading) {
+  return <LoadingSkeleton />
+}
+
+if (error) {
+  return <ErrorMessage error={error} />
+}
+
+if (!data) {
+  return <EmptyState />
+}
+
+// Main render
+return <DataDisplay data={data} />
+```
+
+---
+
+## 🧪 Testing & Code Quality
+
+### Testing Strategy
+
+Our testing strategy focuses on critical business logic and user flows:
+
+1. **What to Test (Priority Order)**
+   - ✅ **Utility functions** - Pure functions in `utils/`
+   - ✅ **Business logic hooks** - Complex calculations (`useStrategyCalculations`, `useHealthComputer`)
+   - ✅ **State management** - Reducer logic (`useDepositState`, `useSwapState`)
+   - ✅ **API functions** - Data fetching and parsing
+   - ⚠️ **Components** - Only for complex business logic components
+   - ⚠️ **UI components** - Visual regression tests (optional)
+
+2. **Testing File Organization**
+
+   ```
+   src/
+   ├── utils/
+   │   ├── format.ts
+   │   └── format.test.ts           # Co-locate tests with source
+   ├── hooks/
+   │   ├── useStrategyCalculations.ts
+   │   └── useStrategyCalculations.test.ts
+   └── components/
+       └── strategy/
+           ├── StrategyCard.tsx
+           └── StrategyCard.test.tsx
+   ```
+
+3. **Testing Patterns**
+
+   ```typescript
+   // Testing utility functions
+   // Testing hooks with React Testing Library
+   import { renderHook } from '@testing-library/react'
+
+   import { formatCurrency, formatNumber } from './format'
+   import { useDepositState } from './useDepositState'
+
+   describe('formatNumber', () => {
+     it('formats numbers with correct decimals', () => {
+       expect(formatNumber(2)(1234.567)).toBe('1,234.57')
+     })
+
+     it('handles edge cases', () => {
+       expect(formatNumber(2)(0)).toBe('0.00')
+       expect(formatNumber(2)(null)).toBe('0.00')
+     })
+   })
+
+   describe('useDepositState', () => {
+     it('initializes with default state', () => {
+       const { result } = renderHook(() => useDepositState())
+       expect(result.current.state.activeTab).toBe('deposit')
+     })
+
+     it('updates amount correctly', () => {
+       const { result } = renderHook(() => useDepositState())
+       act(() => {
+         result.current.actions.setDepositAmount('100')
+       })
+       expect(result.current.state.depositAmount).toBe('100')
+     })
+   })
+   ```
+
+4. **Testing Guidelines**
+   - Write tests for critical calculation logic
+   - Test edge cases and error conditions
+   - Keep tests focused and readable
+   - Use descriptive test names
+   - Mock external dependencies (API calls, blockchain queries)
+   - Don't test implementation details
+
+### Code Review Checklist
+
+Before requesting review or merging:
+
+**Architecture & Organization**
+
+- [ ] No cross-feature imports (features don't import from each other)
+- [ ] Shared code extracted to `components/common/` or `utils/`
+- [ ] Domain-specific code in proper folders (`hooks/swap/`, `api/redBank/`)
+- [ ] Related code is co-located (hooks near components that use them)
+
+**Code Quality**
+
+- [ ] All imports use `@/` absolute paths (no `../` relative imports)
+- [ ] Components are under 300 lines (split if larger)
+- [ ] Hooks are under 200 lines (extract sub-hooks if larger)
+- [ ] No duplicated logic (extract to shared functions/hooks)
+- [ ] Proper TypeScript types (no `any`)
+
+**Data Management**
+
+- [ ] useSWR hooks follow standard patterns
+- [ ] Zustand stores RAW data, computed in selectors
+- [ ] Expensive computations are memoized
+- [ ] User input is debounced before calculations
+- [ ] Data flows: API → useSWR → Zustand → Selectors → Components
+
+**Error Handling**
+
+- [ ] API errors return null/fallback (don't throw)
+- [ ] User-friendly error messages (parsed from blockchain errors)
+- [ ] Loading states are handled
+- [ ] Empty states are handled
+
+**Performance**
+
+- [ ] useMemo for expensive computations
+- [ ] useCallback for function references
+- [ ] Debouncing for user input (2000ms)
+- [ ] Proper dependency arrays in useEffect/useMemo/useCallback
+
+**Documentation**
+
+- [ ] Complex functions have JSDoc comments
+- [ ] Non-obvious logic has inline comments
+- [ ] README updated if architecture changes
+
+---
+
+## 📋 Documentation Standards
+
+### JSDoc Comments
+
+```typescript
+/**
+ * Centralized Portfolio Data Hook
+ * Fetches portfolio data and stores RAW data in Zustand
+ *
+ * This is the single source of truth for portfolio data fetching.
+ * Components should use selector hooks (useDeposits, useActiveStrategies)
+ * to get processed data.
+ *
+ * @returns {Object} Portfolio data and loading states
+ * @returns {PortfolioPositionsResponse | null} portfolioPositions - Raw portfolio data
+ * @returns {number} totalPositions - Total number of positions
+ * @returns {boolean} isLoading - Loading state
+ * @returns {Error | null} error - Error if fetch failed
+ * @returns {Function} mutate - Manual revalidation function
+ *
+ * @example
+ * const { portfolioPositions, totalPositions, isLoading, mutate } = usePortfolioData()
+ *
+ * // Manually refresh data
+ * mutate()
+ */
+export function usePortfolioData() {
+  // Implementation
+}
+```
+
+### Function Documentation
+
+```typescript
+/**
+ * Fetches portfolio positions for a given wallet address
+ *
+ * @param address - The wallet address
+ * @param chain - The blockchain chain (default: 'neutron')
+ * @returns Portfolio positions data including accounts, redbank deposits, and totals
+ * @throws {Error} Never throws - returns null on error
+ *
+ * @example
+ * const positions = await getPortfolioPositions('neutron1abc...')
+ * if (positions) {
+ *   console.log(positions.total_supplies)
+ * }
+ */
+export default async function getPortfolioPositions(
+  address: string,
+  chain: string = 'neutron',
+): Promise<PortfolioPositionsResponse | null> {
+  // Implementation
+}
+```
+
+### Component Documentation
+
+```typescript
+/**
+ * StrategyFormPanel Component
+ *
+ * Displays the form panel for deploying or modifying a strategy.
+ * Handles user inputs, leverage slider, and action buttons.
+ *
+ * Features:
+ * - Dynamic leverage slider based on LTV and liquidity limits
+ * - Real-time position calculations with debouncing
+ * - Slippage configuration
+ * - Loading skeletons during data fetch
+ *
+ * @component
+ * @example
+ * <StrategyFormPanel
+ *   strategy={strategy}
+ *   mode="deploy"
+ *   collateralAmount={amount}
+ *   setCollateralAmount={setAmount}
+ *   multiplier={multiplier}
+ *   setMultiplier={setMultiplier}
+ *   onDeploy={handleDeploy}
+ *   {...otherProps}
+ * />
+ */
+export function StrategyFormPanel({ ... }: StrategyFormPanelProps) {
+  // Implementation
+}
+```
+
+---
+
+## 🚀 Code Quality Checklist
+
+### Before Committing
+
+- [ ] All imports use `@/` absolute paths (no relative imports like `../`)
+- [ ] Components are properly split (no files > 300 lines)
+- [ ] Shared logic extracted into custom hooks
+- [ ] useSWR hooks follow standard patterns with proper keys and options
+- [ ] Zustand mutations are immutable
+- [ ] All expensive computations are memoized
+- [ ] User input is properly debounced
+- [ ] Error handling is user-friendly
+- [ ] TypeScript types are properly defined (no `any`)
+- [ ] Functions are documented with JSDoc
+- [ ] Loading states and error states are handled
+- [ ] Dark mode is supported
+- [ ] Mobile responsiveness is considered
+
+### Code Review Questions
+
+1. Can this component be split into smaller pieces?
+2. Is this logic reused elsewhere? → Extract into hook
+3. Are we using relative imports? → Change to absolute
+4. Is this data fetched elsewhere? → Use existing hook
+5. Are expensive calculations memoized?
+6. Is user input debounced?
+7. Are errors handled gracefully?
+8. Is the loading state clear to users?
+
+---
+
+## 📚 Common Patterns Reference
+
+### Pattern: Data Fetching + Global State
+
+```typescript
+// 1. Create API function
+// api/getMarkets.ts
+export async function getMarkets(): Promise<Market[]> {
+  const response = await fetch('/api/markets')
+  return response.json()
+}
+
+// 2. Create useSWR hook
+// hooks/useMarkets.ts
+export function useMarkets() {
+  const { setMarkets } = useStore()
+
+  const { data, error, isLoading } = useSWR('markets', getMarkets, {
+    refreshInterval: 60000,
+    onSuccess: (data) => setMarkets(data),
+  })
+
+  return { markets: data, error, isLoading }
+}
+
+// 3. Use in component
+function Component() {
+  const { markets, isLoading } = useMarkets()
+  // Component logic
+}
+```
+
+### Pattern: Complex Form State
+
+```typescript
+// 1. Define state and actions
+interface FormState {
+  amount: string
+  slippage: number
+  isProcessing: boolean
+}
+
+// 2. Create reducer
+const formReducer = (state: FormState, action: FormAction): FormState => {
+  switch (action.type) {
+    case 'SET_AMOUNT':
+      return { ...state, amount: action.payload }
+    // ... more cases
+  }
+}
+
+// 3. Create hook with actions and computed values
+export function useFormState() {
+  const [state, dispatch] = useReducer(formReducer, initialState)
+
+  const actions = {
+    setAmount: useCallback(
+      (amount: string) => dispatch({ type: 'SET_AMOUNT', payload: amount }),
+      [],
+    ),
+  }
+
+  const computed = {
+    hasValidAmount: state.amount !== '' && parseFloat(state.amount) > 0,
+  }
+
+  return { state, actions, computed }
+}
+```
+
+### Pattern: Responsive Component Composition
+
+```typescript
+export function FeaturePage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <PageHeader title="Feature" />
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left Panel - Display */}
+        <DisplayPanel className="flex-1 order-2 lg:order-1" />
+
+        {/* Right Panel - Form */}
+        <FormPanel className="flex-1 order-1 lg:order-2" />
+      </div>
+    </div>
+  )
+}
+```
+
+---
+
+## 🎓 Learning Resources
+
+### Key Concepts to Master
+
+1. **React Hooks** - useState, useEffect, useMemo, useCallback, useReducer
+2. **SWR** - Data fetching, caching, revalidation
+3. **Zustand** - Global state management
+4. **TypeScript** - Interfaces, generics, type guards
+5. **Functional Programming** - Pure functions, composition, immutability
+6. **Performance** - Memoization, debouncing, lazy loading
+
+### Recommended Reading
+
+- SWR Documentation: https://swr.vercel.app/
+- Zustand Documentation: https://docs.pmnd.rs/zustand/
+- React Performance: https://react.dev/learn/render-and-commit
+- TypeScript Handbook: https://www.typescriptlang.org/docs/handbook/
+
+---
+
+## ⚠️ Common Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Cross-Feature Dependencies
+
+```typescript
+// ❌ BAD - Strategy feature importing from Swap feature
+// File: components/strategy/StrategyForm.tsx
+import { SwapSettingsCard } from '@/components/swap/SwapSettingsCard'
+
+// ✅ GOOD - Extract to common or duplicate if logic differs
+// File: components/common/SwapSettingsCard.tsx
+export function SwapSettingsCard({ slippage, onSlippageChange }) {
+  // Shared implementation
+}
+
+// File: components/strategy/StrategyForm.tsx
+import { SwapSettingsCard } from '@/components/common/SwapSettingsCard'
+```
+
+### Anti-Pattern 2: Processing Data in Components
+
+```typescript
+// ❌ BAD - Complex data processing in component
+function PortfolioPage() {
+  const { portfolioPositions } = useStore()
+
+  const activeStrategies = portfolioPositions?.accounts.map((account) => {
+    const collateralValue = calculateValue(account.collateral)
+    const debtValue = calculateValue(account.debt)
+    const leverage = collateralValue / (collateralValue - debtValue)
+    // 50 more lines of processing...
+    return { ...processed data }
+  })
+
+  return <div>{/* render */}</div>
+}
+
+// ✅ GOOD - Extract to selector hook
+function PortfolioPage() {
+  const activeStrategies = useActiveStrategies()  // Clean, testable
+  return <div>{/* render */}</div>
+}
+
+// hooks/useActiveStrategies.ts
+export function useActiveStrategies(): ActiveStrategy[] {
+  const { portfolioPositions } = useStore()
+  return useMemo(() => processStrategies(portfolioPositions), [portfolioPositions])
+}
+```
+
+### Anti-Pattern 3: Relative Imports
+
+```typescript
+// ❌ BAD - Relative imports
+import { useStore } from '../../../store/useStore'
+import { formatNumber } from '../../utils/format'
+import { Button } from '../ui/Button'
+
+// ✅ GOOD - Absolute imports with @ alias
+import { useStore } from '@/store/useStore'
+import { formatNumber } from '@/utils/format'
+import { Button } from '@/components/ui/Button'
+```
+
+### Anti-Pattern 4: Monolithic Components
+
+```typescript
+// ❌ BAD - 800-line component doing everything
+export function StrategyPage() {
+  // 100 lines of state
+  // 200 lines of effects
+  // 300 lines of handlers
+  // 200 lines of JSX
+  return (
+    <div>
+      {/* Everything inline */}
+    </div>
+  )
+}
+
+// ✅ GOOD - Split into focused components
+export function StrategyPage() {
+  const strategy = useStrategyCommon({ strategy, mode: 'deploy' })
+
+  return (
+    <div>
+      <StrategyHeader {...headerProps} />
+      <StrategyDisplayPanel {...displayProps} />
+      <StrategyFormPanel {...formProps} />
+    </div>
+  )
+}
+```
+
+### Anti-Pattern 5: Not Debouncing User Input
+
+```typescript
+// ❌ BAD - Expensive calculation on every keystroke
+function DepositForm() {
+  const [amount, setAmount] = useState('')
+
+  // Runs on EVERY character typed! ⚠️
+  const apy = calculateComplexApy(amount, markets, prices)
+
+  return <input value={amount} onChange={(e) => setAmount(e.target.value)} />
+}
+
+// ✅ GOOD - Debounce before expensive calculations
+function DepositForm() {
+  const [amount, setAmount] = useState('')
+  const { debouncedValue: debouncedAmount } = useDebounceWithStatus(amount, 2000)
+
+  // Only runs 2 seconds after user stops typing ✅
+  const apy = calculateComplexApy(debouncedAmount, markets, prices)
+
+  return <input value={amount} onChange={(e) => setAmount(e.target.value)} />
+}
+```
+
+### Anti-Pattern 6: Multiple Sources of Truth
+
+```typescript
+// ❌ BAD - Data duplicated in multiple places
+function Component() {
+  const { portfolioPositions } = useStore()  // Source 1
+  const [deposits, setDeposits] = useState([])  // Source 2 - duplicate!
+
+  useEffect(() => {
+    setDeposits(portfolioPositions?.redbank_deposits || [])
+  }, [portfolioPositions])
+  // Now we have TWO sources of truth that can get out of sync!
+}
+
+// ✅ GOOD - Single source of truth with derived data
+function Component() {
+  const deposits = useDeposits()  // Derives from single source (Zustand)
+  // Only ONE source of truth ✅
+}
+```
+
+### Anti-Pattern 7: Throwing Errors in API Functions
+
+```typescript
+// ❌ BAD - Throwing errors breaks component rendering
+export async function getMarkets(): Promise<Market[]> {
+  const response = await fetch('/api/markets')
+  if (!response.ok) throw new Error('Failed to fetch')  // 💥 Breaks UI!
+  return response.json()
+}
+
+// ✅ GOOD - Return null/fallback value
+export async function getMarkets(): Promise<Market[] | null> {
+  try {
+    const response = await fetch('/api/markets')
+    if (!response.ok) {
+      console.warn('Failed to fetch markets:', response.statusText)
+      return null  // Graceful failure ✅
+    }
+    return response.json()
+  } catch (error) {
+    console.error('Error fetching markets:', error)
+    return null  // UI can handle null gracefully
+  }
+}
+```
+
+### Anti-Pattern 8: Using `any` Type
+
+```typescript
+// ❌ BAD - any defeats TypeScript's purpose
+function processData(data: any) {
+  return data.value.nested.property  // No type safety! 💥
+}
+
+// ✅ GOOD - Proper types
+interface DataStructure {
+  value: {
+    nested: {
+      property: string
+    }
+  }
+}
+
+function processData(data: DataStructure) {
+  return data.value.nested.property  // Type-safe! ✅
+}
+
+// ✅ ALSO GOOD - Use unknown for truly unknown data
+function processData(data: unknown) {
+  if (typeof data === 'object' && data !== null && 'value' in data) {
+    return (data as DataStructure).value
+  }
+  throw new Error('Invalid data structure')
+}
+```
+
+---
+
+## 💡 Final Tips
+
+1. **Consistency is key** - Follow these patterns throughout the codebase
+2. **When in doubt, extract** - If logic is complex, create a hook or utility
+3. **Read existing code** - Learn from well-written components in the codebase
+4. **Avoid cross-feature imports** - Extract shared code to common areas
+5. **Single source of truth** - Store RAW data once, derive everywhere
+6. **Ask questions** - Discuss architectural decisions with the team
+7. **Refactor incrementally** - Improve code quality in small steps
+8. **Test critical logic** - Focus on business logic, calculations, and state management
+9. **Think about the next developer** - Write code that's easy to understand and maintain
+10. **Performance matters** - Memoize, debounce, and optimize strategically
+
+### Quick Decision Tree
+
+**"Where should this code go?"**
+
+```
+Is it used by multiple features?
+├─ Yes → components/common/ or hooks/ or utils/
+└─ No → Is it specific to a domain?
+    ├─ Yes → components/[feature]/ or hooks/[feature]/
+    └─ No → Keep near where it's used
+```
+
+**"Should I extract this to a hook?"**
+
+```
+Is the logic used in multiple components? → Yes, extract
+Is the component over 200-300 lines? → Yes, extract
+Does it have complex state management? → Yes, extract
+Is it business logic mixed with UI? → Yes, extract
+Otherwise → Keep it in the component
+```
+
+**"Where should this go in Zustand vs Component State?"**
+
+```
+Global/shared across features? → Zustand
+Persists across navigation? → Zustand
+Single component local state? → useState
+Complex local state? → useReducer + custom hook
+Form state? → useReducer + custom hook
+```
+
+---
+
+**Remember**: Clean code is not about being clever—it's about being clear, maintainable, and easy to understand. Write code that your future self will thank you for! 🚀

@@ -1,57 +1,19 @@
 import { useEffect, useState } from 'react'
 
-import { BigNumber } from 'bignumber.js'
 import { AlertTriangle, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
-import FormattedValue from '@/components/common/FormattedValue'
-import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard } from '@/components/deposit'
 import { NewPositionTable } from '@/components/strategy/NewPositionTable'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { InfoAlert } from '@/components/ui/InfoAlert'
 import { Separator } from '@/components/ui/separator'
-import chainConfig from '@/config/chain'
+// chainConfig no longer needed here; used inside hook
+import useSwapRoute from '@/hooks/swap/useSwapRoute'
 
-// Helper function to get price impact color
-const getPriceImpactColor = (priceImpact: number): string => {
-  const absoluteImpact = Math.abs(priceImpact)
-  if (absoluteImpact >= 5) return 'text-red-500 font-medium'
-  if (absoluteImpact >= 2) return 'text-yellow-600 font-medium'
-  if (absoluteImpact >= 1) return 'text-yellow-500'
-  // Negative price impact (losing money) should be red, positive (gaining) should be green
-  if (priceImpact < 0) return 'text-red-500'
-  if (priceImpact > 0) return 'text-green-500'
-  return 'text-muted-foreground'
-}
+import SwapDetails from './SwapDetails'
+import { getLeverageWarning, getPriceImpactWarning } from './strategyHelpers'
 
-// Helper function to get price impact warning
-const getPriceImpactWarning = (
-  priceImpact: number,
-): { type: 'info' | 'warning' | 'danger'; message: string } | null => {
-  const absoluteImpact = Math.abs(priceImpact)
-
-  if (absoluteImpact >= 5) {
-    return {
-      type: 'danger',
-      message:
-        'Very high price impact detected! You will lose a significant amount due to price impact. Consider reducing your trade size.',
-    }
-  }
-  if (absoluteImpact >= 2) {
-    return {
-      type: 'warning',
-      message:
-        'High price impact detected. This trade will move the market price significantly against you.',
-    }
-  }
-  if (absoluteImpact >= 1) {
-    return {
-      type: 'info',
-      message: 'Moderate price impact. Your trade will affect the market price slightly.',
-    }
-  }
-  return null
-}
+// helper functions moved to `strategyHelpers.ts`
 
 // Helper function to validate slippage
 const getSlippageWarning = (
@@ -86,16 +48,7 @@ const getSlippageWarning = (
   return null
 }
 
-// Helper function to check leverage liquidation risk
-// Note: With LTV 0.92 and LiqThreshold 0.95, liquidation occurs at ~15x leverage
-// However, we cap maximum leverage at 12x for safety, so no warnings needed
-const getLeverageWarning = (
-  leverage: number,
-): { type: 'warning' | 'danger'; message: string } | null => {
-  // Since we cap leverage at 12x (well below 15x liquidation threshold),
-  // no leverage warnings are needed
-  return null
-}
+// helper functions moved to `strategyHelpers.ts`
 
 interface MarginCollateralCardProps {
   strategy: Strategy
@@ -156,14 +109,7 @@ export function MarginCollateralCard({
   currentLeverage,
   targetLeverage,
 }: MarginCollateralCardProps) {
-  const [swapRouteInfo, setSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
-  const [isSwapLoading, setIsSwapLoading] = useState(false)
-  const [swapError, setSwapError] = useState<Error | null>(null)
-  const [lastFetchedAmount, setLastFetchedAmount] = useState<number>(0)
-  const [lastLeverageDirection, setLastLeverageDirection] = useState<boolean | null>(null)
-  const [lastCurrentLeverage, setLastCurrentLeverage] = useState<number | undefined>(undefined)
-  const [lastTargetLeverage, setLastTargetLeverage] = useState<number | undefined>(undefined)
-  const [routeFetchTimeout, setRouteFetchTimeout] = useState<NodeJS.Timeout | null>(null)
+  // (metadata tracking removed — hook handles caching/debounce)
   const [slippage, setSlippage] = useState<number>(0.5) // Default 0.5%
   const [slippageInput, setSlippageInput] = useState<string>('0.5') // Input field value
   const [isSlippageExpanded, setIsSlippageExpanded] = useState(false)
@@ -234,143 +180,26 @@ export function MarginCollateralCard({
   const debtAssetSymbol = strategy.debtAsset.symbol
   const collateralAssetSymbol = strategy.collateralAsset.symbol
 
-  // Fetch swap route when borrowAmountForSwap changes
-  useEffect(() => {
-    // Clear any existing timeout
-    if (routeFetchTimeout) {
-      clearTimeout(routeFetchTimeout)
-    }
-
-    // Debounce the route fetch to prevent multiple calls
-    const timeout = setTimeout(async () => {
-      const fetchSwapRoute = async () => {
-        // Don't fetch swap route if swap details are not supposed to be shown
-        if (!showSwapDetailsAndSlippage) {
-          setSwapRouteInfo(null)
-          onSwapRouteLoaded?.(null)
-          setLastFetchedAmount(0)
-          setLastLeverageDirection(null)
-          setLastCurrentLeverage(undefined)
-          setLastTargetLeverage(undefined)
-          return
-        }
-
-        if (!borrowAmountForSwap || borrowAmountForSwap <= 0) {
-          setSwapRouteInfo(null)
-          onSwapRouteLoaded?.(null)
-          setLastFetchedAmount(0)
-          setLastLeverageDirection(null)
-          setLastCurrentLeverage(undefined)
-          setLastTargetLeverage(undefined)
-          return
-        }
-
-        // Check if leverage direction has changed
-        const leverageDirectionChanged =
-          lastLeverageDirection !== null && lastLeverageDirection !== isLeverageIncrease
-
-        // Check if leverage values have changed
-        const leverageValuesChanged =
-          lastCurrentLeverage !== currentLeverage || lastTargetLeverage !== targetLeverage
-
-        if (
-          lastFetchedAmount > 0 &&
-          borrowAmountForSwap === lastFetchedAmount &&
-          !leverageDirectionChanged &&
-          !leverageValuesChanged
-        ) {
-          return
-        }
-
-        setIsSwapLoading(true)
-        setSwapError(null)
-        setLastFetchedAmount(borrowAmountForSwap)
-        setLastLeverageDirection(isLeverageIncrease)
-        setLastCurrentLeverage(currentLeverage)
-        setLastTargetLeverage(targetLeverage)
-
-        try {
-          const { BigNumber } = await import('bignumber.js')
-          const getNeutronRouteInfo = (await import('@/api/swap/getNeutronRouteInfo')).default
-
-          // Determine swap direction and format amount accordingly
-          let fromDenom, toDenom, routeInfo
-
-          if (isLeverageIncrease) {
-            // Increasing leverage: borrow debt asset, swap to collateral
-            fromDenom = debtAssetDenom
-            toDenom = collateralAssetDenom
-            const swapAmount = new BigNumber(borrowAmountForSwap).shiftedBy(debtAssetDecimals)
-
-            // Forward routing: we know input amount (debt to borrow), get output amount (collateral)
-            routeInfo = await getNeutronRouteInfo(
-              fromDenom,
-              toDenom,
-              swapAmount,
-              [], // assets array - not needed for route structure
-              chainConfig,
-            )
-          } else {
-            // Decreasing leverage: withdraw collateral, swap to debt asset
-            fromDenom = collateralAssetDenom
-            toDenom = debtAssetDenom
-
-            // Reverse routing: we know output amount (debt to repay), get input amount (collateral)
-            const { getNeutronRouteInfoReverse } = await import('@/api/swap/getNeutronRouteInfo')
-            const debtAmountNeeded = new BigNumber(borrowAmountForSwap).shiftedBy(debtAssetDecimals)
-
-            routeInfo = await getNeutronRouteInfoReverse(
-              fromDenom,
-              toDenom,
-              debtAmountNeeded,
-              [], // assets array - not needed for route structure
-              chainConfig,
-              slippage, // Use current slippage
-            )
-          }
-
-          if (!routeInfo) {
-            throw new Error(
-              `No swap route found between ${debtAssetSymbol} and ${collateralAssetSymbol}`,
-            )
-          }
-
-          setSwapRouteInfo(routeInfo)
-          onSwapRouteLoaded?.(routeInfo)
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err : new Error('Failed to fetch swap route')
-          setSwapError(errorMessage)
-          onSwapRouteLoaded?.(null)
-        } finally {
-          setIsSwapLoading(false)
-        }
-      }
-
-      await fetchSwapRoute()
-    }, 300) // 300ms debounce
-
-    setRouteFetchTimeout(timeout)
-
-    // Cleanup function
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout)
-      }
-    }
-  }, [
+  // Use extracted hook for swap route logic
+  const { swapRouteInfo, isSwapLoading, swapError } = useSwapRoute({
     borrowAmountForSwap,
+    isLeverageIncrease,
     debtAssetDecimals,
     debtAssetDenom,
     collateralAssetDenom,
     debtAssetSymbol,
     collateralAssetSymbol,
-    isLeverageIncrease,
-    strategy.collateralAsset.decimals,
-    onSwapRouteLoaded,
-    showSwapDetailsAndSlippage,
     currentLeverage,
     targetLeverage,
-  ])
+    slippage,
+    enabled: showSwapDetailsAndSlippage,
+  })
+
+  // Notify parent when route info becomes available
+  useEffect(() => {
+    if (!swapRouteInfo) return
+    onSwapRouteLoaded?.(swapRouteInfo)
+  }, [swapRouteInfo, onSwapRouteLoaded])
   return (
     <InfoCard title='Margin Collateral'>
       <div className='space-y-2'>
@@ -520,131 +349,19 @@ export function MarginCollateralCard({
 
         {/* Swap Details */}
         {currentAmount > 0 && showSwapDetailsAndSlippage && (
-          <>
-            {isCalculatingPositions ||
-            (isSwapLoading && showSwapDetailsAndSlippage) ||
-            (!swapRouteInfo && !swapError && showSwapDetailsAndSlippage) ? (
-              <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-4'>
-                <div className='h-5 w-28 bg-muted/40 rounded animate-pulse' />
-                <div className='space-y-3'>
-                  <div className='h-4 w-full bg-muted/40 rounded animate-pulse' />
-                  <div className='h-4 w-4/5 bg-muted/40 rounded animate-pulse' />
-                  <div className='h-4 w-3/4 bg-muted/40 rounded animate-pulse' />
-                  <div className='h-4 w-full bg-muted/40 rounded animate-pulse' />
-                  <div className='h-4 w-2/3 bg-muted/40 rounded animate-pulse' />
-                </div>
-              </div>
-            ) : (
-              <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-sm'>
-                <div className='font-medium text-foreground mb-2'>Swap Details</div>
-                {(() => {
-                  if (swapError) {
-                    return (
-                      <div className='flex items-center justify-center py-2'>
-                        <span className='text-muted-foreground'>No route available</span>
-                      </div>
-                    )
-                  } else if (swapRouteInfo) {
-                    // Calculate rate directly from the swap route response
-                    let fromAssetDecimals, toAssetDecimals
-
-                    if (isLeverageIncrease) {
-                      fromAssetDecimals = debtAssetDecimals
-                      toAssetDecimals = strategy.collateralAsset.decimals || 8
-                    } else {
-                      fromAssetDecimals = strategy.collateralAsset.decimals || 8
-                      toAssetDecimals = debtAssetDecimals
-                    }
-
-                    // Calculate actual price impact from amounts: (output - input) / input * 100
-                    // This gives the actual impact on the user's position
-                    let actualPriceImpact = 0
-                    if (swapRouteInfo.amountIn?.gt(0) && swapRouteInfo.amountOut?.gt(0)) {
-                      const inputAmount = swapRouteInfo.amountIn.shiftedBy(-fromAssetDecimals)
-                      const outputAmount = swapRouteInfo.amountOut.shiftedBy(-toAssetDecimals)
-                      actualPriceImpact =
-                        ((outputAmount.toNumber() - inputAmount.toNumber()) /
-                          inputAmount.toNumber()) *
-                        100
-                    }
-
-                    const priceImpact = actualPriceImpact
-
-                    const swapLabel = isLeverageIncrease
-                      ? 'Borrow to be swapped'
-                      : 'Collateral to be swapped'
-                    const receiveLabel = isLeverageIncrease ? 'Added Collateral' : 'Debt Repay'
-
-                    return (
-                      <>
-                        <div className='flex justify-between'>
-                          <span className='text-muted-foreground'>{swapLabel}</span>
-                          <TokenBalance
-                            coin={{
-                              denom: isLeverageIncrease ? debtAssetDenom : collateralAssetDenom,
-                              amount: swapRouteInfo.amountIn?.toString() || '0',
-                            }}
-                            size='xs'
-                            align='right'
-                          />
-                        </div>
-
-                        <div className='flex justify-between'>
-                          <span className='text-muted-foreground'>{receiveLabel}</span>
-                          <TokenBalance
-                            coin={{
-                              denom: isLeverageIncrease ? collateralAssetDenom : debtAssetDenom,
-                              amount: swapRouteInfo.amountOut.toString(),
-                            }}
-                            size='xs'
-                            align='right'
-                          />
-                        </div>
-
-                        <div className='flex justify-between'>
-                          <span className='text-muted-foreground'>Total Exposure</span>
-                          <TokenBalance
-                            coin={{
-                              denom: collateralAssetDenom,
-                              amount: new BigNumber(positionCalcs.totalPosition)
-                                .shiftedBy(strategy.collateralAsset.decimals || 8)
-                                .toString(),
-                            }}
-                            size='xs'
-                            align='right'
-                          />
-                        </div>
-
-                        {(() => {
-                          let priceImpactSign = ''
-                          if (priceImpact < 0) {
-                            priceImpactSign = '-'
-                          } else if (priceImpact > 0) {
-                            priceImpactSign = '+'
-                          }
-
-                          return (
-                            <div className='flex justify-between'>
-                              <span className='text-muted-foreground'>Price Impact</span>
-                              <span className={getPriceImpactColor(priceImpact)}>
-                                {priceImpactSign}
-                                <FormattedValue
-                                  value={Math.abs(priceImpact)}
-                                  maxDecimals={2}
-                                  suffix='%'
-                                  useCompactNotation={false}
-                                />
-                              </span>
-                            </div>
-                          )
-                        })()}
-                      </>
-                    )
-                  }
-                })()}
-              </div>
-            )}
-          </>
+          <SwapDetails
+            isCalculatingPositions={isCalculatingPositions}
+            isSwapLoading={isSwapLoading}
+            showSwapDetailsAndSlippage={showSwapDetailsAndSlippage}
+            swapRouteInfo={swapRouteInfo}
+            swapError={swapError}
+            isLeverageIncrease={isLeverageIncrease}
+            debtAssetDecimals={debtAssetDecimals}
+            strategy={strategy}
+            positionCalcs={positionCalcs}
+            debtAssetDenom={debtAssetDenom}
+            collateralAssetDenom={collateralAssetDenom}
+          />
         )}
 
         {/* Price Impact Warning */}

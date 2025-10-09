@@ -4,9 +4,8 @@ import { useLeverageSlider } from '@/components/strategy/LeverageSlider'
 import { MarginCollateralCard } from '@/components/strategy/MarginCollateralCard'
 import { MarketInfoCard } from '@/components/strategy/MarketInfoCard'
 import { RiskAssessmentCard } from '@/components/strategy/RiskAssessmentCard'
+import { StrategyPointsCard } from '@/components/strategy/StrategyPointsCard'
 import { Button } from '@/components/ui/Button'
-
-import { StrategyPointsCard } from './StrategyPointsCard'
 
 // Loading skeleton component
 const CardSkeleton = ({ className = '' }: { className?: string }) => (

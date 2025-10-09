@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { TermsModal, useTermsAcceptance } from './TermsModal'
+import { TermsModal, useTermsAcceptance } from '@/components/modals/TermsModal'
 
 interface TermsModalProviderProps {
   children: React.ReactNode

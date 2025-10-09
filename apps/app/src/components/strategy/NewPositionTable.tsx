@@ -2,9 +2,12 @@ import { BigNumber } from 'bignumber.js'
 import { Info } from 'lucide-react'
 
 import TokenBalance from '@/components/common/TokenBalance'
+import { getPriceImpactColor } from '@/components/strategy/strategyHelpers'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
 import { getHealthFactorColor } from '@/utils/healthComputer'
+
+import { computePositionAfterSwap, computeSwapImpact } from './newPositionHelpers'
 
 interface NewPositionTableProps {
   strategy: Strategy
@@ -38,61 +41,15 @@ export function NewPositionTable({
   swapRouteInfo,
   isLeverageIncrease = true,
 }: NewPositionTableProps) {
-  // Check if we have modify mode data (supplies and totalBorrows fields)
-  const isModifyMode =
-    (positionCalcs as any).supplies !== undefined &&
-    (positionCalcs as any).totalBorrows !== undefined
+  // Compute final supplies/borrows/collateral using helper
+  const {
+    supplies,
+    totalBorrows,
+    actualCollateral: computedCollateral,
+  } = computePositionAfterSwap(positionCalcs, strategy, swapRouteInfo ?? null, isLeverageIncrease)
 
-  // Calculate supplies and borrows correctly based on mode
-  // If we have swap route info, use actual amounts after price impact
-  let supplies = isModifyMode
-    ? (positionCalcs as any).supplies // Use actual user supplies for modify mode
-    : positionCalcs.totalPosition - positionCalcs.borrowAmount // For deploy mode
-
-  let totalBorrows = isModifyMode
-    ? (positionCalcs as any).totalBorrows // Use total target borrows for modify mode
-    : positionCalcs.borrowAmount // For deploy mode, borrowAmount IS the total borrows
-
-  // If we have swap route information, calculate actual final position
-  if (swapRouteInfo && isModifyMode && (positionCalcs as any).supplies !== undefined) {
-    const currentSupplies = (positionCalcs as any).supplies
-    const currentDebt = (positionCalcs as any).currentBorrows || 0
-
-    if (swapRouteInfo.amountIn && swapRouteInfo.amountOut) {
-      const debtAssetDecimals = strategy.debtAsset.decimals || 6
-      const collateralAssetDecimals = strategy.collateralAsset.decimals || 8
-
-      // Use the passed isLeverageIncrease parameter instead of trying to determine from amounts
-
-      if (isLeverageIncrease) {
-        // Leverage increase: borrow debt, swap to collateral
-        const debtBorrowed = swapRouteInfo.amountIn.shiftedBy(-debtAssetDecimals).toNumber()
-
-        // Final supplies = current supplies (same)
-        // Final borrows = current debt + debt borrowed
-        supplies = currentSupplies
-        totalBorrows = currentDebt + debtBorrowed
-      } else {
-        // Leverage decrease: withdraw collateral, swap to debt
-        const collateralSpent = swapRouteInfo.amountIn
-          .shiftedBy(-collateralAssetDecimals)
-          .toNumber()
-        const debtReceived = swapRouteInfo.amountOut.shiftedBy(-debtAssetDecimals).toNumber()
-
-        // Final supplies = current supplies (unchanged - user equity stays the same)
-        // Final borrows = current debt - debt received (we pay back debt)
-        supplies = currentSupplies
-        totalBorrows = currentDebt - debtReceived
-      }
-    }
-  }
-
-  // Calculate leverages based on position
-  // Use actual final collateral position if we have swap route info
-  const actualCollateral =
-    swapRouteInfo && isModifyMode && (positionCalcs as any).supplies !== undefined
-      ? supplies + totalBorrows // collateral = supplies + debt
-      : positionCalcs.totalPosition
+  // Determine actual collateral (prioritize computed value)
+  const actualCollateral = computedCollateral
 
   const longLeverage = supplies > 0 ? actualCollateral / supplies : 1 // This equals the multiplier
   const shortLeverage = longLeverage - 1 // Borrow ratio is multiplier - 1
@@ -122,8 +79,14 @@ export function NewPositionTable({
       .toString(),
   }
 
+  const { priceImpact, minReceivedDisplay } = computeSwapImpact(
+    swapRouteInfo ?? null,
+    strategy,
+    isLeverageIncrease,
+  )
+
   return (
-    <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-xs'>
+    <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-sm'>
       <div className='font-medium text-foreground mb-2'>Updated Position Overview</div>
       <div className='flex justify-between'>
         <span className='text-muted-foreground'>Your supplies:</span>
@@ -221,6 +184,18 @@ export function NewPositionTable({
           {(Math.abs(positionCalcs.estimatedYearlyEarnings) * marketData.currentPrice).toFixed(2)}
         </div>
       </div>
+      {swapRouteInfo && (
+        <div className='mt-2 p-2 rounded-lg bg-muted/10 border border-border/40 text-sm'>
+          <div className='flex justify-between'>
+            <span className='text-muted-foreground'>Price Impact</span>
+            <span className={getPriceImpactColor(priceImpact)}>{priceImpact.toFixed(2)}%</span>
+          </div>
+          <div className='flex justify-between'>
+            <span className='text-muted-foreground'>Min received (out asset)</span>
+            <span className='font-medium'>{minReceivedDisplay}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

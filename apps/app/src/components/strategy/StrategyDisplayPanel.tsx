@@ -1,7 +1,7 @@
 'use client'
 
-import { StrategyChart } from '@/components/strategies/StrategyChart'
 import { ExistingPositionOverviewCard } from '@/components/strategy/ExistingPositionOverviewCard'
+import { StrategyChart } from '@/components/strategy/StrategyChart'
 import { StrategyFlowCard } from '@/components/strategy/StrategyFlowCard'
 import { StrategyPointsCard } from '@/components/strategy/StrategyPointsCard'
 
