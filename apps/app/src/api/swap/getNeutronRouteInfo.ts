@@ -90,7 +90,9 @@ function buildSwapRouteInfo(
   const priceImpactPercent =
     skipRouteResponse.swapPriceImpactPercent || skipRouteResponse.swap_price_impact_percent
   if (priceImpactPercent) {
-    priceImpact = BN(priceImpactPercent)
+    // Skip API returns price impact as a positive number representing cost/loss
+    // Negate it to match our convention: negative = loss (bad), positive = gain (good)
+    priceImpact = BN(priceImpactPercent).negated()
   } else {
     // Check both camelCase and snake_case for USD amounts
     const usdAmountIn = skipRouteResponse.usdAmountIn || skipRouteResponse.usd_amount_in
@@ -101,6 +103,7 @@ function buildSwapRouteInfo(
       const amountOut = BN(usdAmountOut)
 
       if (amountIn.gt(0)) {
+        // This calculation naturally gives negative for loss, positive for gain
         priceImpact = amountOut.minus(amountIn).dividedBy(amountIn).multipliedBy(100)
       }
     }
@@ -113,8 +116,16 @@ function buildSwapRouteInfo(
     skipRouteResponse.estimatedAmountOut ||
     skipRouteResponse.estimated_amount_out
 
+  // Check both camelCase and snake_case for amount in
+  const amountIn =
+    skipRouteResponse.amountIn ||
+    skipRouteResponse.amount_in ||
+    skipRouteResponse.swapAmountIn ||
+    skipRouteResponse.swap_amount_in
+
   const routeInfo: SwapRouteInfo = {
     amountOut: BN(amountOut || '0'),
+    amountIn: amountIn ? BN(amountIn) : undefined,
     priceImpact,
     fee: BN('0'),
     description,

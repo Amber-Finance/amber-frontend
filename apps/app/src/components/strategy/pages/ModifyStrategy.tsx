@@ -373,6 +373,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
         .shiftedBy(-(activeStrategy.debtAsset.decimals || 6))
         .toString(),
       debtDecimals: activeStrategy.debtAsset.decimals || 6,
+      slippage,
     }
 
     try {

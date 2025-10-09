@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
+import Image from 'next/image'
 
 import { AlertTriangle, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
+import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard } from '@/components/deposit'
 import { NewPositionTable } from '@/components/strategy/cards/NewPositionTable'
 import {
@@ -75,6 +78,7 @@ interface MarginCollateralCardProps {
   // New props for NewPositionTable
   marketData?: {
     currentPrice: number
+    debtMarket?: any
   }
   collateralSupplyApy?: number
   debtBorrowApy?: number
@@ -201,6 +205,17 @@ export function MarginCollateralCard({
     if (!swapRouteInfo) return
     onSwapRouteLoaded?.(swapRouteInfo)
   }, [swapRouteInfo, onSwapRouteLoaded])
+
+  // Create debt coin for TokenBalance component - similar to StrategyCard.tsx
+  const debtCoin = useMemo((): Coin => {
+    const rawAmount = marketData?.debtMarket?.metrics?.collateral_total_amount || '0'
+
+    return {
+      denom: strategy.debtAsset.denom,
+      amount: rawAmount,
+    }
+  }, [marketData, strategy.debtAsset.denom])
+
   return (
     <InfoCard title='Margin Collateral'>
       <div className='space-y-2'>
@@ -225,6 +240,36 @@ export function MarginCollateralCard({
         )}
 
         {!hideAmountInput && <Separator />}
+
+        {/* Available Debt Section - Above leverage slider */}
+        <div className='space-y-2'>
+          <div className='flex items-center gap-2'>
+            <span className='text-sm font-semibold text-foreground'>Available Debt</span>
+          </div>
+
+          <div className='flex justify-between items-center'>
+            <span className='text-xs text-muted-foreground flex items-center gap-2'>
+              <Image
+                src={strategy.debtAsset.icon}
+                alt={strategy.debtAsset.symbol}
+                width={20}
+                height={20}
+                unoptimized={true}
+              />
+              <span className='text-sm font-medium text-foreground'>
+                {strategy.debtAsset.symbol}
+              </span>
+            </span>
+            <TokenBalance
+              coin={debtCoin}
+              size='md'
+              align='right'
+              className='flex flex-col justify-end items-end'
+            />
+          </div>
+        </div>
+
+        <Separator />
 
         {leverageSliderComponent && <div className='space-y-2'>{leverageSliderComponent}</div>}
 
@@ -261,7 +306,7 @@ export function MarginCollateralCard({
               className='flex items-center justify-between w-full text-xs font-medium text-foreground hover:text-accent-foreground transition-colors'
             >
               <div className='flex items-center gap-2'>
-                <span>Slippage</span>
+                <span>Slippage Tolerance</span>
                 <span className='text-muted-foreground'>({slippage}%)</span>
               </div>
               {isSlippageExpanded ? (
@@ -273,6 +318,15 @@ export function MarginCollateralCard({
 
             {isSlippageExpanded && (
               <div className='space-y-3 pt-1'>
+                {/* Info message about slippage */}
+                <div className='flex items-start gap-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20'>
+                  <Info className='h-4 w-4 mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400' />
+                  <p className='text-xs text-blue-700 dark:text-blue-300'>
+                    If price changes unfavorably during the transaction by more than this amount,
+                    the transaction will revert.
+                  </p>
+                </div>
+
                 <div className='relative'>
                   <input
                     type='text'
@@ -403,7 +457,7 @@ export function MarginCollateralCard({
                   <div className='space-y-1'>
                     <span>{priceImpactWarning.message}</span>
                     <div className='text-sm text-muted-foreground'>
-                      Price Impact: {Math.abs(priceImpact).toFixed(2)}% • Min Received:{' '}
+                      Price Impact: {Math.abs(priceImpact).toPrecision(4)}% • Min Received:{' '}
                       {swapRouteInfo.amountOut
                         .shiftedBy(
                           -(isLeverageIncrease

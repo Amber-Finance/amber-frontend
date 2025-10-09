@@ -2,11 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import { Info } from 'lucide-react'
 
 import TokenBalance from '@/components/common/TokenBalance'
-import {
-  computePositionAfterSwap,
-  computeSwapImpact,
-  getPriceImpactColor,
-} from '@/components/strategy/helpers'
+import { computePositionAfterSwap } from '@/components/strategy/helpers'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
 import { getHealthFactorColor } from '@/utils/blockchain/healthComputer'
@@ -81,12 +77,6 @@ export function NewPositionTable({
       .toString(),
   }
 
-  const { priceImpact, minReceivedDisplay } = computeSwapImpact(
-    swapRouteInfo ?? null,
-    strategy,
-    isLeverageIncrease,
-  )
-
   return (
     <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-sm'>
       <div className='font-medium text-foreground mb-2'>Updated Position Overview</div>
@@ -104,18 +94,8 @@ export function NewPositionTable({
       </div>
       <Separator />
       <div className='flex justify-between items-center'>
-        <span className='text-muted-foreground'>Long leverage:</span>
+        <span className='text-muted-foreground'>Leverage:</span>
         <span className='font-medium'>{longLeverage.toFixed(2)}x</span>
-      </div>
-      <div className='flex justify-between items-center'>
-        <span className='text-muted-foreground'>Short leverage:</span>
-        <span className='font-medium'>{shortLeverage.toFixed(2)}x</span>
-      </div>
-      <div className='flex justify-between items-center'>
-        <span className='text-muted-foreground'>Base APY:</span>
-        <span className='font-medium'>
-          {(2.0 * collateralSupplyApy * 100 - (2.0 - 1) * debtBorrowApy * 100).toFixed(2)}%
-        </span>
       </div>
       <div className='flex justify-between items-center'>
         <span className='text-muted-foreground'>Net APY:</span>
@@ -186,18 +166,6 @@ export function NewPositionTable({
           {(Math.abs(positionCalcs.estimatedYearlyEarnings) * marketData.currentPrice).toFixed(2)}
         </div>
       </div>
-      {swapRouteInfo && (
-        <div className='mt-2 p-2 rounded-lg bg-muted/10 border border-border/40 text-sm'>
-          <div className='flex justify-between'>
-            <span className='text-muted-foreground'>Price Impact</span>
-            <span className={getPriceImpactColor(priceImpact)}>{priceImpact.toFixed(2)}%</span>
-          </div>
-          <div className='flex justify-between'>
-            <span className='text-muted-foreground'>Min received (out asset)</span>
-            <span className='font-medium'>{minReceivedDisplay}</span>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

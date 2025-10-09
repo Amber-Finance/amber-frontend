@@ -1,6 +1,6 @@
 'use client'
 
-import { MarketInfoCard, RiskAssessmentCard, StrategyPointsCard } from '@/components/strategy/cards'
+import { MarketInfoCard, RiskAssessmentCard } from '@/components/strategy/cards'
 import { MarginCollateralCard, useLeverageSlider } from '@/components/strategy/form'
 import { Button } from '@/components/ui/Button'
 
@@ -264,14 +264,14 @@ export function StrategyFormPanel({
         </Button>
       )}
 
-      {/* Market Info and Risk Assessment Cards */}
+      {/* Market Info Card - Moved below action buttons */}
       <MarketInfoCard
         strategy={strategy}
         displayValues={displayValues}
         getAvailableLiquidityDisplay={getAvailableLiquidityDisplay}
       />
-      <StrategyPointsCard strategy={strategy} />
 
+      {/* Risk Assessment Card */}
       <RiskAssessmentCard
         strategy={strategy}
         positionCalcs={positionCalcs}

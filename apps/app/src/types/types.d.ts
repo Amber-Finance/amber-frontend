@@ -1122,6 +1122,7 @@ interface WithdrawStrategyParams {
   debtDenom: string
   debtAmount: string
   debtDecimals: number
+  slippage?: number
 }
 
 

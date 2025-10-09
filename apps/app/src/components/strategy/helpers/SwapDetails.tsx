@@ -56,29 +56,11 @@ export default function SwapDetails({
 
   if (!swapRouteInfo) return null
 
-  const fromAssetDecimals = isLeverageIncrease
-    ? debtAssetDecimals
-    : strategy.collateralAsset.decimals || 8
-  const toAssetDecimals = isLeverageIncrease
-    ? strategy.collateralAsset.decimals || 8
-    : debtAssetDecimals
-
-  let actualPriceImpact = 0
-  if (swapRouteInfo.amountIn?.gt(0) && swapRouteInfo.amountOut?.gt(0)) {
-    const inputAmount = swapRouteInfo.amountIn.shiftedBy(-fromAssetDecimals)
-    const outputAmount = swapRouteInfo.amountOut.shiftedBy(-toAssetDecimals)
-    actualPriceImpact =
-      ((outputAmount.toNumber() - inputAmount.toNumber()) / inputAmount.toNumber()) * 100
-  }
-
-  const priceImpact = actualPriceImpact
+  // Use price impact from API response instead of calculating manually
+  // Manual calculation doesn't work because amountIn and amountOut are in different tokens
+  const priceImpact = swapRouteInfo.priceImpact?.toNumber() || 0
   const swapLabel = isLeverageIncrease ? 'Borrow to be swapped' : 'Collateral to be swapped'
   const receiveLabel = isLeverageIncrease ? 'Added Collateral' : 'Debt Repay'
-
-  // Derive sign once to avoid nested ternary in JSX
-  let priceImpactSign = ''
-  if (priceImpact < 0) priceImpactSign = '-'
-  else if (priceImpact > 0) priceImpactSign = '+'
 
   return (
     <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-1 text-sm'>
@@ -125,9 +107,9 @@ export default function SwapDetails({
       <div className='flex justify-between'>
         <span className='text-muted-foreground'>Price Impact</span>
         <span className={getPriceImpactColor(priceImpact)}>
-          {priceImpactSign}
+          {priceImpact > 0 && '+'}
           <FormattedValue
-            value={Math.abs(priceImpact)}
+            value={priceImpact}
             maxDecimals={2}
             suffix='%'
             useCompactNotation={false}
