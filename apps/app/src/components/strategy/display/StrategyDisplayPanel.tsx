@@ -1,5 +1,6 @@
 'use client'
 
+import { FeeRecoveryCard } from '@/components/strategy/cards/FeeRecoveryCard'
 import { StrategyPointsCard } from '@/components/strategy/cards/StrategyPointsCard'
 import { ExistingPositionOverviewCard } from '@/components/strategy/display/ExistingPositionOverviewCard'
 import { StrategyChart, StrategyFlowCard } from '@/components/strategy/visualization'
@@ -19,6 +20,10 @@ interface StrategyDisplayPanelProps {
   currentAmount: number
   multiplier: number
   isLoading?: boolean
+  swapRouteInfo?: SwapRouteInfo | null
+  slippage?: number
+  isCalculatingPositions?: boolean
+  isSwapLoading?: boolean
 }
 
 // Loading skeleton component (moved out of component to satisfy linter)
@@ -48,6 +53,10 @@ export function StrategyDisplayPanel({
   currentAmount,
   multiplier,
   isLoading = false,
+  swapRouteInfo = null,
+  slippage = 0.5,
+  isCalculatingPositions = false,
+  isSwapLoading = false,
 }: StrategyDisplayPanelProps) {
   // CardSkeleton is defined at module scope above to satisfy linter
 
@@ -60,9 +69,11 @@ export function StrategyDisplayPanel({
       </div>
     )
 
+  const currentPrice = marketData?.currentPrice || 0
+
   return (
     <div className='flex-1 space-y-4 order-2 lg:order-1'>
-      {/* Only show ExistingPositionOverviewCard in modify mode when there's an active strategy */}
+      {/* Show ExistingPositionOverviewCard in modify mode when there's an active strategy */}
       {mode === 'modify' && activeStrategy && (
         <ExistingPositionOverviewCard
           strategy={strategy}
@@ -83,6 +94,19 @@ export function StrategyDisplayPanel({
         currentBorrowApy={debtBorrowApy}
         className='w-[494px] h-[350px]'
       />
+
+      {/* Fee Recovery Analysis Card */}
+      {swapRouteInfo && (
+        <FeeRecoveryCard
+          strategy={strategy}
+          swapRouteInfo={swapRouteInfo}
+          positionCalcs={positionCalcs}
+          slippage={slippage}
+          currentPrice={currentPrice}
+          isCalculating={isCalculatingPositions}
+          isSwapLoading={isSwapLoading}
+        />
+      )}
 
       <StrategyPointsCard strategy={strategy} />
 

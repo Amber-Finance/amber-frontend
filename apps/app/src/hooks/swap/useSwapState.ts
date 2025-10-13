@@ -64,6 +64,9 @@ const swapReducer = (state: SwapState, action: SwapAction): SwapState => {
     case 'SET_SLIDER_PERCENTAGE':
       return { ...state, sliderPercentage: action.payload }
 
+    case 'SET_EDITING_DIRECTION':
+      return { ...state, editingDirection: action.payload }
+
     case 'SWAP_TOKENS':
       return {
         ...state,
@@ -95,12 +98,12 @@ export const useSwapState = () => {
 
   // Action creators (pure functions)
   const actions = {
-    setFromToken: useCallback(
+    setFromTokenDenom: useCallback(
       (denom: string | null) => dispatch({ type: 'SET_FROM_TOKEN', payload: denom }),
       [],
     ),
 
-    setToToken: useCallback(
+    setToTokenDenom: useCallback(
       (denom: string | null) => dispatch({ type: 'SET_TO_TOKEN', payload: denom }),
       [],
     ),
@@ -125,13 +128,13 @@ export const useSwapState = () => {
       [],
     ),
 
-    toggleSlippagePopover: useCallback(
-      (show?: boolean) => dispatch({ type: 'TOGGLE_SLIPPAGE_POPOVER', payload: show }),
+    setShowSlippagePopover: useCallback(
+      (show: boolean) => dispatch({ type: 'TOGGLE_SLIPPAGE_POPOVER', payload: show }),
       [],
     ),
 
-    toggleTokenModal: useCallback(
-      (show?: boolean) => dispatch({ type: 'TOGGLE_TOKEN_MODAL', payload: show }),
+    setTokenModalOpen: useCallback(
+      (open: boolean) => dispatch({ type: 'TOGGLE_TOKEN_MODAL', payload: open }),
       [],
     ),
 
@@ -140,13 +143,18 @@ export const useSwapState = () => {
       [],
     ),
 
-    setSwapInProgress: useCallback(
+    setIsSwapInProgress: useCallback(
       (inProgress: boolean) => dispatch({ type: 'SET_SWAP_IN_PROGRESS', payload: inProgress }),
       [],
     ),
 
     setSliderPercentage: useCallback(
       (percentage: number) => dispatch({ type: 'SET_SLIDER_PERCENTAGE', payload: percentage }),
+      [],
+    ),
+
+    setEditingDirection: useCallback(
+      (direction: 'from' | 'to') => dispatch({ type: 'SET_EDITING_DIRECTION', payload: direction }),
       [],
     ),
 

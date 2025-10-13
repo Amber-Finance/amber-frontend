@@ -18,10 +18,10 @@ export function parseErrorMessage(errorMessage: string): string {
     const healthFactor = healthFactorMatch ? parseFloat(healthFactorMatch[1]) : null
 
     if (healthFactor && healthFactor < 1.0) {
-      return `⚠️ Leverage too high! Your position would be at risk of liquidation (Health Factor: ${(healthFactor * 100).toFixed(2)}%). Please reduce the leverage amount to stay above 100% health factor.`
+      return `Leverage too high! Your position would be at risk of liquidation (Health Factor: ${(healthFactor * 100).toFixed(2)}%). Please reduce the leverage amount to stay above 100% health factor.`
     }
 
-    return `⚠️ Leverage too high! Your position would exceed the maximum allowed loan-to-value ratio and risk liquidation. Please reduce the leverage amount.`
+    return `Leverage too high! Your position would exceed the maximum allowed loan-to-value ratio and risk liquidation. Please reduce the leverage amount.`
   }
 
   // Insufficient liquidity errors
@@ -29,7 +29,7 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('insufficient liquidity') ||
     errorMessage.includes('not enough liquidity')
   ) {
-    return `💧 Insufficient liquidity available for this size. Please reduce the amount or try again later when more liquidity is available.`
+    return `Insufficient liquidity available for this size. Please reduce the amount or try again later when more liquidity is available.`
   }
 
   // Insufficient balance errors
@@ -37,12 +37,12 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('insufficient funds') ||
     errorMessage.includes('insufficient balance')
   ) {
-    return `💰 Insufficient balance in your wallet. Please ensure you have enough tokens for this transaction.`
+    return `Insufficient balance in your wallet. Please ensure you have enough tokens for this transaction.`
   }
 
   // Slippage errors
   if (errorMessage.includes('slippage') || errorMessage.includes('price impact too high')) {
-    return `📊 Price impact too high. Please reduce the transaction size or increase slippage tolerance.`
+    return `Price impact too high. Please reduce the transaction size or increase slippage tolerance.`
   }
 
   // Network/gas errors
@@ -50,17 +50,17 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('out of gas') ||
     errorMessage.includes('gas required exceeds allowance')
   ) {
-    return `⛽ Transaction requires more gas than available. Please try again with a higher gas limit.`
+    return `Transaction requires more gas than available. Please try again with a higher gas limit.`
   }
 
   // Transaction timeout
   if (errorMessage.includes('timeout') || errorMessage.includes('request timeout')) {
-    return `⏰ Transaction timed out. Please check your network connection and try again.`
+    return `Transaction timed out. Please check your network connection and try again.`
   }
 
   // Wallet connection issues
   if (errorMessage.includes('wallet not connected') || errorMessage.includes('user rejected')) {
-    return `👛 Wallet connection issue. Please reconnect your wallet and try again.`
+    return `Wallet connection issue. Please reconnect your wallet and try again.`
   }
 
   // Contract/protocol specific errors
@@ -68,7 +68,7 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('contract execution failed') ||
     errorMessage.includes('execute wasm contract failed')
   ) {
-    return `⚙️ Smart contract execution failed. This may be due to network congestion or temporary protocol issues. Please try again.`
+    return `Smart contract execution failed. This may be due to network congestion or temporary protocol issues. Please try again.`
   }
 
   // Generic RPC/network errors
@@ -77,7 +77,7 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('network error') ||
     errorMessage.includes('connection failed')
   ) {
-    return `🌐 Network connection error. Please check your connection and try again.`
+    return `Network connection error. Please check your connection and try again.`
   }
 
   // If no specific pattern matches, return a cleaned up version of the original error
@@ -111,10 +111,10 @@ function cleanGenericError(errorMessage: string): string {
     cleaned.includes('CosmWasm') ||
     cleaned.includes('unknown request')
   ) {
-    return `❌ Transaction failed due to a technical issue. Please try reducing the transaction size or try again later.`
+    return `Transaction failed due to a technical issue. Please try reducing the transaction size or try again later.`
   }
 
-  return `❌ ${cleaned}`
+  return cleaned
 }
 
 /**

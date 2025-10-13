@@ -59,8 +59,8 @@ export const useStrategyDeployment = ({
       )
 
       try {
-        // Use the established getNeutronRouteInfo function to ensure consistent route formatting
-        const routeInfo = await getNeutronRouteInfo(
+        // Fetch initial route
+        let routeInfo = await getNeutronRouteInfo(
           strategy.debtAsset.denom,
           strategy.collateralAsset.denom,
           formattedBorrowAmount,
@@ -72,6 +72,33 @@ export const useStrategyDeployment = ({
           throw new Error(
             `No swap route found between ${strategy.debtAsset.symbol} and ${strategy.collateralAsset.symbol}`,
           )
+        }
+
+        // Wait 1.5 seconds and fetch again to get optimized route
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+
+        const optimizedRouteInfo = await getNeutronRouteInfo(
+          strategy.debtAsset.denom,
+          strategy.collateralAsset.denom,
+          formattedBorrowAmount,
+          [], // assets array - not needed for route structure
+          chainConfig,
+        )
+
+        // Use optimized route if it has better price impact
+        if (optimizedRouteInfo) {
+          const initialPriceImpact = routeInfo.priceImpact?.abs() || new BigNumber(Infinity)
+          const optimizedPriceImpact =
+            optimizedRouteInfo.priceImpact?.abs() || new BigNumber(Infinity)
+
+          if (optimizedPriceImpact.lt(initialPriceImpact)) {
+            console.log(
+              `✅ Using optimized route for deployment: ${optimizedPriceImpact.toFixed(4)}% vs ${initialPriceImpact.toFixed(4)}%`,
+            )
+            routeInfo = optimizedRouteInfo
+          } else {
+            console.log('ℹ️ Initial route was already optimal for deployment')
+          }
         }
 
         return routeInfo

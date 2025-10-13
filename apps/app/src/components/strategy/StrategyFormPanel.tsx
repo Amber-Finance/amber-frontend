@@ -54,6 +54,7 @@ interface StrategyFormPanelProps {
 
   // Actions
   onSwapRouteLoaded: (routeInfo: SwapRouteInfo | null) => void
+  onSwapLoadingChange?: (isLoading: boolean) => void
   onDeploy?: () => Promise<void>
   onModifyLeverage?: () => Promise<void>
   onClosePosition?: () => Promise<void>
@@ -63,6 +64,7 @@ interface StrategyFormPanelProps {
   isProcessing: boolean
   isClosing: boolean
   isWithdrawing?: boolean
+  isFetchingRoute?: boolean
   isDataLoading?: boolean
 
   // Connection
@@ -99,6 +101,7 @@ export function StrategyFormPanel({
   hasUserInteraction,
   isCalculatingPositions,
   onSwapRouteLoaded,
+  onSwapLoadingChange,
   onDeploy,
   onModifyLeverage,
   onClosePosition,
@@ -106,6 +109,7 @@ export function StrategyFormPanel({
   isProcessing,
   isClosing,
   isWithdrawing = false,
+  isFetchingRoute = false,
   isDataLoading = false,
   connect,
 }: StrategyFormPanelProps) {
@@ -147,11 +151,13 @@ export function StrategyFormPanel({
   // Helper functions for button text
   const getDeployButtonText = () => {
     if (!walletData.isWalletConnected) return 'Connect Wallet'
+    if (isFetchingRoute || isCalculatingPositions) return 'Fetching Route...'
     if (isProcessing) return 'Deploying...'
     return 'Deploy Strategy'
   }
 
   const getAdjustButtonText = () => {
+    if (isFetchingRoute || isCalculatingPositions) return 'Fetching Route...'
     if (isProcessing) return 'Adjusting...'
     if (hasUserInteraction) return `Adjust to ${targetLeverage.toFixed(2)}x`
     return 'Adjust Leverage'
@@ -184,6 +190,7 @@ export function StrategyFormPanel({
           currentAmount={currentAmount}
           positionCalcs={positionCalcs}
           onSwapRouteLoaded={onSwapRouteLoaded}
+          onSwapLoadingChange={onSwapLoadingChange}
           onSlippageChange={setSlippage}
           marketData={marketData}
           collateralSupplyApy={collateralSupplyApy}
@@ -212,6 +219,7 @@ export function StrategyFormPanel({
           currentAmount={activeStrategy.collateralAsset.amountFormatted}
           positionCalcs={positionCalcs}
           onSwapRouteLoaded={onSwapRouteLoaded}
+          onSwapLoadingChange={onSwapLoadingChange}
           onSlippageChange={setSlippage}
           hideWalletBalance={true}
           hideAmountInput={true}
@@ -232,7 +240,12 @@ export function StrategyFormPanel({
           <Button
             onClick={onModifyLeverage}
             disabled={
-              isProcessing || isWithdrawing || !walletData.isWalletConnected || !hasUserInteraction
+              isProcessing ||
+              isWithdrawing ||
+              isFetchingRoute ||
+              isCalculatingPositions ||
+              !walletData.isWalletConnected ||
+              !hasUserInteraction
             }
             variant='default'
             className='flex-1 shadow-md hover:shadow-lg'
@@ -254,6 +267,8 @@ export function StrategyFormPanel({
           disabled={
             isProcessing ||
             isWithdrawing ||
+            isFetchingRoute ||
+            isCalculatingPositions ||
             (walletData.isWalletConnected &&
               (!hasValidAmount || hasInsufficientBalance || hasInsufficientLiquidity))
           }

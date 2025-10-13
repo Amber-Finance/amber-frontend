@@ -115,7 +115,7 @@ export function StrategyChart({
 
   return (
     <BaseChart
-      title={`${symbol} Borrow APY & MaxBTC Underlying Staking APY`}
+      title={'Borrow vs Staking APY'}
       chartData={chartData}
       chartConfig={chartConfig}
       yAxes={yAxes}

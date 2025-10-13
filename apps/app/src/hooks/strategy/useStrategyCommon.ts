@@ -41,6 +41,7 @@ export function useStrategyCommon({ strategy, mode, accountId }: UseStrategyComm
   const [targetLeverage, setTargetLeverage] = useState(2)
   const [hasInitialized, setHasInitialized] = useState(false)
   const [slippage, setSlippage] = useState(0.5)
+  const [isSwapLoading, setIsSwapLoading] = useState(false)
 
   // Hooks
   const { markets } = useStore()
@@ -338,6 +339,10 @@ export function useStrategyCommon({ strategy, mode, accountId }: UseStrategyComm
     setCachedSwapRouteInfo(routeInfo)
   }, [])
 
+  const handleSwapLoadingChange = useCallback((isLoading: boolean) => {
+    setIsSwapLoading(isLoading)
+  }, [])
+
   // Effects
   useEffect(() => {
     if (isModifying && activeStrategy && !hasInitialized) {
@@ -435,11 +440,13 @@ export function useStrategyCommon({ strategy, mode, accountId }: UseStrategyComm
 
     // Calculation states
     isCalculatingPositions,
+    isSwapLoading,
 
     // Helper functions
     getAvailableLiquidityDisplay,
     getEstimatedEarningsUsd,
     handleSwapRouteLoaded,
+    handleSwapLoadingChange,
 
     // Connection
     address,

@@ -931,6 +931,7 @@ type SwapAction =
   | { type: 'SET_SELECTING_FROM'; payload: boolean }
   | { type: 'SET_SWAP_IN_PROGRESS'; payload: boolean }
   | { type: 'SET_SLIDER_PERCENTAGE'; payload: number }
+  | { type: 'SET_EDITING_DIRECTION'; payload: 'from' | 'to' }
   | { type: 'SWAP_TOKENS' }
   | { type: 'RESET_AMOUNTS' }
   | { type: 'RESET_STATE' }

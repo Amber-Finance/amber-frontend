@@ -6,12 +6,8 @@ import { AlertTriangle, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
 import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard } from '@/components/deposit'
-import { NewPositionTable } from '@/components/strategy/cards/NewPositionTable'
-import {
-  SwapDetails,
-  getLeverageWarning,
-  getPriceImpactWarning,
-} from '@/components/strategy/helpers'
+import { SimulatedPositionOverview } from '@/components/strategy/display/SimulatedPositionOverview'
+import { getLeverageWarning, getPriceImpactWarning } from '@/components/strategy/helpers'
 import { AmountInput } from '@/components/ui/AmountInput'
 import { InfoAlert } from '@/components/ui/InfoAlert'
 import { Separator } from '@/components/ui/separator'
@@ -72,10 +68,10 @@ interface MarginCollateralCardProps {
     leveragedApy: number
   }
   onSwapRouteLoaded?: (swapRouteInfo: SwapRouteInfo | null) => void
+  onSwapLoadingChange?: (isLoading: boolean) => void
   onSlippageChange?: (slippage: number) => void
   hideWalletBalance?: boolean
   hideAmountInput?: boolean
-  // New props for NewPositionTable
   marketData?: {
     currentPrice: number
     debtMarket?: any
@@ -101,6 +97,7 @@ export function MarginCollateralCard({
   currentAmount,
   positionCalcs,
   onSwapRouteLoaded,
+  onSwapLoadingChange,
   onSlippageChange,
   hideWalletBalance = false,
   hideAmountInput = false,
@@ -194,11 +191,14 @@ export function MarginCollateralCard({
     collateralAssetDenom,
     debtAssetSymbol,
     collateralAssetSymbol,
-    currentLeverage,
-    targetLeverage,
     slippage,
     enabled: showSwapDetailsAndSlippage,
   })
+
+  // Notify parent when swap loading state changes
+  useEffect(() => {
+    onSwapLoadingChange?.(isSwapLoading)
+  }, [isSwapLoading, onSwapLoadingChange])
 
   // Notify parent when route info becomes available
   useEffect(() => {
@@ -225,7 +225,6 @@ export function MarginCollateralCard({
             <span className='font-medium text-foreground'>{displayValues.walletBalance}</span>
           </div>
         )}
-
         {!hideAmountInput && (
           <AmountInput
             value={collateralAmount}
@@ -238,9 +237,7 @@ export function MarginCollateralCard({
             balance={userBalance.toString()}
           />
         )}
-
         {!hideAmountInput && <Separator />}
-
         {/* Available Debt Section - Above leverage slider */}
         <div className='space-y-2'>
           <div className='flex items-center gap-2'>
@@ -268,11 +265,8 @@ export function MarginCollateralCard({
             />
           </div>
         </div>
-
         <Separator />
-
         {leverageSliderComponent && <div className='space-y-2'>{leverageSliderComponent}</div>}
-
         {/* Leverage Warning */}
         {(() => {
           const currentLeverage =
@@ -297,7 +291,6 @@ export function MarginCollateralCard({
             </InfoAlert>
           )
         })()}
-
         {/* Collapsible Slippage Settings */}
         {showSwapDetailsAndSlippage && (
           <div className='space-y-2'>
@@ -401,24 +394,23 @@ export function MarginCollateralCard({
             )}
           </div>
         )}
-
-        {/* Swap Details */}
+        {/* Simulated Position Overview */}
         {currentAmount > 0 && showSwapDetailsAndSlippage && (
-          <SwapDetails
+          <SimulatedPositionOverview
+            strategy={strategy}
+            displayValues={displayValues}
+            positionCalcs={positionCalcs}
+            healthFactor={simulatedHealthFactor || 0}
+            marketData={marketData}
             isCalculatingPositions={isCalculatingPositions}
             isSwapLoading={isSwapLoading}
-            showSwapDetailsAndSlippage={showSwapDetailsAndSlippage}
+            showSwapDetails={showSwapDetailsAndSlippage}
             swapRouteInfo={swapRouteInfo}
             swapError={swapError}
             isLeverageIncrease={isLeverageIncrease}
-            debtAssetDecimals={debtAssetDecimals}
-            strategy={strategy}
-            positionCalcs={positionCalcs}
-            debtAssetDenom={debtAssetDenom}
-            collateralAssetDenom={collateralAssetDenom}
+            initialCollateralAmount={currentAmount}
           />
         )}
-
         {/* Price Impact Warning */}
         {currentAmount > 0 &&
           showSwapDetailsAndSlippage &&
@@ -475,51 +467,6 @@ export function MarginCollateralCard({
               </InfoAlert>
             )
           })()}
-
-        {/* New Position Table */}
-        {showPositionTable && marketData && (
-          <>
-            {isCalculatingPositions ? (
-              <div className='p-2 rounded-lg bg-muted/20 border border-border/50 space-y-4'>
-                <div className='h-6 w-40 bg-muted/40 rounded animate-pulse' />
-                <div className='grid grid-cols-2 gap-4'>
-                  <div className='space-y-2'>
-                    <div className='h-4 w-24 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-6 w-32 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-3 w-20 bg-muted/40 rounded animate-pulse' />
-                  </div>
-                  <div className='space-y-2'>
-                    <div className='h-4 w-28 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-6 w-36 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-3 w-24 bg-muted/40 rounded animate-pulse' />
-                  </div>
-                  <div className='space-y-2'>
-                    <div className='h-4 w-20 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-6 w-28 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-3 w-16 bg-muted/40 rounded animate-pulse' />
-                  </div>
-                  <div className='space-y-2'>
-                    <div className='h-4 w-32 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-6 w-24 bg-muted/40 rounded animate-pulse' />
-                    <div className='h-3 w-20 bg-muted/40 rounded animate-pulse' />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <NewPositionTable
-                strategy={strategy}
-                positionCalcs={positionCalcs}
-                collateralAmount={collateralAmount}
-                marketData={marketData}
-                collateralSupplyApy={collateralSupplyApy}
-                debtBorrowApy={debtBorrowApy}
-                simulatedHealthFactor={simulatedHealthFactor}
-                swapRouteInfo={swapRouteInfo}
-                isLeverageIncrease={isLeverageIncrease}
-              />
-            )}
-          </>
-        )}
       </div>
     </InfoCard>
   )

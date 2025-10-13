@@ -32,6 +32,7 @@ export const useStrategyLeverageModification = ({
   slippage = 0.5,
 }: UseStrategyLeverageModificationProps) => {
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isFetchingRoute, setIsFetchingRoute] = useState(false)
   const { executeTransaction } = useBroadcast()
   const { markets } = useStore()
 
@@ -99,11 +100,37 @@ export const useStrategyLeverageModification = ({
 
       if (isIncreasing && tokenAmounts.additionalBorrowAmount) {
         const borrowAmount = new BigNumber(tokenAmounts.additionalBorrowAmount)
-        return await fetchSwapRoute(
+
+        // Fetch initial route
+        let routeResult = await fetchSwapRoute(
           activeStrategy.debtAsset.denom,
           activeStrategy.collateralAsset.denom,
           borrowAmount,
         )
+
+        // Wait 1.5 seconds and fetch again to get optimized route
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+
+        const optimizedRoute = await fetchSwapRoute(
+          activeStrategy.debtAsset.denom,
+          activeStrategy.collateralAsset.denom,
+          borrowAmount,
+        )
+
+        // Use optimized route if it has better price impact
+        if (optimizedRoute && routeResult) {
+          const initialPriceImpact = routeResult.priceImpact?.abs() || new BigNumber(Infinity)
+          const optimizedPriceImpact = optimizedRoute.priceImpact?.abs() || new BigNumber(Infinity)
+
+          if (optimizedPriceImpact.lt(initialPriceImpact)) {
+            console.log(
+              `✅ Using optimized route for leverage increase: ${optimizedPriceImpact.toFixed(4)}% vs ${initialPriceImpact.toFixed(4)}%`,
+            )
+            return optimizedRoute
+          }
+        }
+
+        return routeResult
       }
 
       if (!isIncreasing && tokenAmounts.debtToRepay) {
@@ -111,7 +138,8 @@ export const useStrategyLeverageModification = ({
         const debtAmount = new BigNumber(tokenAmounts.debtToRepay)
 
         try {
-          const routeResult = await getNeutronRouteInfoReverse(
+          // Fetch initial route
+          let routeResult = await getNeutronRouteInfoReverse(
             activeStrategy.collateralAsset.denom,
             activeStrategy.debtAsset.denom,
             debtAmount,
@@ -122,6 +150,38 @@ export const useStrategyLeverageModification = ({
           if (!routeResult?.amountIn) {
             console.error('Reverse routing failed for leverage modification')
             return null
+          }
+
+          // Wait 1.5 seconds and fetch again to get optimized route
+          await new Promise((resolve) => setTimeout(resolve, 1500))
+
+          const optimizedRoute = await getNeutronRouteInfoReverse(
+            activeStrategy.collateralAsset.denom,
+            activeStrategy.debtAsset.denom,
+            debtAmount,
+            markets?.map((m) => m.asset) || [],
+            chainConfig,
+          )
+
+          // Use optimized route if it has better price impact or requires less collateral
+          if (optimizedRoute?.amountIn && routeResult) {
+            const initialPriceImpact = routeResult.priceImpact?.abs() || new BigNumber(Infinity)
+            const optimizedPriceImpact =
+              optimizedRoute.priceImpact?.abs() || new BigNumber(Infinity)
+
+            // For reverse routing, also check if it requires less collateral input
+            const initialAmountIn = routeResult.amountIn || new BigNumber(Infinity)
+            const optimizedAmountIn = optimizedRoute.amountIn || new BigNumber(Infinity)
+
+            if (
+              optimizedPriceImpact.lt(initialPriceImpact) ||
+              optimizedAmountIn.lt(initialAmountIn)
+            ) {
+              console.log(
+                `✅ Using optimized route for leverage decrease: ${optimizedPriceImpact.toFixed(4)}% vs ${initialPriceImpact.toFixed(4)}%`,
+              )
+              return optimizedRoute
+            }
           }
 
           return routeResult
@@ -193,6 +253,7 @@ export const useStrategyLeverageModification = ({
   const modifyLeverage = useCallback(
     async (targetLeverage: number): Promise<LeverageModificationResult> => {
       setIsProcessing(true)
+      setIsFetchingRoute(true)
 
       try {
         if (!activeStrategy) {
@@ -235,6 +296,8 @@ export const useStrategyLeverageModification = ({
         )
 
         const swapRouteInfo = await prepareSwapRoute(isIncreasing, tokenAmounts)
+        setIsFetchingRoute(false)
+
         if (!swapRouteInfo) {
           return { success: false, error: 'Could not find swap route for leverage modification' }
         }
@@ -266,6 +329,7 @@ export const useStrategyLeverageModification = ({
         }
       } finally {
         setIsProcessing(false)
+        setIsFetchingRoute(false)
       }
     },
     [
@@ -301,5 +365,6 @@ export const useStrategyLeverageModification = ({
     validateLeverageModification,
     getMaxSafeLeverage,
     isProcessing,
+    isFetchingRoute,
   }
 }

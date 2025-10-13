@@ -43,6 +43,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const [slippage, setSlippage] = useState(0.5)
   const [hasInitialized, setHasInitialized] = useState(false)
   const [wasWalletConnected, setWasWalletConnected] = useState(false)
+  const [isSwapLoading, setIsSwapLoading] = useState(false)
   // Keep cached swap route for consistency with DeployStrategy - may be used in future optimizations
   const [cachedSwapRouteInfo, setCachedSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
 
@@ -171,13 +172,11 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       collateralSupplyApy,
       debtBorrowApy: marketData.debtBorrowApy,
       yieldSpread: collateralSupplyApy - marketData.debtBorrowApy,
-      // Additional fields for modify mode
       currentCollateral,
       currentBorrows,
       targetBorrows,
       borrowAmountChange, // Signed value indicating direction
       isLeverageIncrease: borrowAmountChange > 0,
-      // For NewPositionTable compatibility - use total target amounts
       totalBorrows: targetBorrows, // Total target borrows (not the change)
       supplies: suppliesAmount, // User's actual supply amount (for ExistingPositionOverviewCard)
     }
@@ -239,7 +238,11 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const { healthFactor: computedHealthFactor } = useHealthComputer(updatedPositions)
 
   // Add withdrawal hook for position closing
-  const { withdrawFullStrategy, isProcessing: isWithdrawing } = useStrategyWithdrawal()
+  const {
+    withdrawFullStrategy,
+    isProcessing: isWithdrawing,
+    isFetchingRoute: isFetchingCloseRoute,
+  } = useStrategyWithdrawal()
 
   // Helper functions
   const getEstimatedEarningsUsd = useCallback(() => {
@@ -272,6 +275,10 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     [cachedSwapRouteInfo],
   )
 
+  const handleSwapLoadingChange = useCallback((isLoading: boolean) => {
+    setIsSwapLoading(isLoading)
+  }, [])
+
   // Add leverage modification hook for modify mode
   const leverageModification = useStrategyLeverageModification({
     strategy,
@@ -279,6 +286,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     activeStrategy: activeStrategy!,
     slippage,
   })
+  const isFetchingLeverageRoute = leverageModification?.isFetchingRoute || false
 
   // Create simulated positions for health calculation using effective (debounced) leverage
   const simulatedPositions = useMemo(() => {
@@ -449,6 +457,9 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           currentAmount={strategyAccountData?.suppliesAmount || 0}
           multiplier={effectiveLeverage}
           isLoading={isDataLoading}
+          swapRouteInfo={cachedSwapRouteInfo}
+          slippage={slippage}
+          isCalculatingPositions={isCalculatingPositions}
         />
 
         {/* Right Column - Form Panel */}
@@ -482,12 +493,14 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           hasUserInteraction={hasUserInteraction}
           isCalculatingPositions={isCalculatingPositions}
           onSwapRouteLoaded={handleSwapRouteLoaded}
+          onSwapLoadingChange={handleSwapLoadingChange}
           onModifyLeverage={handleLeverageModification}
           onClosePosition={handleClosePosition}
           getAvailableLiquidityDisplay={getAvailableLiquidityDisplay}
           isProcessing={isProcessing}
           isClosing={isClosing}
           isWithdrawing={isWithdrawing}
+          isFetchingRoute={isFetchingLeverageRoute || isFetchingCloseRoute || isSwapLoading}
           isDataLoading={isDataLoading}
           connect={connect}
         />

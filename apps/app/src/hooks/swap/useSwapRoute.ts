@@ -12,8 +12,6 @@ type UseSwapRouteParams = {
   collateralAssetDenom: string
   debtAssetSymbol: string
   collateralAssetSymbol: string
-  currentLeverage?: number
-  targetLeverage?: number
   slippage: number
   enabled: boolean
 }
@@ -26,8 +24,6 @@ export default function useSwapRoute({
   collateralAssetDenom,
   debtAssetSymbol,
   collateralAssetSymbol,
-  currentLeverage,
-  targetLeverage,
   slippage,
   enabled,
 }: UseSwapRouteParams) {
@@ -100,8 +96,6 @@ export default function useSwapRoute({
     debtAssetDecimals,
     debtAssetDenom,
     collateralAssetDenom,
-    currentLeverage,
-    targetLeverage,
     slippage,
   ])
 

@@ -10,12 +10,14 @@ import { getMinAmountOutFromRouteInfo } from '@/utils/data/swap'
 
 export function useStrategyWithdrawal() {
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isFetchingRoute, setIsFetchingRoute] = useState(false)
   const { executeTransaction } = useBroadcast()
   const { markets } = useStore()
 
   const withdrawFullStrategy = useCallback(
     async (params: WithdrawStrategyParams) => {
       setIsProcessing(true)
+      setIsFetchingRoute(true)
 
       try {
         // For full withdrawal, we need to repay all debt and withdraw all collateral
@@ -36,7 +38,7 @@ export function useStrategyWithdrawal() {
           .integerValue()
           .toString()
 
-        // Fetch swap route using the initial estimate
+        // Fetch initial swap route
         let routeResult = await getNeutronRouteInfo(
           params.collateralDenom,
           params.debtDenom,
@@ -44,6 +46,35 @@ export function useStrategyWithdrawal() {
           markets?.map((m) => m.asset) || [],
           chainConfig,
         )
+
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+
+        const optimizedRouteResult = await getNeutronRouteInfo(
+          params.collateralDenom,
+          params.debtDenom,
+          new BigNumber(initialCollateralForSwap),
+          markets?.map((m) => m.asset) || [],
+          chainConfig,
+        )
+
+        // Use the optimized route if it's better (lower price impact or better output)
+        if (optimizedRouteResult) {
+          const initialPriceImpact = routeResult?.priceImpact?.abs() || new BigNumber(Infinity)
+          const optimizedPriceImpact =
+            optimizedRouteResult.priceImpact?.abs() || new BigNumber(Infinity)
+
+          // Use optimized route if it has better price impact
+          if (optimizedPriceImpact.lt(initialPriceImpact)) {
+            console.log(
+              `✅ Using optimized route with ${optimizedPriceImpact.toFixed(4)}% price impact vs ${initialPriceImpact.toFixed(4)}%`,
+            )
+            routeResult = optimizedRouteResult
+          } else {
+            console.log('ℹ️ Initial route was already optimal')
+          }
+        }
+
+        setIsFetchingRoute(false)
 
         if (!routeResult) {
           // If 50% doesn't work, try with 75% of collateral
@@ -149,6 +180,7 @@ export function useStrategyWithdrawal() {
         throw error
       } finally {
         setIsProcessing(false)
+        setIsFetchingRoute(false)
       }
     },
     [executeTransaction, markets],
@@ -157,5 +189,6 @@ export function useStrategyWithdrawal() {
   return {
     withdrawFullStrategy,
     isProcessing,
+    isFetchingRoute,
   }
 }

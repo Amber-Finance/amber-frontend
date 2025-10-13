@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { BigNumber } from 'bignumber.js'
 import { ArrowLeft } from 'lucide-react'
@@ -15,6 +15,7 @@ interface DeployStrategyProps {
 }
 
 export function DeployStrategy({ strategy }: DeployStrategyProps) {
+  const [isFetchingRoute, setIsFetchingRoute] = useState(false)
   const strategyCommon = useStrategyCommon({
     strategy,
     mode: 'deploy',
@@ -47,6 +48,8 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
     getAvailableLiquidityDisplay,
     getEstimatedEarningsUsd,
     handleSwapRouteLoaded,
+    handleSwapLoadingChange,
+    isSwapLoading,
     computedHealthFactor,
     simulatedHealthFactor,
     isDataLoading,
@@ -93,7 +96,12 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
 
     try {
       // Use cached swap route info if available, otherwise fetch it
-      const swapRouteInfo = cachedSwapRouteInfo || (await fetchSwapRoute(borrowAmount))
+      let swapRouteInfo = cachedSwapRouteInfo
+      if (!swapRouteInfo) {
+        setIsFetchingRoute(true)
+        swapRouteInfo = await fetchSwapRoute(borrowAmount)
+        setIsFetchingRoute(false)
+      }
 
       const result = await deployStrategy({
         collateralAmount: currentAmount,
@@ -108,6 +116,7 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
       }
     } catch (error) {
       console.error(error)
+      setIsFetchingRoute(false)
     } finally {
       setIsProcessing(false)
     }
@@ -164,6 +173,9 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
           currentAmount={currentAmount}
           multiplier={multiplier}
           isLoading={isDataLoading}
+          swapRouteInfo={cachedSwapRouteInfo}
+          slippage={slippage}
+          isCalculatingPositions={isCalculatingPositions}
         />
 
         {/* Right Column - Form Panel */}
@@ -196,10 +208,12 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
           hasUserInteraction={hasUserInteraction}
           isCalculatingPositions={isCalculatingPositions}
           onSwapRouteLoaded={handleSwapRouteLoaded}
+          onSwapLoadingChange={handleSwapLoadingChange}
           onDeploy={handleDeploy}
           getAvailableLiquidityDisplay={getAvailableLiquidityDisplay}
           isProcessing={isProcessing}
           isClosing={false}
+          isFetchingRoute={isFetchingRoute || isSwapLoading}
           isDataLoading={isDataLoading}
           connect={connect}
         />
