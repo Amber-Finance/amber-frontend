@@ -125,7 +125,7 @@ export function BaseChart({
                   fontSize={10}
                   dy={10}
                   stroke='rgba(255, 255, 255, 0.06)'
-                  interval='preserveStartEnd'
+                  interval={Math.ceil(chartData.length / 8)}
                 />
                 {yAxes.map((yAxis) => (
                   <YAxis
