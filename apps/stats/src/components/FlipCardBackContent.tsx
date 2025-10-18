@@ -167,7 +167,7 @@ export default function FlipCardBackContent({
                 <span
                   className={cn(
                     'text-xs font-mono text-right',
-                    showProgressBar ? 'w-12' : 'w-16',
+                    showProgressBar ? 'w-20' : 'w-24',
                     item.isSelected ? 'font-bold' : 'text-muted-foreground',
                   )}
                 >
