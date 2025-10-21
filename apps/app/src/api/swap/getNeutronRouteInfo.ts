@@ -397,7 +397,9 @@ async function binarySearchReverseRouting(
     return bestRoute
   }
 
-  throw new Error('No route found through binary search')
+  throw new Error(
+    'There is not enough liquidity in the Supervault LST <> maxBTC to enter the Strategy',
+  )
 }
 
 export default async function getNeutronRouteInfo(
