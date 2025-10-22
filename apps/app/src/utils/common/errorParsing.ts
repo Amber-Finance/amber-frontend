@@ -15,7 +15,7 @@ export function parseErrorMessage(errorMessage: string): string {
     // Extract health factor if available (use RegExp.exec for safer group access)
     const healthFactorRegex = /health factor[^"]*"([0-9.]+)"/
     const healthFactorMatch = healthFactorRegex.exec(errorMessage)
-    const healthFactor = healthFactorMatch ? parseFloat(healthFactorMatch[1]) : null
+    const healthFactor = healthFactorMatch ? Number.parseFloat(healthFactorMatch[1] ?? '0') : null
 
     if (healthFactor && healthFactor < 1.0) {
       return `Leverage too high! Your position would be at risk of liquidation (Health Factor: ${(healthFactor * 100).toFixed(2)}%). Please reduce the leverage amount to stay above 100% health factor.`
@@ -29,7 +29,7 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('insufficient liquidity') ||
     errorMessage.includes('not enough liquidity')
   ) {
-    return `Insufficient liquidity available for this size. Please reduce the amount or try again later when more liquidity is available.`
+    return `There isn't enough liquidity in the pool to complete your transaction. The available tokens are fewer than what you're trying to swap. Please reduce your amount or wait for more liquidity to become available.`
   }
 
   // Insufficient balance errors
@@ -40,9 +40,14 @@ export function parseErrorMessage(errorMessage: string): string {
     return `Insufficient balance in your wallet. Please ensure you have enough tokens for this transaction.`
   }
 
-  // Slippage errors
-  if (errorMessage.includes('slippage') || errorMessage.includes('price impact too high')) {
-    return `Price impact too high. Please reduce the transaction size or increase slippage tolerance.`
+  // Slippage and Fill Or Kill order errors (Duality liquidity issues)
+  if (
+    errorMessage.includes('slippage') ||
+    errorMessage.includes('price impact too high') ||
+    errorMessage.includes('Fill Or Kill limit order') ||
+    errorMessage.includes("couldn't be executed in its entirety")
+  ) {
+    return `Your transaction amount is too large for the available liquidity on Duality's SuperVaults. The swap couldn't be executed without experiencing high slippage. Please reduce your transaction size and try again.`
   }
 
   // Network/gas errors
@@ -50,17 +55,17 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('out of gas') ||
     errorMessage.includes('gas required exceeds allowance')
   ) {
-    return `Transaction requires more gas than available. Please try again with a higher gas limit.`
+    return `Your transaction ran out of gas before it could complete. This means the computational resources allocated weren't enough. Your wallet will retry with a higher gas limit automatically, or you can adjust gas settings manually.`
   }
 
   // Transaction timeout
   if (errorMessage.includes('timeout') || errorMessage.includes('request timeout')) {
-    return `Transaction timed out. Please check your network connection and try again.`
+    return `Your transaction took too long to process and timed out. This usually happens during network congestion or when the blockchain is slow to respond. Please try again in a moment.`
   }
 
   // Wallet connection issues
   if (errorMessage.includes('wallet not connected') || errorMessage.includes('user rejected')) {
-    return `Wallet connection issue. Please reconnect your wallet and try again.`
+    return `Your wallet is either disconnected or you rejected the transaction request. Please ensure your wallet is connected and approve the transaction to proceed.`
   }
 
   // Contract/protocol specific errors
@@ -68,7 +73,7 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('contract execution failed') ||
     errorMessage.includes('execute wasm contract failed')
   ) {
-    return `Smart contract execution failed. This may be due to network congestion or temporary protocol issues. Please try again.`
+    return `The smart contract couldn't execute your transaction. This could be due to network congestion or the contract being in an unexpected state. Please wait a moment and try again.`
   }
 
   // Generic RPC/network errors
@@ -77,7 +82,7 @@ export function parseErrorMessage(errorMessage: string): string {
     errorMessage.includes('network error') ||
     errorMessage.includes('connection failed')
   ) {
-    return `Network connection error. Please check your connection and try again.`
+    return `The blockchain network is experiencing connectivity issues. This could be due to network congestion or a node upgrade. Please wait a moment and try again.`
   }
 
   // If no specific pattern matches, return a cleaned up version of the original error
@@ -111,7 +116,7 @@ function cleanGenericError(errorMessage: string): string {
     cleaned.includes('CosmWasm') ||
     cleaned.includes('unknown request')
   ) {
-    return `Transaction failed due to a technical issue. Please try reducing the transaction size or try again later.`
+    return `Something went wrong with this transaction. Please try again in a moment.`
   }
 
   return cleaned
@@ -128,6 +133,8 @@ export function isUserActionableError(errorMessage: string): boolean {
     'insufficient liquidity',
     'slippage',
     'price impact too high',
+    'Fill Or Kill limit order',
+    "couldn't be executed in its entirety",
   ]
 
   return userActionablePatterns.some((pattern) =>
@@ -148,7 +155,12 @@ export function getErrorSeverity(errorMessage: string): 'warning' | 'error' | 'i
   }
 
   // Insufficient balance/liquidity are info (user needs to know)
-  if (errorMessage.includes('insufficient') || errorMessage.includes('slippage')) {
+  if (
+    errorMessage.includes('insufficient') ||
+    errorMessage.includes('slippage') ||
+    errorMessage.includes('Fill Or Kill limit order') ||
+    errorMessage.includes("couldn't be executed in its entirety")
+  ) {
     return 'info'
   }
 
