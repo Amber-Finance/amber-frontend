@@ -9,9 +9,9 @@ import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import { Button } from '@/components/ui/Button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import useHealthComputer from '@/hooks/useHealthComputer'
+import useHealthComputer from '@/hooks/common/useHealthComputer'
 import { useStore } from '@/store/useStore'
-import { getHealthFactorColor } from '@/utils/healthComputer'
+import { getHealthFactorColor } from '@/utils/blockchain/healthComputer'
 
 interface ActiveStrategyCardProps {
   strategy: ActiveStrategy

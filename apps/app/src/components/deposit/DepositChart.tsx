@@ -10,7 +10,7 @@ import useAssetsApr from '@/hooks/redBank/useAssetsApr'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
 import { useStore } from '@/store/useStore'
-import { convertAprToApy } from '@/utils/finance'
+import { convertAprToApy } from '@/utils/data/finance'
 
 interface ChartProps {
   denom: string

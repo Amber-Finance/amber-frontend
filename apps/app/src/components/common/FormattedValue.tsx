@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { formatValue } from '@/utils/format'
+import { formatValue } from '@/utils/formatting/format'
 
 interface FormattedValueProps {
   value: string | number

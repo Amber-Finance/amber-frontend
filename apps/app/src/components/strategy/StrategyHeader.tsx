@@ -1,6 +1,9 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
+
+import { ExternalLink } from 'lucide-react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
@@ -14,6 +17,30 @@ interface StrategyHeaderProps {
   currentLeverage?: number
   targetLeverage?: number
 }
+
+// Helper component for asset stats link
+const AssetStatsLink = ({
+  symbol,
+  label,
+  icon,
+}: {
+  symbol: string
+  label: string
+  icon: string
+}) => (
+  <Link
+    href={`https://stats.amberfi.io/?token=${symbol}`}
+    target='_blank'
+    rel='noopener noreferrer'
+    className='inline-flex items-center gap-1.5 px-2 py-1 text-[10px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted rounded-md transition-all duration-200 group'
+  >
+    <div className='relative w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0'>
+      <Image src={icon} alt={symbol} fill sizes='16px' className='object-contain' />
+    </div>
+    <span>{label}</span>
+    <ExternalLink className='w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70 group-hover:opacity-100' />
+  </Link>
+)
 
 export function StrategyHeader({
   strategy,
@@ -84,6 +111,10 @@ export function StrategyHeader({
               <div className='space-y-2'>
                 <div className='h-6 w-48 bg-muted/40 rounded animate-pulse' />
                 <div className='h-4 w-64 bg-muted/40 rounded animate-pulse' />
+                <div className='flex gap-2 pt-1'>
+                  <div className='h-6 w-24 bg-muted/40 rounded animate-pulse' />
+                  <div className='h-6 w-24 bg-muted/40 rounded animate-pulse' />
+                </div>
               </div>
             </div>
             <div className='text-right space-y-2'>
@@ -134,11 +165,23 @@ export function StrategyHeader({
                 />
               </div>
             </div>
-            <div>
-              <h2 className='text-base sm:text-xl font-bold text-foreground'>
+            <div className='space-y-2'>
+              <h2 className='text-l sm:text-2xl font-bold text-foreground'>
                 {getTitle()} {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol} Strategy
               </h2>
               <p className='text-xs sm:text-sm text-muted-foreground'>{getDescription()}</p>
+              <div className='flex flex-wrap gap-2 pt-1'>
+                <AssetStatsLink
+                  symbol={strategy.collateralAsset.symbol}
+                  label={`${strategy.collateralAsset.symbol} Stats`}
+                  icon={strategy.collateralAsset.icon}
+                />
+                <AssetStatsLink
+                  symbol={strategy.debtAsset.symbol}
+                  label={`${strategy.debtAsset.symbol} Stats`}
+                  icon={strategy.debtAsset.icon}
+                />
+              </div>
             </div>
           </div>
 

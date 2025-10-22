@@ -1,10 +1,23 @@
-export { useMarkets } from '@/hooks/useMarkets'
-export { default as useMarketMetrics } from '@/hooks/useMarketMetrics'
-export { usePrices } from '@/hooks/usePrices'
-export { default as useHealthComputer } from '@/hooks/useHealthComputer'
-export { default as useUserPositions } from '@/hooks/useUserPositions'
-export { default as useWalletBalances } from '@/hooks/useWalletBalances'
-export { useLstMarkets } from '@/hooks/useLstMarkets'
-export { useTransactions } from '@/hooks/useTransactions'
-export { useUserDeposit } from '@/hooks/useUserDeposit'
-export { useTokenPreselection } from '@/hooks/useTokenPreselection'
+// Strategy hooks
+export * from '@/hooks/strategy'
+
+// Portfolio hooks
+export * from '@/hooks/portfolio'
+
+// Market hooks
+export * from '@/hooks/market'
+
+// Wallet hooks
+export * from '@/hooks/wallet'
+
+// Deposit hooks
+export * from '@/hooks/deposit'
+
+// Swap hooks
+export * from '@/hooks/swap'
+
+// RedBank hooks
+export * from '@/hooks/redBank'
+
+// Common/utility hooks
+export * from '@/hooks/common'

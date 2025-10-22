@@ -1,6 +1,7 @@
 import Image from 'next/image'
+import Link from 'next/link'
 
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, ExternalLink } from 'lucide-react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
@@ -17,6 +18,30 @@ interface DepositHeaderProps {
   activeTab: 'deposit' | 'withdraw'
   onTabChange: (value: 'deposit' | 'withdraw') => void
 }
+
+// Helper component for asset stats link
+const AssetStatsLink = ({
+  symbol,
+  label,
+  icon,
+}: {
+  symbol: string
+  label: string
+  icon: string
+}) => (
+  <Link
+    href={`https://stats.amberfi.io/?token=${symbol}`}
+    target='_blank'
+    rel='noopener noreferrer'
+    className='inline-flex items-center gap-1.5 px-2 py-1 text-[10px] sm:text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted rounded-md transition-all duration-200 group'
+  >
+    <div className='relative w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0'>
+      <Image src={icon} alt={symbol} fill sizes='16px' className='object-contain' />
+    </div>
+    <span>{label}</span>
+    <ExternalLink className='w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70 group-hover:opacity-100' />
+  </Link>
+)
 
 export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: DepositHeaderProps) => (
   <div className='relative mb-4 sm:mb-6 bg-card rounded-lg p-4 overflow-hidden'>
@@ -45,8 +70,8 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
               className='object-contain'
             />
           </div>
-          <div>
-            <h2 className='text-base sm:text-xl font-bold text-foreground'>
+          <div className='space-y-2'>
+            <h2 className='text-base sm:text-2xl font-bold text-foreground'>
               {activeTab === 'deposit' ? 'Deposit' : 'Withdraw'} {token.symbol}
             </h2>
             <p className='text-xs sm:text-sm text-muted-foreground'>
@@ -54,6 +79,14 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
                 ? `Supply ${token.symbol} and earn yield plus points`
                 : `Withdraw your deposited ${token.symbol}`}
             </p>
+
+            <div className='flex flex-wrap gap-2 pt-1'>
+              <AssetStatsLink
+                symbol={token.symbol}
+                label={`${token.symbol} Stats`}
+                icon={token.icon}
+              />
+            </div>
           </div>
         </div>
 

@@ -33,6 +33,13 @@ const eslintConfig = [
       '@typescript-eslint/no-unsafe-function-type': 'off',
       'linebreak-style': 'off',
       'no-undef': 'off',
+      // Enforce alias imports instead of relative
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['./*', '../*'],
+        },
+      ],
     },
   },
   {

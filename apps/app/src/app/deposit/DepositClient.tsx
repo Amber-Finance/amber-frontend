@@ -15,23 +15,20 @@ import { DepositChart } from '@/components/deposit/DepositChart'
 import { DepositForm } from '@/components/deposit/DepositForm'
 import { DepositHeader } from '@/components/deposit/DepositHeader'
 import ProgressCard from '@/components/deposit/ProgressCard'
+import { getProtocolPoints, getProtocolPointsIcon } from '@/components/deposit/helpers'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
+import { useDepositState, useWithdrawValidation } from '@/hooks/deposit'
+import { useDepositSimulatedApy, useMarketMetrics, usePrices } from '@/hooks/market'
+import { useUserDeposit } from '@/hooks/portfolio'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
-import { useDepositState } from '@/hooks/useDepositState'
-import useMarketMetrics from '@/hooks/useMarketMetrics'
-import { usePrices } from '@/hooks/usePrices'
-import { useDepositSimulatedApy } from '@/hooks/useSimulatedApy'
-import { useUserDeposit } from '@/hooks/useUserDeposit'
-import useWalletBalances from '@/hooks/useWalletBalances'
-import { useWithdrawValidation } from '@/hooks/useWithdrawValidation'
+import useWalletBalances from '@/hooks/wallet/useWalletBalances'
 import { useStore } from '@/store/useStore'
-import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
-import { convertAprToApy } from '@/utils/finance'
-import { formatCompactCurrency, formatNumber } from '@/utils/format'
+import { convertAprToApy } from '@/utils/data/finance'
+import { formatCompactCurrency, formatNumber } from '@/utils/formatting/format'
 
 export default function DepositClient() {
   const router = useRouter()
@@ -182,9 +179,9 @@ export default function DepositClient() {
 
     await deposit({
       amount: state.depositAmount,
-      denom: tokenData!.denom,
+      denom: tokenData.denom,
       symbol: token.symbol,
-      decimals: tokenData!.decimals,
+      decimals: tokenData.decimals,
     })
     actions.resetAmounts()
     actions.setLastAction('deposit')
@@ -200,17 +197,17 @@ export default function DepositClient() {
 
     await withdraw({
       amount: state.withdrawAmount,
-      denom: tokenData!.denom,
+      denom: tokenData.denom,
       symbol: token.symbol,
-      decimals: tokenData!.decimals,
+      decimals: tokenData.decimals,
     })
     actions.resetAmounts()
     actions.setLastAction('withdraw')
   }
 
   const maxAmount = computed.isDepositing
-    ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toNumber()
-    : new BigNumber(depositedAmount).shiftedBy(-tokenData!.decimals).toNumber()
+    ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData.decimals).toNumber()
+    : new BigNumber(depositedAmount).shiftedBy(-tokenData.decimals).toNumber()
 
   const hasValidAmount = () => {
     const amount = computed.currentAmount
@@ -258,12 +255,12 @@ export default function DepositClient() {
           // Pre-populate withdraw amount with deposited amount when switching to withdraw
           if (value === 'withdraw' && depositedAmount) {
             const depositedAmountFormatted = new BigNumber(depositedAmount)
-              .shiftedBy(-tokenData!.decimals)
+              .shiftedBy(-tokenData.decimals)
               .toString()
             actions.setWithdrawAmount(depositedAmountFormatted)
             // Update slider to match the deposited amount
             const maxWithdrawAmount = new BigNumber(depositedAmount)
-              .shiftedBy(-tokenData!.decimals)
+              .shiftedBy(-tokenData.decimals)
               .toNumber()
             actions.updateSliderFromAmount(depositedAmountFormatted, maxWithdrawAmount)
           }
@@ -355,7 +352,7 @@ export default function DepositClient() {
             currentAmount={computed.currentAmount.toString()}
             balance={
               computed.isDepositing
-                ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData!.decimals).toString()
+                ? new BigNumber(walletBalanceAmount).shiftedBy(-tokenData.decimals).toString()
                 : withdrawValidation.maxWithdrawable
             }
             sliderPercentage={state.sliderPercentage}
