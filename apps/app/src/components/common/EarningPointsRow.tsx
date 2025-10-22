@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
+import { getProtocolPoints, getProtocolPointsIcon } from '@/components/deposit/helpers'
 import { useTheme } from '@/components/providers/ThemeProvider'
-import { getProtocolPoints, getProtocolPointsIcon } from '@/utils/depositCardHelpers'
 
 interface EarningPointsRowProps {
   /** The asset symbol to determine which points are earned (e.g., 'solvBTC', 'LBTC', 'eBTC') */

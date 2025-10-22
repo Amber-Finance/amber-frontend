@@ -2,8 +2,8 @@ import React from 'react'
 
 import { TokenItem } from '@/components/common/TokenItem'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { pipe } from '@/utils/functional'
-import { groupTokensByBalance, sortTokensByUsdValue } from '@/utils/tokenUtils'
+import { pipe } from '@/utils/common/functional'
+import { groupTokensByBalance, sortTokensByUsdValue } from '@/utils/data/tokenUtils'
 
 interface TokenSelectorModalProps {
   open: boolean

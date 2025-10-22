@@ -5,10 +5,10 @@ import BigNumber from 'bignumber.js'
 import tokens from '@/config/tokens'
 import { useMarkets, useTokenPreselection } from '@/hooks'
 import useRouteInfo, { useRouteInfoReverse } from '@/hooks/swap/useRouteInfo'
-import { useUSDCPrice } from '@/hooks/useUSDCPrice'
-import useWalletBalances from '@/hooks/useWalletBalances'
+import { useUSDCPrice } from '@/hooks/market/useUSDCPrice'
+import { useWalletBalances } from '@/hooks/wallet'
 import { useStore } from '@/store/useStore'
-import { calculateUsdValueLegacy } from '@/utils/format'
+import { calculateUsdValueLegacy } from '@/utils/formatting/format'
 
 interface SwapLogicProps {
   state: SwapState

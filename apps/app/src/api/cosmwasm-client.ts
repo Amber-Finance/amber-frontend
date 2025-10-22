@@ -8,7 +8,7 @@ import { MarsOracleWasmQueryClient } from '@/types/generated/mars-oracle-wasm/Ma
 import { MarsParamsQueryClient } from '@/types/generated/mars-params/MarsParams.client'
 import { MarsPerpsQueryClient } from '@/types/generated/mars-perps/MarsPerps.client'
 import { MarsRedBankQueryClient } from '@/types/generated/mars-red-bank/MarsRedBank.client'
-import { getUrl } from '@/utils/url'
+import { getUrl } from '@/utils/ui/url'
 
 const _cosmWasmClient: Map<string, CosmWasmClient> = new Map()
 const _creditManagerQueryClient: Map<string, MarsCreditManagerQueryClient> = new Map()
@@ -60,11 +60,12 @@ const getCreditManagerQueryClient = async (chainConfig: ChainConfig) => {
 
     if (!_creditManagerQueryClient.get(key)) {
       const client = await getClientWithFallback(primaryRpc, fallbackRpcs)
-      _creditManagerQueryClient.set(key, new MarsCreditManagerQueryClient(client, contract))
+      _creditManagerQueryClient.set(key, new MarsCreditManagerQueryClient(client!, contract))
     }
 
     return _creditManagerQueryClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -82,6 +83,7 @@ const getParamsQueryClient = async (chainConfig: ChainConfig) => {
 
     return _paramsQueryClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -99,6 +101,7 @@ const getOracleQueryClientOsmosis = async (chainConfig: ChainConfig) => {
 
     return _oracleQueryClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -116,6 +119,7 @@ const getOracleQueryClientNeutron = async (chainConfig: ChainConfig) => {
 
     return _oracleQueryClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -125,6 +129,7 @@ const getVaultQueryClient = async (chainConfig: ChainConfig, address: string) =>
     const client = await getClient(getUrl(chainConfig.endpoints.rpcUrl))
     return new MarsMockVaultQueryClient(client, address)
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -141,6 +146,7 @@ const getIncentivesQueryClient = async (chainConfig: ChainConfig) => {
 
     return _incentivesQueryClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -157,6 +163,7 @@ const getPerpsQueryClient = async (chainConfig: ChainConfig) => {
 
     return _perpsClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }
@@ -174,6 +181,7 @@ const getRedBankQueryClient = async (chainConfig: ChainConfig) => {
 
     return _redBankQueryClient.get(key)!
   } catch (error) {
+    console.error(error)
     throw error
   }
 }

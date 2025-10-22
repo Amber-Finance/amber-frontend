@@ -5,9 +5,9 @@ import Link from 'next/link'
 
 import { GitHubLogoIcon } from '@radix-ui/react-icons'
 
+import { TelegramLogo, XLogo } from '@/components/common/SocialIcons'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { cn } from '@/lib/utils'
-import { TelegramLogo, XLogo } from '@/utils/SocialIcons'
 
 const icons: Icon[] = [
   {

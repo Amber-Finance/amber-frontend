@@ -11,7 +11,7 @@ import TokenBalance from '@/components/common/TokenBalance'
 import { Card, CardContent } from '@/components/ui/card'
 import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
-import useWalletBalances from '@/hooks/useWalletBalances'
+import { useWalletBalances } from '@/hooks/wallet'
 import { useStore } from '@/store/useStore'
 
 // Bitcoin tokens to display in wallet balances

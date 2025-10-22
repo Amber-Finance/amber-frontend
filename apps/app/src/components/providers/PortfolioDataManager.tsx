@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 import { usePathname } from 'next/navigation'
 
-import { usePortfolioData } from '@/hooks/usePortfolioData'
+import { usePortfolioData } from '@/hooks/portfolio'
 
 // Routes that should trigger a portfolio refresh when navigated to
 const PORTFOLIO_ROUTES = ['/portfolio', '/strategies', '/deposit']

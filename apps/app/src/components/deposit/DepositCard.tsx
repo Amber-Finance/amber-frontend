@@ -6,6 +6,7 @@ import { ArrowDownToLine } from 'lucide-react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import TokenBalance from '@/components/common/TokenBalance'
+import { getProtocolIcon } from '@/components/deposit/helpers'
 import { useTheme } from '@/components/providers/ThemeProvider'
 import { AnimatedCircularProgressBar } from '@/components/ui/AnimatedCircularProgress'
 import { Button } from '@/components/ui/Button'
@@ -20,11 +21,10 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { useUserDeposit } from '@/hooks/portfolio'
 import useRedBankAssetsTvl from '@/hooks/redBank/useAssetsTvl'
-import { useUserDeposit } from '@/hooks/useUserDeposit'
-import useWalletBalances from '@/hooks/useWalletBalances'
+import { useWalletBalances } from '@/hooks/wallet'
 import { cn } from '@/lib/utils'
-import { getProtocolIcon } from '@/utils/depositCardHelpers'
 
 interface DepositCardProps {
   token: TokenInfo

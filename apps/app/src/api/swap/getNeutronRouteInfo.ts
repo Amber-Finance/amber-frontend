@@ -1,7 +1,7 @@
 import { route as skipRoute } from '@skip-go/client'
 import BigNumber from 'bignumber.js'
 
-import { BN, byDenom, toIntegerString } from '@/utils/helpers'
+import { BN, byDenom, toIntegerString } from '@/utils/common/helpers'
 
 type VenueType = 'duality' | 'unknown'
 
@@ -41,8 +41,8 @@ function analyzeVenues(skipRouteResponse: any): VenueType {
 function extractSwapOperations(skipRouteResponse: any): any[] {
   // Check both camelCase and snake_case for swap operations
   const firstOperation =
-    (skipRouteResponse.operations?.[0] as any)?.swap?.swapIn?.swapOperations ||
-    (skipRouteResponse.operations?.[0] as any)?.swap?.swap_in?.swap_operations
+    skipRouteResponse.operations?.[0]?.swap?.swapIn?.swapOperations ||
+    skipRouteResponse.operations?.[0]?.swap?.swap_in?.swap_operations
   return firstOperation || []
 }
 
@@ -90,7 +90,9 @@ function buildSwapRouteInfo(
   const priceImpactPercent =
     skipRouteResponse.swapPriceImpactPercent || skipRouteResponse.swap_price_impact_percent
   if (priceImpactPercent) {
-    priceImpact = BN(priceImpactPercent)
+    // Skip API returns price impact as a positive number representing cost/loss
+    // Negate it to match our convention: negative = loss (bad), positive = gain (good)
+    priceImpact = BN(priceImpactPercent).negated()
   } else {
     // Check both camelCase and snake_case for USD amounts
     const usdAmountIn = skipRouteResponse.usdAmountIn || skipRouteResponse.usd_amount_in
@@ -101,6 +103,7 @@ function buildSwapRouteInfo(
       const amountOut = BN(usdAmountOut)
 
       if (amountIn.gt(0)) {
+        // This calculation naturally gives negative for loss, positive for gain
         priceImpact = amountOut.minus(amountIn).dividedBy(amountIn).multipliedBy(100)
       }
     }
@@ -113,8 +116,16 @@ function buildSwapRouteInfo(
     skipRouteResponse.estimatedAmountOut ||
     skipRouteResponse.estimated_amount_out
 
+  // Check both camelCase and snake_case for amount in
+  const amountIn =
+    skipRouteResponse.amountIn ||
+    skipRouteResponse.amount_in ||
+    skipRouteResponse.swapAmountIn ||
+    skipRouteResponse.swap_amount_in
+
   const routeInfo: SwapRouteInfo = {
     amountOut: BN(amountOut || '0'),
+    amountIn: amountIn ? BN(amountIn) : undefined,
     priceImpact,
     fee: BN('0'),
     description,
@@ -375,6 +386,7 @@ async function binarySearchReverseRouting(
         low = mid.plus(1) // Ensure we don't get stuck
       }
     } catch (error) {
+      console.error('There was an error getting the route info', error)
       low = mid.plus(1) // Try higher amount on error (keep integers)
     }
   }
@@ -385,7 +397,9 @@ async function binarySearchReverseRouting(
     return bestRoute
   }
 
-  throw new Error('No route found through binary search')
+  throw new Error(
+    'There is not enough liquidity in the Supervault LST <> maxBTC to enter the Strategy',
+  )
 }
 
 export default async function getNeutronRouteInfo(

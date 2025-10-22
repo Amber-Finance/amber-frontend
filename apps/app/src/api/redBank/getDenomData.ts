@@ -1,7 +1,7 @@
 import chainConfig from '@/config/chain'
 import { FETCH_TIMEOUT } from '@/constants/query'
-import { fetchWithTimeout } from '@/utils/fetch'
-import { getUrl } from '@/utils/url'
+import { fetchWithTimeout } from '@/utils/common/fetch'
+import { getUrl } from '@/utils/ui/url'
 
 export default async function getDenomData(denom: string, days: number = 30) {
   try {
