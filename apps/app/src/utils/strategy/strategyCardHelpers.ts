@@ -1,11 +1,11 @@
 import { BigNumber } from 'bignumber.js'
 
+import { pipe } from '@/utils/common/functional'
 import {
   calculateUsdValueLegacy,
   formatLargeCurrency,
   formatTokenAmountLegacy,
 } from '@/utils/formatting/format'
-import { pipe } from '@/utils/common/functional'
 import { calculatePositionMetrics } from '@/utils/strategy/strategyUtils'
 
 // Pure functions for strategy card calculations
@@ -22,8 +22,8 @@ export const getMaxAPY = (strategy: any, markets: any[], isWasmReady: boolean): 
 
 // Calculate net APY for a strategy
 export const calculateNetApy = (strategy: any): number => {
-  // Use pre-calculated netApy if available, otherwise calculate at 2x leverage
-  return strategy.netApy || strategy.supplyApy * 2 - strategy.borrowApy * 1 || 0
+  // Use pre-calculated netApy if available, otherwise calculate at 1x leverage
+  return strategy.netApy || strategy.supplyApy - strategy.borrowApy || 0
 }
 
 // Format leverage display
