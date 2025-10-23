@@ -111,12 +111,16 @@ export default function StrategyDeployPage() {
     const totalSupplied = new BigNumber(debtMarket.metrics.collateral_total_amount || '0')
     const maxBorrowableAmount = totalSupplied.toNumber()
 
+    // Calculate max ROE using correct leverage formula:
+    // Max APY = (supplyApy * maxLeverage) - (borrowApy * (maxLeverage - 1))
+    const maxROE = collateralTotalApy * maxLeverage - debtBorrowApy * (maxLeverage - 1)
+
     const strategyData: Strategy = {
       id: strategyId,
       type: 'multiply',
       collateralAsset: collateralToken,
       debtAsset: debtToken,
-      maxROE: netApy * 100,
+      maxROE: maxROE,
       isPositive: netApy > 0,
       hasPoints: false,
       rewards: '',
