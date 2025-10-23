@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js'
 
-import { calculateUsdValueLegacy, formatLargeCurrency } from '@/utils/formatting/format'
 import { pipe, safeParseNumber } from '@/utils/common/functional'
+import { calculateUsdValueLegacy, formatLargeCurrency } from '@/utils/formatting/format'
 
 // Pure functions for strategy calculations
 // Calculate base net APY at 2x leverage (2x supply income - 1x borrow cost)

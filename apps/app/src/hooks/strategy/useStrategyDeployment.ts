@@ -38,7 +38,7 @@ export const useStrategyDeployment = ({
 
       const actionType = isModifying ? 'Modifying' : 'Deploying'
       const successType = isModifying ? 'modified' : 'deployed'
-
+      console.log('config', config)
       // Use broadcast's executeTransaction with proper toast messages
       return await executeTransaction(config, {
         pending: `${actionType} ${strategy.collateralAsset.symbol}/${strategy.debtAsset.symbol} strategy...`,

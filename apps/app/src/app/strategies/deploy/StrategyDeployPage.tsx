@@ -10,8 +10,8 @@ import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks'
-import { useActiveStrategies } from '@/hooks/portfolio'
 import { usePrices } from '@/hooks/market'
+import { useActiveStrategies } from '@/hooks/portfolio'
 import { useStore } from '@/store/useStore'
 
 export default function StrategyDeployPage() {

@@ -352,6 +352,25 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const handleLeverageModification = useCallback(async () => {
     if (!activeStrategy || !leverageModification) return
 
+    // Check if leverage exceeds strategy's maximum allowed leverage
+    if (strategy.maxLeverage && effectiveLeverage > strategy.maxLeverage) {
+      console.error(
+        `Leverage ${effectiveLeverage.toFixed(2)}x exceeds maximum allowed leverage of ${strategy.maxLeverage.toFixed(2)}x for this strategy.`,
+      )
+      // Track the validation failure
+      const { track } = await import('@/utils/common/analytics')
+      track('strategy_failed', {
+        strategyId: strategy.id,
+        collateralSymbol: strategy.collateralAsset.symbol,
+        debtSymbol: strategy.debtAsset.symbol,
+        leverage: effectiveLeverage,
+        maxLeverage: strategy.maxLeverage,
+        reason: 'leverage_too_high',
+      })
+      setIsProcessing(false)
+      return
+    }
+
     setIsProcessing(true)
     try {
       const result = await leverageModification.modifyLeverage(effectiveLeverage)
@@ -363,7 +382,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     } finally {
       setIsProcessing(false)
     }
-  }, [activeStrategy, leverageModification, effectiveLeverage, router])
+  }, [activeStrategy, leverageModification, effectiveLeverage, router, strategy])
 
   const handleClosePosition = useCallback(async () => {
     if (!activeStrategy) return
