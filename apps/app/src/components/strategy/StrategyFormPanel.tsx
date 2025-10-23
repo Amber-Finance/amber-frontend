@@ -116,33 +116,41 @@ export function StrategyFormPanel({
   const isModifying = mode === 'modify'
 
   // Use leverage slider hook for deploy mode
+  // Always respect strategy.maxLeverage as the hard cap
+  const effectiveMaxLeverageForDeploy = Math.min(
+    strategy.maxLeverage || 12,
+    debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage,
+  )
+
   const deployLeverageSlider = useLeverageSlider({
     leverage: multiplier,
     onLeverageChange: (value: number[]) => {
       const newMultiplier = value[0]
-      const effectiveMaxLeverage =
-        debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage
-      if (newMultiplier >= 2.0 && newMultiplier <= effectiveMaxLeverage) {
+      if (newMultiplier >= 2 && newMultiplier <= effectiveMaxLeverageForDeploy) {
         setMultiplier(newMultiplier)
       }
     },
-    maxLeverage: debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage,
+    maxLeverage: effectiveMaxLeverageForDeploy,
     brandColor: strategy.collateralAsset.brandColor || '#F7931A',
     disabled: !walletData.isWalletConnected,
   })
 
   // Use leverage slider hook for modify mode
+  // Always respect strategy.maxLeverage as the hard cap
+  const effectiveMaxLeverageForModify = Math.min(
+    strategy.maxLeverage || 12,
+    debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage || 12,
+  )
+
   const modifyLeverageSlider = useLeverageSlider({
     leverage: targetLeverage,
     onLeverageChange: (value: number[]) => {
       const newLeverage = value[0]
-      const effectiveMaxLeverage =
-        debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage || 12
-      if (newLeverage >= 2.0 && newLeverage <= effectiveMaxLeverage) {
+      if (newLeverage >= 2 && newLeverage <= effectiveMaxLeverageForModify) {
         setTargetLeverage(newLeverage)
       }
     },
-    maxLeverage: debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage || 12,
+    maxLeverage: effectiveMaxLeverageForModify,
     existingPositionLeverage: activeStrategy?.leverage,
     brandColor: strategy.collateralAsset.brandColor || '#F7931A',
     disabled: !walletData.isWalletConnected,
@@ -151,12 +159,14 @@ export function StrategyFormPanel({
   // Helper functions for button text
   const getDeployButtonText = () => {
     if (!walletData.isWalletConnected) return 'Connect Wallet'
+    if (strategy.maxLeverage && multiplier > strategy.maxLeverage) return 'Leverage Too High'
     if (isFetchingRoute || isCalculatingPositions) return 'Fetching Route...'
     if (isProcessing) return 'Deploying...'
     return 'Deploy Strategy'
   }
 
   const getAdjustButtonText = () => {
+    if (strategy.maxLeverage && targetLeverage > strategy.maxLeverage) return 'Leverage Too High'
     if (isFetchingRoute || isCalculatingPositions) return 'Fetching Route...'
     if (isProcessing) return 'Adjusting...'
     if (hasUserInteraction) return `Adjust to ${targetLeverage.toFixed(2)}x`
@@ -174,7 +184,7 @@ export function StrategyFormPanel({
     )
   }
 
-  const currentAmount = parseFloat(collateralAmount || '0')
+  const currentAmount = Number.parseFloat(collateralAmount || '0')
 
   return (
     <div className='flex-1 order-1 lg:order-2 space-y-4'>
@@ -213,7 +223,7 @@ export function StrategyFormPanel({
           displayValues={{
             walletBalance: '',
             usdValue: (amount: number) =>
-              `$${(amount * parseFloat(marketData.currentPrice.toString())).toFixed(2)}`,
+              `$${(amount * Number.parseFloat(marketData.currentPrice.toString())).toFixed(2)}`,
           }}
           userBalance={0}
           currentAmount={activeStrategy.collateralAsset.amountFormatted}
@@ -245,7 +255,8 @@ export function StrategyFormPanel({
               isFetchingRoute ||
               isCalculatingPositions ||
               !walletData.isWalletConnected ||
-              !hasUserInteraction
+              !hasUserInteraction ||
+              (strategy.maxLeverage !== undefined && targetLeverage > strategy.maxLeverage)
             }
             variant='default'
             className='flex-1 shadow-md hover:shadow-lg'
@@ -270,7 +281,10 @@ export function StrategyFormPanel({
             isFetchingRoute ||
             isCalculatingPositions ||
             (walletData.isWalletConnected &&
-              (!hasValidAmount || hasInsufficientBalance || hasInsufficientLiquidity))
+              (!hasValidAmount ||
+                hasInsufficientBalance ||
+                hasInsufficientLiquidity ||
+                (strategy.maxLeverage !== undefined && multiplier > strategy.maxLeverage)))
           }
           variant='default'
           className='w-full'

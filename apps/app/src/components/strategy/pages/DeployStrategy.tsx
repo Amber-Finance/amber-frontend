@@ -72,6 +72,24 @@ export function DeployStrategy({ strategy }: DeployStrategyProps) {
     if (hasInsufficientBalance) return
     if (hasInsufficientLiquidity) return
 
+    // Check if leverage exceeds strategy's maximum allowed leverage
+    if (strategy.maxLeverage && multiplier > strategy.maxLeverage) {
+      console.error(
+        `Leverage ${multiplier.toFixed(2)}x exceeds maximum allowed leverage of ${strategy.maxLeverage.toFixed(2)}x for this strategy.`,
+      )
+      // Track the validation failure
+      const { track } = await import('@/utils/common/analytics')
+      track('strategy_failed', {
+        strategyId: strategy.id,
+        collateralSymbol: strategy.collateralAsset.symbol,
+        debtSymbol: strategy.debtAsset.symbol,
+        leverage: multiplier,
+        maxLeverage: strategy.maxLeverage,
+        reason: 'leverage_too_high',
+      })
+      return
+    }
+
     // Check available liquidity for borrowing - max borrow should equal total supplied amount
     const borrowAmount = positionCalcs.borrowAmount
     if (marketData.debtMarket) {

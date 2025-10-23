@@ -8,9 +8,10 @@ import StrategyDeployClient from '@/app/strategies/deploy/StrategyDeployClient'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
 import { useMarkets } from '@/hooks'
-import { useActiveStrategies } from '@/hooks/portfolio'
 import { usePrices } from '@/hooks/market'
+import { useActiveStrategies } from '@/hooks/portfolio'
 import { useStore } from '@/store/useStore'
+import { calculateMaxLeverage } from '@/utils/strategy/strategyUtils'
 
 interface StrategyPageProps {
   params: Promise<{
@@ -95,6 +96,10 @@ export default function StrategyPage({ params }: StrategyPageProps) {
     // Find collateral market for real data (might not exist for maxBTC)
     const collateralMarket = markets?.find((market) => market.asset.symbol === collateralSymbol)
 
+    // Calculate max leverage using the correct formula
+    const ltvValue = Number.parseFloat(collateralMarket?.params?.max_loan_to_value || '0.8')
+    const calculatedMaxLeverage = collateralMarket ? calculateMaxLeverage(ltvValue) : 5
+
     const strategyInstance: Strategy = {
       id: strategyId,
       type: 'leverage',
@@ -112,13 +117,11 @@ export default function StrategyPage({ params }: StrategyPageProps) {
       supplyApy: 0,
       borrowApy: 0,
       netApy: 0,
-      ltv: collateralMarket ? parseFloat(collateralMarket.params?.max_loan_to_value || '0.8') : 0.8,
+      ltv: ltvValue,
       liquidationThreshold: collateralMarket
-        ? parseFloat(collateralMarket.params?.liquidation_threshold || '0.85')
+        ? Number.parseFloat(collateralMarket.params?.liquidation_threshold || '0.85')
         : 0.85,
-      maxLeverage: collateralMarket
-        ? parseFloat(collateralMarket.params?.max_loan_to_value || '0.8') * 10
-        : 5,
+      maxLeverage: calculatedMaxLeverage,
       maxBorrowCapacityUsd: 0,
       maxPositionSizeUsd: 0,
       collateralStakingApy: 0,
