@@ -46,6 +46,7 @@ export async function generateStrategiesMetadata(tokenSymbol: string | null): Pr
     }
   }
 
+  // Case-insensitive token lookup
   const token = tokens.find((t) => t.symbol.toLowerCase() === tokenSymbol.toLowerCase())
   const validToken = Object.keys(TOKEN_SHARE_IMAGES).find(
     (key) => key.toLowerCase() === tokenSymbol.toLowerCase(),

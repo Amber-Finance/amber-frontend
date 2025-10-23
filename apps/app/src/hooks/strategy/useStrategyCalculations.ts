@@ -45,7 +45,7 @@ export const useMarketData = (strategy: Strategy, markets: Market[] | null) =>
       : strategy.borrowApy || 0
 
     // Use COLLATERAL asset's LTV for max leverage calculation, not debt asset's LTV
-    const maxLTV = parseFloat(collateralMarket?.params?.max_loan_to_value || '0.8')
+    const maxLTV = Number.parseFloat(collateralMarket?.params?.max_loan_to_value || '0.8')
     const dynamicMaxLeverage = calculateMaxLeverage(maxLTV)
 
     return {
@@ -79,4 +79,3 @@ export const useWalletData = (
       isWalletConnected: !!address,
     }
   }, [strategy, walletBalances, address])
-

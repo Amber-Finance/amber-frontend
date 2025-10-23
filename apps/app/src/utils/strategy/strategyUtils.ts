@@ -1,12 +1,12 @@
 import { BigNumber } from 'bignumber.js'
 
-import { calculateUsdValueLegacy, formatLargeCurrency } from '@/utils/formatting/format'
 import { pipe, safeParseNumber } from '@/utils/common/functional'
+import { calculateUsdValueLegacy, formatLargeCurrency } from '@/utils/formatting/format'
 
 // Pure functions for strategy calculations
-// Calculate base net APY at 2x leverage (2x supply income - 1x borrow cost)
+// Calculate base net APY at 1x leverage (supply income - borrow cost, no looping)
 export const calculateBaseNetApy = (supplyApy: number, borrowApy: number): number =>
-  supplyApy * 2 - borrowApy * 1
+  supplyApy - borrowApy
 
 export const calculateMaxLeverage = (maxLTV: number): number => {
   if (maxLTV <= 0 || maxLTV >= 1) return 1
@@ -72,11 +72,15 @@ export const calculateStrategyMetrics = (
   const baseNetApy = calculateBaseNetApy(maxBtcSupplyApy, debtBorrowRate)
   const maxLeverage = calculateMaxLeverage(maxLTV)
 
+  // Calculate max ROE using correct leverage formula:
+  // Max APY = (supplyApy * maxLeverage) - (borrowApy * (maxLeverage - 1))
+  const maxROE = maxBtcSupplyApy * maxLeverage - debtBorrowRate * (maxLeverage - 1)
+
   return {
     debtBorrowRate,
     baseNetApy,
     maxLeverage,
-    maxROE: baseNetApy * maxLeverage,
+    maxROE,
   }
 }
 
@@ -105,7 +109,7 @@ export const createStrategyData = (
   subText: `Supply ${collateralAsset.symbol}, borrow ${debtAsset.symbol}`,
   supplyApy: maxBtcSupplyApy,
   borrowApy: metrics.debtBorrowRate,
-  netApy: metrics.baseNetApy,
+  netApy: metrics.baseNetApy, // Net APY at 1x leverage (no looping)
   ltv: safeParseNumber()(market.params.max_loan_to_value || '0.8'),
   liquidationThreshold: safeParseNumber()(market.params.liquidation_threshold || '0.85'),
   maxLeverage: metrics.maxLeverage,

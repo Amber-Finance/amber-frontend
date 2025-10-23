@@ -157,10 +157,10 @@ export function MarginCollateralCard({
       return
     }
 
-    const numValue = parseFloat(trimmedValue)
+    const numValue = Number.parseFloat(trimmedValue)
 
     // Handle invalid numbers
-    if (isNaN(numValue)) {
+    if (Number.isNaN(numValue)) {
       handleSlippageChange(0.5) // Reset to default
       return
     }
@@ -271,7 +271,7 @@ export function MarginCollateralCard({
         {(() => {
           const currentLeverage =
             currentAmount > 0 ? positionCalcs.totalPosition / currentAmount : 0
-          const leverageWarning = getLeverageWarning(currentLeverage)
+          const leverageWarning = getLeverageWarning(currentLeverage, strategy.maxLeverage)
           if (!leverageWarning) return null
 
           return (
@@ -341,7 +341,7 @@ export function MarginCollateralCard({
 
                 {/* Quick slippage buttons */}
                 <div className='flex gap-1'>
-                  {[0.1, 0.5, 1.0, 2.0].map((preset) => (
+                  {[0.1, 0.5, 1, 2].map((preset) => (
                     <button
                       key={preset}
                       onClick={() => handleSlippageChange(preset)}
