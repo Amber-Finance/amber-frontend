@@ -64,6 +64,7 @@ export function LeverageSliderCard({
               size='md'
               align='right'
               className='flex flex-col justify-end items-end'
+              useCompactNotation={false}
             />
           </div>
         </div>

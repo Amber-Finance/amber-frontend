@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react'
 
+import FormattedValue from '@/components/common/FormattedValue'
 import { InfoCard } from '@/components/deposit'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Separator } from '@/components/ui/separator'
@@ -90,7 +91,12 @@ export function ExistingPositionOverviewCard({
                     {netCollateral.toFixed(6)} {strategy.collateralAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~${activeStrategy.collateralAsset.usdValue.toFixed(2)}
+                    ~
+                    <FormattedValue
+                      value={activeStrategy.collateralAsset.usdValue}
+                      isCurrency={true}
+                      useCompactNotation={false}
+                    />
                   </div>
                 </div>
               </div>
@@ -102,7 +108,12 @@ export function ExistingPositionOverviewCard({
                     {netBorrowed.toFixed(6)} {strategy.debtAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~${activeStrategy.debtAsset.usdValue.toFixed(2)}
+                    ~
+                    <FormattedValue
+                      value={activeStrategy.debtAsset.usdValue}
+                      isCurrency={true}
+                      useCompactNotation={false}
+                    />
                   </div>
                 </div>
               </div>
@@ -116,7 +127,12 @@ export function ExistingPositionOverviewCard({
                     {netEquity.toFixed(6)} {strategy.collateralAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~${(netEquity * currentPrice).toFixed(2)}
+                    ~
+                    <FormattedValue
+                      value={netEquity * currentPrice}
+                      isCurrency={true}
+                      useCompactNotation={false}
+                    />
                   </div>
                 </div>
               </div>
@@ -157,7 +173,12 @@ export function ExistingPositionOverviewCard({
                     : 'text-red-600/80 dark:text-red-400/80'
                 }`}
               >
-                ~${(existingEstimatedEarnings * currentPrice).toFixed(2)}
+                ~
+                <FormattedValue
+                  value={existingEstimatedEarnings * currentPrice}
+                  isCurrency={true}
+                  useCompactNotation={false}
+                />
               </div>
             </div>
 

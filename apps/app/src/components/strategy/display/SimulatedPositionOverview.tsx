@@ -157,6 +157,7 @@ export function SimulatedPositionOverview({
                     }}
                     size='xs'
                     align='right'
+                    useCompactNotation={false}
                   />
                 </div>
 
@@ -174,6 +175,7 @@ export function SimulatedPositionOverview({
                     }}
                     size='xs'
                     align='right'
+                    useCompactNotation={false}
                   />
                 </div>
 
@@ -217,6 +219,7 @@ export function SimulatedPositionOverview({
                     }}
                     size='xs'
                     align='right'
+                    useCompactNotation={false}
                   />
                   {isModifying && <ChangeIndicator value={collateralChange} />}
                 </div>
@@ -237,6 +240,7 @@ export function SimulatedPositionOverview({
                     }}
                     size='xs'
                     align='right'
+                    useCompactNotation={false}
                   />
                   {isModifying && <ChangeIndicator value={borrowChange} />}
                 </div>
@@ -260,6 +264,7 @@ export function SimulatedPositionOverview({
                     }}
                     size='xs'
                     align='right'
+                    useCompactNotation={false}
                   />
                   {isModifying && <ChangeIndicator value={suppliesChange} />}
                 </div>
