@@ -70,7 +70,7 @@ export function BaseChart({
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+      <CardContent className='px-2 pt-4'>
         <div className='w-full h-[350px] overflow-hidden'>
           {isLoading ? (
             <div className='flex items-center justify-center w-full h-full text-muted-foreground'>
@@ -94,7 +94,7 @@ export function BaseChart({
                 {} as Record<string, string>,
               )}
             >
-              <AreaChart data={chartData} margin={{ top: 10, right: -10, left: -10, bottom: 10 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 10 }}>
                 <defs>
                   {areas.map((area) => (
                     <linearGradient
