@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { useChain } from '@cosmos-kit/react'
 import useSWR from 'swr'
@@ -29,62 +29,75 @@ export function usePortfolioData() {
     resetPortfolioPositions,
   } = useStore()
 
-  // Reset positions when wallet disconnects
+  // Track previous address to detect disconnection (not initial load)
+  const prevAddressRef = useRef<string | undefined>(address)
+
+  // Reset positions ONLY when wallet actively disconnects (not on initial load)
   useEffect(() => {
-    if (!address) {
+    // If we had an address before but don't now = wallet disconnected
+    if (prevAddressRef.current && !address) {
       resetPortfolioPositions()
     }
+
+    // Update ref for next render
+    prevAddressRef.current = address
   }, [address, resetPortfolioPositions])
 
   // Create SWR key - only fetch when wallet is connected
   const swrKey = address ? `portfolio-positions-${address}` : null
 
-  // Use SWR to fetch and cache portfolio positions
-  const {
-    data: portfolioPositions,
-    error,
-    isLoading,
-    isValidating,
-    mutate,
-  } = useSWR(
+  // Use SWR ONLY for background fetching - Zustand is the INSTANT source of truth
+  // This ensures cached data shows in 0ms while fresh data fetches in 6-7 seconds
+  const { error, isLoading, isValidating, mutate } = useSWR(
     swrKey,
     async () => {
       const data = await getPortfolioPositions(address!)
-      return data || cachedPositions || null
+
+      // Immediately update Zustand cache with fresh data
+      if (data) {
+        setPortfolioPositions(data)
+      }
+
+      return data
     },
     {
       refreshInterval: 60000, // Refresh every 60 seconds (1 minute)
       revalidateOnFocus: true,
       revalidateOnMount: true, // Fetch immediately when wallet connects
       revalidateOnReconnect: true,
-      fallbackData: cachedPositions || undefined,
-      dedupingInterval: 5000,
-      keepPreviousData: true,
-      shouldRetryOnError: true,
-      errorRetryCount: 3,
-      errorRetryInterval: 10000,
-      onSuccess: (data) => {
-        if (data) {
-          setPortfolioPositions(data)
-        }
-      },
+      fallbackData: undefined, // Don't use SWR's cache - Zustand handles instant display
+      dedupingInterval: 5000, // Prevent duplicate requests within 5 seconds
+      keepPreviousData: false, // Zustand keeps our data, not SWR
+      shouldRetryOnError: false, // Don't retry on error - return null gracefully
+      errorRetryCount: 0, // No retries
       onError: (err) => {
-        console.error('Error fetching portfolio positions:', err)
+        console.error('[Portfolio] ❌ Error fetching portfolio positions:', err)
+        // Don't clear cache on error - keep showing old data
       },
     },
   )
 
-  // Calculate derived data
+  // ALWAYS read from Zustand cache - this is INSTANT (0ms, no waiting for 6-7s fetch)
+  // SWR only updates the cache in the background
+  const portfolioPositions = cachedPositions
+
+  // Calculate derived data from cached positions
   const totalPositions = portfolioPositions
     ? portfolioPositions.accounts.length + portfolioPositions.redbank_deposits.length
     : 0
 
-  const totalBorrows = portfolioPositions ? parseFloat(portfolioPositions.total_borrows) : 0
-  const totalSupplies = portfolioPositions ? parseFloat(portfolioPositions.total_supplies) : 0
+  const totalBorrows = portfolioPositions ? Number.parseFloat(portfolioPositions.total_borrows) : 0
+  const totalSupplies = portfolioPositions
+    ? Number.parseFloat(portfolioPositions.total_supplies)
+    : 0
   const totalSupplied = totalSupplies - totalBorrows
 
+  // Better loading state: only show loading if we have NO cached data at all
+  // If we have cached data, show it immediately while validating in the background
+  const isInitialLoading = isLoading && !cachedPositions
+
   return {
-    // Raw data
+    // Raw data (ALWAYS from Zustand cache - instant 0ms access)
     portfolioPositions,
 
     // Derived metrics
@@ -94,12 +107,12 @@ export function usePortfolioData() {
     totalSupplied,
 
     // Loading states
-    isLoading,
-    isValidating,
+    isLoading: isInitialLoading, // Only true when NO cached data exists
+    isValidating, // True during 6-7s background fetch (while showing cached data)
     error,
 
     // Actions
-    mutate,
+    mutate, // Force a background refresh
   }
 }
 
@@ -120,14 +133,14 @@ export function useDeposits() {
 
     const depositPositions: DepositPosition[] = []
 
-    portfolioPositions.redbank_deposits.forEach((deposit) => {
+    for (const deposit of portfolioPositions.redbank_deposits) {
       const token = tokens.find((t) => t.denom === deposit.denom)
-      if (!token) return
+      if (!token) continue
 
       const market = markets.find((m) => m.asset.denom === deposit.denom)
-      if (!market) return
+      if (!market) continue
 
-      const amountFormatted = parseFloat(deposit.amount) / Math.pow(10, token.decimals)
+      const amountFormatted = Number.parseFloat(deposit.amount) / Math.pow(10, token.decimals)
       const usdValue = calculateUsdValueLegacy(
         deposit.amount,
         market.price?.price || '0',
@@ -156,13 +169,13 @@ export function useDeposits() {
         denom: deposit.denom,
         symbol: token.symbol,
         amount: deposit.amount,
-        amountFormatted: isNaN(amountFormatted) ? 0 : amountFormatted,
-        usdValue: isNaN(usdValue) ? 0 : usdValue,
-        apy: isNaN(supplyApy) ? 0 : supplyApy,
-        actualPnl: isNaN(actualPnl) ? 0 : actualPnl,
-        actualPnlPercent: isNaN(actualPnlPercent) ? 0 : actualPnlPercent,
+        amountFormatted: Number.isNaN(amountFormatted) ? 0 : amountFormatted,
+        usdValue: Number.isNaN(usdValue) ? 0 : usdValue,
+        apy: Number.isNaN(supplyApy) ? 0 : supplyApy,
+        actualPnl: Number.isNaN(actualPnl) ? 0 : actualPnl,
+        actualPnlPercent: Number.isNaN(actualPnlPercent) ? 0 : actualPnlPercent,
       })
-    })
+    }
 
     return depositPositions.sort((a, b) => b.usdValue - a.usdValue)
   }, [portfolioPositions, markets, lstMarkets])
@@ -191,14 +204,14 @@ function processStrategyPair(
   if (!collateralMarket || !debtMarket) return null
 
   const collateralAmountFormatted =
-    parseFloat(depositItem.amount) / Math.pow(10, collateralToken.decimals)
+    Number.parseFloat(depositItem.amount) / Math.pow(10, collateralToken.decimals)
   const collateralUsdValue = calculateUsdValueLegacy(
     depositItem.amount,
     collateralMarket.price?.price || '0',
     collateralToken.decimals,
   )
 
-  const debtAmountFormatted = parseFloat(debtItem.amount) / Math.pow(10, debtToken.decimals)
+  const debtAmountFormatted = Number.parseFloat(debtItem.amount) / Math.pow(10, debtToken.decimals)
   const debtUsdValue = calculateUsdValueLegacy(
     debtItem.amount,
     debtMarket.price?.price || '0',
@@ -224,8 +237,8 @@ function processStrategyPair(
   const leverage =
     collateralUsdValue > 0 ? collateralUsdValue / (collateralUsdValue - debtUsdValue) : 1
 
-  const collateralApy = parseFloat(collateralMarket.metrics?.liquidity_rate || '0') * 100
-  const debtApy = parseFloat(debtMarket.metrics?.borrow_rate || '0') * 100
+  const collateralApy = Number.parseFloat(collateralMarket.metrics?.liquidity_rate || '0') * 100
+  const debtApy = Number.parseFloat(debtMarket.metrics?.borrow_rate || '0') * 100
 
   const stakingApy = collateralToken.symbol === 'maxBTC' ? maxBtcApy : 0
   const totalCollateralApy = collateralApy + stakingApy
@@ -283,14 +296,14 @@ function processAccountStrategies(
 
   const accountStrategies: ActiveStrategy[] = []
 
-  account.deposits.forEach((depositItem: any) => {
-    account.debts.forEach((debtItem: any) => {
+  for (const depositItem of account.deposits) {
+    for (const debtItem of account.debts) {
       const strategy = processStrategyPair(account, depositItem, debtItem, markets, maxBtcApy)
       if (strategy) {
         accountStrategies.push(strategy)
       }
-    })
-  })
+    }
+  }
 
   return accountStrategies
 }
@@ -312,10 +325,10 @@ export function useActiveStrategies() {
 
     const strategies: ActiveStrategy[] = []
 
-    portfolioPositions.accounts.forEach((account) => {
+    for (const account of portfolioPositions.accounts) {
       const accountStrategies = processAccountStrategies(account, markets, maxBtcApy)
       strategies.push(...accountStrategies)
-    })
+    }
 
     return strategies.sort((a, b) => {
       const aValue = a.collateralAsset.usdValue - a.debtAsset.usdValue
@@ -334,4 +347,21 @@ export function useActiveStrategies() {
 export function usePortfolioPositions() {
   const portfolioPositions = useStore((state) => state.portfolioPositions)
   return portfolioPositions
+}
+
+/**
+ * Hook to check if portfolio data is being refreshed in the background
+ * Useful for showing subtle loading indicators without blocking the UI
+ */
+export function usePortfolioValidating() {
+  const { address } = useChain(chainConfig.name)
+  const swrKey = address ? `portfolio-positions-${address}` : null
+
+  // Access SWR cache to check if data is validating
+  const { isValidating } = useSWR(swrKey, null, {
+    revalidateOnMount: false,
+    revalidateOnFocus: false,
+  })
+
+  return isValidating
 }

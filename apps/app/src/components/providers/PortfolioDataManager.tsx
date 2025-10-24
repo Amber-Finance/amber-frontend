@@ -14,7 +14,8 @@ const PORTFOLIO_ROUTES = ['/portfolio', '/strategies', '/deposit']
  * Manages global portfolio data fetching and refresh logic
  *
  * Features:
- * - Fetches portfolio data from API
+ * - Fetches portfolio data from API immediately on load
+ * - Shows cached data while fetching (stale-while-revalidate)
  * - Processes deposits and strategies
  * - Stores everything in Zustand (single source of truth)
  * - Auto-refreshes every 60 seconds (1 minute)
@@ -27,7 +28,8 @@ export function PortfolioDataManager() {
   const pathname = usePathname()
   const { mutate } = usePortfolioData()
 
-  // Refresh portfolio data when navigating to portfolio-related pages
+  // Proactively refresh portfolio data when navigating to portfolio-related pages
+  // This ensures fresh data is fetched immediately, while showing cached data
   useEffect(() => {
     const shouldRefresh = PORTFOLIO_ROUTES.some((route) => pathname?.startsWith(route))
 

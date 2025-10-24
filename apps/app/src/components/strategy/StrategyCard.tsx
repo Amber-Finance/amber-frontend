@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useChain } from '@cosmos-kit/react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import FormattedValue from '@/components/common/FormattedValue'
 import TokenBalance from '@/components/common/TokenBalance'
 import { Button } from '@/components/ui/Button'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
@@ -268,10 +269,14 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 {/* Supply (Collateral-Borrowed) and in usd value */}
                 <div className='bg-secondary/50 rounded-lg p-2.5 border border-border/40'>
                   <div className='flex flex-col items-center justify-between'>
-                    <span className='text-xs font-medium text-muted-foreground'>SUPPLY</span>
+                    <span className='text-xs font-medium text-muted-foreground'>EQUITY</span>
                     <div className='text-center'>
                       <div className='text-sm font-semibold text-foreground'>
-                        ${activeStrategy.supply.usdValue.toFixed(2)}
+                        <FormattedValue
+                          value={activeStrategy.supply.usdValue}
+                          isCurrency={true}
+                          useCompactNotation={false}
+                        />
                       </div>
                     </div>
                   </div>
@@ -311,13 +316,21 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               {/* Deposited Balance */}
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-foreground'>Total Collateral</span>
-                <TokenBalance coin={activeStrategy.collateralAsset} size='md' />
+                <TokenBalance
+                  coin={activeStrategy.collateralAsset}
+                  size='md'
+                  useCompactNotation={false}
+                />
               </div>
 
               {/* Borrowed Balance */}
               <div className='flex justify-between items-center'>
                 <span className='text-sm text-foreground'>Total Borrowed</span>
-                <TokenBalance coin={activeStrategy.debtAsset} size='md' />
+                <TokenBalance
+                  coin={activeStrategy.debtAsset}
+                  size='md'
+                  useCompactNotation={false}
+                />
               </div>
             </div>
           ) : (

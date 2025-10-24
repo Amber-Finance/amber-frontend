@@ -1,19 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+'use client'
 
-import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 import { AlertTriangle, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
-import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard } from '@/components/deposit'
 import { SimulatedPositionOverview } from '@/components/strategy/display/SimulatedPositionOverview'
-import { getLeverageWarning, getPriceImpactWarning } from '@/components/strategy/helpers'
-import { AmountInput } from '@/components/ui/AmountInput'
+import { getPriceImpactWarning } from '@/components/strategy/helpers'
 import { InfoAlert } from '@/components/ui/InfoAlert'
-import { Separator } from '@/components/ui/separator'
 import useSwapRoute from '@/hooks/swap/useSwapRoute'
-
-// helper functions moved to `strategyHelpers.ts`
 
 // Helper function to validate slippage
 const getSlippageWarning = (
@@ -48,18 +43,11 @@ const getSlippageWarning = (
   return null
 }
 
-// helper functions moved to `strategyHelpers.ts`
-
-interface MarginCollateralCardProps {
+interface SimulationCardProps {
   strategy: Strategy
-  collateralAmount: string
-  setCollateralAmount: (value: string) => void
-  leverageSliderComponent?: React.ReactNode
   displayValues: {
-    walletBalance: string
     usdValue: (amount: number) => string
   }
-  userBalance: number
   currentAmount: number
   positionCalcs: {
     borrowAmount: number
@@ -70,119 +58,93 @@ interface MarginCollateralCardProps {
   onSwapRouteLoaded?: (swapRouteInfo: SwapRouteInfo | null) => void
   onSwapLoadingChange?: (isLoading: boolean) => void
   onSlippageChange?: (slippage: number) => void
-  hideWalletBalance?: boolean
-  hideAmountInput?: boolean
   marketData?: {
     currentPrice: number
     debtMarket?: any
   }
-  collateralSupplyApy?: number
-  debtBorrowApy?: number
   simulatedHealthFactor?: number
-  showPositionTable?: boolean
   isCalculatingPositions?: boolean
   showSwapDetailsAndSlippage?: boolean
-  // For leverage modification - to determine swap direction
   currentLeverage?: number
   targetLeverage?: number
+  isDepositWithdrawMode?: boolean
 }
 
-export function MarginCollateralCard({
+export function SimulationCard({
   strategy,
-  collateralAmount,
-  setCollateralAmount,
-  leverageSliderComponent,
   displayValues,
-  userBalance,
   currentAmount,
   positionCalcs,
   onSwapRouteLoaded,
   onSwapLoadingChange,
   onSlippageChange,
-  hideWalletBalance = false,
-  hideAmountInput = false,
   marketData,
-  collateralSupplyApy = 0,
-  debtBorrowApy = 0,
   simulatedHealthFactor = 0,
-  showPositionTable = false,
   isCalculatingPositions = false,
   showSwapDetailsAndSlippage = true,
   currentLeverage,
   targetLeverage,
-}: MarginCollateralCardProps) {
-  // (metadata tracking removed — hook handles caching/debounce)
-  const [slippage, setSlippage] = useState<number>(0.5) // Default 0.5%
-  const [slippageInput, setSlippageInput] = useState<string>('0.5') // Input field value
+  isDepositWithdrawMode = false,
+}: SimulationCardProps) {
+  const [slippage, setSlippage] = useState<number>(0.5)
+  const [slippageInput, setSlippageInput] = useState<string>('0.5')
   const [isSlippageExpanded, setIsSlippageExpanded] = useState(false)
 
-  // Use the already debounced borrowAmount from positionCalcs (no double debouncing)
   const borrowAmountForSwap = positionCalcs.borrowAmount
 
-  // Determine swap direction based on leverage change
-  // For modify mode, check if we have the isLeverageIncrease field from calculations
-  // Otherwise fall back to comparing current vs target leverage
+  // Determine swap direction
   let isLeverageIncrease: boolean
-
   if ((positionCalcs as any).isLeverageIncrease !== undefined) {
     isLeverageIncrease = (positionCalcs as any).isLeverageIncrease
   } else if (currentLeverage && targetLeverage) {
     isLeverageIncrease = targetLeverage > currentLeverage
   } else {
-    isLeverageIncrease = true // Default to increase for new positions
+    isLeverageIncrease = true
   }
 
-  // Track when calculations are in progress (use isCalculatingPositions from parent)
-  // This is already handled by the parent component's debounce logic
-
-  // Handle slippage changes and notify parent
+  // Handle slippage changes
   const handleSlippageChange = (newSlippage: number) => {
     setSlippage(newSlippage)
     setSlippageInput(newSlippage.toString())
     onSlippageChange?.(newSlippage)
   }
 
-  // Handle input field changes (allow free editing)
   const handleSlippageInputChange = (value: string) => {
     setSlippageInput(value)
   }
 
-  // Validate and apply slippage when user leaves input field
   const handleSlippageInputBlur = () => {
     const trimmedValue = slippageInput.trim()
 
-    // Handle empty input
     if (!trimmedValue) {
-      handleSlippageChange(0.5) // Default to 0.5%
+      handleSlippageChange(0.5)
       return
     }
 
     const numValue = Number.parseFloat(trimmedValue)
 
-    // Handle invalid numbers
     if (Number.isNaN(numValue)) {
-      handleSlippageChange(0.5) // Reset to default
+      handleSlippageChange(0.5)
       return
     }
 
-    // Apply bounds validation
     if (numValue < 0.01) {
       handleSlippageChange(0.01)
     } else if (numValue > 50) {
       handleSlippageChange(50)
     } else {
-      // Apply the valid value (round to 2 decimal places)
       handleSlippageChange(Math.round(numValue * 100) / 100)
     }
   }
-  // Extract strategy-specific values to avoid unnecessary re-renders
+
+  // Extract strategy-specific values
   const debtAssetDecimals = strategy.debtAsset.decimals || 6
   const debtAssetDenom = strategy.debtAsset.denom
   const collateralAssetDenom = strategy.collateralAsset.denom
   const debtAssetSymbol = strategy.debtAsset.symbol
   const collateralAssetSymbol = strategy.collateralAsset.symbol
 
-  // Use extracted hook for swap route logic
+  // Use swap route hook - disable when in deposit/withdraw mode (no swapping needed)
   const { swapRouteInfo, isSwapLoading, swapError } = useSwapRoute({
     borrowAmountForSwap,
     isLeverageIncrease,
@@ -192,107 +154,29 @@ export function MarginCollateralCard({
     debtAssetSymbol,
     collateralAssetSymbol,
     slippage,
-    enabled: showSwapDetailsAndSlippage,
+    enabled: showSwapDetailsAndSlippage && !isDepositWithdrawMode,
   })
 
-  // Notify parent when swap loading state changes
+  // Notify parent of loading state
   useEffect(() => {
     onSwapLoadingChange?.(isSwapLoading)
   }, [isSwapLoading, onSwapLoadingChange])
 
-  // Notify parent when route info becomes available
+  // Notify parent of route info
   useEffect(() => {
     if (!swapRouteInfo) return
     onSwapRouteLoaded?.(swapRouteInfo)
   }, [swapRouteInfo, onSwapRouteLoaded])
 
-  // Create debt coin for TokenBalance component - similar to StrategyCard.tsx
-  const debtCoin = useMemo((): Coin => {
-    const rawAmount = marketData?.debtMarket?.metrics?.collateral_total_amount || '0'
-
-    return {
-      denom: strategy.debtAsset.denom,
-      amount: rawAmount,
-    }
-  }, [marketData, strategy.debtAsset.denom])
+  if (!showSwapDetailsAndSlippage || currentAmount === 0) {
+    return null
+  }
 
   return (
-    <InfoCard title='Margin Collateral'>
+    <InfoCard title={isDepositWithdrawMode ? 'Position Simulation' : 'Simulation & Swap Details'}>
       <div className='space-y-2'>
-        {!hideWalletBalance && (
-          <div className='flex justify-between items-center text-xs'>
-            <span className='text-muted-foreground'>Wallet balance</span>
-            <span className='font-medium text-foreground'>{displayValues.walletBalance}</span>
-          </div>
-        )}
-        {!hideAmountInput && (
-          <AmountInput
-            value={collateralAmount}
-            onChange={(e) => setCollateralAmount(e.target.value)}
-            token={{
-              symbol: strategy.collateralAsset.symbol,
-              brandColor: strategy.collateralAsset.brandColor || '#F7931A',
-              denom: strategy.collateralAsset.denom,
-            }}
-            balance={userBalance.toString()}
-          />
-        )}
-        {!hideAmountInput && <Separator />}
-        {/* Available Debt Section - Above leverage slider */}
-        <div className='space-y-2'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm font-semibold text-foreground'>Available Debt</span>
-          </div>
-
-          <div className='flex justify-between items-center'>
-            <span className='text-xs text-muted-foreground flex items-center gap-2'>
-              <Image
-                src={strategy.debtAsset.icon}
-                alt={strategy.debtAsset.symbol}
-                width={20}
-                height={20}
-                unoptimized={true}
-              />
-              <span className='text-sm font-medium text-foreground'>
-                {strategy.debtAsset.symbol}
-              </span>
-            </span>
-            <TokenBalance
-              coin={debtCoin}
-              size='md'
-              align='right'
-              className='flex flex-col justify-end items-end'
-            />
-          </div>
-        </div>
-        <Separator />
-        {leverageSliderComponent && <div className='space-y-2'>{leverageSliderComponent}</div>}
-        {/* Leverage Warning */}
-        {(() => {
-          const currentLeverage =
-            currentAmount > 0 ? positionCalcs.totalPosition / currentAmount : 0
-          const leverageWarning = getLeverageWarning(currentLeverage, strategy.maxLeverage)
-          if (!leverageWarning) return null
-
-          return (
-            <InfoAlert
-              title={
-                leverageWarning.type === 'danger' ? 'LIQUIDATION RISK' : 'HIGH LEVERAGE WARNING'
-              }
-              variant={leverageWarning.type === 'danger' ? 'red' : 'yellow'}
-              className='mt-2'
-            >
-              <div className='flex items-start gap-2'>
-                <AlertTriangle
-                  className={`h-4 w-4 mt-0.5 flex-shrink-0 ${leverageWarning.type === 'danger' ? 'text-red-600' : 'text-yellow-600'}`}
-                />
-                <span>{leverageWarning.message}</span>
-              </div>
-            </InfoAlert>
-          )
-        })()}
-        {/* Collapsible Slippage Settings */}
-        {showSwapDetailsAndSlippage && (
+        {/* Collapsible Slippage Settings - Only show when swapping */}
+        {!isDepositWithdrawMode && (
           <div className='space-y-2'>
             <button
               onClick={() => setIsSlippageExpanded(!isSlippageExpanded)}
@@ -311,7 +195,7 @@ export function MarginCollateralCard({
 
             {isSlippageExpanded && (
               <div className='space-y-3 pt-1'>
-                {/* Info message about slippage */}
+                {/* Info message */}
                 <div className='flex items-start gap-2 p-2 rounded-lg bg-blue-500/10 border border-blue-500/20'>
                   <Info className='h-4 w-4 mt-0.5 flex-shrink-0 text-blue-600 dark:text-blue-400' />
                   <p className='text-xs text-blue-700 dark:text-blue-300'>
@@ -328,7 +212,7 @@ export function MarginCollateralCard({
                     onBlur={handleSlippageInputBlur}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        e.currentTarget.blur() // Trigger onBlur validation
+                        e.currentTarget.blur()
                       }
                     }}
                     className='w-full h-8 text-xs px-3 pr-6 border border-border rounded-lg bg-background text-foreground focus:border-primary focus:outline-none transition-colors'
@@ -394,26 +278,25 @@ export function MarginCollateralCard({
             )}
           </div>
         )}
-        {/* Simulated Position Overview */}
-        {currentAmount > 0 && showSwapDetailsAndSlippage && (
-          <SimulatedPositionOverview
-            strategy={strategy}
-            displayValues={displayValues}
-            positionCalcs={positionCalcs}
-            healthFactor={simulatedHealthFactor || 0}
-            marketData={marketData}
-            isCalculatingPositions={isCalculatingPositions}
-            isSwapLoading={isSwapLoading}
-            showSwapDetails={showSwapDetailsAndSlippage}
-            swapRouteInfo={swapRouteInfo}
-            swapError={swapError}
-            isLeverageIncrease={isLeverageIncrease}
-            initialCollateralAmount={currentAmount}
-          />
-        )}
-        {/* Price Impact Warning */}
-        {currentAmount > 0 &&
-          showSwapDetailsAndSlippage &&
+
+        {/* Simulated Position Overview - hide swap details in deposit/withdraw mode */}
+        <SimulatedPositionOverview
+          strategy={strategy}
+          displayValues={displayValues}
+          positionCalcs={positionCalcs}
+          healthFactor={simulatedHealthFactor}
+          marketData={marketData}
+          isCalculatingPositions={isCalculatingPositions}
+          isSwapLoading={isSwapLoading}
+          showSwapDetails={!isDepositWithdrawMode}
+          swapRouteInfo={swapRouteInfo}
+          swapError={swapError}
+          isLeverageIncrease={isLeverageIncrease}
+          initialCollateralAmount={currentAmount}
+        />
+
+        {/* Price Impact Warning - only show when swapping */}
+        {!isDepositWithdrawMode &&
           swapRouteInfo &&
           (() => {
             const priceImpact = swapRouteInfo.priceImpact.toNumber()

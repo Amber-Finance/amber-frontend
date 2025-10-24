@@ -54,7 +54,7 @@ export const DepositHeader = ({ token, totalApy, activeTab, onTabChange }: Depos
         flickerChance={0.2}
         maxOpacity={0.2}
         gradientDirection='top-to-bottom'
-        height={190}
+        height={210}
       />
     </div>
 

@@ -1,3 +1,5 @@
+export * from '@/hooks/strategy/useLeverageSlider'
+export * from '@/hooks/strategy/useStrategyAccountDepositWithdraw'
 export * from '@/hooks/strategy/useStrategyCalculations'
 export * from '@/hooks/strategy/useStrategyCommon'
 export * from '@/hooks/strategy/useStrategyDeployment'

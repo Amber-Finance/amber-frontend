@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
 
 BigNumber.config({ EXPONENTIAL_AT: 1e9 })
 
@@ -17,170 +17,166 @@ const getStoredHideZeroBalances = (): boolean => {
 }
 
 export const useStore = create<StoreState>()(
-  devtools(
-    persist(
-      (
-        set: (partial: Partial<StoreState> | ((state: StoreState) => Partial<StoreState>)) => void,
-      ) => ({
-        // Initial state
-        markets: null,
-        hideZeroBalances: getStoredHideZeroBalances(),
-        cachedStrategies: {},
-        portfolioPositions: null,
+  persist(
+    (
+      set: (partial: Partial<StoreState> | ((state: StoreState) => Partial<StoreState>)) => void,
+    ) => ({
+      // Initial state
+      markets: null,
+      hideZeroBalances: getStoredHideZeroBalances(),
+      cachedStrategies: {},
+      portfolioPositions: null,
 
-        setMarkets: (markets: Market[] | null): void => {
-          if (!markets) return
-          set({ markets })
-        },
-
-        setHideZeroBalances: (hideZeroBalances: boolean): void => {
-          // Save to localStorage when value changes
-          if (typeof window !== 'undefined' && window.localStorage) {
-            localStorage.setItem('hideZeroBalances', hideZeroBalances.toString())
-          }
-          set({ hideZeroBalances })
-        },
-
-        // Update price for a specific market
-        updateMarketPrice: (denom: string, priceData: PriceData): void => {
-          set((state: StoreState) => {
-            if (!state.markets) return { ...state }
-
-            // Create a new array with the updated market
-            const updatedMarkets = state.markets.map((market: Market) =>
-              market.asset.denom === denom ? { ...market, price: priceData } : market,
-            )
-
-            return { markets: updatedMarkets }
-          })
-        },
-
-        // Update metrics for a specific market
-        updateMarketMetrics: (denom: string, metrics: MarketDataItem): void => {
-          set((state: StoreState) => {
-            if (!state.markets) return { markets: null }
-
-            // Create a new array with the updated market
-            const updatedMarkets = state.markets.map((market: Market) =>
-              market.asset.denom === denom
-                ? { ...market, metrics: { ...market.metrics, ...metrics } }
-                : market,
-            )
-
-            return { markets: updatedMarkets }
-          })
-        },
-
-        // Update positions (deposits and debts) for markets
-        updateMarketPositions: (positions: {
-          deposits: UserPosition[]
-          debts: UserPosition[]
-        }): void => {
-          set((state: StoreState) => {
-            if (!state.markets) return { markets: null }
-
-            // Reset all positions to 0 first
-            let updatedMarkets = state.markets.map((market: Market) => ({
-              ...market,
-              deposit: '0',
-              debt: '0',
-            }))
-
-            // Update with deposit amounts
-            if (positions.deposits && positions.deposits.length > 0) {
-              updatedMarkets = updatedMarkets.map((market: Market) => {
-                const deposit = positions.deposits.find(
-                  (d: UserPosition) => d.denom === market.asset.denom,
-                )
-                return deposit ? { ...market, deposit: deposit.amount } : market
-              })
-            }
-
-            // Update with debt amounts
-            if (positions.debts && positions.debts.length > 0) {
-              updatedMarkets = updatedMarkets.map((market: Market) => {
-                const debt = positions.debts.find(
-                  (d: UserPosition) => d.denom === market.asset.denom,
-                )
-                return debt ? { ...market, debt: debt.amount } : market
-              })
-            }
-
-            return { markets: updatedMarkets }
-          })
-        },
-
-        // Reset positions on disconnect
-        resetPositions: (): void => {
-          set((state: StoreState) => {
-            // If we don't have markets, nothing to reset
-            if (!state.markets) return { ...state }
-
-            // Reset all positions to 0
-            const updatedMarkets = state.markets.map((market: Market) => ({
-              ...market,
-              deposit: '0',
-              debt: '0',
-            }))
-
-            return { markets: updatedMarkets }
-          })
-        },
-
-        // Strategy caching methods
-        cacheStrategy: (strategyId: string, strategy: Strategy): void => {
-          set((state: StoreState) => ({
-            cachedStrategies: {
-              ...state.cachedStrategies,
-              [strategyId]: {
-                ...strategy,
-                cachedAt: Date.now(),
-                cacheVersion: 2, // Increment this when calculation logic changes
-              },
-            },
-          }))
-        },
-
-        getCachedStrategy: (strategyId: string): Strategy | null => {
-          const state = useStore.getState()
-          const cached = state.cachedStrategies[strategyId]
-          if (!cached) return null
-
-          // Check cache version - invalidate if version mismatch
-          const currentVersion = 2 // Must match the version in cacheStrategy
-          if ((cached as any).cacheVersion !== currentVersion) {
-            return null
-          }
-
-          // Check if cache is less than 10 minutes old
-          const cacheAge = Date.now() - (cached.cachedAt || 0)
-          const maxCacheAge = 10 * 60 * 1000 // 10 minutes
-
-          return cacheAge < maxCacheAge ? cached : null
-        },
-
-        clearStrategyCache: (): void => {
-          set({ cachedStrategies: {} })
-        },
-
-        // Portfolio positions methods
-        setPortfolioPositions: (positions: PortfolioPositionsResponse | null): void => {
-          set({ portfolioPositions: positions })
-        },
-
-        resetPortfolioPositions: (): void => {
-          set({ portfolioPositions: null })
-        },
-      }),
-      {
-        name: 'amberfi-storage', // storage key
-        partialize: (state: StoreState) => ({
-          markets: state.markets,
-          cachedStrategies: state.cachedStrategies,
-          portfolioPositions: state.portfolioPositions,
-        }),
+      setMarkets: (markets: Market[] | null): void => {
+        if (!markets) return
+        set({ markets })
       },
-    ),
-    { name: 'amberfi-store' }, // Name for Redux DevTools
+
+      setHideZeroBalances: (hideZeroBalances: boolean): void => {
+        // Save to localStorage when value changes
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('hideZeroBalances', hideZeroBalances.toString())
+        }
+        set({ hideZeroBalances })
+      },
+
+      // Update price for a specific market
+      updateMarketPrice: (denom: string, priceData: PriceData): void => {
+        set((state: StoreState) => {
+          if (!state.markets) return { ...state }
+
+          // Create a new array with the updated market
+          const updatedMarkets = state.markets.map((market: Market) =>
+            market.asset.denom === denom ? { ...market, price: priceData } : market,
+          )
+
+          return { markets: updatedMarkets }
+        })
+      },
+
+      // Update metrics for a specific market
+      updateMarketMetrics: (denom: string, metrics: MarketDataItem): void => {
+        set((state: StoreState) => {
+          if (!state.markets) return { markets: null }
+
+          // Create a new array with the updated market
+          const updatedMarkets = state.markets.map((market: Market) =>
+            market.asset.denom === denom
+              ? { ...market, metrics: { ...market.metrics, ...metrics } }
+              : market,
+          )
+
+          return { markets: updatedMarkets }
+        })
+      },
+
+      // Update positions (deposits and debts) for markets
+      updateMarketPositions: (positions: {
+        deposits: UserPosition[]
+        debts: UserPosition[]
+      }): void => {
+        set((state: StoreState) => {
+          if (!state.markets) return { markets: null }
+
+          // Reset all positions to 0 first
+          let updatedMarkets = state.markets.map((market: Market) => ({
+            ...market,
+            deposit: '0',
+            debt: '0',
+          }))
+
+          // Update with deposit amounts
+          if (positions.deposits && positions.deposits.length > 0) {
+            updatedMarkets = updatedMarkets.map((market: Market) => {
+              const deposit = positions.deposits.find(
+                (d: UserPosition) => d.denom === market.asset.denom,
+              )
+              return deposit ? { ...market, deposit: deposit.amount } : market
+            })
+          }
+
+          // Update with debt amounts
+          if (positions.debts && positions.debts.length > 0) {
+            updatedMarkets = updatedMarkets.map((market: Market) => {
+              const debt = positions.debts.find((d: UserPosition) => d.denom === market.asset.denom)
+              return debt ? { ...market, debt: debt.amount } : market
+            })
+          }
+
+          return { markets: updatedMarkets }
+        })
+      },
+
+      // Reset positions on disconnect
+      resetPositions: (): void => {
+        set((state: StoreState) => {
+          // If we don't have markets, nothing to reset
+          if (!state.markets) return { ...state }
+
+          // Reset all positions to 0
+          const updatedMarkets = state.markets.map((market: Market) => ({
+            ...market,
+            deposit: '0',
+            debt: '0',
+          }))
+
+          return { markets: updatedMarkets }
+        })
+      },
+
+      // Strategy caching methods
+      cacheStrategy: (strategyId: string, strategy: Strategy): void => {
+        set((state: StoreState) => ({
+          cachedStrategies: {
+            ...state.cachedStrategies,
+            [strategyId]: {
+              ...strategy,
+              cachedAt: Date.now(),
+              cacheVersion: 2, // Increment this when calculation logic changes
+            },
+          },
+        }))
+      },
+
+      getCachedStrategy: (strategyId: string): Strategy | null => {
+        const state = useStore.getState()
+        const cached = state.cachedStrategies[strategyId]
+        if (!cached) return null
+
+        // Check cache version - invalidate if version mismatch
+        const currentVersion = 2 // Must match the version in cacheStrategy
+        if ((cached as any).cacheVersion !== currentVersion) {
+          return null
+        }
+
+        // Check if cache is less than 10 minutes old
+        const cacheAge = Date.now() - (cached.cachedAt || 0)
+        const maxCacheAge = 10 * 60 * 1000 // 10 minutes
+
+        return cacheAge < maxCacheAge ? cached : null
+      },
+
+      clearStrategyCache: (): void => {
+        set({ cachedStrategies: {} })
+      },
+
+      // Portfolio positions methods
+      setPortfolioPositions: (positions: PortfolioPositionsResponse | null): void => {
+        set({ portfolioPositions: positions })
+      },
+
+      resetPortfolioPositions: (): void => {
+        set({ portfolioPositions: null })
+      },
+    }),
+    {
+      name: 'amberfi-storage',
+      version: 1,
+      partialize: (state: StoreState) => ({
+        markets: state.markets,
+        cachedStrategies: state.cachedStrategies,
+        portfolioPositions: state.portfolioPositions,
+      }),
+    },
   ),
 )

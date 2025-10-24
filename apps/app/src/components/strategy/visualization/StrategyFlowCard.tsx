@@ -124,7 +124,7 @@ export function StrategyFlowCard({
             <InfoAlert title='Leverage Math' variant='blue' className='mt-2'>
               <div className='space-y-1'>
                 <div>
-                  • Net Supply: {displayData.supply.toFixed(6)} {strategy.collateralAsset.symbol}
+                  • Net Equity: {displayData.supply.toFixed(6)} {strategy.collateralAsset.symbol}
                 </div>
                 <div>
                   • Total Borrowed: {displayData.borrow.toFixed(6)} {strategy.debtAsset.symbol}

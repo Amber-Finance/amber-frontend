@@ -3,10 +3,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { ExternalLink } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, ExternalLink, Sliders } from 'lucide-react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+export type ModifyTab = 'deposit' | 'withdraw' | 'modify'
 
 interface StrategyHeaderProps {
   strategy: Strategy
@@ -16,6 +19,9 @@ interface StrategyHeaderProps {
   isLoading?: boolean
   currentLeverage?: number
   targetLeverage?: number
+  // Tab props for modify mode
+  activeTab?: ModifyTab
+  onTabChange?: (tab: ModifyTab) => void
 }
 
 // Helper component for asset stats link
@@ -50,10 +56,16 @@ export function StrategyHeader({
   isLoading = false,
   currentLeverage,
   targetLeverage,
+  activeTab = 'modify',
+  onTabChange,
 }: StrategyHeaderProps) {
   const getTitle = () => {
     if (mode === 'deploy') return 'Deploy'
-    if (mode === 'modify') return 'Adjust Leverage'
+    if (mode === 'modify') {
+      if (activeTab === 'deposit') return 'Deposit'
+      if (activeTab === 'withdraw') return 'Withdraw'
+      return 'Adjust Leverage'
+    }
     return ''
   }
 
@@ -62,11 +74,21 @@ export function StrategyHeader({
       return `Supply ${strategy.collateralAsset.symbol}, borrow ${strategy.debtAsset.symbol}, leverage your position`
     }
 
-    if (mode === 'modify' && currentLeverage && targetLeverage) {
-      return `Modify your position leverage from ${currentLeverage.toFixed(2)}x to ${targetLeverage.toFixed(2)}x`
+    if (mode === 'modify') {
+      if (activeTab === 'deposit') {
+        return `Add more ${strategy.collateralAsset.symbol} to your position to decrease leverage`
+      }
+      if (activeTab === 'withdraw') {
+        return `Withdraw ${strategy.collateralAsset.symbol} from your position (increases leverage)`
+      }
+      // Only show from/to leverage if they're different
+      if (currentLeverage && targetLeverage && Math.abs(currentLeverage - targetLeverage) > 0.01) {
+        return `Modify your position leverage from ${currentLeverage.toFixed(2)}x to ${targetLeverage.toFixed(2)}x`
+      }
+      return `Modify your position`
     }
 
-    return `Modify your existing position leverage`
+    return ''
   }
 
   // Loading skeleton
@@ -82,7 +104,7 @@ export function StrategyHeader({
             flickerChance={0.2}
             maxOpacity={0.2}
             gradientDirection='top-to-bottom'
-            height={190}
+            height={210}
           />
         </div>
         <div className='relative z-20'>
@@ -138,7 +160,7 @@ export function StrategyHeader({
           flickerChance={0.2}
           maxOpacity={0.2}
           gradientDirection='top-to-bottom'
-          height={190}
+          height={210}
         />
       </div>
 
@@ -170,6 +192,7 @@ export function StrategyHeader({
                 {getTitle()} {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol} Strategy
               </h2>
               <p className='text-xs sm:text-sm text-muted-foreground'>{getDescription()}</p>
+
               <div className='flex flex-wrap gap-2 pt-1'>
                 <AssetStatsLink
                   symbol={strategy.collateralAsset.symbol}
@@ -191,7 +214,7 @@ export function StrategyHeader({
               style={{ color: strategy.collateralAsset.brandColor }}
             >
               <CountingNumber
-                value={isNaN(leveragedApy) ? 0 : leveragedApy * 100}
+                value={Number.isNaN(leveragedApy) ? 0 : leveragedApy * 100}
                 decimalPlaces={2}
               />
               %
@@ -201,6 +224,38 @@ export function StrategyHeader({
             </p>
           </div>
         </div>
+
+        {/* Tabs for modify mode - positioned at bottom center - Only show when there's an active strategy */}
+        {mode === 'modify' && onTabChange && activeStrategy && (
+          <div className='flex gap-1 bg-muted/30 rounded-lg p-1 mt-2 sm:mt-3 w-full sm:w-[500px] mx-auto'>
+            <Tabs
+              value={activeTab}
+              onValueChange={(value) => onTabChange(value as ModifyTab)}
+              className='w-full'
+            >
+              <TabsList>
+                <TabsTrigger value='deposit'>
+                  <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                    <ArrowUpRight className='w-3 h-3' />
+                    Deposit
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value='withdraw'>
+                  <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                    <ArrowRight className='w-3 h-3' />
+                    Withdraw
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value='modify'>
+                  <div className='flex items-center gap-1 sm:gap-1.5 justify-center'>
+                    <Sliders className='w-3 h-3' />
+                    Modify
+                  </div>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
       </div>
     </div>
   )

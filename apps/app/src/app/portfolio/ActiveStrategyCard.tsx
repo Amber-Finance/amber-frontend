@@ -234,7 +234,7 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
         {/* Position Details */}
         <div className='space-y-3 pt-3 border-t border-border/20'>
           <div className='flex justify-between items-center'>
-            <span className='text-muted-foreground text-sm'>Position Value</span>
+            <span className='text-muted-foreground text-sm'>Equity</span>
             <span className='text-foreground font-medium'>{formatUsdValue(positionValue)}</span>
           </div>
           <div className='flex justify-between items-center'>
