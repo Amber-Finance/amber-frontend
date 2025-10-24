@@ -19,6 +19,7 @@ interface TokenBalanceProps {
   align?: Align
   className?: string
   textClassName?: string
+  useCompactNotation?: boolean // Whether to use compact notation (K, M, B) for large values
 }
 
 /**
@@ -32,6 +33,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
   align = 'right',
   className = '',
   textClassName = '',
+  useCompactNotation = true,
 }) => {
   // Get markets data from the store and price loading state
   const { markets } = useStore()
@@ -107,11 +109,19 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
           textClassName || 'text-gray-900 dark:text-white font-medium truncate',
         )}
       >
-        {showUsdValue && <FormattedValue value={usdValue} isCurrency={true} />}
+        {showUsdValue && (
+          <FormattedValue
+            value={usdValue}
+            isCurrency={true}
+            useCompactNotation={useCompactNotation}
+          />
+        )}
         {!showUsdValue && isPricesLoading && (
           <span className='text-muted-foreground text-xs'>Loading prices...</span>
         )}
-        {!showUsdValue && !isPricesLoading && <FormattedValue value='0' isCurrency={true} />}
+        {!showUsdValue && !isPricesLoading && (
+          <FormattedValue value='0' isCurrency={true} useCompactNotation={useCompactNotation} />
+        )}
       </div>
       <div
         className={cn(
@@ -124,6 +134,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({
           isCurrency={false}
           tokenDecimals={assetDecimals}
           suffix={` ${symbol}`}
+          useCompactNotation={useCompactNotation}
         />
       </div>
     </div>

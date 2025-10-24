@@ -39,29 +39,12 @@ export const getPriceImpactWarning = (
 export const getLeverageWarning = (
   leverage: number,
   maxLeverage?: number,
-): { type: 'warning' | 'danger'; message: string } | null => {
-  // Check if leverage exceeds the allowed maximum
-  if (maxLeverage && leverage > maxLeverage) {
-    return {
-      type: 'danger',
-      message: `Leverage of ${leverage.toFixed(2)}x exceeds the maximum allowed leverage of ${maxLeverage.toFixed(2)}x for this strategy. Reduce leverage to stay within safe limits.`,
-    }
-  }
-
-  // Warn at 90% of liquidation threshold (typically around 8x-9x for 0.92 LTV)
-  if (leverage >= 8) {
-    return {
-      type: 'danger',
-      message:
-        'EXTREME LEVERAGE: Your position is at high risk of liquidation. Even small price movements could result in liquidation.',
-    }
-  }
-
-  if (leverage >= 6) {
+): { type: 'warning'; message: string } | null => {
+  // Only show warning at 11.5x and above
+  if (leverage >= 11.5) {
     return {
       type: 'warning',
-      message:
-        'HIGH LEVERAGE: Your position is at increased liquidation risk. Monitor your position closely.',
+      message: 'Your position is at increased liquidation risk. Monitor your position closely.',
     }
   }
 

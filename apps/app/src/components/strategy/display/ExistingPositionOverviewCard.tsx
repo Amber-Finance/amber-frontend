@@ -45,8 +45,8 @@ export function ExistingPositionOverviewCard({
   const currentPrice = marketData?.currentPrice || 0
 
   // Calculate static estimated earnings from existing position only
-  const existingEstimatedEarnings =
-    (activeStrategy.collateralAsset.amountFormatted * activeStrategy.netApy) / 100
+  // Earnings are based on equity (your actual investment), not total collateral
+  const existingEstimatedEarnings = (netEquity * activeStrategy.netApy) / 100
 
   return (
     <InfoCard title='Existing Position Overview'>
@@ -60,7 +60,7 @@ export function ExistingPositionOverviewCard({
               </div>
               <div className='flex justify-between items-center text-xs'>
                 <span className='text-muted-foreground'>Liquidation mechanism</span>
-                <div className='flex items-center gap-1'>
+                <div className='flex items-start gap-1'>
                   <span className='font-medium text-orange-600 dark:text-orange-400'>
                     Yield-based
                   </span>
@@ -157,10 +157,7 @@ export function ExistingPositionOverviewCard({
                     : 'text-red-600/80 dark:text-red-400/80'
                 }`}
               >
-                ~$
-                {((activeStrategy.collateralAsset.usdValue * activeStrategy.netApy) / 100).toFixed(
-                  2,
-                )}
+                ~${(existingEstimatedEarnings * currentPrice).toFixed(2)}
               </div>
             </div>
 

@@ -14,7 +14,6 @@ export default async function getPortfolioPositions(
   chain: string = 'neutron',
 ): Promise<PortfolioPositionsResponse | null> {
   if (!address) {
-    console.warn('Address is required for portfolio positions')
     return null
   }
 

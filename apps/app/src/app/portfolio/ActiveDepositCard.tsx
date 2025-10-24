@@ -110,9 +110,7 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
         {/* Metrics Grid */}
         <div className='grid grid-cols-2 gap-4'>
           <div>
-            <p className='text-xs text-muted-foreground uppercase tracking-wider mb-2'>
-              Position Value
-            </p>
+            <p className='text-xs text-muted-foreground uppercase tracking-wider mb-2'>Equity</p>
             <p className='text-2xl font-funnel font-bold text-foreground'>
               <span className='text-primary'>$ </span>
               <CountingNumber value={deposit.usdValue} decimalPlaces={2} />

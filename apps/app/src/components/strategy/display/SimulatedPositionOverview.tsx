@@ -220,9 +220,6 @@ export function SimulatedPositionOverview({
                   />
                   {isModifying && <ChangeIndicator value={collateralChange} />}
                 </div>
-                <div className='text-xs text-muted-foreground'>
-                  ~{displayValues.usdValue(projectedCollateral)}
-                </div>
               </div>
             </div>
 
@@ -242,9 +239,6 @@ export function SimulatedPositionOverview({
                     align='right'
                   />
                   {isModifying && <ChangeIndicator value={borrowChange} />}
-                </div>
-                <div className='text-xs text-muted-foreground'>
-                  ~{displayValues.usdValue(projectedBorrowed * (marketData?.currentPrice || 1))}
                 </div>
               </div>
             </div>
@@ -268,9 +262,6 @@ export function SimulatedPositionOverview({
                     align='right'
                   />
                   {isModifying && <ChangeIndicator value={suppliesChange} />}
-                </div>
-                <div className='text-xs text-muted-foreground'>
-                  ~{displayValues.usdValue(projectedSupplies)}
                 </div>
               </div>
             </div>

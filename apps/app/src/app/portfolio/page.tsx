@@ -99,12 +99,12 @@ const Portfolio = () => {
 
   const stats = [
     {
-      title: 'Total Assets',
+      title: 'Total Equity',
       value: totalPortfolioValue || 0,
       prefix: '$ ',
     },
     {
-      title: 'Total Strategies',
+      title: 'Strategies Equity',
       value: (activeStrategies || []).reduce(
         (sum, strategy) => sum + (strategy.supply?.usdValue || 0),
         0,
@@ -112,7 +112,7 @@ const Portfolio = () => {
       prefix: '$ ',
     },
     {
-      title: 'Total Deposits',
+      title: 'Deposits Equity',
       value: (deposits || []).reduce((sum, deposit) => sum + (deposit.usdValue || 0), 0),
       prefix: '$ ',
     },

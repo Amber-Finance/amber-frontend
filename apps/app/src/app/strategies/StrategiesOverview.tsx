@@ -127,7 +127,7 @@ export default function StrategiesOverview() {
           },
           {
             value: marketTotals.totalSupplyUsd,
-            label: 'Total Supply',
+            label: 'Total Equity',
             isCurrency: true,
             prefix: '$ ',
           },
