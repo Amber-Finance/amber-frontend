@@ -1,8 +1,14 @@
 'use client'
 
 import { MarketInfoCard, RiskAssessmentCard } from '@/components/strategy/cards'
-import { MarginCollateralCard, useLeverageSlider } from '@/components/strategy/form'
+import {
+  DepositWithdrawAmountCard,
+  LeverageSliderCard,
+  SimulationCard,
+} from '@/components/strategy/form'
 import { Button } from '@/components/ui/Button'
+import { LeverageSlider } from '@/components/ui/LeverageSlider'
+import { useLeverageSlider } from '@/hooks/strategy'
 
 // Loading skeleton component
 const CardSkeleton = ({ className = '' }: { className?: string }) => (
@@ -15,6 +21,80 @@ const CardSkeleton = ({ className = '' }: { className?: string }) => (
     </div>
   </div>
 )
+
+// Helper: Get deploy button text
+const getDeployButtonText = (
+  isWalletConnected: boolean,
+  maxLeverage: number | undefined,
+  multiplier: number,
+  isFetchingRoute: boolean,
+  isProcessing: boolean,
+) => {
+  if (!isWalletConnected) return 'Connect Wallet'
+  if (maxLeverage && multiplier > maxLeverage) return 'Leverage Too High'
+  if (isFetchingRoute) return 'Fetching Route...'
+  if (isProcessing) return 'Deploying...'
+  return 'Deploy Strategy'
+}
+
+// Helper: Get adjust button text
+const getAdjustButtonText = (
+  maxLeverage: number | undefined,
+  targetLeverage: number,
+  isFetchingRoute: boolean,
+  isProcessing: boolean,
+  hasUserInteraction: boolean,
+  isLeverageDisabled: boolean,
+) => {
+  if (maxLeverage && targetLeverage > maxLeverage) return 'Leverage Too High'
+  if (isFetchingRoute) return 'Fetching Route...'
+  if (isProcessing) return 'Adjusting...'
+  if (hasUserInteraction && !isLeverageDisabled) return `Adjust to ${targetLeverage.toFixed(2)}x`
+  return 'Adjust Leverage'
+}
+
+// Helper: Get deposit/withdraw button text
+const getDepositWithdrawButtonText = (
+  isProcessing: boolean,
+  depositWithdrawMode: 'deposit' | 'withdraw' | undefined,
+) => {
+  if (!isProcessing) {
+    return depositWithdrawMode === 'deposit' ? 'Deposit' : 'Withdraw'
+  }
+  return depositWithdrawMode === 'deposit' ? 'Depositing...' : 'Withdrawing...'
+}
+
+// Helper: Check if deploy button is disabled
+const isDeployButtonDisabled = (params: {
+  isProcessing: boolean
+  isWithdrawing: boolean
+  isFetchingRoute: boolean
+  isCalculatingPositions: boolean
+  isWalletConnected: boolean
+  hasValidAmount: boolean
+  hasInsufficientBalance: boolean
+  hasInsufficientLiquidity: boolean
+  maxLeverage: number | undefined
+  multiplier: number
+}) => {
+  const {
+    isProcessing,
+    isWithdrawing,
+    isFetchingRoute,
+    isCalculatingPositions,
+    isWalletConnected,
+    hasValidAmount,
+    hasInsufficientBalance,
+    hasInsufficientLiquidity,
+    maxLeverage,
+    multiplier,
+  } = params
+
+  if (isProcessing || isWithdrawing || isFetchingRoute || isCalculatingPositions) return true
+  if (!isWalletConnected) return false
+  if (!hasValidAmount || hasInsufficientBalance || hasInsufficientLiquidity) return true
+  return maxLeverage !== undefined && multiplier > maxLeverage
+}
 
 interface StrategyFormPanelProps {
   strategy: Strategy
@@ -29,6 +109,15 @@ interface StrategyFormPanelProps {
   setTargetLeverage: (value: number) => void
   slippage: number
   setSlippage: (value: number) => void
+
+  // Deposit/Withdraw state for modify mode
+  depositWithdrawAmount?: string
+  setDepositWithdrawAmount?: (value: string) => void
+  depositWithdrawMode?: 'deposit' | 'withdraw'
+  setDepositWithdrawMode?: (mode: 'deposit' | 'withdraw') => void
+
+  // Active tab for modify mode
+  activeTab?: 'deposit' | 'withdraw' | 'modify'
 
   // Data
   activeStrategy?: any
@@ -58,6 +147,7 @@ interface StrategyFormPanelProps {
   onDeploy?: () => Promise<void>
   onModifyLeverage?: () => Promise<void>
   onClosePosition?: () => Promise<void>
+  onDepositWithdraw?: () => Promise<void>
   getAvailableLiquidityDisplay: () => string
 
   // State flags
@@ -82,6 +172,11 @@ export function StrategyFormPanel({
   setTargetLeverage,
   slippage,
   setSlippage,
+  depositWithdrawAmount,
+  setDepositWithdrawAmount,
+  depositWithdrawMode,
+  setDepositWithdrawMode,
+  activeTab = 'modify',
   activeStrategy,
   displayValues,
   walletData,
@@ -105,6 +200,7 @@ export function StrategyFormPanel({
   onDeploy,
   onModifyLeverage,
   onClosePosition,
+  onDepositWithdraw,
   getAvailableLiquidityDisplay,
   isProcessing,
   isClosing,
@@ -113,66 +209,7 @@ export function StrategyFormPanel({
   isDataLoading = false,
   connect,
 }: StrategyFormPanelProps) {
-  const isModifying = mode === 'modify'
-
-  // Use leverage slider hook for deploy mode
-  // Always respect strategy.maxLeverage as the hard cap
-  const effectiveMaxLeverageForDeploy = Math.min(
-    strategy.maxLeverage || 12,
-    debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage,
-  )
-
-  const deployLeverageSlider = useLeverageSlider({
-    leverage: multiplier,
-    onLeverageChange: (value: number[]) => {
-      const newMultiplier = value[0]
-      if (newMultiplier >= 2 && newMultiplier <= effectiveMaxLeverageForDeploy) {
-        setMultiplier(newMultiplier)
-      }
-    },
-    maxLeverage: effectiveMaxLeverageForDeploy,
-    brandColor: strategy.collateralAsset.brandColor || '#F7931A',
-    disabled: !walletData.isWalletConnected,
-  })
-
-  // Use leverage slider hook for modify mode
-  // Always respect strategy.maxLeverage as the hard cap
-  const effectiveMaxLeverageForModify = Math.min(
-    strategy.maxLeverage || 12,
-    debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage || 12,
-  )
-
-  const modifyLeverageSlider = useLeverageSlider({
-    leverage: targetLeverage,
-    onLeverageChange: (value: number[]) => {
-      const newLeverage = value[0]
-      if (newLeverage >= 2 && newLeverage <= effectiveMaxLeverageForModify) {
-        setTargetLeverage(newLeverage)
-      }
-    },
-    maxLeverage: effectiveMaxLeverageForModify,
-    existingPositionLeverage: activeStrategy?.leverage,
-    brandColor: strategy.collateralAsset.brandColor || '#F7931A',
-    disabled: !walletData.isWalletConnected,
-  })
-
-  // Helper functions for button text
-  const getDeployButtonText = () => {
-    if (!walletData.isWalletConnected) return 'Connect Wallet'
-    if (strategy.maxLeverage && multiplier > strategy.maxLeverage) return 'Leverage Too High'
-    if (isFetchingRoute || isCalculatingPositions) return 'Fetching Route...'
-    if (isProcessing) return 'Deploying...'
-    return 'Deploy Strategy'
-  }
-
-  const getAdjustButtonText = () => {
-    if (strategy.maxLeverage && targetLeverage > strategy.maxLeverage) return 'Leverage Too High'
-    if (isFetchingRoute || isCalculatingPositions) return 'Fetching Route...'
-    if (isProcessing) return 'Adjusting...'
-    if (hasUserInteraction) return `Adjust to ${targetLeverage.toFixed(2)}x`
-    return 'Adjust Leverage'
-  }
-
+  // Early return for loading state
   if (isDataLoading) {
     return (
       <div className='flex-1 order-1 lg:order-2 space-y-4'>
@@ -184,85 +221,156 @@ export function StrategyFormPanel({
     )
   }
 
+  const isModifying = mode === 'modify'
+
+  // Determine what to show based on activeTab
+  const showDepositCard = !isModifying || activeTab === 'deposit' || activeTab === 'withdraw'
+  const showLeverageCard = !isModifying || activeTab === 'modify'
+
+  // Check if leverage slider should be disabled
+  const isLeverageDisabled =
+    isModifying &&
+    Boolean(depositWithdrawAmount && Number.parseFloat(depositWithdrawAmount || '0') > 0)
+
+  // Calculate effective max leverage
+  const effectiveMaxLeverageForDeploy = Math.min(
+    strategy.maxLeverage || 12,
+    debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage,
+  )
+
+  const effectiveMaxLeverageForModify = Math.min(
+    strategy.maxLeverage || 12,
+    debtBasedLimits?.effectiveMaxLeverage || marketData.dynamicMaxLeverage || 12,
+  )
+
+  // Initialize leverage sliders
+  useLeverageSlider({ leverage: multiplier })
+  useLeverageSlider({ leverage: targetLeverage })
+
   const currentAmount = Number.parseFloat(collateralAmount || '0')
 
   return (
     <div className='flex-1 order-1 lg:order-2 space-y-4'>
-      {/* Input Form - Different for deploy vs modify */}
-      {!isModifying && (
-        <MarginCollateralCard
+      {/* Amount Input Card - Show in deploy mode or when on deposit/withdraw tab */}
+      {showDepositCard && (
+        <DepositWithdrawAmountCard
           strategy={strategy}
+          activeStrategy={activeStrategy}
           collateralAmount={collateralAmount}
           setCollateralAmount={setCollateralAmount}
-          leverageSliderComponent={deployLeverageSlider.SliderComponent}
-          displayValues={displayValues}
           userBalance={walletData.userBalance}
-          currentAmount={currentAmount}
-          positionCalcs={positionCalcs}
-          onSwapRouteLoaded={onSwapRouteLoaded}
-          onSwapLoadingChange={onSwapLoadingChange}
-          onSlippageChange={setSlippage}
-          marketData={marketData}
-          collateralSupplyApy={collateralSupplyApy}
-          debtBorrowApy={debtBorrowApy}
-          simulatedHealthFactor={simulatedHealthFactor || computedHealthFactor || 0}
-          showPositionTable={hasUserInteraction}
-          isCalculatingPositions={isCalculatingPositions}
-          showSwapDetailsAndSlippage={walletData.isWalletConnected && hasUserInteraction}
+          depositWithdrawAmount={depositWithdrawAmount}
+          setDepositWithdrawAmount={setDepositWithdrawAmount}
+          depositWithdrawMode={depositWithdrawMode}
+          setDepositWithdrawMode={setDepositWithdrawMode}
+          activeTab={activeTab}
+          displayValues={displayValues}
         />
       )}
 
-      {/* Modify Mode Form */}
-      {isModifying && activeStrategy && (
-        <MarginCollateralCard
+      {/* Leverage Slider Card - Show in deploy mode or when on modify tab */}
+      {showLeverageCard && !isLeverageDisabled && (
+        <LeverageSliderCard
           strategy={strategy}
-          collateralAmount={activeStrategy.collateralAsset.amountFormatted.toString()}
-          setCollateralAmount={() => {}} // Disabled for existing positions
-          leverageSliderComponent={modifyLeverageSlider.SliderComponent}
-          showSwapDetailsAndSlippage={walletData.isWalletConnected && hasUserInteraction}
-          displayValues={{
-            walletBalance: '',
-            usdValue: (amount: number) =>
-              `$${(amount * Number.parseFloat(marketData.currentPrice.toString())).toFixed(2)}`,
-          }}
-          userBalance={0}
-          currentAmount={activeStrategy.collateralAsset.amountFormatted}
+          leverageSliderComponent={
+            isModifying ? (
+              <LeverageSlider
+                leverage={targetLeverage}
+                onLeverageChange={(value: number[]) => {
+                  const newLeverage = value[0]
+                  if (newLeverage >= 2 && newLeverage <= effectiveMaxLeverageForModify) {
+                    setTargetLeverage(newLeverage)
+                  }
+                }}
+                maxLeverage={effectiveMaxLeverageForModify}
+                existingPositionLeverage={activeStrategy?.leverage}
+                brandColor={strategy.collateralAsset.brandColor || '#F7931A'}
+                disabled={!walletData.isWalletConnected}
+              />
+            ) : (
+              <LeverageSlider
+                leverage={multiplier}
+                onLeverageChange={(value: number[]) => {
+                  const newMultiplier = value[0]
+                  if (newMultiplier >= 2 && newMultiplier <= effectiveMaxLeverageForDeploy) {
+                    setMultiplier(newMultiplier)
+                  }
+                }}
+                maxLeverage={effectiveMaxLeverageForDeploy}
+                brandColor={strategy.collateralAsset.brandColor || '#F7931A'}
+                disabled={!walletData.isWalletConnected}
+              />
+            )
+          }
+          currentAmount={currentAmount}
           positionCalcs={positionCalcs}
-          onSwapRouteLoaded={onSwapRouteLoaded}
-          onSwapLoadingChange={onSwapLoadingChange}
-          onSlippageChange={setSlippage}
-          hideWalletBalance={true}
-          hideAmountInput={true}
           marketData={marketData}
-          collateralSupplyApy={collateralSupplyApy}
-          debtBorrowApy={debtBorrowApy}
-          simulatedHealthFactor={simulatedHealthFactor || computedHealthFactor || 0}
-          showPositionTable={hasUserInteraction}
-          isCalculatingPositions={isCalculatingPositions}
-          currentLeverage={activeStrategy.leverage}
-          targetLeverage={targetLeverage}
+          disabled={isLeverageDisabled}
         />
       )}
+
+      {/* Simulation Card */}
+      <SimulationCard
+        strategy={strategy}
+        displayValues={displayValues}
+        currentAmount={currentAmount}
+        positionCalcs={positionCalcs}
+        onSwapRouteLoaded={onSwapRouteLoaded}
+        onSwapLoadingChange={onSwapLoadingChange}
+        onSlippageChange={setSlippage}
+        marketData={marketData}
+        simulatedHealthFactor={simulatedHealthFactor || computedHealthFactor || 0}
+        isCalculatingPositions={isCalculatingPositions}
+        showSwapDetailsAndSlippage={walletData.isWalletConnected && hasUserInteraction}
+        currentLeverage={isModifying ? activeStrategy?.leverage : undefined}
+        targetLeverage={isModifying ? targetLeverage : undefined}
+        isDepositWithdrawMode={isLeverageDisabled}
+      />
 
       {/* Action Buttons */}
       {isModifying && activeStrategy ? (
         <div className='flex gap-3'>
-          <Button
-            onClick={onModifyLeverage}
-            disabled={
-              isProcessing ||
-              isWithdrawing ||
-              isFetchingRoute ||
-              isCalculatingPositions ||
-              !walletData.isWalletConnected ||
-              !hasUserInteraction ||
-              (strategy.maxLeverage !== undefined && targetLeverage > strategy.maxLeverage)
-            }
-            variant='default'
-            className='flex-1 shadow-md hover:shadow-lg'
-          >
-            {getAdjustButtonText()}
-          </Button>
+          {/* Show Deposit/Withdraw button when amount is entered, otherwise show Adjust Leverage */}
+          {isLeverageDisabled ? (
+            <Button
+              onClick={onDepositWithdraw}
+              disabled={
+                isProcessing ||
+                isWithdrawing ||
+                !walletData.isWalletConnected ||
+                !hasUserInteraction
+              }
+              variant='default'
+              gradientColor={strategy.collateralAsset.brandColor}
+              className='flex-1 shadow-md hover:shadow-lg'
+            >
+              {getDepositWithdrawButtonText(isProcessing, depositWithdrawMode)}
+            </Button>
+          ) : (
+            <Button
+              onClick={onModifyLeverage}
+              disabled={
+                isProcessing ||
+                isWithdrawing ||
+                isFetchingRoute ||
+                isCalculatingPositions ||
+                !walletData.isWalletConnected ||
+                !hasUserInteraction ||
+                (strategy.maxLeverage !== undefined && targetLeverage > strategy.maxLeverage)
+              }
+              variant='default'
+              className='flex-1 shadow-md hover:shadow-lg'
+            >
+              {getAdjustButtonText(
+                strategy.maxLeverage,
+                targetLeverage,
+                isFetchingRoute,
+                isProcessing,
+                hasUserInteraction,
+                isLeverageDisabled,
+              )}
+            </Button>
+          )}
           <Button
             onClick={onClosePosition}
             disabled={isProcessing || isWithdrawing || !walletData.isWalletConnected || isClosing}
@@ -274,22 +382,29 @@ export function StrategyFormPanel({
         </div>
       ) : (
         <Button
-          onClick={!walletData.isWalletConnected ? connect : onDeploy}
-          disabled={
-            isProcessing ||
-            isWithdrawing ||
-            isFetchingRoute ||
-            isCalculatingPositions ||
-            (walletData.isWalletConnected &&
-              (!hasValidAmount ||
-                hasInsufficientBalance ||
-                hasInsufficientLiquidity ||
-                (strategy.maxLeverage !== undefined && multiplier > strategy.maxLeverage)))
-          }
+          onClick={walletData.isWalletConnected ? onDeploy : connect}
+          disabled={isDeployButtonDisabled({
+            isProcessing,
+            isWithdrawing,
+            isFetchingRoute,
+            isCalculatingPositions,
+            isWalletConnected: walletData.isWalletConnected,
+            hasValidAmount,
+            hasInsufficientBalance,
+            hasInsufficientLiquidity,
+            maxLeverage: strategy.maxLeverage,
+            multiplier,
+          })}
           variant='default'
           className='w-full'
         >
-          {getDeployButtonText()}
+          {getDeployButtonText(
+            walletData.isWalletConnected,
+            strategy.maxLeverage,
+            multiplier,
+            isFetchingRoute,
+            isProcessing,
+          )}
         </Button>
       )}
 

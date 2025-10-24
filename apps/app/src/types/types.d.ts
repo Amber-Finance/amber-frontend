@@ -844,12 +844,24 @@ interface SwapTransactionConfig {
   slippage?: number
 }
 
+interface StrategyAccountDepositConfig extends BaseTransactionConfig {
+  type: 'strategy_account_deposit'
+  accountId: string
+}
+
+interface StrategyAccountWithdrawConfig extends BaseTransactionConfig {
+  type: 'strategy_account_withdraw'
+  accountId: string
+}
+
 type TransactionConfig =
   | DepositConfig
-  | WithdrawConfig  
+  | WithdrawConfig
   | BorrowConfig
   | RepayConfig
   | SwapTransactionConfig
+  | StrategyAccountDepositConfig
+  | StrategyAccountWithdrawConfig
   | StrategyParams
   | ModifyLeverageConfig
   | DeployStrategyConfig

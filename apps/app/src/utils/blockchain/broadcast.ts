@@ -45,7 +45,7 @@ const createSwapAction = (config: {
   slippage: string
   routeInfo: SwapRouteInfo
 }) => {
-  const slippageNum = parseFloat(config.slippage)
+  const slippageNum = Number.parseFloat(config.slippage)
   const minReceive = getMinAmountOutFromRouteInfo(config.routeInfo, slippageNum)
     .integerValue()
     .toString()
@@ -171,6 +171,12 @@ const generateSuccessMessage = (config: TransactionConfig): string => {
     case 'withdraw':
       return `Successfully withdrew ${config.amount} ${config.symbol || config.denom}`
 
+    case 'strategy_account_deposit':
+      return `Successfully deposited ${config.amount} ${config.symbol || config.denom} to strategy`
+
+    case 'strategy_account_withdraw':
+      return `Successfully withdrew ${config.amount} ${config.symbol || config.denom} from strategy`
+
     case 'borrow':
       return `Successfully borrowed ${config.amount} ${config.symbol || config.denom}`
 
@@ -188,6 +194,10 @@ const generateSuccessMessage = (config: TransactionConfig): string => {
 const generateTrackingEvent = (config: TransactionConfig): string => {
   if (config.type === 'strategy') {
     return `strategy_${config.strategyType}`
+  } else if (config.type === 'strategy_account_deposit') {
+    return 'strategy_deposit_success'
+  } else if (config.type === 'strategy_account_withdraw') {
+    return 'strategy_withdraw_success'
   } else {
     return `${config.type}_success`
   }
@@ -435,11 +445,83 @@ export function useBroadcast() {
     }
   }
 
+  const executeStrategyAccountDeposit = async (config: StrategyAccountDepositConfig) => {
+    const client = await getWalletClient()
+
+    const formattedAmount = formatAmount(Number(config.amount), config.decimals)
+    const actions: Action[] = [
+      {
+        deposit: {
+          amount: formattedAmount,
+          denom: config.denom,
+        },
+      },
+    ]
+
+    const msg = {
+      update_credit_account: {
+        account_id: config.accountId,
+        actions,
+      },
+    }
+
+    const funds = [{ amount: formattedAmount, denom: config.denom }]
+
+    await client.execute(
+      address!,
+      chainConfig.contracts.creditManager,
+      msg,
+      'auto',
+      undefined,
+      funds,
+    )
+
+    return {
+      successMessage: generateSuccessMessage(config),
+      trackingEvent: generateTrackingEvent(config),
+    }
+  }
+
+  const executeStrategyAccountWithdraw = async (config: StrategyAccountWithdrawConfig) => {
+    const client = await getWalletClient()
+
+    const formattedAmount = formatAmount(Number(config.amount), config.decimals)
+    const actions: Action[] = [
+      {
+        withdraw_to_wallet: {
+          coin: {
+            denom: config.denom,
+            amount: { exact: formattedAmount },
+          },
+          recipient: address!,
+        },
+      },
+    ]
+
+    const msg = {
+      update_credit_account: {
+        account_id: config.accountId,
+        actions,
+      },
+    }
+
+    await client.execute(address!, chainConfig.contracts.creditManager, msg, 'auto')
+
+    return {
+      successMessage: generateSuccessMessage(config),
+      trackingEvent: generateTrackingEvent(config),
+    }
+  }
+
   const createExecutor = (config: TransactionConfig) => {
     const executorMap = {
       // Strategy operations (Credit Manager contract)
       modify_leverage: () => executeModifyLeverage(config as ModifyLeverageConfig),
       strategy: () => executeStrategy(config as StrategyParams),
+      strategy_account_deposit: () =>
+        executeStrategyAccountDeposit(config as StrategyAccountDepositConfig),
+      strategy_account_withdraw: () =>
+        executeStrategyAccountWithdraw(config as StrategyAccountWithdrawConfig),
 
       // Red Bank operations (Red Bank contract)
       deposit: () => executeDeposit(config as DepositConfig),
@@ -471,6 +553,16 @@ export function useBroadcast() {
         `activeStrategies-${address}`,
       ],
       strategy: [
+        `${address}/positions`,
+        `${address}/credit-accounts`,
+        `activeStrategies-${address}`,
+      ],
+      strategy_account_deposit: [
+        `${address}/positions`,
+        `${address}/credit-accounts`,
+        `activeStrategies-${address}`,
+      ],
+      strategy_account_withdraw: [
         `${address}/positions`,
         `${address}/credit-accounts`,
         `activeStrategies-${address}`,
@@ -551,5 +643,7 @@ export function useBroadcast() {
     executeBorrow,
     executeRepay,
     executeSwap,
+    executeStrategyAccountDeposit,
+    executeStrategyAccountWithdraw,
   }
 }

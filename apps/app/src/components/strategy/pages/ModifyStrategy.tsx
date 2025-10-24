@@ -9,7 +9,7 @@ import { BigNumber } from 'bignumber.js'
 import { ArrowLeft } from 'lucide-react'
 
 import { StrategyFormPanel } from '@/components/strategy/StrategyFormPanel'
-import { StrategyHeader } from '@/components/strategy/StrategyHeader'
+import { ModifyTab, StrategyHeader } from '@/components/strategy/StrategyHeader'
 import { StrategyDisplayPanel } from '@/components/strategy/display/StrategyDisplayPanel'
 import {
   createDisplayValues,
@@ -22,10 +22,12 @@ import { useMaxBtcApy } from '@/hooks/market'
 import { useActiveStrategies } from '@/hooks/portfolio'
 import {
   useMarketData,
+  useStrategyAccountDepositWithdraw,
   useStrategyLeverageModification,
   useStrategyWithdrawal,
   useWalletData,
 } from '@/hooks/strategy'
+import { useWalletBalances } from '@/hooks/wallet'
 import { useStore } from '@/store/useStore'
 
 interface ModifyStrategyProps {
@@ -46,11 +48,17 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   // Keep cached swap route for consistency with DeployStrategy - may be used in future optimizations
   const [cachedSwapRouteInfo, setCachedSwapRouteInfo] = useState<SwapRouteInfo | null>(null)
+  // Deposit/Withdraw state
+  const [depositWithdrawAmount, setDepositWithdrawAmount] = useState('')
+  const [depositWithdrawMode, setDepositWithdrawMode] = useState<'deposit' | 'withdraw'>('deposit')
+  // Tab state for header
+  const [activeTab, setActiveTab] = useState<ModifyTab>('modify')
 
   const router = useRouter()
   const { address, connect } = useChain(chainConfig.name)
   const { markets } = useStore()
   const { apy: maxBtcApy, error: maxBtcError } = useMaxBtcApy()
+  const { data: walletBalances } = useWalletBalances()
 
   // Find active strategy for this collateral/debt pair
   const activeStrategy = useMemo(() => {
@@ -66,12 +74,12 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     if (!activeStrategy) return null
 
     // Your formulas:
-    // supplies = collateral - borrows (this is what user actually deposited)
-    const suppliesAmount =
+    // equity = collateral - borrows (this is what user actually deposited)
+    const equityAmount =
       activeStrategy.collateralAsset.amountFormatted - activeStrategy.debtAsset.amountFormatted
-    // leverage = collateral / supplies = collateral / (collateral - borrows)
+    // leverage = collateral / equity = collateral / (collateral - borrows)
     const leverage =
-      suppliesAmount > 0 ? activeStrategy.collateralAsset.amountFormatted / suppliesAmount : 1
+      equityAmount > 0 ? activeStrategy.collateralAsset.amountFormatted / equityAmount : 1
 
     return {
       accountId: activeStrategy.accountId,
@@ -79,7 +87,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       collateralAmountFormatted: activeStrategy.collateralAsset.amountFormatted,
       debtAmount: activeStrategy.debtAsset.amount,
       debtAmountFormatted: activeStrategy.debtAsset.amountFormatted,
-      suppliesAmount, // collateral - borrows
+      equityAmount: equityAmount, // collateral - borrows
       leverage, // collateral / (collateral - borrows)
     }
   }, [activeStrategy])
@@ -89,6 +97,12 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   const collateralSupplyApy = effectiveMaxBtcApy / 100
   const isDataLoading = !markets || markets.length === 0 || maxBtcApy === null
 
+  // Check if user has entered a deposit/withdraw amount
+  const hasDepositWithdrawAmount = useMemo(() => {
+    const amount = Number.parseFloat(depositWithdrawAmount || '0')
+    return amount > 0
+  }, [depositWithdrawAmount])
+
   // Initialize target leverage from current position
   useEffect(() => {
     if (strategyAccountData && !hasInitialized && strategyAccountData.leverage > 0) {
@@ -96,6 +110,30 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       setHasInitialized(true)
     }
   }, [strategyAccountData, hasInitialized])
+
+  // Reset target leverage to current when deposit/withdraw amount is entered
+  useEffect(() => {
+    if (hasDepositWithdrawAmount && strategyAccountData) {
+      setTargetLeverage(strategyAccountData.leverage)
+    }
+  }, [hasDepositWithdrawAmount, strategyAccountData])
+
+  // Clear state when switching tabs (only when tab actually changes)
+  useEffect(() => {
+    // Clear deposit/withdraw amount
+    setDepositWithdrawAmount('')
+    // Reset target leverage to current when switching tabs
+    if (strategyAccountData) {
+      setTargetLeverage(strategyAccountData.leverage)
+    }
+    // Update depositWithdrawMode based on activeTab
+    if (activeTab === 'deposit') {
+      setDepositWithdrawMode('deposit')
+    } else if (activeTab === 'withdraw') {
+      setDepositWithdrawMode('withdraw')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
 
   // Track wallet connection status and redirect if disconnected
   useEffect(() => {
@@ -109,26 +147,65 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     }
   }, [address, wasWalletConnected, router, strategy])
 
-  // Check if user has made changes
-  const hasUserInteraction = useMemo(() => {
+  // Check if user has made leverage changes (excluding deposit/withdraw mode)
+  const hasLeverageChange = useMemo(() => {
     if (!strategyAccountData) return false
-    // Don't consider it user interaction if targetLeverage is 0 (not yet initialized)
     if (targetLeverage === 0) return false
     return Math.abs(targetLeverage - strategyAccountData.leverage) > 0.01
   }, [strategyAccountData, targetLeverage])
 
+  // Check if user has made changes (either leverage or deposit/withdraw)
+  const hasUserInteraction = useMemo(() => {
+    // In deposit/withdraw mode, only count that as interaction
+    if (hasDepositWithdrawAmount) return true
+    // Otherwise check for leverage changes
+    return hasLeverageChange
+  }, [hasDepositWithdrawAmount, hasLeverageChange])
+
   // Market data
   const marketData = useMarketData(strategy, markets)
-  const walletData = useWalletData(strategy, [], address)
+  const walletData = useWalletData(strategy, walletBalances || [], address)
 
-  // Debounce the target leverage with 2 second delay to track calculation state
-  const { debouncedValue: debouncedTargetLeverage, isDebouncing: isCalculatingPositions } =
+  // Debounce the target leverage AND deposit/withdraw amount with 2 second delay
+  const { debouncedValue: debouncedTargetLeverage, isDebouncing: isLeverageDebouncing } =
     useDebounceWithStatus(targetLeverage, 2000)
+  const { debouncedValue: debouncedDepositWithdrawAmount, isDebouncing: isAmountDebouncing } =
+    useDebounceWithStatus(depositWithdrawAmount, 2000)
 
-  // Position calculations using debounced values
-  const effectiveLeverage = hasUserInteraction
-    ? debouncedTargetLeverage
-    : strategyAccountData?.leverage || targetLeverage || 2
+  const isCalculatingPositions = isLeverageDebouncing || isAmountDebouncing
+
+  // Calculate effective leverage based on whether user is depositing/withdrawing or adjusting leverage
+  const effectiveLeverage = useMemo(() => {
+    if (!strategyAccountData) return targetLeverage || 2
+
+    // If user has entered deposit/withdraw amount, calculate leverage based on updated position
+    if (hasDepositWithdrawAmount) {
+      const dwAmount = Number.parseFloat(debouncedDepositWithdrawAmount || '0')
+      const currentCollateral = strategyAccountData.collateralAmountFormatted
+      const currentDebt = strategyAccountData.debtAmountFormatted
+
+      const newCollateral =
+        depositWithdrawMode === 'deposit'
+          ? currentCollateral + dwAmount
+          : currentCollateral - dwAmount
+
+      // Calculate new leverage: collateral / (collateral - debt)
+      const newEquity = newCollateral - currentDebt
+      if (newEquity <= 0) return 1
+      return newCollateral / newEquity
+    }
+
+    // Otherwise use target leverage if changed
+    return hasUserInteraction ? debouncedTargetLeverage : strategyAccountData.leverage
+  }, [
+    strategyAccountData,
+    hasDepositWithdrawAmount,
+    debouncedDepositWithdrawAmount,
+    depositWithdrawMode,
+    hasUserInteraction,
+    debouncedTargetLeverage,
+    targetLeverage,
+  ])
 
   // Custom position calculations for modify mode
   const positionCalcs = useMemo(() => {
@@ -145,23 +222,31 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       }
     }
 
-    const suppliesAmount = strategyAccountData.suppliesAmount || 0
+    let equityAmount = strategyAccountData.equityAmount || 0
     const currentCollateral = strategyAccountData.collateralAmountFormatted
     const currentBorrows = strategyAccountData.debtAmountFormatted
 
+    // Adjust equity if depositing/withdrawing
+    if (hasDepositWithdrawAmount) {
+      const dwAmount = Number.parseFloat(debouncedDepositWithdrawAmount || '0')
+      equityAmount =
+        depositWithdrawMode === 'deposit' ? equityAmount + dwAmount : equityAmount - dwAmount
+    }
+
     // Calculate target position
-    const targetTotalCollateral = suppliesAmount * effectiveLeverage
-    const targetBorrows = targetTotalCollateral - suppliesAmount
+    const targetTotalCollateral = equityAmount * effectiveLeverage
+    const targetBorrows = targetTotalCollateral - equityAmount
 
     // For modify mode, borrowAmount represents the CHANGE needed:
     // - Positive: additional amount to borrow (leverage increase)
     // - Negative: amount to repay by swapping collateral (leverage decrease)
-    const borrowAmountChange = targetBorrows - currentBorrows
+    // When depositing/withdrawing, no swaps happen, so borrowAmount should be 0
+    const borrowAmountChange = hasDepositWithdrawAmount ? 0 : targetBorrows - currentBorrows
 
     // Calculate APY based on target position
     const leveragedApy =
       effectiveLeverage * collateralSupplyApy - (effectiveLeverage - 1) * marketData.debtBorrowApy
-    const estimatedYearlyEarnings = suppliesAmount * leveragedApy
+    const estimatedYearlyEarnings = equityAmount * leveragedApy
 
     return {
       borrowAmount: Math.abs(borrowAmountChange), // Always positive for swap calculations
@@ -178,9 +263,17 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       borrowAmountChange, // Signed value indicating direction
       isLeverageIncrease: borrowAmountChange > 0,
       totalBorrows: targetBorrows, // Total target borrows (not the change)
-      supplies: suppliesAmount, // User's actual supply amount (for ExistingPositionOverviewCard)
+      supplies: equityAmount, // User's actual equity amount (for ExistingPositionOverviewCard)
     }
-  }, [strategyAccountData, effectiveLeverage, collateralSupplyApy, marketData.debtBorrowApy])
+  }, [
+    strategyAccountData,
+    effectiveLeverage,
+    collateralSupplyApy,
+    marketData.debtBorrowApy,
+    hasDepositWithdrawAmount,
+    debouncedDepositWithdrawAmount,
+    depositWithdrawMode,
+  ])
 
   // Display values
   const displayValues = createDisplayValues(
@@ -231,7 +324,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     strategy.collateralAsset.denom,
     strategy.debtAsset.denom,
     strategyAccountData?.leverage,
-    strategyAccountData?.suppliesAmount,
+    strategyAccountData?.equityAmount,
   ])
 
   // Use health computer hook for existing position
@@ -243,6 +336,12 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     isProcessing: isWithdrawing,
     isFetchingRoute: isFetchingCloseRoute,
   } = useStrategyWithdrawal()
+
+  // Add deposit/withdraw hook
+  const depositWithdrawHook = useStrategyAccountDepositWithdraw({
+    activeStrategy,
+    accountId: strategyAccountData?.accountId || '',
+  })
 
   // Helper functions
   const getEstimatedEarningsUsd = useCallback(() => {
@@ -293,9 +392,9 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     if (!activeStrategy || !strategyAccountData) return updatedPositions
 
     // Calculate new collateral and debt amounts based on effective leverage (debounced)
-    const suppliesAmount = strategyAccountData.suppliesAmount || 0
-    const targetTotalCollateral = suppliesAmount * effectiveLeverage
-    const targetDebtAmount = targetTotalCollateral - suppliesAmount
+    const equityAmount = strategyAccountData.equityAmount || 0
+    const targetTotalCollateral = equityAmount * effectiveLeverage
+    const targetDebtAmount = targetTotalCollateral - equityAmount
 
     // Ensure debt amount is not negative
     const safeTargetDebtAmount = Math.max(0, targetDebtAmount)
@@ -413,7 +512,43 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     } finally {
       setIsClosing(false)
     }
-  }, [activeStrategy, withdrawFullStrategy, router])
+  }, [activeStrategy, withdrawFullStrategy, router, slippage])
+
+  const handleDepositWithdraw = useCallback(async () => {
+    if (!activeStrategy || !strategyAccountData) return
+
+    setIsProcessing(true)
+    try {
+      const amount = depositWithdrawAmount
+      const denom = strategy.collateralAsset.denom
+      const decimals = strategy.collateralAsset.decimals
+      const symbol = strategy.collateralAsset.symbol
+
+      let result
+      if (depositWithdrawMode === 'deposit') {
+        result = await depositWithdrawHook.depositToStrategy(amount, denom, decimals, symbol)
+      } else {
+        result = await depositWithdrawHook.withdrawFromStrategy(amount, denom, decimals, symbol)
+      }
+
+      if (result.success) {
+        // Clear the deposit/withdraw amount
+        setDepositWithdrawAmount('')
+        // Optionally redirect or show success message
+      }
+    } catch (error) {
+      console.error('Deposit/Withdraw failed:', error)
+    } finally {
+      setIsProcessing(false)
+    }
+  }, [
+    activeStrategy,
+    strategyAccountData,
+    depositWithdrawAmount,
+    depositWithdrawMode,
+    depositWithdrawHook,
+    strategy.collateralAsset,
+  ])
 
   // If no strategy account found, show error
   if (!isDataLoading && !activeStrategy) {
@@ -457,6 +592,8 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
         currentLeverage={strategyAccountData?.leverage}
         targetLeverage={hasUserInteraction ? targetLeverage : strategyAccountData?.leverage}
         isLoading={isDataLoading}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
       <div className='flex flex-col lg:flex-row gap-4 lg:gap-6'>
@@ -473,7 +610,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           getEstimatedEarningsUsd={getEstimatedEarningsUsd}
           healthFactor={simulatedHealthFactor || computedHealthFactor || 0}
           existingHealthFactor={computedHealthFactor}
-          currentAmount={strategyAccountData?.suppliesAmount || 0}
+          currentAmount={strategyAccountData?.equityAmount || 0}
           multiplier={effectiveLeverage}
           isLoading={isDataLoading}
           swapRouteInfo={cachedSwapRouteInfo}
@@ -485,7 +622,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
         <StrategyFormPanel
           strategy={strategy}
           mode='modify'
-          collateralAmount={strategyAccountData?.suppliesAmount?.toString() || ''}
+          collateralAmount={strategyAccountData?.equityAmount?.toString() || ''}
           setCollateralAmount={() => {}} // Not used in modify mode
           multiplier={effectiveLeverage} // Not used in modify mode
           setMultiplier={() => {}} // Not used in modify mode
@@ -493,6 +630,11 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           setTargetLeverage={setTargetLeverage}
           slippage={slippage}
           setSlippage={setSlippage}
+          depositWithdrawAmount={depositWithdrawAmount}
+          setDepositWithdrawAmount={setDepositWithdrawAmount}
+          depositWithdrawMode={depositWithdrawMode}
+          setDepositWithdrawMode={setDepositWithdrawMode}
+          activeTab={activeTab}
           activeStrategy={activeStrategy}
           displayValues={displayValues}
           walletData={walletData}
@@ -515,8 +657,9 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           onSwapLoadingChange={handleSwapLoadingChange}
           onModifyLeverage={handleLeverageModification}
           onClosePosition={handleClosePosition}
+          onDepositWithdraw={handleDepositWithdraw}
           getAvailableLiquidityDisplay={getAvailableLiquidityDisplay}
-          isProcessing={isProcessing}
+          isProcessing={isProcessing || depositWithdrawHook.isProcessing}
           isClosing={isClosing}
           isWithdrawing={isWithdrawing}
           isFetchingRoute={isFetchingLeverageRoute || isFetchingCloseRoute || isSwapLoading}

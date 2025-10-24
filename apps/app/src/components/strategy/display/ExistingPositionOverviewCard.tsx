@@ -16,7 +16,7 @@ interface PositionOverviewCardProps {
     totalPosition: number
     borrowAmount: number
     estimatedYearlyEarnings: number
-    supplies?: number // Net supplies (user's actual deposit)
+    supplies?: number // Net equity (user's actual deposit minus debt)
   }
   getEstimatedEarningsUsd: () => string
   healthFactor: number
@@ -37,15 +37,16 @@ export function ExistingPositionOverviewCard({
     return null
   }
 
-  // Calculate position components
-  const netSupplies =
-    positionCalcs.supplies ||
-    activeStrategy.collateralAsset.amountFormatted - activeStrategy.debtAsset.amountFormatted
+  // Calculate position components - STATIC, based only on existing position
   const netCollateral = activeStrategy.collateralAsset.amountFormatted
   const netBorrowed = activeStrategy.debtAsset.amountFormatted
-  // netPosition derived as netCollateral - netBorrowed but not used currently
+  const netEquity = netCollateral - netBorrowed
 
   const currentPrice = marketData?.currentPrice || 0
+
+  // Calculate static estimated earnings from existing position only
+  const existingEstimatedEarnings =
+    (activeStrategy.collateralAsset.amountFormatted * activeStrategy.netApy) / 100
 
   return (
     <InfoCard title='Existing Position Overview'>
@@ -109,13 +110,13 @@ export function ExistingPositionOverviewCard({
               <Separator className='my-2' />
 
               <div className='flex justify-between items-center text-xs'>
-                <span className='text-muted-foreground'>Net Supplies</span>
+                <span className='text-muted-foreground font-semibold'>Your Equity</span>
                 <div className='text-right'>
-                  <div className='font-medium text-foreground'>
-                    {netSupplies.toFixed(6)} {strategy.collateralAsset.symbol}
+                  <div className='font-semibold text-foreground'>
+                    {netEquity.toFixed(6)} {strategy.collateralAsset.symbol}
                   </div>
                   <div className='text-xs text-muted-foreground'>
-                    ~${(netSupplies * currentPrice).toFixed(2)}
+                    ~${(netEquity * currentPrice).toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -125,14 +126,14 @@ export function ExistingPositionOverviewCard({
           <div className='space-y-2'>
             <div
               className={`p-2 rounded-lg border ${
-                positionCalcs.estimatedYearlyEarnings >= 0
+                existingEstimatedEarnings >= 0
                   ? 'bg-emerald-500/10 border-emerald-500/20 dark:bg-emerald-900/20 dark:border-emerald-700/30'
                   : 'bg-red-500/10 border-red-500/20 dark:bg-red-900/20 dark:border-red-700/30'
               }`}
             >
               <div
                 className={`text-xs font-medium mb-1 ${
-                  positionCalcs.estimatedYearlyEarnings >= 0
+                  existingEstimatedEarnings >= 0
                     ? 'text-emerald-700 dark:text-emerald-400'
                     : 'text-red-700 dark:text-red-400'
                 }`}
@@ -140,46 +141,26 @@ export function ExistingPositionOverviewCard({
                 Est. Annual Earnings
               </div>
               <div
-                className={`font-semibold text-sm ${(() => {
-                  const isPositive = activeStrategy
-                    ? activeStrategy.netApy > 0
-                    : positionCalcs.estimatedYearlyEarnings >= 0
-                  return isPositive
+                className={`font-semibold text-sm ${
+                  activeStrategy.netApy >= 0
                     ? 'text-emerald-600 dark:text-emerald-300'
                     : 'text-red-600 dark:text-red-300'
-                })()}`}
+                }`}
               >
-                {activeStrategy ? (
-                  <>
-                    {activeStrategy.netApy > 0 ? '+' : ''}
-                    {(
-                      (activeStrategy.collateralAsset.amountFormatted * activeStrategy.netApy) /
-                      100
-                    ).toFixed(6)}{' '}
-                    {strategy.collateralAsset.symbol}
-                  </>
-                ) : (
-                  <>
-                    {positionCalcs.estimatedYearlyEarnings >= 0 ? '+' : ''}
-                    {positionCalcs.estimatedYearlyEarnings.toFixed(6)}{' '}
-                    {strategy.collateralAsset.symbol}
-                  </>
-                )}
+                {activeStrategy.netApy > 0 ? '+' : ''}
+                {existingEstimatedEarnings.toFixed(6)} {strategy.collateralAsset.symbol}
               </div>
               <div
-                className={`text-xs ${(() => {
-                  const isPositive = activeStrategy
-                    ? activeStrategy.netApy > 0
-                    : positionCalcs.estimatedYearlyEarnings >= 0
-                  return isPositive
+                className={`text-xs ${
+                  activeStrategy.netApy >= 0
                     ? 'text-emerald-600/80 dark:text-emerald-400/80'
                     : 'text-red-600/80 dark:text-red-400/80'
-                })()}`}
+                }`}
               >
-                ~
-                {activeStrategy
-                  ? `$${((activeStrategy.collateralAsset.usdValue * activeStrategy.netApy) / 100).toFixed(2)}`
-                  : getEstimatedEarningsUsd()}
+                ~$
+                {((activeStrategy.collateralAsset.usdValue * activeStrategy.netApy) / 100).toFixed(
+                  2,
+                )}
               </div>
             </div>
 
@@ -188,12 +169,18 @@ export function ExistingPositionOverviewCard({
                 <span className='text-muted-foreground'>Net APY</span>
                 <span
                   className={`font-medium ${
-                    activeStrategy && activeStrategy.netApy >= 0
+                    activeStrategy.netApy >= 0
                       ? 'text-emerald-600 dark:text-emerald-400'
                       : 'text-red-600 dark:text-red-400'
                   }`}
                 >
-                  {activeStrategy ? `${activeStrategy.netApy.toFixed(2)}%` : 'N/A'}
+                  {activeStrategy.netApy.toFixed(2)}%
+                </span>
+              </div>
+              <div className='flex justify-between items-center'>
+                <span className='text-muted-foreground'>Leverage</span>
+                <span className='font-medium text-foreground'>
+                  {(netEquity > 0 ? netCollateral / netEquity : 1).toFixed(2)}x
                 </span>
               </div>
               <div className='flex justify-between items-center'>

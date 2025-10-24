@@ -32,18 +32,24 @@ export default function useSwapRoute({
   const [swapError, setSwapError] = useState<Error | null>(null)
 
   useEffect(() => {
-    if (!enabled) return
+    if (!enabled) {
+      setSwapRouteInfo(null)
+      setIsSwapLoading(false)
+      return
+    }
+
+    // Set loading immediately so indicator shows right away
+    setIsSwapLoading(true)
+    setSwapError(null)
 
     let cancelled = false
 
     const fetchRoute = async () => {
       if (!borrowAmountForSwap || borrowAmountForSwap <= 0) {
         setSwapRouteInfo(null)
+        setIsSwapLoading(false)
         return
       }
-
-      setIsSwapLoading(true)
-      setSwapError(null)
 
       try {
         const { BigNumber: BN } = await import('bignumber.js')

@@ -81,11 +81,10 @@ export function SimulatedPositionOverview({
   const hasExistingPosition = !!activeStrategy
   const isModifying = hasExistingPosition
 
-  // Loading state - single skeleton for all data
-  if (
-    showSwapDetails &&
-    (isCalculatingPositions || isSwapLoading || (!swapRouteInfo && !swapError))
-  ) {
+  // Loading state - show skeleton whenever calculating or fetching swap route
+  const shouldShowSkeleton = isCalculatingPositions || isSwapLoading
+
+  if (shouldShowSkeleton) {
     return (
       <InfoCard title={isModifying ? 'Position Overview' : 'Projected Position'}>
         <div className='space-y-4'>
@@ -102,8 +101,8 @@ export function SimulatedPositionOverview({
     )
   }
 
-  // Don't render if no swap details to show
-  if (!showSwapDetails || !swapRouteInfo) {
+  // When showing swap details, require swapRouteInfo or error
+  if (showSwapDetails && !swapRouteInfo && !swapError) {
     return null
   }
 
@@ -111,18 +110,20 @@ export function SimulatedPositionOverview({
   const priceImpact = swapRouteInfo?.priceImpact?.toNumber() || 0
 
   // Current position values (for modify mode)
-  const currentCollateral = hasExistingPosition
-    ? activeStrategy!.collateralAsset.amountFormatted
-    : 0
-  const currentBorrowed = hasExistingPosition ? activeStrategy!.debtAsset.amountFormatted : 0
+  const currentCollateral = hasExistingPosition ? activeStrategy.collateralAsset.amountFormatted : 0
+  const currentBorrowed = hasExistingPosition ? activeStrategy.debtAsset.amountFormatted : 0
   const currentSupplies = hasExistingPosition
     ? positionCalcs.supplies ||
-      activeStrategy!.collateralAsset.amountFormatted - activeStrategy!.debtAsset.amountFormatted
+      activeStrategy.collateralAsset.amountFormatted - activeStrategy.debtAsset.amountFormatted
     : initialCollateralAmount
 
   // Projected/final position values
   const projectedCollateral = positionCalcs.totalPosition
-  const projectedBorrowed = positionCalcs.borrowAmount
+  // For deposit/withdraw mode, borrows stay the same; for leverage changes, use calculated borrow
+  const projectedBorrowed =
+    positionCalcs.supplies || initialCollateralAmount
+      ? projectedCollateral - (positionCalcs.supplies || initialCollateralAmount)
+      : projectedCollateral
   const projectedSupplies = projectedCollateral - projectedBorrowed
 
   // Calculate changes (deltas)
@@ -134,62 +135,66 @@ export function SimulatedPositionOverview({
   return (
     <InfoCard title={isModifying ? 'New Position After Adjustment' : 'Projected Position'}>
       <div className='space-y-3'>
-        {/* Swap Transaction Details */}
-        <div className='space-y-2'>
-          <div className='text-xs font-medium uppercase tracking-wider'>Transaction Details</div>
+        {/* Swap Transaction Details - Only show when swapping */}
+        {showSwapDetails && swapRouteInfo && (
+          <>
+            <div className='space-y-2'>
+              <div className='text-xs font-medium uppercase tracking-wider'>
+                Transaction Details
+              </div>
+              <div className='space-y-1.5'>
+                {/* What's being swapped */}
+                <div className='flex justify-between items-center text-xs'>
+                  <span className='text-muted-foreground'>
+                    {isLeverageIncrease ? 'Borrow to be swapped' : 'Collateral to be swapped'}
+                  </span>
+                  <TokenBalance
+                    coin={{
+                      denom: isLeverageIncrease
+                        ? strategy.debtAsset.denom
+                        : strategy.collateralAsset.denom,
+                      amount: swapRouteInfo?.amountIn?.toString() || '0',
+                    }}
+                    size='xs'
+                    align='right'
+                  />
+                </div>
 
-          <div className='space-y-1.5'>
-            {/* What's being swapped */}
-            <div className='flex justify-between items-center text-xs'>
-              <span className='text-muted-foreground'>
-                {isLeverageIncrease ? 'Borrow to be swapped' : 'Collateral to be swapped'}
-              </span>
-              <TokenBalance
-                coin={{
-                  denom: isLeverageIncrease
-                    ? strategy.debtAsset.denom
-                    : strategy.collateralAsset.denom,
-                  amount: swapRouteInfo.amountIn?.toString() || '0',
-                }}
-                size='xs'
-                align='right'
-              />
+                {/* What you receive */}
+                <div className='flex justify-between items-center text-xs'>
+                  <span className='text-muted-foreground'>
+                    {isLeverageIncrease ? 'Added Collateral' : 'Debt Repayment'}
+                  </span>
+                  <TokenBalance
+                    coin={{
+                      denom: isLeverageIncrease
+                        ? strategy.collateralAsset.denom
+                        : strategy.debtAsset.denom,
+                      amount: swapRouteInfo?.amountOut.toString() || '0',
+                    }}
+                    size='xs'
+                    align='right'
+                  />
+                </div>
+
+                {/* Price Impact */}
+                <div className='flex justify-between items-center text-xs'>
+                  <span className='text-muted-foreground'>Price Impact</span>
+                  <span className={getPriceImpactColor(priceImpact)}>
+                    {priceImpact > 0 && '+'}
+                    <FormattedValue
+                      value={priceImpact}
+                      maxDecimals={2}
+                      suffix='%'
+                      useCompactNotation={false}
+                    />
+                  </span>
+                </div>
+              </div>
             </div>
-
-            {/* What you receive */}
-            <div className='flex justify-between items-center text-xs'>
-              <span className='text-muted-foreground'>
-                {isLeverageIncrease ? 'Added Collateral' : 'Debt Repayment'}
-              </span>
-              <TokenBalance
-                coin={{
-                  denom: isLeverageIncrease
-                    ? strategy.collateralAsset.denom
-                    : strategy.debtAsset.denom,
-                  amount: swapRouteInfo.amountOut.toString(),
-                }}
-                size='xs'
-                align='right'
-              />
-            </div>
-
-            {/* Price Impact */}
-            <div className='flex justify-between items-center text-xs'>
-              <span className='text-muted-foreground'>Price Impact</span>
-              <span className={getPriceImpactColor(priceImpact)}>
-                {priceImpact > 0 && '+'}
-                <FormattedValue
-                  value={priceImpact}
-                  maxDecimals={2}
-                  suffix='%'
-                  useCompactNotation={false}
-                />
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <Separator />
+            <Separator />
+          </>
+        )}
 
         {/* Final Position Breakdown */}
         <div className='space-y-2'>
@@ -215,6 +220,9 @@ export function SimulatedPositionOverview({
                   />
                   {isModifying && <ChangeIndicator value={collateralChange} />}
                 </div>
+                <div className='text-xs text-muted-foreground'>
+                  ~{displayValues.usdValue(projectedCollateral)}
+                </div>
               </div>
             </div>
 
@@ -235,17 +243,48 @@ export function SimulatedPositionOverview({
                   />
                   {isModifying && <ChangeIndicator value={borrowChange} />}
                 </div>
+                <div className='text-xs text-muted-foreground'>
+                  ~{displayValues.usdValue(projectedBorrowed * (marketData?.currentPrice || 1))}
+                </div>
               </div>
             </div>
 
-            {/* Net Position (Your Supplies) */}
+            {/* Separator before equity */}
+            <Separator className='my-2' />
+
+            {/* Net Position (Your Equity) */}
             <div className='flex justify-between items-center text-xs'>
-              <span className='text-muted-foreground font-medium'>Your Supplies (Net)</span>
+              <span className='text-muted-foreground font-semibold'>Your Equity</span>
               <div className='text-right'>
                 <div className='font-semibold text-foreground flex items-center justify-end'>
-                  {projectedSupplies.toFixed(6)} {strategy.collateralAsset.symbol}
+                  <TokenBalance
+                    coin={{
+                      denom: strategy.collateralAsset.denom,
+                      amount: new BigNumber(projectedSupplies)
+                        .shiftedBy(strategy.collateralAsset.decimals || 8)
+                        .toString(),
+                    }}
+                    size='xs'
+                    align='right'
+                  />
                   {isModifying && <ChangeIndicator value={suppliesChange} />}
                 </div>
+                <div className='text-xs text-muted-foreground'>
+                  ~{displayValues.usdValue(projectedSupplies)}
+                </div>
+              </div>
+            </div>
+
+            {/* Leverage */}
+            <div className='flex justify-between items-center text-xs'>
+              <span className='text-muted-foreground font-medium'>Leverage</span>
+              <div className='text-right'>
+                <span className='font-medium text-foreground'>
+                  {projectedSupplies > 0
+                    ? (projectedCollateral / projectedSupplies).toFixed(2)
+                    : '0.00'}
+                  x
+                </span>
               </div>
             </div>
           </div>
