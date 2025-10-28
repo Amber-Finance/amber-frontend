@@ -290,7 +290,7 @@ export const formatValue = (
 ): FormatMetadata => {
   const {
     isCurrency = false,
-    useCompactNotation = true,
+    useCompactNotation = false,
     significantDigits = 4,
     decimalPlaces = 2,
     smallValueThreshold = 0.0001,
