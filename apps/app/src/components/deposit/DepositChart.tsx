@@ -11,6 +11,7 @@ import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/data/finance'
+import { formatCurrency } from '@/utils/formatting/format'
 
 interface ChartProps {
   denom: string
@@ -124,7 +125,7 @@ export function DepositChart({ denom, brandColor, className }: ChartProps) {
     {
       yAxisId: 'tvl',
       orientation: 'right' as const,
-      tickFormatter: (value: string) => `$${value.toLocaleString()}`,
+      tickFormatter: (value: string) => formatCurrency()(parseFloat(value)),
     },
   ]
 

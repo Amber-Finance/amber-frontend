@@ -16,7 +16,7 @@ import { MAXBTC_DENOM } from '@/constants/query'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useMaxBtcData from '@/hooks/useMaxBtcData'
 import { formatChartDate } from '@/utils/chartDateFormatter'
-import { formatCompactCurrency, formatValue } from '@/utils/format'
+import { formatCompactCurrency, formatCurrency } from '@/utils/format'
 
 interface DailyData {
   date: string
@@ -336,12 +336,7 @@ export default function AllMarketsBarChart({ timeRange }: Props) {
                                   </span>
                                   <span className='font-medium tabular-nums text-foreground'>
                                     {entry.value && typeof entry.value === 'number'
-                                      ? (() => {
-                                          const formatted = formatValue(entry.value, {
-                                            isCurrency: true,
-                                          })
-                                          return formatted.prefix + formatted.value
-                                        })()
+                                      ? formatCurrency()(entry.value)
                                       : entry.value}
                                   </span>
                                 </div>

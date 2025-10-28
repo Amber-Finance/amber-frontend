@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import * as RechartsPrimitive from 'recharts'
 
-import { formatValue } from '@/utils/format'
+import { formatCurrency, formatValue } from '@/utils/format'
 import { cn } from '@/utils/ui'
 
 // Format: { THEME_NAME: CSS_SELECTOR }
@@ -237,8 +237,7 @@ const ChartTooltipContent = React.forwardRef<
                         <span className='font-medium tabular-nums text-foreground'>
                           {(() => {
                             if (isCurrency || item.dataKey === 'tvl') {
-                              const formatted = formatValue(item.value, { isCurrency: true })
-                              return formatted.prefix + formatted.value
+                              return formatCurrency()(item.value)
                             }
                             if (isPercentage || item.dataKey === 'supplyApr') {
                               const formatted = formatValue(item.value)
