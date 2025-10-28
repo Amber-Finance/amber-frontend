@@ -3,7 +3,7 @@ import { FETCH_TIMEOUT } from '@/constants/query'
 import { fetchWithTimeout } from '@/utils/fetch'
 import { getUrl } from '@/utils/url'
 
-export default async function getBtcApy(asset: string, days: number = 7) {
+export default async function getBtcSupplyApyHistorical(asset: string, days: number = 7) {
   //asset symbol
   try {
     const assetSymbol = asset.toLowerCase()
@@ -20,7 +20,7 @@ export default async function getBtcApy(asset: string, days: number = 7) {
 
     return data
   } catch (error) {
-    console.error('Could not fetch assets apy data.', error)
+    console.error('Could not fetch BTC supply APY historical data.', error)
     return null
   }
 }
