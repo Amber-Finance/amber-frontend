@@ -1,15 +1,13 @@
 import chainConfig from '@/config/chain'
 import { FETCH_TIMEOUT } from '@/constants/query'
-import { fetchWithTimeout } from '@/utils/fetch'
-import { getUrl } from '@/utils/url'
+import { fetchWithTimeout } from '@/utils/common/fetch'
+import { getUrl } from '@/utils/ui/url'
 
-export default async function getBtcApy(asset: string, days: number = 7) {
-  //asset symbol
+export default async function getMaxBtcHistoricalApy(days: number = 7) {
   try {
-    const assetSymbol = asset.toLowerCase()
     const url = getUrl(
       chainConfig.endpoints.amberBackend,
-      `/btc_apy_historical?chain=neutron&asset=${assetSymbol}&days=${days}`,
+      `/btc_apy_historical?chain=neutron&asset=maxbtc&days=${days}`,
     )
     const response = await fetchWithTimeout(url, FETCH_TIMEOUT)
 
