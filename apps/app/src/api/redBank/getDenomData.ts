@@ -6,7 +6,7 @@ import { getUrl } from '@/utils/ui/url'
 export default async function getDenomData(denom: string, days: number = 30) {
   try {
     const url = getUrl(
-      chainConfig.endpoints.redBank,
+      chainConfig.endpoints.amberBackend,
       `/redbank_denom_data?chain=neutron&denom=${denom}&days=${days}`,
     )
 

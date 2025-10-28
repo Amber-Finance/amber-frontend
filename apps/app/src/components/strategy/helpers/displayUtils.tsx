@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 
 import { formatBalance } from '@/hooks/strategy'
-import { formatCurrencyLegacy } from '@/utils/formatting/format'
+import { formatCurrency, formatCurrencyLegacy } from '@/utils/formatting/format'
 
 const formatUsd = (usd: number): string => formatCurrencyLegacy(usd, 2)
 
@@ -24,7 +24,7 @@ export const createDisplayValues = (
   return {
     walletBalance: getWalletBalance(),
     usdValue: (amount: number) => (currentPrice > 0 ? formatUsd(amount * currentPrice) : 'N/A'),
-    currentPrice: currentPrice > 0 ? `$${currentPrice.toLocaleString()}` : 'N/A',
+    currentPrice: currentPrice > 0 ? formatCurrency()(currentPrice) : 'N/A',
     supplyApy: `${Number(effectiveMaxBtcApy).toFixed(2)}%`,
     borrowApy: debtBorrowApy > 0 ? `${(debtBorrowApy * 100).toFixed(2)}%` : 'N/A',
   }

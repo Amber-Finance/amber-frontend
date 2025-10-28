@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import BaseAreaChart from '@/components/charts/BaseAreaChart'
 import ChartWrapper from '@/components/charts/ChartWrapper'
 import useMarketsData from '@/hooks/redBank/useMarketsData'
-import useBtcApy from '@/hooks/useBtcApy'
+import useBtcSupplyApyHistorical from '@/hooks/useBtcSupplyApyHistorical'
 import { formatChartDate } from '@/utils/chartDateFormatter'
 
 interface Props {
@@ -15,21 +15,24 @@ interface Props {
 export default function TokenApyLineChart({ selectedToken }: Props) {
   const [timeRange, setTimeRange] = useState('30')
   const { data: marketsData } = useMarketsData(selectedToken.denom, parseInt(timeRange))
-  const { data: btcApyData } = useBtcApy(selectedToken.symbol, parseInt(timeRange))
+  const { data: btcSupplyApy } = useBtcSupplyApyHistorical(
+    selectedToken.symbol,
+    parseInt(timeRange),
+  )
 
   const isMaxBtc = selectedToken.symbol.toLowerCase() === 'maxbtc'
 
   const chartData = useMemo(() => {
     if (isMaxBtc) {
       // Handle maxBTC APY data
-      if (!btcApyData?.data) {
+      if (!btcSupplyApy?.data) {
         return []
       }
 
       // Convert maxBTC APY data to chart format
-      const timestamps = Object.keys(btcApyData.data).sort()
+      const timestamps = Object.keys(btcSupplyApy.data).sort()
       return timestamps.map((timestamp) => {
-        const apyValue = btcApyData.data[timestamp]
+        const apyValue = btcSupplyApy.data[timestamp]
         const depositApy = parseFloat(apyValue || '0')
 
         return {
@@ -59,7 +62,7 @@ export default function TokenApyLineChart({ selectedToken }: Props) {
         }
       })
       .reverse()
-  }, [marketsData, selectedToken.denom, isMaxBtc, btcApyData])
+  }, [marketsData, selectedToken.denom, isMaxBtc, btcSupplyApy])
 
   const areas = [
     {
