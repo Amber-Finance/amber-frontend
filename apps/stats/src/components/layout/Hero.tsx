@@ -7,7 +7,7 @@ interface HeroProps {
   subtitle?: string | ReactNode
   description?: string
   stats?: Array<{
-    value: number
+    value: number | null
     label: string | ReactNode
     isCurrency?: boolean
     prefix?: string
@@ -44,7 +44,7 @@ export default function Hero({ title, subtitle, description, stats }: HeroProps)
             <div className='flex flex-row gap-2 sm:gap-3'>
               {stats.map((stat, index) => (
                 <StatCard
-                  key={`stat-${stat.value}-${index}`}
+                  key={`stat-${stat.value ?? 'loading'}-${index}`}
                   value={stat.value}
                   label={stat.label}
                   isCurrency={stat.isCurrency}
