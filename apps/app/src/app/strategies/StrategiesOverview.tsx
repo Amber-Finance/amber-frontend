@@ -35,11 +35,13 @@ const createDefaultMaxBtcToken = () => ({
   protocolIconDark: '/images/structured/structuredDark.svg',
 })
 
-const calculateMarketTotals = (markets: Market[] | null) => {
+const calculateMarketTotals = (
+  markets: Market[] | null,
+): { totalSupplyUsd: number | null; totalBorrowUsd: number | null } => {
   if (!markets || markets.length === 0) {
     return {
-      totalSupplyUsd: 0,
-      totalBorrowUsd: 0,
+      totalSupplyUsd: null,
+      totalBorrowUsd: null,
     }
   }
 
@@ -110,7 +112,16 @@ export default function StrategiesOverview() {
   }, [markets, maxBtcToken, effectiveMaxBtcApy])
 
   // Calculate market totals for Hero stats
-  const marketTotals = useMemo(() => calculateMarketTotals(markets), [markets])
+  // Return null when loading
+  const marketTotals = useMemo(() => {
+    if (marketsLoading) {
+      return {
+        totalSupplyUsd: null,
+        totalBorrowUsd: null,
+      }
+    }
+    return calculateMarketTotals(markets)
+  }, [markets, marketsLoading])
 
   return (
     <>

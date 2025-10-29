@@ -20,9 +20,9 @@ import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import { useMarkets } from '@/hooks/useMarkets'
 import { useStore } from '@/store/useStore'
 
-const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl | null) => {
+const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl | null): number | null => {
   if (!redBankAssetsTvl?.assets || redBankAssetsTvl.assets.length === 0) {
-    return 0
+    return null
   }
   return redBankAssetsTvl.assets
     .reduce((total, asset) => {
@@ -35,7 +35,7 @@ const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl | null) => {
 export default function StatsContent() {
   useMarkets()
   const { markets } = useStore()
-  const { data: redBankAssetsTvl } = useAssetsTvl()
+  const { data: redBankAssetsTvl, isLoading: isLoadingTvl } = useAssetsTvl()
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -49,7 +49,10 @@ export default function StatsContent() {
     router.replace(`?${params.toString()}`, { scroll: false })
   }
 
-  const totalValueLocked = useMemo(() => calculateTotalTvl(redBankAssetsTvl), [redBankAssetsTvl])
+  const totalValueLocked = useMemo(() => {
+    if (isLoadingTvl) return null
+    return calculateTotalTvl(redBankAssetsTvl)
+  }, [redBankAssetsTvl, isLoadingTvl])
 
   return (
     <div className='space-y-8'>

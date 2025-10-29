@@ -12,9 +12,9 @@ import type { LstMarketData } from '@/hooks/market/useLstMarkets'
 import { useUserPositions } from '@/hooks/portfolio'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 
-const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl) => {
+const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl): number | null => {
   if (!redBankAssetsTvl?.assets || redBankAssetsTvl.assets.length === 0) {
-    return 0
+    return null
   }
 
   return redBankAssetsTvl.assets
@@ -29,7 +29,7 @@ export default function Home() {
   useMarkets()
   useUserPositions()
   const { data: lstMarkets, isLoading } = useLstMarkets()
-  const { data: redBankAssetsTvl } = useAssetsTvl()
+  const { data: redBankAssetsTvl, isLoading: isLoadingTvl } = useAssetsTvl()
 
   const sortedMarkets = useMemo((): LstMarketData[] => {
     if (!lstMarkets) return []
@@ -47,7 +47,11 @@ export default function Home() {
     })
   }, [lstMarkets])
 
-  const totalValueLocked = useMemo(() => calculateTotalTvl(redBankAssetsTvl), [redBankAssetsTvl])
+  const totalValueLocked = useMemo(() => {
+    // Return null if loading or if calculateTotalTvl returns null
+    if (isLoadingTvl) return null
+    return calculateTotalTvl(redBankAssetsTvl)
+  }, [redBankAssetsTvl, isLoadingTvl])
 
   return (
     <>
