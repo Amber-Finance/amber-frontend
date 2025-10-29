@@ -59,7 +59,7 @@ export const useMarketData = (strategy: Strategy, markets: Market[] | null) =>
 
 export const useWalletData = (
   strategy: Strategy,
-  walletBalances: any[],
+  walletBalances: WalletBalance[],
   address: string | undefined,
 ) =>
   useMemo(() => {
