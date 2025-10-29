@@ -98,30 +98,28 @@ function calculateFeeComponents(
   // amountOut is collateral asset (being swapped TO)
   const amountOutFormatted = swapRouteInfo.amountOut.shiftedBy(-collateralDecimals).toNumber()
 
-  // Swap fee: 5 basis points (0.05%) for Bitcoin LST swaps
-  // Fee is applied to the swap amount
-  const SWAP_FEE_BPS = 0.05 // 5 basis points = 0.05%
+  // Contract swap fee: 0.0005 where 1 = 100% (so 0.0005 = 0.05%)
+  // The amountOut from swap route is the gross amount before fee deduction
+  // The contract will deduct the fee, so actual received = amountOut * (1 - swapFee)
+  const SWAP_FEE_RATE = 0.0005 // Contract fee rate where 1 = 100%
 
-  // Try to get fee from route info first, otherwise calculate it
-  let swapFeeFormatted: number
-  if (swapRouteInfo.fee && swapRouteInfo.fee.gt(0)) {
-    // Use fee from route if available
-    swapFeeFormatted = swapRouteInfo.fee.shiftedBy(-collateralDecimals).toNumber()
-  } else {
-    // Calculate 0.05% of the output amount
-    swapFeeFormatted = (amountOutFormatted * SWAP_FEE_BPS) / 100
-  }
+  // Calculate the actual amount received after fee deduction
+  const netAmountOut = amountOutFormatted * (1 - SWAP_FEE_RATE)
+
+  // Calculate the swap fee that will be deducted
+  const swapFeeFormatted = amountOutFormatted - netAmountOut
   const swapFeeUsd = swapFeeFormatted * collateralPrice
 
   // Calculate price impact loss in USD
-  // Price impact is the actual expected cost from the swap
-  const priceImpactLoss = (amountOutFormatted * Math.abs(priceImpactPercent)) / 100
+  // Price impact is calculated on the net amount (after fees) that user actually receives
+  const priceImpactLoss = (netAmountOut * Math.abs(priceImpactPercent)) / 100
   const priceImpactUsd = priceImpactLoss * collateralPrice
 
   // Calculate max slippage loss (worst-case if slippage tolerance is hit)
   // Slippage tolerance is a protection limit - tx reverts if exceeded
   // This is NOT an additional cost, just the maximum acceptable deviation
-  const slippageToleranceAmount = (amountOutFormatted * slippage) / 100
+  // Applied to the net amount the user receives
+  const slippageToleranceAmount = (netAmountOut * slippage) / 100
   const maxSlippageLossUsd = slippageToleranceAmount * collateralPrice
 
   // Total fees = Swap fee + price impact (actual expected costs)
