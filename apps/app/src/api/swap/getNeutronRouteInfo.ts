@@ -339,6 +339,8 @@ export async function getNeutronRouteInfoReverse(
     const amountIn = skipRouteResponse.amountIn || skipRouteResponse.amount_in
     if (amountIn) {
       routeInfo.amountIn = BN(amountIn)
+    } else {
+      routeInfo.amountIn = undefined
     }
 
     // Ensure amountOut matches what we requested
