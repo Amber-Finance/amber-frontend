@@ -87,11 +87,11 @@ export function FeeRecoveryCard({
           <div className='text-xs font-medium uppercase tracking-wider'>Fees</div>
 
           <div className='space-y-1.5 text-xs'>
-            {feeBreakdown.marsSwapFeeUsd > 0 && (
+            {feeBreakdown.swapFeeUsd > 0 && (
               <div className='flex justify-between items-center'>
-                <span className='text-muted-foreground'>Mars Swap Fee</span>
+                <span className='text-muted-foreground'>Swap Fee</span>
                 <span className='font-medium text-foreground'>
-                  ${feeBreakdown.marsSwapFeeUsd.toFixed(2)}
+                  ${feeBreakdown.swapFeeUsd.toFixed(2)}
                 </span>
               </div>
             )}

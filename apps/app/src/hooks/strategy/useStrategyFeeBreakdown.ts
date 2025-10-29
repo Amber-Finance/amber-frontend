@@ -71,7 +71,7 @@ export function useStrategyFeeBreakdown(
 function createNullState() {
   return {
     totalFeesUsd: 0,
-    marsSwapFeeUsd: 0,
+    swapFeeUsd: 0,
     priceImpactUsd: 0,
     maxSlippageLossUsd: 0,
     breakEvenDays: null,
@@ -98,20 +98,20 @@ function calculateFeeComponents(
   // amountOut is collateral asset (being swapped TO)
   const amountOutFormatted = swapRouteInfo.amountOut.shiftedBy(-collateralDecimals).toNumber()
 
-  // Mars swap fee: 5 basis points (0.05%) for Bitcoin LST swaps
+  // Swap fee: 5 basis points (0.05%) for Bitcoin LST swaps
   // Fee is applied to the swap amount
-  const MARS_SWAP_FEE_BPS = 0.05 // 5 basis points = 0.05%
+  const SWAP_FEE_BPS = 0.05 // 5 basis points = 0.05%
 
   // Try to get fee from route info first, otherwise calculate it
-  let marsSwapFeeFormatted: number
+  let swapFeeFormatted: number
   if (swapRouteInfo.fee && swapRouteInfo.fee.gt(0)) {
     // Use fee from route if available
-    marsSwapFeeFormatted = swapRouteInfo.fee.shiftedBy(-collateralDecimals).toNumber()
+    swapFeeFormatted = swapRouteInfo.fee.shiftedBy(-collateralDecimals).toNumber()
   } else {
     // Calculate 0.05% of the output amount
-    marsSwapFeeFormatted = (amountOutFormatted * MARS_SWAP_FEE_BPS) / 100
+    swapFeeFormatted = (amountOutFormatted * SWAP_FEE_BPS) / 100
   }
-  const marsSwapFeeUsd = marsSwapFeeFormatted * collateralPrice
+  const swapFeeUsd = swapFeeFormatted * collateralPrice
 
   // Calculate price impact loss in USD
   // Price impact is the actual expected cost from the swap
@@ -124,9 +124,9 @@ function calculateFeeComponents(
   const slippageToleranceAmount = (amountOutFormatted * slippage) / 100
   const maxSlippageLossUsd = slippageToleranceAmount * collateralPrice
 
-  // Total fees = Mars swap fee + price impact (actual expected costs)
+  // Total fees = Swap fee + price impact (actual expected costs)
   // Slippage tolerance is NOT included as it's just a protection limit
-  const totalFeesUsd = marsSwapFeeUsd + priceImpactUsd
+  const totalFeesUsd = swapFeeUsd + priceImpactUsd
 
   // Fees as percentage of position
   const positionValueUsd = totalPosition * collateralPrice
@@ -134,7 +134,7 @@ function calculateFeeComponents(
 
   return {
     totalFeesUsd,
-    marsSwapFeeUsd,
+    swapFeeUsd,
     priceImpactUsd,
     maxSlippageLossUsd,
     feesAsPercentOfPosition,
