@@ -17,7 +17,8 @@ interface PriceResponse {
 export const usePrices = () => {
   const { markets, updateMarketPrice } = useStore()
 
-  // Define a fetcher that checks all markets with an asset denom
+  // Make SWR key depend on markets availability so it re-fetches when markets become available
+  const swrKey = markets && markets.length > 0 ? `oraclePrices-${markets.length}` : null
   const fetchAllPrices = async () => {
     const currentMarkets = markets || []
     const results = []
@@ -65,8 +66,7 @@ export const usePrices = () => {
     return results
   }
 
-  // Always fetch prices with a consistent key, no conditional calling
-  const { error, isLoading, mutate } = useSWR('oraclePrices', fetchAllPrices, {
+  const { error, isLoading, mutate } = useSWR(swrKey, fetchAllPrices, {
     refreshInterval: 60000, // Refresh every minute
     revalidateOnMount: true,
     revalidateOnFocus: false,
