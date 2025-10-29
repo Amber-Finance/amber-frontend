@@ -19,7 +19,7 @@ export default async function getPortfolioPositions(
 
   try {
     const url = getUrl(
-      chainConfig.endpoints.redBank,
+      chainConfig.endpoints.amberBackend,
       `/account_portfolio?chain=${chain}&address=${address}`,
     )
 

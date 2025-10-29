@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import moment from 'moment'
 
 import { BaseChart } from '@/components/common/chart/BaseChart'
+import useMaxBtcHistoricalApy from '@/hooks/market/useMaxBtcHistoricalApy'
 import useAssetsApr from '@/hooks/redBank/useAssetsApr'
 import { convertAprToApy } from '@/utils/data/finance'
 
@@ -42,9 +43,12 @@ export function StrategyChart({
   )
 
   const { data: assetsApr, isLoading: aprLoading } = useAssetsApr(denom, parseInt(timeRange))
+  const { data: maxBtcHistoricalApy, isLoading: maxBtcLoading } = useMaxBtcHistoricalApy(
+    parseInt(timeRange),
+  )
   const assetAprData = assetsApr?.[0]?.borrow_apr || []
 
-  const isLoading = aprLoading
+  const isLoading = aprLoading || maxBtcLoading
 
   const chartData = useMemo(() => {
     if (!assetAprData || assetAprData.length === 0) return []
@@ -64,8 +68,29 @@ export function StrategyChart({
       }
 
       dataMap.get(dateKey).borrowApr = parseFloat(convertAprToApy(parseFloat(point.value) / 100))
-      dataMap.get(dateKey).maxBtcSupplyApr = 0
     })
+
+    // Add historical maxBTC APY data
+    if (maxBtcHistoricalApy?.data) {
+      const timestamps = Object.keys(maxBtcHistoricalApy.data).sort()
+
+      timestamps.forEach((timestamp) => {
+        const apyValue = parseFloat(maxBtcHistoricalApy.data[timestamp] || '0')
+        const date = new Date(parseInt(timestamp))
+        const dateKey = moment(date).format('YYYY-MM-DD')
+
+        if (!dataMap.has(dateKey)) {
+          dataMap.set(dateKey, {
+            date: date,
+            formattedDate: moment(date).format('MMM DD'),
+            borrowApr: 0,
+            maxBtcSupplyApr: 0,
+          })
+        }
+
+        dataMap.get(dateKey).maxBtcSupplyApr = apyValue
+      })
+    }
 
     const sortedData = Array.from(dataMap.values()).sort(
       (a, b) => a.date.getTime() - b.date.getTime(),
@@ -81,14 +106,14 @@ export function StrategyChart({
         ...lastDataPoint,
         borrowApr:
           currentBorrowApy !== undefined ? currentBorrowApy * 100 : lastDataPoint.borrowApr,
-        maxBtcSupplyApr: supplyApy !== undefined ? supplyApy * 100 : 0,
+        maxBtcSupplyApr: supplyApy !== undefined ? supplyApy * 100 : lastDataPoint.maxBtcSupplyApr,
         date: new Date(), // Use current date for the last point
         formattedDate: moment().format('MMM DD'), // Current date formatting
       }
     }
 
     return sortedData
-  }, [assetAprData, supplyApy, currentBorrowApy])
+  }, [assetAprData, maxBtcHistoricalApy, supplyApy, currentBorrowApy])
 
   const yAxes = [
     {

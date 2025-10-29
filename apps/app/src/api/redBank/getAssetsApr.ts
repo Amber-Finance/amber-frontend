@@ -6,7 +6,7 @@ import { getUrl } from '@/utils/ui/url'
 export default async function getAssetsApr(denom: string, days: number = 30) {
   try {
     const url = getUrl(
-      chainConfig.endpoints.redBank,
+      chainConfig.endpoints.amberBackend,
       `/rb_asset_apr?chain=neutron&granularity=day&unit=${days}&denom=${denom}`,
     )
     const response = await fetchWithTimeout(url, FETCH_TIMEOUT)

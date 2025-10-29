@@ -242,7 +242,7 @@ interface ChainConfig {
     fallbackRpc?: string
     fallbackRpcs?: string[]
     routes?: string
-    redBank: string
+    amberBackend: string
   }
   queries: {
     allAssetParams: string
