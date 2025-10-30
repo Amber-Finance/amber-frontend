@@ -57,8 +57,9 @@ const Portfolio = () => {
   }, 0)
 
   // Use the pre-calculated USD values from the API
-  const totalBorrowedValue = totalBorrows
-  const totalSuppliedValue = totalSupplies
+  // Return null when loading
+  const totalBorrowedValue = isLoading ? null : totalBorrows
+  const totalSuppliedValue = isLoading ? null : totalSupplies
 
   // Total assets = total_supplies - total_borrows (API provides aggregated values)
   // This represents net equity: all collateral minus all debt

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
 import { CountingNumber } from '@/components/ui/CountingNumber'
+import { Skeleton } from '@/components/ui/Skeleton'
 import { formatLargeCurrency, formatLargeNumber } from '@/utils/formatting/format'
 
 // Helper to determine width class based on formatted value suffix
@@ -34,7 +35,7 @@ const renderSmallCurrency = (value: number, decimalPlaces: number) => (
 )
 
 interface StatCardProps {
-  value: number
+  value: number | null
   label: string | ReactNode
   isCurrency?: boolean
   decimalPlaces?: number
@@ -52,9 +53,14 @@ export function StatCard({
   suffix = '',
   abbreviated = true,
 }: StatCardProps) {
-  const isLargeValue = value >= 10000 && abbreviated
+  const isLoading = value === null
+  const isLargeValue = !isLoading && value >= 10000 && abbreviated
 
   const renderValue = () => {
+    if (isLoading) {
+      return <Skeleton className='h-6 sm:h-7 lg:h-8 w-20 mx-auto' />
+    }
+
     if (isCurrency && isLargeValue) return renderLargeCurrency(value)
     if (isCurrency) return renderSmallCurrency(value, decimalPlaces)
     if (isLargeValue) return formatLargeNumber(decimalPlaces)(value)
@@ -70,6 +76,7 @@ export function StatCard({
 
   // Calculate dynamic width based on content length
   const getDynamicWidth = () => {
+    if (isLoading) return 'min-w-[90px]'
     if (!isLargeValue) return 'min-w-[80px]'
 
     const formattedValue = isCurrency
