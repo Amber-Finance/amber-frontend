@@ -95,7 +95,7 @@ export const useStrategyLeverageModification = ({
   )
 
   const prepareSwapRoute = useCallback(
-    async (isIncreasing: boolean, tokenAmounts: any): Promise<SwapRouteInfo | null> => {
+    async (isIncreasing: boolean, tokenAmounts: { additionalBorrowAmount?: string; collateralToWithdraw?: string; debtToRepay?: string }): Promise<SwapRouteInfo | null> => {
       if (!activeStrategy) return null
 
       if (isIncreasing && tokenAmounts.additionalBorrowAmount) {
@@ -206,7 +206,7 @@ export const useStrategyLeverageModification = ({
       isIncreasing: boolean,
       currentLeverage: number,
       targetLeverage: number,
-      tokenAmounts: any,
+      tokenAmounts: { additionalBorrowAmount?: string; collateralToWithdraw?: string; debtToRepay?: string },
       swapRouteInfo: SwapRouteInfo,
     ): ModifyLeverageConfig => ({
       type: 'modify_leverage',

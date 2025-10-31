@@ -20,7 +20,7 @@ const eslintConfig = [
 
       // TypeScript rules
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       // Enforce alias imports instead of relative
       'no-restricted-imports': [
         'error',
