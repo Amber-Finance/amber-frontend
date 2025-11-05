@@ -3,12 +3,11 @@ import TerserPlugin from 'terser-webpack-plugin'
 
 const nextConfig: NextConfig = {
   /* config options here */
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Add empty turbopack config to silence warning about webpack config
+  turbopack: {},
   images: {
     remotePatterns: [
       {
