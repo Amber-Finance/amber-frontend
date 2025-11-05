@@ -281,31 +281,31 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   // For deposit/withdraw: simulate the impact of adding/removing collateral
   const simulatedCollateralAmount = useMemo(() => {
     if (!strategyAccountData) return '0'
-    
+
     // For deposit/withdraw: the change is the deposit/withdraw amount
     if (hasDepositWithdrawAmount) {
       const dwAmount = Number.parseFloat(debouncedDepositWithdrawAmount || '0')
       const currentCollateral = strategyAccountData.collateralAmountFormatted
-      
+
       const newCollateral =
         depositWithdrawMode === 'deposit'
           ? currentCollateral + dwAmount
           : currentCollateral - dwAmount
-      
+
       // Return the change in collateral (delta)
       return Math.abs(newCollateral - currentCollateral).toString()
     }
-    
+
     // For leverage modification: the change is based on leverage adjustment
     if (hasLeverageChange) {
       const equityAmount = strategyAccountData.equityAmount || 0
       const currentCollateral = strategyAccountData.collateralAmountFormatted
       const targetCollateral = equityAmount * effectiveLeverage
-      
+
       // Return the change in collateral (delta)
       return Math.abs(targetCollateral - currentCollateral).toString()
     }
-    
+
     return '0'
   }, [
     strategyAccountData,
@@ -318,27 +318,39 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
 
   const simulatedDebtAmount = useMemo(() => {
     if (!strategyAccountData) return '0'
-    
-    // For deposit/withdraw: debt doesn't change
+
+    // For deposit/withdraw: calculate total target debt to simulate borrow APY impact
     if (hasDepositWithdrawAmount) {
-      return '0'
+      const dwAmount = Number.parseFloat(debouncedDepositWithdrawAmount || '0')
+      let equityAmount = strategyAccountData.equityAmount || 0
+      equityAmount =
+        depositWithdrawMode === 'deposit' ? equityAmount + dwAmount : equityAmount - dwAmount
+
+      // Calculate target debt based on maintaining current leverage
+      const currentLeverage = strategyAccountData.leverage
+      const targetCollateral = equityAmount * currentLeverage
+      const targetDebt = targetCollateral - equityAmount
+
+      // Return the absolute target debt for borrow APY simulation
+      return Math.abs(targetDebt).toString()
     }
-    
-    // For leverage modification: calculate debt change
+
+    // For leverage modification: calculate target debt
     if (hasLeverageChange) {
       const equityAmount = strategyAccountData.equityAmount || 0
-      const currentDebt = strategyAccountData.debtAmountFormatted
       const targetCollateral = equityAmount * effectiveLeverage
       const targetDebt = targetCollateral - equityAmount
-      
-      // Return the change in debt (delta)
-      return Math.abs(targetDebt - currentDebt).toString()
+
+      // Return the absolute target debt for borrow APY simulation
+      return Math.abs(targetDebt).toString()
     }
-    
+
     return '0'
   }, [
     strategyAccountData,
     hasDepositWithdrawAmount,
+    debouncedDepositWithdrawAmount,
+    depositWithdrawMode,
     hasLeverageChange,
     effectiveLeverage,
   ])
@@ -356,18 +368,46 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
       return targetCollateral > currentCollateral ? 'deposit' : 'withdraw'
     }
     return 'deposit'
-  }, [hasDepositWithdrawAmount, depositWithdrawMode, hasLeverageChange, strategyAccountData, effectiveLeverage])
+  }, [
+    hasDepositWithdrawAmount,
+    depositWithdrawMode,
+    hasLeverageChange,
+    strategyAccountData,
+    effectiveLeverage,
+  ])
 
   const debtAction: 'borrow' | 'withdraw' = useMemo(() => {
-    if (hasLeverageChange && strategyAccountData) {
-      const equityAmount = strategyAccountData.equityAmount || 0
+    // Always use 'borrow' for simulation since we're calculating total target debt
+    // The APY calculation needs to know the total borrow amount, not just the change
+    if (hasUserInteraction && strategyAccountData) {
       const currentDebt = strategyAccountData.debtAmountFormatted
-      const targetCollateral = equityAmount * effectiveLeverage
-      const targetDebt = targetCollateral - equityAmount
-      return targetDebt > currentDebt ? 'borrow' : 'withdraw'
+
+      if (hasDepositWithdrawAmount) {
+        const dwAmount = Number.parseFloat(debouncedDepositWithdrawAmount || '0')
+        let equityAmount = strategyAccountData.equityAmount || 0
+        equityAmount =
+          depositWithdrawMode === 'deposit' ? equityAmount + dwAmount : equityAmount - dwAmount
+        const currentLeverage = strategyAccountData.leverage
+        const targetDebt = equityAmount * currentLeverage - equityAmount
+        return targetDebt > currentDebt ? 'borrow' : 'withdraw'
+      }
+
+      if (hasLeverageChange) {
+        const equityAmount = strategyAccountData.equityAmount || 0
+        const targetDebt = equityAmount * effectiveLeverage - equityAmount
+        return targetDebt > currentDebt ? 'borrow' : 'withdraw'
+      }
     }
     return 'borrow'
-  }, [hasLeverageChange, strategyAccountData, effectiveLeverage])
+  }, [
+    hasUserInteraction,
+    hasDepositWithdrawAmount,
+    hasLeverageChange,
+    strategyAccountData,
+    effectiveLeverage,
+    debouncedDepositWithdrawAmount,
+    depositWithdrawMode,
+  ])
 
   // Current APYs as fallback
   const currentCollateralApy = useMemo(() => {
@@ -395,9 +435,10 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   )
 
   // Calculate simulated debt borrow APY
+  // Always simulate debt APY changes when user interacts (for both deposit/withdraw and leverage changes)
   const simulatedDebtApys = useSimulatedApy(
     debtAction === 'borrow' ? 'borrow' : 'withdraw',
-    hasUserInteraction && !hasDepositWithdrawAmount ? simulatedDebtAmount : '0',
+    hasUserInteraction ? simulatedDebtAmount : '0',
     strategy.debtAsset.decimals || 6,
     marketData.debtMarket?.metrics || null,
     {
@@ -415,13 +456,14 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   }, [hasUserInteraction, simulatedCollateralApys.lend, currentCollateralApy, collateralSupplyApy])
 
   const effectiveDebtBorrowApy = useMemo(() => {
-    if (hasUserInteraction && !hasDepositWithdrawAmount && simulatedDebtApys.borrow !== currentDebtApy) {
+    // Always use simulated borrow APY when user is making changes (deposit/withdraw OR leverage change)
+    if (hasUserInteraction && simulatedDebtApys.borrow !== currentDebtApy) {
       return parseFloat(simulatedDebtApys.borrow)
     }
     return positionCalcs.debtBorrowApy
-  }, [hasUserInteraction, hasDepositWithdrawAmount, simulatedDebtApys.borrow, currentDebtApy, positionCalcs.debtBorrowApy])
+  }, [hasUserInteraction, simulatedDebtApys.borrow, currentDebtApy, positionCalcs.debtBorrowApy])
 
-  // Display values
+  // Display values - use effective (simulated) debt borrow APY
   const displayValues = createDisplayValues(
     false, // Not loading balances for modify mode
     Boolean(address),
@@ -429,7 +471,7 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     strategy,
     marketData.currentPrice,
     effectiveMaxBtcApy,
-    positionCalcs.debtBorrowApy,
+    effectiveDebtBorrowApy,
   )
 
   // Risk styles
