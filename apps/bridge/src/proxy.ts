@@ -84,7 +84,7 @@ const corsMiddleware = async (request: NextRequest) => {
   return response
 }
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const ip = ipAddress(request) || 'unknown'
   console.log(`Request from IP: ${ip}, URL: ${request.url}`)
   const response = await corsMiddleware(request)
@@ -94,3 +94,4 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ['/api/(.*)', '/'],
 }
+

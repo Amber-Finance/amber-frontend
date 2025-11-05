@@ -18,7 +18,7 @@ import {
 } from '@/components/strategy/helpers/displayUtils'
 import chainConfig from '@/config/chain'
 import { useDebounceWithStatus, useHealthComputer } from '@/hooks/common'
-import { useMaxBtcApy } from '@/hooks/market'
+import { useMaxBtcApy, useSimulatedApy } from '@/hooks/market'
 import { useActiveStrategies } from '@/hooks/portfolio'
 import {
   useMarketData,
@@ -29,6 +29,7 @@ import {
 } from '@/hooks/strategy'
 import { useWalletBalances } from '@/hooks/wallet'
 import { useStore } from '@/store/useStore'
+import { convertAprToApy } from '@/utils/data/finance'
 
 interface ModifyStrategyProps {
   strategy: Strategy
@@ -274,6 +275,151 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
     debouncedDepositWithdrawAmount,
     depositWithdrawMode,
   ])
+
+  // Calculate simulated APYs based on user actions
+  // For modify leverage: simulate the impact of changing collateral and debt amounts
+  // For deposit/withdraw: simulate the impact of adding/removing collateral
+  const simulatedCollateralAmount = useMemo(() => {
+    if (!strategyAccountData) return '0'
+    
+    // For deposit/withdraw: the change is the deposit/withdraw amount
+    if (hasDepositWithdrawAmount) {
+      const dwAmount = Number.parseFloat(debouncedDepositWithdrawAmount || '0')
+      const currentCollateral = strategyAccountData.collateralAmountFormatted
+      
+      const newCollateral =
+        depositWithdrawMode === 'deposit'
+          ? currentCollateral + dwAmount
+          : currentCollateral - dwAmount
+      
+      // Return the change in collateral (delta)
+      return Math.abs(newCollateral - currentCollateral).toString()
+    }
+    
+    // For leverage modification: the change is based on leverage adjustment
+    if (hasLeverageChange) {
+      const equityAmount = strategyAccountData.equityAmount || 0
+      const currentCollateral = strategyAccountData.collateralAmountFormatted
+      const targetCollateral = equityAmount * effectiveLeverage
+      
+      // Return the change in collateral (delta)
+      return Math.abs(targetCollateral - currentCollateral).toString()
+    }
+    
+    return '0'
+  }, [
+    strategyAccountData,
+    hasDepositWithdrawAmount,
+    debouncedDepositWithdrawAmount,
+    depositWithdrawMode,
+    hasLeverageChange,
+    effectiveLeverage,
+  ])
+
+  const simulatedDebtAmount = useMemo(() => {
+    if (!strategyAccountData) return '0'
+    
+    // For deposit/withdraw: debt doesn't change
+    if (hasDepositWithdrawAmount) {
+      return '0'
+    }
+    
+    // For leverage modification: calculate debt change
+    if (hasLeverageChange) {
+      const equityAmount = strategyAccountData.equityAmount || 0
+      const currentDebt = strategyAccountData.debtAmountFormatted
+      const targetCollateral = equityAmount * effectiveLeverage
+      const targetDebt = targetCollateral - equityAmount
+      
+      // Return the change in debt (delta)
+      return Math.abs(targetDebt - currentDebt).toString()
+    }
+    
+    return '0'
+  }, [
+    strategyAccountData,
+    hasDepositWithdrawAmount,
+    hasLeverageChange,
+    effectiveLeverage,
+  ])
+
+  // Determine the action type for simulation
+  const collateralAction: 'deposit' | 'withdraw' = useMemo(() => {
+    if (hasDepositWithdrawAmount) {
+      return depositWithdrawMode
+    }
+    // For leverage modification, determine if we're adding or removing collateral
+    if (hasLeverageChange && strategyAccountData) {
+      const equityAmount = strategyAccountData.equityAmount || 0
+      const currentCollateral = strategyAccountData.collateralAmountFormatted
+      const targetCollateral = equityAmount * effectiveLeverage
+      return targetCollateral > currentCollateral ? 'deposit' : 'withdraw'
+    }
+    return 'deposit'
+  }, [hasDepositWithdrawAmount, depositWithdrawMode, hasLeverageChange, strategyAccountData, effectiveLeverage])
+
+  const debtAction: 'borrow' | 'withdraw' = useMemo(() => {
+    if (hasLeverageChange && strategyAccountData) {
+      const equityAmount = strategyAccountData.equityAmount || 0
+      const currentDebt = strategyAccountData.debtAmountFormatted
+      const targetCollateral = equityAmount * effectiveLeverage
+      const targetDebt = targetCollateral - equityAmount
+      return targetDebt > currentDebt ? 'borrow' : 'withdraw'
+    }
+    return 'borrow'
+  }, [hasLeverageChange, strategyAccountData, effectiveLeverage])
+
+  // Current APYs as fallback
+  const currentCollateralApy = useMemo(() => {
+    return marketData.collateralMarket?.metrics?.liquidity_rate
+      ? convertAprToApy(marketData.collateralMarket.metrics.liquidity_rate)
+      : (effectiveMaxBtcApy / 100).toString()
+  }, [marketData.collateralMarket?.metrics?.liquidity_rate, effectiveMaxBtcApy])
+
+  const currentDebtApy = useMemo(() => {
+    return marketData.debtMarket?.metrics?.borrow_rate
+      ? convertAprToApy(marketData.debtMarket.metrics.borrow_rate)
+      : marketData.debtBorrowApy.toString()
+  }, [marketData.debtMarket?.metrics?.borrow_rate, marketData.debtBorrowApy])
+
+  // Calculate simulated collateral supply APY
+  const simulatedCollateralApys = useSimulatedApy(
+    collateralAction,
+    hasUserInteraction ? simulatedCollateralAmount : '0',
+    strategy.collateralAsset.decimals || 8,
+    marketData.collateralMarket?.metrics || null,
+    {
+      lend: currentCollateralApy,
+      borrow: '0',
+    },
+  )
+
+  // Calculate simulated debt borrow APY
+  const simulatedDebtApys = useSimulatedApy(
+    debtAction === 'borrow' ? 'borrow' : 'withdraw',
+    hasUserInteraction && !hasDepositWithdrawAmount ? simulatedDebtAmount : '0',
+    strategy.debtAsset.decimals || 6,
+    marketData.debtMarket?.metrics || null,
+    {
+      lend: '0',
+      borrow: currentDebtApy,
+    },
+  )
+
+  // Use simulated APYs when user has interaction, otherwise use current APYs
+  const effectiveCollateralSupplyApy = useMemo(() => {
+    if (hasUserInteraction && simulatedCollateralApys.lend !== currentCollateralApy) {
+      return parseFloat(simulatedCollateralApys.lend)
+    }
+    return collateralSupplyApy
+  }, [hasUserInteraction, simulatedCollateralApys.lend, currentCollateralApy, collateralSupplyApy])
+
+  const effectiveDebtBorrowApy = useMemo(() => {
+    if (hasUserInteraction && !hasDepositWithdrawAmount && simulatedDebtApys.borrow !== currentDebtApy) {
+      return parseFloat(simulatedDebtApys.borrow)
+    }
+    return positionCalcs.debtBorrowApy
+  }, [hasUserInteraction, hasDepositWithdrawAmount, simulatedDebtApys.borrow, currentDebtApy, positionCalcs.debtBorrowApy])
 
   // Display values
   const displayValues = createDisplayValues(
@@ -605,8 +751,8 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           displayValues={displayValues}
           positionCalcs={positionCalcs}
           marketData={marketData}
-          collateralSupplyApy={collateralSupplyApy}
-          debtBorrowApy={positionCalcs.debtBorrowApy}
+          collateralSupplyApy={effectiveCollateralSupplyApy}
+          debtBorrowApy={effectiveDebtBorrowApy}
           getEstimatedEarningsUsd={getEstimatedEarningsUsd}
           healthFactor={simulatedHealthFactor || computedHealthFactor || 0}
           existingHealthFactor={computedHealthFactor}
@@ -643,8 +789,8 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
           positionCalcs={positionCalcs}
           riskStyles={riskStyles}
           strategyRiskStyles={strategyRiskStyles}
-          collateralSupplyApy={collateralSupplyApy}
-          debtBorrowApy={positionCalcs.debtBorrowApy}
+          collateralSupplyApy={effectiveCollateralSupplyApy}
+          debtBorrowApy={effectiveDebtBorrowApy}
           healthFactor={simulatedHealthFactor || computedHealthFactor || 0}
           simulatedHealthFactor={simulatedHealthFactor}
           computedHealthFactor={computedHealthFactor}

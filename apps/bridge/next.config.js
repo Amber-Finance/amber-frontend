@@ -14,10 +14,9 @@ let nextConfig = {
   env: {
     APP_URL,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   productionBrowserSourceMaps: true,
+  // Add empty turbopack config to silence warning about webpack config
+  turbopack: {},
   rewrites: async () => [
     {
       source: '/.well-known/walletconnect.txt',
