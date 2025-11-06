@@ -36,6 +36,7 @@ const footerSections = [
       { title: 'Swap', url: '/swap' },
       { title: 'Bridge', url: 'https://bridge.amberfi.io' },
       { title: 'Statistics', url: 'https://stats.amberfi.io' },
+      { title: 'V1', url: 'https://v1.amberfi.io' },
     ],
   },
   {
