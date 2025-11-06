@@ -5,7 +5,50 @@ import { BN, byDenom, toIntegerString } from '@/utils/common/helpers'
 
 type VenueType = 'duality' | 'unknown'
 
-function analyzeVenues(skipRouteResponse: any): VenueType {
+interface SkipVenue {
+  name?: string
+}
+
+interface SkipSwapOperation {
+  denomOut?: string
+  denom_out?: string
+}
+
+interface SkipSwapIn {
+  swapVenue?: SkipVenue
+  swap_venue?: SkipVenue
+  swapOperations?: SkipSwapOperation[]
+  swap_operations?: SkipSwapOperation[]
+}
+
+interface SkipOperation {
+  swap?: {
+    swapIn?: SkipSwapIn
+    swap_in?: SkipSwapIn
+  }
+}
+
+interface SkipRouteResponse {
+  swapVenues?: SkipVenue[]
+  swap_venues?: SkipVenue[]
+  operations?: SkipOperation[]
+  swapPriceImpactPercent?: string
+  swap_price_impact_percent?: string
+  usdAmountIn?: string
+  usd_amount_in?: string
+  usdAmountOut?: string
+  usd_amount_out?: string
+  amountOut?: string
+  amount_out?: string
+  estimatedAmountOut?: string
+  estimated_amount_out?: string
+  amountIn?: string
+  amount_in?: string
+  swapAmountIn?: string
+  swap_amount_in?: string
+}
+
+function analyzeVenues(skipRouteResponse: SkipRouteResponse): VenueType {
   if (!skipRouteResponse) return 'unknown'
   // Check both camelCase and snake_case property names for compatibility
   if (
@@ -18,12 +61,12 @@ function analyzeVenues(skipRouteResponse: any): VenueType {
   const venuesUsed = new Set<string>()
 
   // Check both camelCase and snake_case for swap venues
-  const swapVenues = skipRouteResponse.swapVenues || (skipRouteResponse as any).swap_venues
-  swapVenues?.forEach((venue: any) => {
+  const swapVenues = skipRouteResponse.swapVenues || skipRouteResponse.swap_venues
+  swapVenues?.forEach((venue) => {
     if (venue?.name) venuesUsed.add(venue.name)
   })
 
-  skipRouteResponse.operations?.forEach((operation: any) => {
+  skipRouteResponse.operations?.forEach((operation) => {
     // Check both camelCase and snake_case for nested properties
     const venueName =
       operation?.swap?.swapIn?.swapVenue?.name || operation?.swap?.swap_in?.swap_venue?.name
@@ -38,7 +81,7 @@ function analyzeVenues(skipRouteResponse: any): VenueType {
   return 'unknown'
 }
 
-function extractSwapOperations(skipRouteResponse: any): any[] {
+function extractSwapOperations(skipRouteResponse: SkipRouteResponse): SkipSwapOperation[] {
   // Check both camelCase and snake_case for swap operations
   const firstOperation =
     skipRouteResponse.operations?.[0]?.swap?.swapIn?.swapOperations ||
@@ -46,10 +89,10 @@ function extractSwapOperations(skipRouteResponse: any): any[] {
   return firstOperation || []
 }
 
-function createDualityRoute(denomIn: string, denomOut: string, swapOperations: any[]): any {
+function createDualityRoute(denomIn: string, denomOut: string, swapOperations: SkipSwapOperation[]): SwapperRoute {
   const swapDenoms: string[] = [denomIn]
 
-  swapOperations.forEach((op: any) => {
+  swapOperations.forEach((op) => {
     // Check both camelCase and snake_case for denom_out
     const denomOut = op.denomOut || op.denom_out
     if (denomOut && !swapDenoms.includes(denomOut)) {
@@ -79,8 +122,8 @@ function createSwapDescription(denomIn: string, denomOut: string, assets: TokenI
 }
 
 function buildSwapRouteInfo(
-  skipRouteResponse: any,
-  route: any,
+  skipRouteResponse: SkipRouteResponse,
+  route: SwapperRoute,
   description: string,
   isReverse: boolean = false,
 ): SwapRouteInfo {
@@ -143,7 +186,7 @@ async function getNeutronRouteInfoInternal(
   denomOut: string,
   assets: TokenInfo[],
   chainConfig: ChainConfig,
-  routeParams: any,
+  routeParams: { amountIn: string },
   isReverse: boolean = false,
 ): Promise<SwapRouteInfo | null> {
   try {
@@ -168,7 +211,7 @@ async function getNeutronRouteInfoInternal(
       go_fast: false,
     }
 
-    const skipRouteResponse = await skipRoute(skipRouteParams as any)
+    const skipRouteResponse = (await skipRoute(skipRouteParams)) as SkipRouteResponse
 
     if (!skipRouteResponse) {
       throw new Error('No route response from Skip API')
@@ -179,11 +222,11 @@ async function getNeutronRouteInfoInternal(
     if (venueType === 'unknown') {
       // Log the actual venues found for debugging
       const venues = new Set<string>()
-      const swapVenues = skipRouteResponse.swapVenues || (skipRouteResponse as any).swap_venues
-      swapVenues?.forEach((venue: any) => {
+      const swapVenues = skipRouteResponse.swapVenues || skipRouteResponse.swap_venues
+      swapVenues?.forEach((venue) => {
         if (venue?.name) venues.add(venue.name)
       })
-      skipRouteResponse.operations?.forEach((operation: any) => {
+      skipRouteResponse.operations?.forEach((operation) => {
         const venueName =
           operation?.swap?.swapIn?.swapVenue?.name || operation?.swap?.swap_in?.swap_venue?.name
         if (venueName) venues.add(venueName)
@@ -253,7 +296,7 @@ export async function getNeutronRouteInfoReverse(
       amount_out: toIntegerString(amountOut),
     }
 
-    const skipRouteResponse = await skipRoute(skipRouteParams as any)
+    const skipRouteResponse = (await skipRoute(skipRouteParams)) as SkipRouteResponse
 
     if (!skipRouteResponse) {
       throw new Error('No route response from Skip API')
@@ -264,11 +307,11 @@ export async function getNeutronRouteInfoReverse(
     if (venueType === 'unknown') {
       // Log the actual venues found for debugging
       const venues = new Set<string>()
-      const swapVenues = skipRouteResponse.swapVenues || (skipRouteResponse as any).swap_venues
-      swapVenues?.forEach((venue: any) => {
+      const swapVenues = skipRouteResponse.swapVenues || skipRouteResponse.swap_venues
+      swapVenues?.forEach((venue) => {
         if (venue?.name) venues.add(venue.name)
       })
-      skipRouteResponse.operations?.forEach((operation: any) => {
+      skipRouteResponse.operations?.forEach((operation) => {
         const venueName =
           operation?.swap?.swapIn?.swapVenue?.name || operation?.swap?.swap_in?.swap_venue?.name
         if (venueName) venues.add(venueName)
@@ -293,11 +336,11 @@ export async function getNeutronRouteInfoReverse(
 
     // For reverse routing, add the amountIn that Skip calculated
     // Check both camelCase and snake_case for amount in
-    const amountIn = skipRouteResponse.amountIn || (skipRouteResponse as any).amount_in
+    const amountIn = skipRouteResponse.amountIn || skipRouteResponse.amount_in
     if (amountIn) {
-      ;(routeInfo as any).amountIn = BN(amountIn)
+      routeInfo.amountIn = BN(amountIn)
     } else {
-      ;(routeInfo as any).amountIn = null
+      routeInfo.amountIn = undefined
     }
 
     // Ensure amountOut matches what we requested
@@ -393,7 +436,7 @@ async function binarySearchReverseRouting(
 
   if (bestRoute) {
     // Add the calculated amountIn to the route
-    ;(bestRoute as any).amountIn = bestAmountIn
+    bestRoute.amountIn = bestAmountIn
     return bestRoute
   }
 

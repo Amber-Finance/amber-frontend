@@ -713,7 +713,7 @@ interface StrategyParams {
   strategyType: 'create' | 'update' | 'close' | 'delete' | 'decrease'
   accountId?: string
   accountKind?: 'default' | 'high_levered_strategy'
-  actions: any[] // Action array from credit manager
+  actions: import('types/generated/mars-credit-manager/MarsCreditManager.types').Action[]
   collateralAmount?: string
   multiplier?: number
 }
@@ -728,10 +728,10 @@ interface DeployStrategyParams {
   borrowAmount: number
   borrowDenom: string
   borrowDecimals: number
-  swapRoute: any
+  swapRoute: SwapperRoute
   swapDestDenom: string
   multiplier: number
-  strategy: any // Strategy object
+  strategy: Strategy
 }
 
 interface ManageStrategyParams {
@@ -744,7 +744,7 @@ interface ManageStrategyParams {
   debtAmount: number // amount of debt to repay
   debtDenom: string
   debtDecimals: number
-  swapRoute: any // route to swap collateral back to debt asset
+  swapRoute: SwapperRoute
 }
 
 // Enhanced functional transaction types
@@ -763,7 +763,7 @@ interface ToastMessages {
 
 interface TransactionResult {
   success: boolean
-  result?: any
+  result?: unknown
   error?: string
 }
 
@@ -786,7 +786,7 @@ interface DeployStrategyConfig {
   debt: StrategyAsset
   swap: SwapConfig & { destDenom: string }
   multiplier: number
-  strategy: any
+  strategy: Strategy
 }
 
 interface ManageStrategyConfig {
@@ -837,10 +837,10 @@ interface RepayConfig extends BaseTransactionConfig {
 
 interface SwapTransactionConfig {
   type: 'swap'
-  fromToken: any
-  toToken: any
+  fromToken: SwapToken
+  toToken: SwapToken
   amount: string
-  routeInfo: any
+  routeInfo: SwapRouteInfo
   slippage?: number
 }
 
@@ -957,7 +957,7 @@ interface StrategyDeploymentParams {
 
 interface UseStrategyDeploymentProps {
   strategy: Strategy
-  executeTransaction: any
+  executeTransaction: (config: TransactionConfig, toastMessages?: ToastMessages) => Promise<TransactionResult>
   isModifying: boolean
   modifyingAccountId: string | null
 }
@@ -1004,7 +1004,7 @@ interface SwapAction {
     coin_in: Coin
     denom_out: string
     min_receive: string
-    route: any
+    route: SwapperRoute
   }
 }
 
@@ -1173,7 +1173,7 @@ interface SwapActions {
 interface ChartData {
   date: Date
   formattedDate: string
-  [key: string]: any
+  [key: string]: Date | string | number
 }
 
 interface ChartConfig {
@@ -1186,7 +1186,7 @@ interface ChartConfig {
 interface YAxisConfig {
   yAxisId: string
   orientation: 'left' | 'right'
-  tickFormatter: (value: any) => string
+  tickFormatter: (value: number | string) => string
 }
 
 interface TvlAsset {

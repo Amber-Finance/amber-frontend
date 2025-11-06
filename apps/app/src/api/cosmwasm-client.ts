@@ -55,7 +55,7 @@ const getCreditManagerQueryClient = async (chainConfig: ChainConfig) => {
   try {
     const contract = chainConfig.contracts.creditManager
     const primaryRpc = getUrl(chainConfig.endpoints.rpcUrl)
-    const fallbackRpcs = (chainConfig.endpoints as any).fallbackRpcs?.map(getUrl) || []
+    const fallbackRpcs = chainConfig.endpoints.fallbackRpcs?.map((rpc) => getUrl(rpc)) || []
     const key = primaryRpc + contract
 
     if (!_creditManagerQueryClient.get(key)) {
