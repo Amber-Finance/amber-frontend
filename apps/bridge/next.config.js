@@ -16,12 +16,6 @@ let nextConfig = {
     APP_URL,
   },
   productionBrowserSourceMaps: true,
-  // Fix WebSocket HMR connection issues
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
   rewrites: async () => [
     {
       source: '/.well-known/walletconnect.txt',

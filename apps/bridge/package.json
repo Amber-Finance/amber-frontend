@@ -6,7 +6,7 @@
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
     "build": "npm run copy-public && next build",
     "chains:generate": "node ./src/scripts/generate-chains.cjs",
-    "dev": "npm run copy-public && next dev -p 3003 --turbopack",
+    "dev": "npm run copy-public && next dev -p 3003",
     "dev:https": "next dev --experimental-https -p 3003",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx}\"",
     "lint": "eslint --fix \"**/*.{js,jsx,ts,tsx}\"",

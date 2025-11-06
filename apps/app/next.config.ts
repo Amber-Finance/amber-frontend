@@ -20,12 +20,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Fix WebSocket HMR connection issues
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-  },
   // Turbopack (default in Next.js 15+) handles browser polyfills automatically
   // Modern browsers support Web Crypto API natively - no crypto-browserify needed
 }

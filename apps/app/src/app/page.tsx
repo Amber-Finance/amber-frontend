@@ -25,7 +25,6 @@ const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl): number | null =>
     .toNumber()
 }
 
-// TEST: If you see this comment update in browser without refresh, HMR is working!
 export default function Home() {
   useMarkets()
   useUserPositions()
