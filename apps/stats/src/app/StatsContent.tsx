@@ -58,7 +58,7 @@ export default function StatsContent() {
     <div className='space-y-8'>
       <Hero
         title='Stats'
-        subtitle={<AuroraText>Dashboard</AuroraText>}
+        subtitle={<AuroraText>Deve</AuroraText>}
         description='Analytics and monitoring dashboard of Amber Finance.'
         stats={[
           {

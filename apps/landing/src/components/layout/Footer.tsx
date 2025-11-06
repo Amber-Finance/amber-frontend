@@ -52,7 +52,7 @@ export function Footer() {
   const { resolvedTheme } = useTheme()
 
   return (
-    <footer className='mt-auto border-t backdrop-blur-md bg-background/70 border-border/50'>
+    <footer className='mt-16 border-t backdrop-blur-md bg-background/70 border-border/50'>
       {/* Main Footer Content */}
       <div className='px-8 py-12 mx-auto max-w-6xl md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>

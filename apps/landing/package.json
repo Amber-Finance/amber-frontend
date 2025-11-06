@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
-    "dev": "next dev --port 3001",
+    "dev": "next dev --port 3001 --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

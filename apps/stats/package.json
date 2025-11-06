@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
-    "dev": "npm run copy-public && next dev --port 3004",
+    "dev": "npm run copy-public && next dev --port 3004 --turbopack",
     "build": "npm run copy-public && next build",
     "start": "next start",
     "lint": "next lint",

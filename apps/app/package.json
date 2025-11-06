@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "copy-public": "cpx \"../../packages/shared-assets/**\" \"./public/\"",
-    "dev": "next dev --port 3000",
+    "dev": "next dev --port 3000 --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -43,7 +43,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "concurrently": "^9.2.1",
-    "crypto-browserify": "^3.12.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.542.0",
     "moment": "^2.30.1",
@@ -83,7 +82,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8",
     "tailwindcss": "^4.1.12",
-    "terser-webpack-plugin": "^5.3.14",
     "tw-animate-css": "^1.3.7",
     "typescript": "^5"
   }
