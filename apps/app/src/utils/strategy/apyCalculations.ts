@@ -41,6 +41,10 @@ export function calculateApyAfterAction(
     }
   } else if (action === 'borrow') {
     newDebtTotal = currentDebtTotal.plus(actionAmount)
+    // Ensure debt doesn't go below zero (for debt repayment with negative amounts)
+    if (newDebtTotal.isLessThan(0)) {
+      newDebtTotal = new BigNumber(0)
+    }
   } else {
     throw new Error('Invalid action. Use "deposit", "withdraw", or "borrow".')
   }

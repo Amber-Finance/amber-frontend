@@ -21,7 +21,7 @@ import chainConfig from '@/config/chain'
 import tokens from '@/config/tokens'
 import { useLstMarkets, useMarkets, useTransactions } from '@/hooks'
 import { useDepositState, useWithdrawValidation } from '@/hooks/deposit'
-import { useMarketMetrics, usePrices, useSimulatedApy } from '@/hooks/market'
+import { useDepositSimulatedApy, useMarketMetrics, usePrices } from '@/hooks/market'
 import { useUserDeposit } from '@/hooks/portfolio'
 import useAssetsTvl from '@/hooks/redBank/useAssetsTvl'
 import useDenomData from '@/hooks/redBank/useDenomData'
@@ -95,17 +95,14 @@ export default function DepositClient() {
   const currentTokenTvlAmount = new BigNumber(currentTokenTvlData?.tvl).shiftedBy(-6).toString()
 
   // Calculate simulated APY based on user input - must be called at top level
-  const simulatedApys = useSimulatedApy(
-    computed.isDepositing ? 'deposit' : 'withdraw',
+  const simulatedApys = useDepositSimulatedApy(
     computed.currentAmount.toString(),
+    computed.isDepositing ? 'deposit' : 'withdraw',
     market?.asset.decimals || 8,
     market?.metrics || null,
-    {
-      lend: market?.metrics
-        ? convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString())
-        : '0',
-      borrow: '0', // Not relevant for deposit-only operations
-    },
+    market?.metrics
+      ? convertAprToApy(new BigNumber(market.metrics.liquidity_rate || '0').toString())
+      : '0',
   )
 
   // Redirect if required data is missing
