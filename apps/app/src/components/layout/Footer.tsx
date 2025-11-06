@@ -36,6 +36,7 @@ const footerSections = [
       { title: 'Swap', url: '/swap' },
       { title: 'Bridge', url: 'https://bridge.amberfi.io' },
       { title: 'Statistics', url: 'https://stats.amberfi.io' },
+      { title: 'V1', url: 'https://v1.amberfi.io' },
     ],
   },
   {
@@ -53,7 +54,7 @@ export function Footer() {
   return (
     <footer className='mt-auto border-t backdrop-blur-md bg-background/70 border-border/50'>
       {/* Main Footer Content */}
-      <div className='px-8 py-12 mx-auto max-w-6xl md:px-16'>
+      <div className='px-8 py-12 mx-auto max-w-screen-2xl md:px-16'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-4'>
           {/* Brand Section */}
           <div className='md:col-span-2'>
@@ -136,7 +137,7 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className='border-t border-border/50 bg-card'>
-        <div className='px-8 py-4 mx-auto max-w-6xl md:px-16'>
+        <div className='px-8 py-4 mx-auto max-w-screen-2xl md:px-16'>
           <p className='text-sm text-center text-muted-foreground'>
             © 2025 Amber Finance. All rights reserved.
           </p>

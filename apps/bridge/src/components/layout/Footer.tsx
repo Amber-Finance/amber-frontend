@@ -48,6 +48,7 @@ const footerSections = [
       },
       { title: 'Bridge', url: '/' },
       { title: 'Statistics', url: 'https://stats.amberfi.io' },
+      { title: 'V1', url: 'https://v1.amberfi.io' },
     ],
   },
   {

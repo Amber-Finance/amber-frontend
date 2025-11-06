@@ -11,12 +11,11 @@ const APP_URL =
  * @see https://nextjs.org/docs/pages/api-reference/next-config-js
  */
 let nextConfig = {
+  reactStrictMode: true,
   env: {
     APP_URL,
   },
   productionBrowserSourceMaps: true,
-  // Add empty turbopack config to silence warning about webpack config
-  turbopack: {},
   rewrites: async () => [
     {
       source: '/.well-known/walletconnect.txt',
@@ -72,22 +71,18 @@ let nextConfig = {
       },
     ],
   },
-  webpack: (config, { dev, isServer }) => {
-    if (dev && isServer) checkEnv()
-    return config
-  },
+}
+
+// Check environment variables on module load (runs once during dev server start)
+if (process.env.NODE_ENV === 'development') {
+  checkEnv()
 }
 
 module.exports = nextConfig
 
 function checkEnv() {
-  if (checkEnv.once) return
-
-  const log = require('next/dist/build/output/log')
-
+  // Using console.warn instead of next/dist/build/output/log for simpler, direct logging
   if (!process.env.POLKACHU_USER || !process.env.POLKACHU_PASSWORD) {
-    log.warn('env POLKACHU_USER or POLKACHU_PASSWORD is not set, will use public nodes')
+    console.warn('⚠️  env POLKACHU_USER or POLKACHU_PASSWORD is not set, will use public nodes')
   }
-
-  checkEnv.once = true
 }
