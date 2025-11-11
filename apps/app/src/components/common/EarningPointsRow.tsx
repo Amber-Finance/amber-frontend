@@ -35,7 +35,7 @@ export function EarningPointsRow({
               const pointsData = []
 
               if (type === 'strategy') {
-                // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
+                // Strategy points: Structured Points 2x, Neutron 1x, Mars Fragments
                 pointsData.push({
                   icon: '/images/structured.svg',
                   alt: 'Structured Points',
@@ -44,7 +44,7 @@ export function EarningPointsRow({
                 pointsData.push({
                   icon: '/images/neutron/neutron.svg',
                   alt: 'Neutron',
-                  tooltip: 'Neutron 2x',
+                  tooltip: 'Neutron 1x',
                 })
                 pointsData.push({
                   icon: '/points/mars-fragments.svg',
@@ -113,7 +113,7 @@ export function EarningPointsRow({
           const pointsData = []
 
           if (type === 'strategy') {
-            // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
+            // Strategy points: Structured Points 2x, Neutron 1x, Mars Fragments
             pointsData.push({
               icon: '/images/structured.svg',
               alt: 'Structured Points',
@@ -122,7 +122,7 @@ export function EarningPointsRow({
             pointsData.push({
               icon: '/images/neutron/neutron.svg',
               alt: 'Neutron',
-              tooltip: 'Neutron 2x',
+              tooltip: 'Neutron 1x',
             })
             pointsData.push({
               icon: '/points/mars-fragments.svg',

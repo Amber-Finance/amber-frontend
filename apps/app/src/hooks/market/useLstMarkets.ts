@@ -15,6 +15,15 @@ interface BtcYieldData {
 
 interface AmberApiResponse {
   btcYield: BtcYieldData[]
+  apys: {
+    fbtc: string
+    lbtc: string
+    solvbtc: string
+    ebtc: string
+    unibtc: string
+    wbtc: string
+    maxbtc: string
+  }
 }
 
 const fetcher = async (url: string): Promise<AmberApiResponse> => {
@@ -66,9 +75,27 @@ export function useLstMarkets(): {
   // Helper function to get staking APY for a specific token
   const getTokenStakingApy = useCallback(
     (symbol: string): number => {
-      if (!stakingData?.btcYield) return 0
-      const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
-      return tokenData?.apy || 0
+      if (!stakingData) return 0
+
+      // For maxBTC, check the apys object
+      if (symbol.toLowerCase() === 'maxbtc' && stakingData.apys?.maxbtc) {
+        return parseFloat(stakingData.apys.maxbtc)
+      }
+
+      // For other tokens, check btcYield array first
+      if (stakingData.btcYield) {
+        const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
+        if (tokenData?.apy) return tokenData.apy
+      }
+
+      // Fallback to apys object for other tokens
+      if (stakingData.apys) {
+        const symbolKey = symbol.toLowerCase() as keyof typeof stakingData.apys
+        const apyValue = stakingData.apys[symbolKey]
+        if (apyValue) return parseFloat(apyValue)
+      }
+
+      return 0
     },
     [stakingData],
   )
@@ -84,7 +111,9 @@ export function useLstMarkets(): {
         if (!tokenData?.isLST) {
           return null
         }
-        if (!market.params.red_bank.borrow_enabled) {
+        // Include tokens that have deposit enabled (even if borrow is not enabled)
+        // This allows tokens like maxBTC to be shown on the deposit page
+        if (!market.params.red_bank.deposit_enabled) {
           return null
         }
 

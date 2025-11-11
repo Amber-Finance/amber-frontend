@@ -30,11 +30,11 @@ export function StrategyPointsCard({ strategy }: StrategyPointsCardProps) {
             suffix=''
             brandColor={strategy.debtAsset.brandColor}
           />
-          {/* Neutron Rewards - Always 2x for strategies */}
+          {/* Neutron Rewards - Always 1x for strategies */}
           <MetricRow
             customIcon='/images/neutron/neutron.svg'
             label='Neutron Rewards'
-            value='2x'
+            value='1x'
             suffix=' multiplier'
             brandColor={strategy.debtAsset.brandColor}
           />
