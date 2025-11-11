@@ -235,6 +235,7 @@ interface ChainConfig {
     pyth: string
     swapper: string
     dualitySwapper: string
+    structuredPoints: string
   }
   endpoints: {
     restUrl: string
@@ -247,6 +248,7 @@ interface ChainConfig {
   queries: {
     allAssetParams: string
     allMarkets: string
+    allCoinBalances: string
   }
 }
 
@@ -1197,4 +1199,18 @@ interface TvlAsset {
 
 interface RedBankAssetsTvl {
   assets: TvlAsset[]
+}
+
+// Credit Account Deposits - aggregated balances by denom from credit accounts
+interface CreditAccountDeposits {
+  [denom: string]: string // denom -> total amount
+}
+
+// API response structure for all coin balances query
+interface AllCoinBalancesResponse {
+  data: Array<{
+    account_id: string
+    amount: string
+    denom: string
+  }>
 }
