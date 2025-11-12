@@ -13,6 +13,7 @@ const chainConfig: ChainConfig = {
     pyth: 'neutron1m2emc93m9gpwgsrsf2vylv9xvgqh654630v7dfrhrkmr5slly53spg85wv',
     swapper: 'neutron1ratz633muu96er3wn7kx5hzty8zdg5d8maqduykesun30ddcseeqceyhfl',
     dualitySwapper: 'neutron1ltg4s9hfm7ta55nwclvgr8vhu6hwmqjs2q6luu9l3pt0g79whv6skg02jp',
+    structuredPoints: 'neutron1ng8zg06s64g6k3hecp2wejuqxxanlf7z88q0nawqdrrq07j2wwtsuhnjsq',
   },
   endpoints: {
     // Base URL for REST API
@@ -37,6 +38,8 @@ const chainConfig: ChainConfig = {
     // Query for all asset parameters with a limit of 100
     allAssetParams: 'ewogICJhbGxfYXNzZXRfcGFyYW1zIjogewogICAgImxpbWl0IjogMTAwCiAgfQp9',
     allMarkets: 'ewoibWFya2V0c192MiI6IHsKImxpbWl0IjogMTAwCn0KfQ==',
+    allCoinBalances:
+      'eyJhbGxfY29pbl9iYWxhbmNlcyI6IHsibGltaXQiOiAxMDAwLCAic3RhcnRfYWZ0ZXIiOiBudWxsfX0K',
   },
 }
 

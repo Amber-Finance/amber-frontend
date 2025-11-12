@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 import { ArrowDownToLine } from 'lucide-react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import { NeutronRewardsBadge } from '@/components/common/NeutronRewardsBadge'
 import TokenBalance from '@/components/common/TokenBalance'
 import { getProtocolIcon } from '@/components/deposit/helpers'
 import { useTheme } from '@/components/providers/ThemeProvider'
@@ -225,8 +226,16 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </div>
           </div>
 
-          {/* Points Section */}
-          <EarningPointsRow assetSymbol={token.symbol} variant='full' type='deposit' />
+          {/* Additional Rewards Section */}
+          <div className='space-y-3'>
+            <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
+
+            {/* Points */}
+            <EarningPointsRow assetSymbol={token.symbol} variant='full' type='deposit' />
+
+            {/* Neutron Rewards APY */}
+            <NeutronRewardsBadge symbol={token.symbol.toLowerCase()} variant='default' />
+          </div>
 
           {/* Flexible spacer to push content to bottom */}
           <div className='flex-1' />

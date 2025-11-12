@@ -7,6 +7,7 @@ import { useChain } from '@cosmos-kit/react'
 import { ActiveDepositCard } from '@/app/portfolio/ActiveDepositCard'
 import { ActiveStrategyCard } from '@/app/portfolio/ActiveStrategyCard'
 import Hero from '@/components/layout/Hero'
+import { PointsCard } from '@/components/portfolio/PointsCard'
 import { WalletBalances } from '@/components/portfolio/WalletBalances'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
@@ -187,6 +188,9 @@ const Portfolio = () => {
                     </Card>
                   )
                 })}
+
+            {/* Structured Points Card - Show when wallet is connected */}
+            {address && <PointsCard address={address} />}
           </div>
 
           {/* Active Strategies Section - Only show when wallet is connected */}
