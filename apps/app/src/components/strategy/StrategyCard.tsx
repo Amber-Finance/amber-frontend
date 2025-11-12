@@ -8,6 +8,7 @@ import { useChain } from '@cosmos-kit/react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
 import FormattedValue from '@/components/common/FormattedValue'
+import { NeutronRewardsBadge } from '@/components/common/NeutronRewardsBadge'
 import TokenBalance from '@/components/common/TokenBalance'
 import { Button } from '@/components/ui/Button'
 import { FlickeringGrid } from '@/components/ui/FlickeringGrid'
@@ -217,12 +218,21 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
             </div>
           </div>
 
-          {/* Earning Points Section */}
-          <div className='pt-2'>
+          {/* Additional Rewards Section */}
+          <div className='pt-2 space-y-3 pb-3 border-b border-border/20'>
+            <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
+
+            {/* Points */}
             <EarningPointsRow
               assetSymbol={strategy.debtAsset.symbol}
               variant='full'
               type='strategy'
+            />
+
+            {/* Neutron Rewards APY */}
+            <NeutronRewardsBadge
+              symbol={`maxbtc-${strategy.debtAsset.symbol.toLowerCase()}`}
+              variant='default'
             />
           </div>
 

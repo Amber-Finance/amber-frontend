@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Info } from 'lucide-react'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import { NeutronRewardsBadge } from '@/components/common/NeutronRewardsBadge'
 import { Button } from '@/components/ui/Button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -200,17 +201,26 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
           </p>
         </div>
 
-        {/* Earning Points Section */}
-        <div className='pt-3 border-t border-border/20'>
+        {/* Additional Rewards Section */}
+        <div className='pt-3 border-t border-border/20 space-y-3 pb-3 border-b border-border/20'>
+          <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
+          
+          {/* Points */}
           <EarningPointsRow
             assetSymbol={strategy.debtAsset.symbol}
             variant='full'
             type='strategy'
           />
+
+          {/* Neutron Rewards APY */}
+          <NeutronRewardsBadge
+            symbol={`maxbtc-${strategy.debtAsset.symbol.toLowerCase()}`}
+            variant='default'
+          />
         </div>
 
         {/* Strategy Metrics */}
-        <div className='grid grid-cols-2 gap-3 pt-3 border-t border-border/20'>
+        <div className='grid grid-cols-2 gap-3 pt-3'>
           <div className='bg-secondary/20 rounded-lg p-2.5 text-center border border-border/40'>
             <p className='text-muted-foreground text-xs uppercase tracking-wider mb-1'>Leverage</p>
             <p className={`font-semibold text-sm ${getLeverageColor(strategy.leverage)}`}>

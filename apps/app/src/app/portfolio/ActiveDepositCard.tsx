@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 import { EarningPointsRow } from '@/components/common/EarningPointsRow'
+import { NeutronRewardsBadge } from '@/components/common/NeutronRewardsBadge'
 import { Button } from '@/components/ui/Button'
 import { CountingNumber } from '@/components/ui/CountingNumber'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -106,9 +107,9 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
       </CardHeader>
 
       {/* Main Content */}
-      <CardContent className='relative space-y-6'>
+      <CardContent className='relative flex flex-col h-full'>
         {/* Metrics Grid */}
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='grid grid-cols-2 gap-4 mb-6'>
           <div>
             <p className='text-xs text-muted-foreground uppercase tracking-wider mb-2'>Equity</p>
             <p className='text-2xl font-funnel font-bold text-foreground'>
@@ -142,13 +143,19 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
           </div>
         </div>
 
-        {/* Earning Points Section */}
-        <div className='pt-3 border-t border-border/20'>
+        {/* Additional Rewards Section - fills available space */}
+        <div className='flex-1 pt-3 border-t border-border/20 space-y-3 pb-3 border-b border-border/20'>
+          <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
+
+          {/* Points */}
           <EarningPointsRow assetSymbol={deposit.symbol} variant='full' type='deposit' />
+
+          {/* Neutron Rewards APY */}
+          <NeutronRewardsBadge symbol={deposit.symbol.toLowerCase()} variant='default' />
         </div>
 
-        {/* Action Button */}
-        <div className='flex pt-4 border-t border-border/20'>
+        {/* Action Button - aligned to bottom */}
+        <div className='flex items-end pt-4'>
           <Button
             variant='default'
             size='sm'

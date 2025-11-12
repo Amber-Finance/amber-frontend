@@ -8,7 +8,7 @@ interface EarningPointsRowProps {
   assetSymbol: string
   /** Layout variant - 'full' shows the full section like on deposit cards, 'compact' shows abbreviated badges */
   variant?: 'full' | 'compact'
-  /** Type of position - 'strategy' only shows structured points + Mars + Neutron, 'deposit' shows all points */
+  /** Type of position - 'strategy' only shows structured points + Mars, 'deposit' shows protocol points + Mars */
   type?: 'strategy' | 'deposit'
   /** Optional custom class name */
   className?: string
@@ -29,22 +29,17 @@ export function EarningPointsRow({
     return (
       <div className={`space-y-3 ${className}`}>
         <div className='flex items-center justify-between'>
-          <span className='text-sm font-semibold text-foreground'>Earning Points</span>
+          <span className='text-sm text-foreground'>Earning Points</span>
           <div className='flex -space-x-2'>
             {(() => {
               const pointsData = []
 
               if (type === 'strategy') {
-                // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
+                // Strategy points: Structured Points 2x, Mars Fragments
                 pointsData.push({
                   icon: '/images/structured.svg',
                   alt: 'Structured Points',
                   tooltip: 'Structured Points 2x',
-                })
-                pointsData.push({
-                  icon: '/images/neutron/neutron.svg',
-                  alt: 'Neutron',
-                  tooltip: 'Neutron 2x',
                 })
                 pointsData.push({
                   icon: '/points/mars-fragments.svg',
@@ -52,10 +47,7 @@ export function EarningPointsRow({
                   tooltip: 'Mars Fragments',
                 })
               } else {
-                // Deposit points: Protocol-specific, Neutron, Mars Fragments
-                const assetLower = assetSymbol.toLowerCase()
-                const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
+                // Deposit points: Protocol-specific, Mars Fragments
                 // Protocol Points - Show first if they exist
                 if (protocolPoints.protocolPoint && protocolPointsIcon) {
                   pointsData.push({
@@ -64,13 +56,6 @@ export function EarningPointsRow({
                     tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
                   })
                 }
-
-                // Neutron Rewards
-                pointsData.push({
-                  icon: '/images/neutron/neutron.svg',
-                  alt: 'Neutron',
-                  tooltip: `Neutron ${neutronMultiplier}`,
-                })
 
                 // Mars Fragments
                 pointsData.push({
@@ -113,16 +98,11 @@ export function EarningPointsRow({
           const pointsData = []
 
           if (type === 'strategy') {
-            // Strategy points: Structured Points 2x, Neutron 2x, Mars Fragments
+            // Strategy points: Structured Points 2x, Mars Fragments
             pointsData.push({
               icon: '/images/structured.svg',
               alt: 'Structured Points',
               tooltip: 'Structured Points 2x',
-            })
-            pointsData.push({
-              icon: '/images/neutron/neutron.svg',
-              alt: 'Neutron',
-              tooltip: 'Neutron 2x',
             })
             pointsData.push({
               icon: '/points/mars-fragments.svg',
@@ -130,10 +110,7 @@ export function EarningPointsRow({
               tooltip: 'Mars Fragments',
             })
           } else {
-            // Deposit points: Protocol-specific, Neutron, Mars Fragments
-            const assetLower = assetSymbol.toLowerCase()
-            const neutronMultiplier = assetLower === 'wbtc' ? '3x' : '2x'
-
+            // Deposit points: Protocol-specific, Mars Fragments
             // Protocol Points - Show first if they exist
             if (protocolPoints.protocolPoint && protocolPointsIcon) {
               pointsData.push({
@@ -142,13 +119,6 @@ export function EarningPointsRow({
                 tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
               })
             }
-
-            // Neutron Rewards
-            pointsData.push({
-              icon: '/images/neutron/neutron.svg',
-              alt: 'Neutron',
-              tooltip: `Neutron ${neutronMultiplier}`,
-            })
 
             // Mars Fragments
             pointsData.push({

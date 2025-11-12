@@ -8,6 +8,7 @@ import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 import { ArrowLeft } from 'lucide-react'
 
+import { NeutronRewardsBadge } from '@/components/common/NeutronRewardsBadge'
 import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard, MetricRow } from '@/components/deposit'
 import { AssetActions } from '@/components/deposit/AssetActions'
@@ -293,24 +294,26 @@ export default function DepositClient() {
             </div>
           </InfoCard>
 
-          {/* Incentives Breakdown Section */}
-          <InfoCard title='Incentives Breakdown'>
-            <div className='space-y-4'>
-              {/* Yield Section */}
-              <div className='space-y-3'>
-                <div className='text-sm text-muted-foreground/80 leading-relaxed'>
-                  Get native yield in the form of {token.symbol}.
-                </div>
-                <MetricRow
-                  customIcon={token.icon}
-                  label={'Amber Finance Yield'}
-                  value={`~${currentProtocolApy}`}
-                  suffix='%'
-                  brandColor={token.brandColor}
-                />
+          {/* Yield Section */}
+          <InfoCard title='Yield'>
+            <div className='space-y-3'>
+              <div className='text-sm text-muted-foreground/80 leading-relaxed'>
+                Get native yield in the form of {token.symbol}.
               </div>
+              <MetricRow
+                customIcon={token.icon}
+                label={'Amber Finance Yield'}
+                value={`~${currentProtocolApy}`}
+                suffix='%'
+                brandColor={token.brandColor}
+              />
+            </div>
+          </InfoCard>
 
-              {/* Points Section */}
+          {/* Additional Rewards Section */}
+          <InfoCard title='Additional Rewards'>
+            <div className='space-y-4'>
+              {/* Earning Points Section */}
               <div className='space-y-3'>
                 <div className='text-sm text-muted-foreground/80 leading-relaxed'>
                   By supplying this asset, you automatically farm points for:
@@ -334,15 +337,12 @@ export default function DepositClient() {
                     suffix={depositMultipliers.mars.suffix}
                     brandColor={token.brandColor}
                   />
-                  {/* Neutron Rewards */}
-                  <MetricRow
-                    customIcon='/images/neutron/neutron.svg'
-                    label='Neutron Rewards'
-                    value={depositMultipliers.neutron.value}
-                    suffix={depositMultipliers.neutron.suffix}
-                    brandColor={token.brandColor}
-                  />
                 </div>
+              </div>
+
+              {/* Neutron Rewards APY Section */}
+              <div className='pt-3 border-t border-border/20'>
+                <NeutronRewardsBadge symbol={token.symbol.toLowerCase()} variant='default' />
               </div>
             </div>
           </InfoCard>
