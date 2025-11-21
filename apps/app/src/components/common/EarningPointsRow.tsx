@@ -62,16 +62,12 @@ export function EarningPointsRow({
                 pointsData.push({
                   icon: '/images/structured.svg',
                   alt: 'Structured Points',
-                  tooltip: address
-                    ? `Structured Points: ${formatNumber(structuredPoints)}`
-                    : 'Structured Points 2x',
+                  tooltip: 'Structured Points 2x',
                 })
                 pointsData.push({
                   icon: '/points/mars-fragments.svg',
                   alt: 'Mars Fragments',
-                  tooltip: address
-                    ? `Mars Fragments: ${formatNumber(fragments)}`
-                    : 'Mars Fragments',
+                  tooltip: 'Mars Fragments',
                 })
               } else {
                 // Deposit points: Protocol-specific, Mars Fragments
@@ -88,9 +84,7 @@ export function EarningPointsRow({
                 pointsData.push({
                   icon: '/points/mars-fragments.svg',
                   alt: 'Mars Fragments',
-                  tooltip: address
-                    ? `Mars Fragments: ${formatNumber(fragments)}`
-                    : 'Mars Fragments',
+                  tooltip: 'Mars Fragments',
                 })
               }
 
@@ -131,14 +125,12 @@ export function EarningPointsRow({
             pointsData.push({
               icon: '/images/structured.svg',
               alt: 'Structured Points',
-              tooltip: address
-                ? `Structured Points: ${formatNumber(structuredPoints)}`
-                : 'Structured Points 2x',
+              tooltip: 'Structured Points 2x',
             })
             pointsData.push({
               icon: '/points/mars-fragments.svg',
               alt: 'Mars Fragments',
-              tooltip: address ? `Mars Fragments: ${formatNumber(fragments)}` : 'Mars Fragments',
+              tooltip: 'Mars Fragments',
             })
           } else {
             // Deposit points: Protocol-specific, Mars Fragments
@@ -155,7 +147,7 @@ export function EarningPointsRow({
             pointsData.push({
               icon: '/points/mars-fragments.svg',
               alt: 'Mars Fragments',
-              tooltip: address ? `Mars Fragments: ${formatNumber(fragments)}` : 'Mars Fragments',
+              tooltip: 'Mars Fragments',
             })
           }
 
