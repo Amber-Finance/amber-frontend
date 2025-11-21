@@ -80,7 +80,7 @@ export function EarningPointsRow({
                   pointsData.push({
                     icon: protocolPointsIcon,
                     alt: protocolPoints.protocolPoint,
-                    tooltip: `${protocolPoints.protocolPoint} Points ${protocolPoints.multiplier}`,
+                    tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
                   })
                 }
 
