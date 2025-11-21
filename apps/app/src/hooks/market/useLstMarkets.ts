@@ -8,19 +8,18 @@ import { useWalletBalances } from '@/hooks/wallet'
 import { useStore } from '@/store/useStore'
 import { convertAprToApy } from '@/utils/data/finance'
 
-interface BtcYieldData {
-  symbol: string
-  apy: number
-}
-
 interface AmberApiResponse {
-  btcYield: BtcYieldData[]
+  apys: {
+    // Total APY for each token (lending + staking combined)
+    // e.g., { "maxbtc": "4.00", "wbtc": "0.68", ... }
+    [key: string]: string
+  }
 }
 
 const fetcher = async (url: string): Promise<AmberApiResponse> => {
   const response = await fetch(url)
   if (!response.ok) {
-    throw new Error('Failed to fetch BTC yields')
+    throw new Error('Failed to fetch BTC APYs')
   }
   return response.json()
 }
@@ -42,6 +41,12 @@ export interface LstMarketData {
   }
 }
 
+/**
+ * Hook to fetch all deposit markets with complete APY data
+ * Uses total APY from Amber Finance API (lending + staking combined)
+ * Falls back to lending APY from Mars Protocol if API data not available
+ * @returns Market data including total APY and breakdown (lending + staking)
+ */
 export function useLstMarkets(): {
   data: LstMarketData[]
   isLoading: boolean
@@ -53,7 +58,7 @@ export function useLstMarkets(): {
   // Fetch wallet balances
   const { data: walletBalances, isLoading: isWalletLoading } = useWalletBalances()
 
-  // Fetch staking yields from Amber Finance API
+  // Fetch total APYs from Amber Finance API (includes lending + staking)
   const {
     data: stakingData,
     error: stakingError,
@@ -63,12 +68,14 @@ export function useLstMarkets(): {
     revalidateOnFocus: false,
   })
 
-  // Helper function to get staking APY for a specific token
+  // Helper function to get total APY for a specific token from Amber API
+  // This returns the complete APY (lending + staking combined)
   const getTokenStakingApy = useCallback(
     (symbol: string): number => {
-      if (!stakingData?.btcYield) return 0
-      const tokenData = stakingData.btcYield.find((token) => token.symbol === symbol)
-      return tokenData?.apy || 0
+      if (!stakingData?.apys) return 0
+      const symbolLower = symbol.toLowerCase()
+      const apyString = stakingData.apys[symbolLower]
+      return apyString ? parseFloat(apyString) : 0
     },
     [stakingData],
   )
@@ -80,22 +87,21 @@ export function useLstMarkets(): {
       .map((market) => {
         // Find token info from tokens.ts
         const tokenData = tokens.find((token) => token.denom === market.asset.denom)
-        // Skip if token not found or not an LST
-        if (!tokenData?.isLST) {
+        // Skip if token not found
+        if (!tokenData) {
           return null
         }
-        if (!market.params.red_bank.borrow_enabled) {
-          return null
-        }
-
-        // Calculate protocol APY from the market
+        // Calculate lending APY from Mars Protocol (Red Bank)
         const lendingApy = parseFloat(convertAprToApy(market.metrics.liquidity_rate || '0'))
 
-        // Get staking APY from Amber Finance API
-        const stakingApy = getTokenStakingApy(tokenData.symbol)
+        // Get total APY from Amber Finance API (includes both lending + staking)
+        const apiTotalApy = getTokenStakingApy(tokenData.symbol)
 
-        // Calculate total APY
-        const totalApy = parseFloat((lendingApy + stakingApy).toFixed(2))
+        // If API has a total APY, use it. Otherwise just use lending APY
+        const totalApy = apiTotalApy > 0 ? apiTotalApy : lendingApy
+
+        // Calculate staking APY as the difference (for breakdown display)
+        const stakingApy = apiTotalApy > 0 ? Math.max(0, totalApy - lendingApy) : 0
 
         // Get wallet balance for this token
         const walletBalance = walletBalances?.find(

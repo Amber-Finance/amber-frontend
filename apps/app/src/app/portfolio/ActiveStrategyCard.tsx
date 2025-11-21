@@ -17,6 +17,7 @@ import { getHealthFactorColor } from '@/utils/blockchain/healthComputer'
 interface ActiveStrategyCardProps {
   strategy: ActiveStrategy
   index: number
+  address?: string
 }
 
 // Helper function to determine leverage color
@@ -26,7 +27,7 @@ const getLeverageColor = (leverage: number): string => {
   return 'text-red-600 dark:text-red-400'
 }
 
-export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps) {
+export function ActiveStrategyCard({ strategy, index, address }: ActiveStrategyCardProps) {
   const router = useRouter()
   const { markets } = useStore()
 
@@ -145,10 +146,10 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
   }
 
   return (
-    <Card className='group relative overflow-hidden bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg'>
+    <Card className='group relative overflow-visible bg-card border border-border/20 backdrop-blur-xl hover:border-border/40 transition-all duration-500 hover:shadow-lg hover:z-10'>
       {/* Card Header */}
-      <CardHeader className='relative z-20'>
-        <div className='flex items-center justify-between mb-3'>
+      <CardHeader className='relative z-20 min-h-[88px]'>
+        <div className='flex items-start justify-between mb-3'>
           <div className='flex items-center gap-3'>
             <div className='relative'>
               <div className='relative w-12 h-12'>
@@ -172,10 +173,18 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
               </div>
             </div>
             <div className='flex flex-col'>
-              <CardTitle className='text-lg font-semibold'>
+              <CardTitle className='text-lg font-semibold leading-tight'>
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
               </CardTitle>
-              <CardDescription className='text-sm text-muted-foreground'>
+              <CardDescription
+                className='text-sm text-muted-foreground leading-[1.4] h-10 overflow-hidden'
+                style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  textOverflow: 'ellipsis',
+                }}
+              >
                 Supply {strategy.collateralAsset.symbol}, borrow {strategy.debtAsset.symbol}
               </CardDescription>
             </div>
@@ -204,12 +213,13 @@ export function ActiveStrategyCard({ strategy, index }: ActiveStrategyCardProps)
         {/* Additional Rewards Section */}
         <div className='pt-3 border-t border-border/20 space-y-3 pb-3 border-b border-border/20'>
           <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
-          
+
           {/* Points */}
           <EarningPointsRow
             assetSymbol={strategy.debtAsset.symbol}
             variant='full'
             type='strategy'
+            address={address}
           />
 
           {/* Neutron Rewards APY */}

@@ -46,7 +46,12 @@ export const getProtocolPoints = (symbol: string) => {
       protocolIconLight: '/images/bedrock.svg',
       protocolIconDark: '/images/bedrock.svg', // Same icon for both themes
     },
-    maxbtc: { multiplier: '1x', protocolPoint: 'Structured Points (TBC)' },
+    maxbtc: {
+      multiplier: '1x',
+      protocolPoint: 'Structured Points',
+      protocolIconLight: '/images/structured.svg',
+      protocolIconDark: '/images/structured.svg', // Same icon for both themes
+    },
   }
 
   return pointsMap[symbolLower] || { multiplier: '1X' }

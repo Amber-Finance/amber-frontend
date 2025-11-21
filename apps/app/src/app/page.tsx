@@ -2,11 +2,13 @@
 
 import { useMemo } from 'react'
 
+import { useChain } from '@cosmos-kit/react'
 import { BigNumber } from 'bignumber.js'
 
 import DepositCard from '@/components/deposit/DepositCard'
 import Hero from '@/components/layout/Hero'
 import { AuroraText } from '@/components/ui/AuroraText'
+import chainConfig from '@/config/chain'
 import { useLstMarkets, useMarkets } from '@/hooks'
 import type { LstMarketData } from '@/hooks/market/useLstMarkets'
 import { useUserPositions } from '@/hooks/portfolio'
@@ -26,6 +28,7 @@ const calculateTotalTvl = (redBankAssetsTvl: RedBankAssetsTvl): number | null =>
 }
 
 export default function Home() {
+  const { address } = useChain(chainConfig.name)
   useMarkets()
   useUserPositions()
   const { data: lstMarkets, isLoading } = useLstMarkets()
@@ -76,7 +79,12 @@ export default function Home() {
             // style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
           >
             {sortedMarkets.map((item) => (
-              <DepositCard key={item.token.symbol} token={item.token} metrics={item.metrics} />
+              <DepositCard
+                key={item.token.symbol}
+                token={item.token}
+                metrics={item.metrics}
+                address={address}
+              />
             ))}
           </div>
         ) : (

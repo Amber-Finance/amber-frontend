@@ -20,16 +20,12 @@ export default function Hero({ title, subtitle, description, stats }: HeroProps)
     <section className='relative w-full py-10 sm:py-20 overflow-hidden px-4 sm:px-8'>
       <div className='flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-12'>
         {/* Left Column - Main Content */}
-        <div className='flex-1 flex flex-col justify-between gap-6'>
+        <div className='flex-1 flex flex-col justify-between gap-6 min-w-0'>
           <div className='space-y-3'>
-            <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>
-              {title && (
-                <>
-                  {title}
-                  {subtitle && <span className='block'>{subtitle}</span>}
-                </>
-              )}
-            </h1>
+            {title && <h1 className='text-3xl lg:text-5xl font-funnel leading-tight'>{title}</h1>}
+            {subtitle && (
+              <h2 className='text-2xl lg:text-4xl font-funnel leading-tight'>{subtitle}</h2>
+            )}
             {description && (
               <p className='text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg'>
                 {description}
@@ -40,8 +36,8 @@ export default function Hero({ title, subtitle, description, stats }: HeroProps)
 
         {/* Right Column - Stats Cards */}
         {stats && stats.length > 0 && (
-          <div className='flex-1 w-full h-full flex justify-end'>
-            <div className='flex flex-row gap-2 sm:gap-3'>
+          <div className='w-full lg:w-auto flex justify-start lg:justify-end'>
+            <div className='flex flex-row flex-wrap gap-2 sm:gap-3'>
               {stats.map((stat, index) => (
                 <StatCard
                   key={`stat-${stat.value ?? 'loading'}-${index}`}

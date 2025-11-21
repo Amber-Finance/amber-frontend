@@ -40,7 +40,7 @@ interface StrategyCardProps {
 }
 
 export function StrategyCard({ strategy }: StrategyCardProps) {
-  const { isWalletConnected, connect } = useChain(chainConfig.name)
+  const { isWalletConnected, connect, address } = useChain(chainConfig.name)
   const { data: walletBalances } = useWalletBalances()
   const { markets } = useStore()
   const { isWasmReady } = useHealthComputer()
@@ -116,8 +116,8 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         }}
       />
 
-      <CardHeader className='relative z-20 h-20 sm:h-24 flex-shrink-0'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 h-full'>
+      <CardHeader className='relative z-20 h-[88px] sm:h-24 flex-shrink-0'>
+        <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 h-full'>
           <div className='flex items-center gap-4 h-full'>
             <div className='relative flex-shrink-0'>
               <div className='relative w-10 h-10 sm:w-12 sm:h-12'>
@@ -145,7 +145,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
                 {strategy.collateralAsset.symbol}/{strategy.debtAsset.symbol}
               </CardTitle>
               <CardDescription
-                className='text-xs sm:text-sm text-muted-foreground leading-tight h-8 overflow-hidden'
+                className='text-xs sm:text-sm text-muted-foreground leading-[1.4] h-10 overflow-hidden'
                 style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
@@ -227,6 +227,7 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
               assetSymbol={strategy.debtAsset.symbol}
               variant='full'
               type='strategy'
+              address={address}
             />
 
             {/* Neutron Rewards APY */}
