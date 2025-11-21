@@ -235,54 +235,44 @@ body {
 }
 
 .nav-glow-active {
-  background: linear-gradient(
-    to top,
-    rgba(255, 115, 0, 0.15) 0%,
-    rgba(255, 115, 0, 0.08) 40%,
-    transparent 80%
-  );
+  background: linear-gradient(to top, #ff730026 0%, #ff730014 40%, #0000 80%);
   animation: navGlow 2s ease-in-out infinite alternate;
   box-shadow:
-    0 0 20px rgba(255, 115, 0, 0.1),
-    0 4px 12px rgba(0, 0, 0, 0.1);
+    0 0 20px #ff73001a,
+    0 4px 12px #00000014;
 }
 
 .dark .nav-glow-active {
-  background: linear-gradient(
-    to top,
-    rgba(255, 120, 0, 0.25) 0%,
-    rgba(255, 120, 0, 0.12) 40%,
-    transparent 80%
-  );
+  background: linear-gradient(to top, #ff7800026 0%, #ff73001401 40%, #0000 80%);
   animation: navGlowDark 2s ease-in-out infinite alternate;
   box-shadow:
-    0 0 20px rgba(255, 120, 0, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+    0 0 20px #ff780026,
+    0 4px 12px #00000014;
 }
 
 @keyframes navGlow {
   0% {
     box-shadow:
-      0 0 20px rgba(255, 115, 0, 0.1),
-      0 4px 12px rgba(0, 0, 0, 0.1);
+      0 0 20px #ff73001a,
+      0 4px 12px #00000014;
   }
   100% {
     box-shadow:
-      0 0 30px rgba(255, 115, 0, 0.2),
-      0 6px 16px rgba(0, 0, 0, 0.15);
+      0 0 30px #ff730033,
+      0 6px 16px #00000026;
   }
 }
 
 @keyframes navGlowDark {
   0% {
     box-shadow:
-      0 0 20px rgba(255, 120, 0, 0.15),
-      0 4px 12px rgba(0, 0, 0, 0.3);
+      0 0 20px #ff780026,
+      0 4px 12px #00000014;
   }
   100% {
     box-shadow:
-      0 0 30px rgba(255, 120, 0, 0.25),
-      0 6px 16px rgba(0, 0, 0, 0.4);
+      0 0 30px #ff780040,
+      0 6px 16px #0000004d;
   }
 }
 

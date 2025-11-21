@@ -70,8 +70,8 @@ export default function StrategyPage({ params }: StrategyPageProps) {
       isLST: true,
       protocol: 'Structured Finance',
       brandColor: '#F97316',
-      protocolIconLight: '/images/structured/structuredLight.svg',
-      protocolIconDark: '/images/structured/structuredDark.svg',
+      protocolIconLight: '/images/structured.svg',
+      protocolIconDark: '/images/structured.svg',
       origin: {
         chainId: '1',
         tokenAddress: '0x0000000000000000000000000000000000000000',

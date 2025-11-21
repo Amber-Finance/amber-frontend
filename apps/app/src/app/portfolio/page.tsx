@@ -7,7 +7,7 @@ import { useChain } from '@cosmos-kit/react'
 import { ActiveDepositCard } from '@/app/portfolio/ActiveDepositCard'
 import { ActiveStrategyCard } from '@/app/portfolio/ActiveStrategyCard'
 import Hero from '@/components/layout/Hero'
-import { PointsCard } from '@/components/portfolio/PointsCard'
+import { MarsFragmentsCard, StructuredPointsCard } from '@/components/portfolio/PointsCard'
 import { WalletBalances } from '@/components/portfolio/WalletBalances'
 import { AuroraText } from '@/components/ui/AuroraText'
 import { Button } from '@/components/ui/Button'
@@ -101,11 +101,6 @@ const Portfolio = () => {
 
   const stats = [
     {
-      title: 'Total Equity',
-      value: totalPortfolioValue || 0,
-      prefix: '$ ',
-    },
-    {
       title: 'Strategies Equity',
       value: (activeStrategies || []).reduce(
         (sum, strategy) => sum + (strategy.supply?.usdValue || 0),
@@ -138,8 +133,8 @@ const Portfolio = () => {
         description='Manage your active strategies and track your performance'
         stats={[
           {
-            value: totalBorrowedValue,
-            label: 'Total Borrow',
+            value: isLoading ? null : totalPortfolioValue,
+            label: 'Total Equity',
             isCurrency: true,
             prefix: '$ ',
           },
@@ -149,69 +144,79 @@ const Portfolio = () => {
             isCurrency: true,
             prefix: '$ ',
           },
+          {
+            value: totalBorrowedValue,
+            label: 'Total Borrow',
+            isCurrency: true,
+            prefix: '$ ',
+          },
         ]}
       />
 
       {/* Wallet Balances Section */}
       <WalletBalances />
 
-      <div className='w-full py-6  px-4 sm:px-6 lg:px-8'>
+      <div className='w-full px-4 sm:px-6 lg:px-8'>
         <div className='w-full mx-auto'>
-          {/* Portfolio Overview Stats */}
-          <div className='grid grid-cols-1 gap-6 mb-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'>
-            {isLoading && !portfolioPositions
-              ? // Show skeleton loading
-                Array.from({ length: 5 }).map((_, i) => (
-                  <SkeletonStatsCard key={`skeleton-stat-${i + 1}`} />
-                ))
-              : stats.map((stat, index) => {
-                  return (
-                    <Card
-                      key={`stat-${stat.title}`}
-                      className='group relative overflow-hidden bg-card border border-border/50 backdrop-blur-xl transition-all duration-300 '
-                    >
-                      <CardContent className=''>
-                        <div className='space-y-2'>
-                          <p className='text-xs text-muted-foreground uppercase tracking-wider font-medium'>
-                            {stat.title}
-                          </p>
-                          <div className='flex flex-row items-center gap-1 text-base font-funnel sm:text-lg lg:text-2xl text-foreground transition-transform duration-300'>
-                            {stat.prefix && <span className='text-primary'>{stat.prefix}</span>}
-                            <CountingNumber
-                              value={Number(stat.value)}
-                              decimalPlaces={stat.prefix || stat.suffix ? 2 : 0}
-                            />
-                            {stat.suffix && <span className='text-primary'>{stat.suffix}</span>}
+          {/* Overview Section */}
+          <div className='mb-8'>
+            <h2 className='text-lg font-semibold text-foreground mb-4'>Overview</h2>
+            <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+              {isLoading && !portfolioPositions
+                ? // Show skeleton loading
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonStatsCard key={`skeleton-stat-${i + 1}`} />
+                  ))
+                : stats.map((stat, index) => {
+                    return (
+                      <Card
+                        key={`stat-${stat.title}`}
+                        className='group relative overflow-hidden bg-card border border-border/50 backdrop-blur-xl transition-all duration-300 py-0'
+                      >
+                        <CardContent className='p-4'>
+                          <div className='space-y-1'>
+                            <p className='text-xs text-muted-foreground uppercase tracking-wider font-medium'>
+                              {stat.title}
+                            </p>
+                            <div className='flex flex-row items-center gap-1 text-lg font-funnel text-foreground transition-transform duration-300'>
+                              {stat.prefix && <span className='text-primary'>{stat.prefix}</span>}
+                              <CountingNumber
+                                value={Number(stat.value)}
+                                decimalPlaces={stat.prefix || stat.suffix ? 2 : 0}
+                              />
+                              {stat.suffix && <span className='text-primary'>{stat.suffix}</span>}
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-
-            {/* Structured Points Card - Show when wallet is connected */}
-            {address && <PointsCard address={address} />}
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+            </div>
           </div>
+
+          {/* Rewards Section */}
+          {address && (
+            <div className='mb-8'>
+              <h2 className='text-lg font-semibold text-foreground mb-4'>Rewards</h2>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <StructuredPointsCard address={address} />
+                <MarsFragmentsCard address={address} />
+              </div>
+            </div>
+          )}
 
           {/* Active Strategies Section - Only show when wallet is connected */}
           {address && (
-            <div className='mb-16'>
+            <div className='mb-8'>
               {activeStrategies.length > 0 && (
-                <div className='flex items-center justify-between mb-8'>
-                  <div>
-                    <h2 className='text-2xl font-funnel font-bold text-foreground mb-1'>
-                      Active Strategies
-                    </h2>
-                    <p className='text-muted-foreground'>Leveraged yield optimization positions</p>
-                  </div>
-                  <div className='flex items-center gap-4'>
-                    <Badge
-                      variant='secondary'
-                      className='px-3 py-1 bg-foreground/10 text-foreground border-border/20 font-medium'
-                    >
-                      {activeStrategies.length} Position{activeStrategies.length !== 1 ? 's' : ''}
-                    </Badge>
-                  </div>
+                <div className='flex items-center justify-between mb-4'>
+                  <h2 className='text-lg font-semibold text-foreground'>Active Strategies</h2>
+                  <Badge
+                    variant='secondary'
+                    className='px-3 py-1 bg-foreground/10 text-foreground border-border/20 font-medium text-xs'
+                  >
+                    {activeStrategies.length} Position{activeStrategies.length !== 1 ? 's' : ''}
+                  </Badge>
                 </div>
               )}
 
@@ -262,6 +267,7 @@ const Portfolio = () => {
                         key={strategy.accountId}
                         strategy={strategy}
                         index={index}
+                        address={address}
                       />
                     ))
                   )}
@@ -339,25 +345,16 @@ const Portfolio = () => {
 
           {/* Fixed Yield Deposits Section - Only show when wallet is connected */}
           {address && (
-            <div className='border-t border-border/20 pt-20'>
+            <div className='border-t border-border/20 pt-8 mb-8'>
               {deposits.length > 0 && (
-                <div className='flex items-center justify-between mb-12'>
-                  <div>
-                    <h2 className='text-2xl font-funnel font-bold text-foreground mb-2'>
-                      Active Deposits
-                    </h2>
-                    <p className='text-foreground/80 font-medium'>
-                      Traditional yield-bearing positions
-                    </p>
-                  </div>
-                  <div className='flex items-center gap-4'>
-                    <Badge
-                      variant='secondary'
-                      className='px-4 py-2 bg-foreground/10 text-foreground border-border/20 font-medium'
-                    >
-                      {deposits.length} Position{deposits.length !== 1 ? 's' : ''}
-                    </Badge>
-                  </div>
+                <div className='flex items-center justify-between mb-4'>
+                  <h2 className='text-lg font-semibold text-foreground'>Active Deposits</h2>
+                  <Badge
+                    variant='secondary'
+                    className='px-3 py-1 bg-foreground/10 text-foreground border-border/20 font-medium text-xs'
+                  >
+                    {deposits.length} Position{deposits.length !== 1 ? 's' : ''}
+                  </Badge>
                 </div>
               )}
 
@@ -413,6 +410,7 @@ const Portfolio = () => {
                               key={deposit.denom}
                               deposit={deposit}
                               index={index}
+                              address={address}
                             />
                           ))}
                         </div>

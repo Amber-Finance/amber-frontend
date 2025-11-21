@@ -21,7 +21,7 @@ export function useNeutronRewardsApy() {
 /**
  * Helper function to get Neutron Rewards APY for a specific token symbol
  * @param data - The Neutron Rewards APY response data
- * @param symbol - The token symbol (e.g., 'wbtc', 'unibtc')
+ * @param symbol - The token symbol (e.g., 'wbtc', 'unibtc', 'maxbtc-usdc')
  * @returns The APY as a number, or null if not found
  */
 export function getNeutronApyForSymbol(
