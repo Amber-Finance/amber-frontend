@@ -138,9 +138,7 @@ export function EarningPointsRow({
             pointsData.push({
               icon: '/points/mars-fragments.svg',
               alt: 'Mars Fragments',
-              tooltip: address
-                ? `Mars Fragments: ${formatNumber(fragments)}`
-                : 'Mars Fragments Points',
+              tooltip: address ? `Mars Fragments: ${formatNumber(fragments)}` : 'Mars Fragments',
             })
           } else {
             // Deposit points: Protocol-specific, Mars Fragments
@@ -149,7 +147,7 @@ export function EarningPointsRow({
               pointsData.push({
                 icon: protocolPointsIcon,
                 alt: protocolPoints.protocolPoint,
-                tooltip: `${protocolPoints.protocolPoint} Points ${protocolPoints.multiplier}`,
+                tooltip: `${protocolPoints.protocolPoint} ${protocolPoints.multiplier}`,
               })
             }
 
@@ -157,9 +155,7 @@ export function EarningPointsRow({
             pointsData.push({
               icon: '/points/mars-fragments.svg',
               alt: 'Mars Fragments',
-              tooltip: address
-                ? `Mars Fragments: ${formatNumber(fragments)}`
-                : 'Mars Fragments Points',
+              tooltip: address ? `Mars Fragments: ${formatNumber(fragments)}` : 'Mars Fragments',
             })
           }
 
