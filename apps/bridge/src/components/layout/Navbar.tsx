@@ -18,13 +18,13 @@ const mainNavigation = [
     name: 'Strategies',
     href: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/strategies',
   },
-]
-
-const moreNavigation = [
   {
     name: 'Portfolio',
     href: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/portfolio',
   },
+]
+
+const moreNavigation = [
   {
     name: 'Swap',
     href: (process.env.NEXT_PUBLIC_MAIN_APP_URL || 'https://app.amberfi.io') + '/swap',
