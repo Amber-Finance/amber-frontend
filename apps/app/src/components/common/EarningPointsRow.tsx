@@ -71,7 +71,7 @@ export function EarningPointsRow({
                   alt: 'Mars Fragments',
                   tooltip: address
                     ? `Mars Fragments: ${formatNumber(fragments)}`
-                    : 'Mars Fragments Points',
+                    : 'Mars Fragments',
                 })
               } else {
                 // Deposit points: Protocol-specific, Mars Fragments
@@ -90,7 +90,7 @@ export function EarningPointsRow({
                   alt: 'Mars Fragments',
                   tooltip: address
                     ? `Mars Fragments: ${formatNumber(fragments)}`
-                    : 'Mars Fragments Points',
+                    : 'Mars Fragments',
                 })
               }
 
