@@ -22,9 +22,10 @@ interface DepositPosition {
 interface ActiveDepositCardProps {
   deposit: DepositPosition
   index: number
+  address?: string
 }
 
-export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
+export function ActiveDepositCard({ deposit, index, address }: ActiveDepositCardProps) {
   const router = useRouter()
 
   // Get token information from config
@@ -148,7 +149,12 @@ export function ActiveDepositCard({ deposit, index }: ActiveDepositCardProps) {
           <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
 
           {/* Points */}
-          <EarningPointsRow assetSymbol={deposit.symbol} variant='full' type='deposit' />
+          <EarningPointsRow
+            assetSymbol={deposit.symbol}
+            variant='full'
+            type='deposit'
+            address={address}
+          />
 
           {/* Neutron Rewards APY */}
           <NeutronRewardsBadge symbol={deposit.symbol.toLowerCase()} variant='default' />

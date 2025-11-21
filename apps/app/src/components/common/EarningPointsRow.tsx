@@ -1,7 +1,10 @@
 import Image from 'next/image'
 
+import BigNumber from 'bignumber.js'
+
 import { getProtocolPoints, getProtocolPointsIcon } from '@/components/deposit/helpers'
 import { useTheme } from '@/components/providers/ThemeProvider'
+import { useFragments, useStructuredPoints } from '@/hooks/portfolio'
 
 interface EarningPointsRowProps {
   /** The asset symbol to determine which points are earned (e.g., 'solvBTC', 'LBTC', 'eBTC') */
@@ -12,6 +15,8 @@ interface EarningPointsRowProps {
   type?: 'strategy' | 'deposit'
   /** Optional custom class name */
   className?: string
+  /** Optional wallet address to fetch actual points data */
+  address?: string
 }
 
 export function EarningPointsRow({
@@ -19,10 +24,28 @@ export function EarningPointsRow({
   variant = 'compact',
   type = 'deposit',
   className = '',
+  address,
 }: EarningPointsRowProps) {
   const { theme } = useTheme()
   const protocolPoints = getProtocolPoints(assetSymbol)
   const protocolPointsIcon = getProtocolPointsIcon(assetSymbol, theme)
+
+  // Fetch actual points data if address is provided
+  const { data: structuredPointsData } = useStructuredPoints(address)
+  const { data: fragmentsData } = useFragments(address)
+
+  // Parse structured points
+  const structuredPointsRaw = structuredPointsData?.balance || '0'
+  const structuredPoints = new BigNumber(structuredPointsRaw).toNumber()
+
+  // Parse Mars fragments
+  const fragmentsRaw = fragmentsData?.total_fragments?.total_accumulated || '0'
+  const fragments = new BigNumber(fragmentsRaw).toNumber()
+
+  // Format numbers with commas
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(num)
+  }
 
   if (variant === 'full') {
     // Full variant - matches the deposits page exactly

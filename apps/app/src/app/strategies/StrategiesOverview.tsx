@@ -9,7 +9,7 @@ import { StrategiesContent } from '@/components/strategy/StrategiesContent'
 import { AuroraText } from '@/components/ui/AuroraText'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
-import { useCreditAccountDeposits, useMarkets, useMaxBtcApy } from '@/hooks/market'
+import { useMarkets, useMaxBtcApy, useTokenSupplies } from '@/hooks/market'
 import { useStore } from '@/store/useStore'
 import { calculateUsdValueLegacy } from '@/utils/formatting/format'
 import { generateStrategies, processStrategies } from '@/utils/strategy/strategyUtils'
@@ -30,13 +30,16 @@ const createDefaultMaxBtcToken = () => ({
     tokenAddress: '0x0000000000000000000000000000000000000000', // Factory token on Neutron
   },
   comingSoon: false,
-  protocolIconLight: '/images/structured/structuredLight.svg',
-  protocolIconDark: '/images/structured/structuredDark.svg',
+  protocolIconLight: '/images/structured.svg',
+  protocolIconDark: '/images/structured.svg',
 })
 
 const calculateMarketTotals = (
   markets: Market[] | null,
-): { totalSupplyUsd: number | null; totalBorrowUsd: number | null } => {
+): {
+  totalSupplyUsd: number | null
+  totalBorrowUsd: number | null
+} => {
   if (!markets || markets.length === 0) {
     return {
       totalSupplyUsd: null,
@@ -86,8 +89,8 @@ export default function StrategiesOverview() {
   // Fetch maxBTC APY data for strategy supply APY simulation
   const { apy: maxBtcApy, error: maxBtcError } = useMaxBtcApy()
 
-  // Fetch credit account deposits to include in total maxBTC collateral calculation
-  const { creditAccountDeposits } = useCreditAccountDeposits()
+  // Fetch token supplies from credit manager contract
+  const { tokenSupplies, isLoading: isLoadingSupplies } = useTokenSupplies()
 
   // Fallback APY in case API fails
   const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy
@@ -123,36 +126,31 @@ export default function StrategiesOverview() {
   }, [markets, marketsLoading])
 
   const totalMaxBtcCollateral = useMemo(() => {
-    if (!markets || markets.length === 0) {
+    // Return null if loading or no data
+    if (isLoadingSupplies || !markets || markets.length === 0) {
       return null
     }
 
-    // Find maxBTC market specifically
+    // Find maxBTC market for price data
     const maxBtcMarket = markets.find((market) => market.asset.denom === MAXBTC_DENOM)
 
-    // Skip if market doesn't have required data
-    if (!maxBtcMarket?.price?.price || !maxBtcMarket?.metrics) {
+    // Skip if market doesn't have required price data
+    if (!maxBtcMarket?.price?.price) {
       return null
     }
 
-    // Get RedBank collateral amount
-    const redBankCollateral = maxBtcMarket.metrics.collateral_total_amount || '0'
-
-    // Get credit account deposits for maxBTC
-    const creditAccountAmount = creditAccountDeposits[maxBtcMarket.asset.denom] || '0'
-
-    // Calculate total supplied (RedBank + Credit Accounts)
-    const totalSupplied = new BigNumber(redBankCollateral).plus(creditAccountAmount).toString()
+    // Get maxBTC balance from token supplies (credit manager contract balance)
+    const maxBtcBalance = tokenSupplies[MAXBTC_DENOM] || '0'
 
     // Calculate USD value
     const maxBtcCollateralUsd = calculateUsdValueLegacy(
-      totalSupplied,
+      maxBtcBalance,
       maxBtcMarket.price.price,
       maxBtcMarket.asset.decimals,
     )
 
     return maxBtcCollateralUsd
-  }, [markets, marketsLoading, creditAccountDeposits])
+  }, [markets, tokenSupplies, isLoadingSupplies])
 
   return (
     <>

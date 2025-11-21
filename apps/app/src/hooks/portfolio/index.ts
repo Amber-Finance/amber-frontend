@@ -8,4 +8,5 @@ export { usePortfolioValidating } from '@/hooks/portfolio/usePortfolioData'
 
 // Export points and rewards hooks
 export * from '@/hooks/portfolio/useStructuredPoints'
+export * from '@/hooks/portfolio/useFragments'
 export * from '@/hooks/portfolio/useNeutronRewardsApy'

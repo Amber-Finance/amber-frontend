@@ -42,9 +42,10 @@ interface DepositCardProps {
     collateralTotalUsd: number
     depositCapUsd: number
   }
+  address?: string
 }
 
-export default function DepositCard({ token, metrics }: DepositCardProps) {
+export default function DepositCard({ token, metrics, address }: DepositCardProps) {
   const router = useRouter()
   const { theme } = useTheme()
   const { data: redBankAssetsTvl } = useRedBankAssetsTvl()
@@ -171,7 +172,7 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
         </div>
       </CardHeader>
 
-      <div className='relative w-full'>
+      <div className='relative w-full flex-1 flex flex-col'>
         {token.comingSoon && (
           <div className='absolute inset-0 flex flex-wrap gap-4 items-center content-center z-10'>
             <h2 className='text-lg md:text-2xl font-funnel text-center w-full'>
@@ -183,9 +184,9 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
             </p>
           </div>
         )}
-        <CardContent className={cn('flex-1 space-y-5', token.comingSoon && 'blur-sm')}>
+        <CardContent className={cn('flex-1 flex flex-col', token.comingSoon && 'blur-sm')}>
           {/* TVL and Metrics Section */}
-          <div className='space-y-6'>
+          <div className='space-y-6 pt-5'>
             {/* Progress Bars Section */}
             <div className='grid grid-cols-2 gap-6'>
               {/* Utilization Rate */}
@@ -227,23 +228,26 @@ export default function DepositCard({ token, metrics }: DepositCardProps) {
           </div>
 
           {/* Additional Rewards Section */}
-          <div className='space-y-3'>
+          <div className='space-y-3 pb-5'>
             <span className='text-sm font-semibold text-foreground'>Additional Rewards</span>
 
             {/* Points */}
-            <EarningPointsRow assetSymbol={token.symbol} variant='full' type='deposit' />
+            <EarningPointsRow
+              assetSymbol={token.symbol}
+              variant='full'
+              type='deposit'
+              address={address}
+            />
 
             {/* Neutron Rewards APY */}
             <NeutronRewardsBadge symbol={token.symbol.toLowerCase()} variant='default' />
           </div>
 
-          {/* Flexible spacer to push content to bottom */}
+          {/* Flexible spacer to push balances to bottom */}
           <div className='flex-1' />
 
-          <Separator />
-
-          {/* Balances Section */}
-          <div className='space-y-3'>
+          {/* Balances Section - Always at bottom */}
+          <div className='space-y-3 pt-5 pb-5 border-t border-border/20'>
             <div className='flex items-center gap-2'>
               <span className='text-sm font-semibold text-foreground'>Your Balances</span>
             </div>

@@ -16,10 +16,10 @@ import { cn } from '@/lib/utils'
 const mainNavigation = [
   { name: 'Deposit', href: '/' },
   { name: 'Strategies', href: '/strategies' },
+  { name: 'Portfolio', href: '/portfolio' },
 ]
 
 const moreNavigation = [
-  { name: 'Portfolio', href: '/portfolio' },
   { name: 'Swap', href: '/swap' },
   { name: 'Bridge', href: 'https://bridge.amberfi.io' },
   { name: 'Statistics', href: 'https://stats.amberfi.io' },

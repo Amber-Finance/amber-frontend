@@ -92,30 +92,33 @@ export function NeutronRewardsBadge({
     )
   }
 
-  // Default variant - full display
+  // Default variant - one line compact display
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           className={cn(
-            'flex items-center justify-between gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-help hover:bg-primary/10 transition-colors',
+            'flex items-center justify-between gap-2 px-3 py-2 rounded-lg border cursor-help hover:opacity-90 transition-opacity',
             className,
           )}
+          style={{
+            backgroundColor: 'rgba(233, 70, 45, 0.08)',
+            borderColor: 'rgba(233, 70, 45, 0.25)',
+          }}
         >
           <div className='flex items-center gap-2'>
             <Image
               src='/images/neutron/neutron.svg'
-              alt='Neutron Rewards'
-              width={20}
-              height={20}
+              alt='Neutron Campaign'
+              width={18}
+              height={18}
               className='opacity-90'
             />
-            <div className='flex flex-col'>
-              <span className='text-xs font-medium text-muted-foreground'>Neutron Rewards</span>
-              <span className='text-sm font-semibold text-foreground'>+{apy.toFixed(2)}% APY</span>
-            </div>
+            <span className='text-sm font-medium text-foreground'>Neutron Campaign</span>
           </div>
-          <Info className='w-4 h-4 text-muted-foreground flex-shrink-0' />
+          <span className='text-sm font-semibold' style={{ color: '#e9462d' }}>
+            +{apy.toFixed(2)}%
+          </span>
         </div>
       </TooltipTrigger>
       <TooltipContent side='top' className='max-w-xs'>

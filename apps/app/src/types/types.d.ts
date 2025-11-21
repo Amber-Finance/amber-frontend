@@ -1214,3 +1214,20 @@ interface AllCoinBalancesResponse {
     denom: string
   }>
 }
+
+// Token Supplies - balances from Neutron bank API
+interface TokenSupplies {
+  [denom: string]: string // denom -> balance amount
+}
+
+// Neutron Bank Balances API response
+interface NeutronBankBalancesResponse {
+  balances: Array<{
+    denom: string
+    amount: string
+  }>
+  pagination: {
+    next_key: string | null
+    total: string
+  }
+}
