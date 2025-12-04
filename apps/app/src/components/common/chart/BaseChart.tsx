@@ -2,6 +2,7 @@
 
 import { Area, AreaChart, XAxis, YAxis } from 'recharts'
 
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import {
@@ -45,6 +46,9 @@ export function BaseChart({
   onTimeRangeChange,
   isPercentage = false,
 }: BaseChartProps) {
+  const { resolvedTheme } = useTheme()
+  const tickColor = resolvedTheme === 'dark' ? 'rgb(156, 156, 156)' : 'rgb(120, 85, 50)'
+
   if (!isLoading && (!chartData || chartData.length === 0)) {
     return null
   }
@@ -126,6 +130,7 @@ export function BaseChart({
                   dy={10}
                   stroke='rgba(255, 255, 255, 0.06)'
                   interval={Math.ceil(chartData.length / 8)}
+                  tick={{ fill: tickColor }}
                 />
                 {yAxes.map((yAxis) => (
                   <YAxis
@@ -137,6 +142,7 @@ export function BaseChart({
                     fontSize={10}
                     stroke='rgba(255, 255, 255, 0.06)'
                     tickFormatter={yAxis.tickFormatter}
+                    tick={{ fill: tickColor }}
                   />
                 ))}
 

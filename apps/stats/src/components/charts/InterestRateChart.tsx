@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 
 import { CartesianGrid, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { ChartContainer } from '@/components/ui/chart'
 import { convertAprToApy } from '@/utils/format'
 
@@ -73,6 +74,9 @@ export default function InterestRateChart({
   currentUtilization,
   brandColor,
 }: Props) {
+  const { resolvedTheme } = useTheme()
+  const tickColor = resolvedTheme === 'dark' ? 'rgb(156, 156, 156)' : 'rgb(120, 85, 50)'
+
   const interestRateData = useMemo(() => {
     const dataPoints = []
     const optimalUtilizationRate = parseFloat(interestRateModel.optimal_utilization_rate) * 100
@@ -175,6 +179,7 @@ export default function InterestRateChart({
               type='number'
               allowDecimals={false}
               ticks={[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              tick={{ fill: tickColor }}
             />
             <YAxis
               tickLine={false}
@@ -185,6 +190,7 @@ export default function InterestRateChart({
               interval='preserveStartEnd'
               tickFormatter={(value) => `${value}%`}
               domain={[0, 'auto']}
+              tick={{ fill: tickColor }}
             />
             <Tooltip content={<CustomTooltip brandColor={brandColor} />} />
 
