@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 
-import { CountingNumber } from '@/components/ui/CountingNumber'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { formatNumber } from '@/utils/format'
 
 interface StatCardProps {
   value: number | null
@@ -31,7 +31,9 @@ export function StatCard({
       return (
         <>
           <span className='text-orange-500'>$ </span>
-          <CountingNumber value={value} decimalPlaces={decimalPlaces} />
+          <span className='inline-block tabular-nums tracking-wider text-foreground'>
+            {formatNumber(decimalPlaces)(value)}
+          </span>
         </>
       )
     }
@@ -39,7 +41,9 @@ export function StatCard({
     return (
       <>
         {prefix}
-        <CountingNumber value={value} decimalPlaces={decimalPlaces} />
+        <span className='inline-block tabular-nums tracking-wider text-foreground'>
+          {formatNumber(decimalPlaces)(value)}
+        </span>
         {suffix}
       </>
     )
@@ -55,7 +59,7 @@ export function StatCard({
           {label}
         </div>
       </div>
-      <div className='mt-1 sm:mt-2 w-full h-1 bg-gradient-to-r from-gradient-start to-gradient-end rounded-full opacity-60' />
+      <div className='mt-1 sm:mt-2 w-full h-1 bg-linear-to-r from-gradient-start to-gradient-end rounded-full opacity-60' />
     </div>
   )
 }
