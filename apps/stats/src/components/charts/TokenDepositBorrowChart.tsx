@@ -23,6 +23,9 @@ export default function TokenDepositBorrowChart({ selectedToken }: Props) {
   const chartData = useMemo(() => {
     if (isMaxBtc) {
       // Use the new maxBTC data hook
+      if (!maxBtcData?.length) {
+        return []
+      }
       return maxBtcData
         .map((item) => ({
           date: item.timestamp,
@@ -56,7 +59,7 @@ export default function TokenDepositBorrowChart({ selectedToken }: Props) {
         }
       })
       .reverse()
-  }, [marketsData, selectedToken.denom, isMaxBtc, maxBtcData])
+  }, [marketsData, selectedToken.denom, isMaxBtc, maxBtcData, timeRange])
 
   const areas = [
     {

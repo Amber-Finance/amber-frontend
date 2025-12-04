@@ -10,6 +10,7 @@ import {
   YAxis,
 } from 'recharts'
 
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import tokens from '@/config/tokens'
 import { MAXBTC_DENOM } from '@/constants/query'
@@ -36,6 +37,8 @@ interface Props {
 }
 
 export default function AllMarketsBarChart({ timeRange }: Props) {
+  const { resolvedTheme } = useTheme()
+  const tickColor = resolvedTheme === 'dark' ? 'rgb(156, 156, 156)' : 'rgb(120, 85, 50)'
   const { data: marketsData } = useMarketsData(undefined, parseInt(timeRange))
   const { data: maxBtcData } = useMaxBtcData(parseInt(timeRange))
 
@@ -300,6 +303,7 @@ export default function AllMarketsBarChart({ timeRange }: Props) {
                 interval={Math.ceil(processedData.length / 8)}
                 tickLine={false}
                 axisLine={false}
+                tick={{ fill: tickColor }}
               />
               <YAxis
                 fontSize={10}
@@ -308,12 +312,13 @@ export default function AllMarketsBarChart({ timeRange }: Props) {
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={formatCompactCurrency}
+                tick={{ fill: tickColor }}
               />
               <ChartTooltip
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className='grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
+                      <div className='grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl'>
                         <p className='font-medium'>{label}</p>
                         <div className='grid gap-1.5'>
                           {payload.map((entry, index) => {

@@ -2,6 +2,7 @@
 
 import { Area, AreaChart, XAxis, YAxis } from 'recharts'
 
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 
 interface AreaData {
@@ -27,6 +28,9 @@ export default function BaseAreaChart({
   tooltipType = 'currency',
   className = 'h-[350px] w-full',
 }: Props) {
+  const { resolvedTheme } = useTheme()
+  const tickColor = resolvedTheme === 'dark' ? 'rgb(156, 156, 156)' : 'rgb(120, 85, 50)'
+
   const chartConfig = areas.reduce(
     (config, area) => {
       config[area.dataKey] = {
@@ -70,6 +74,7 @@ export default function BaseAreaChart({
               dy={10}
               stroke='rgba(255, 255, 255, 0.06)'
               interval={Math.ceil(data.length / 8)}
+              tick={{ fill: tickColor }}
             />
             <YAxis
               tickLine={false}
@@ -80,6 +85,7 @@ export default function BaseAreaChart({
               interval='preserveStartEnd'
               domain={yAxisDomain}
               tickFormatter={yAxisFormatter}
+              tick={{ fill: tickColor }}
             />
             <ChartTooltip
               content={
