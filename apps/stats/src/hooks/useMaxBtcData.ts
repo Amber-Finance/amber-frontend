@@ -7,7 +7,7 @@ import useMarketsData from '@/hooks/redBank/useMarketsData'
 import useMaxBtcDeposits from '@/hooks/useMaxBtcDeposits'
 
 export default function useMaxBtcData(timeRange: number = 7) {
-  const { data: maxBtcDeposits } = useMaxBtcDeposits()
+  const { data: maxBtcDeposits } = useMaxBtcDeposits(timeRange)
   const { data: marketsData } = useMarketsData(undefined, timeRange)
 
   const maxBtcData = useMemo(() => {
