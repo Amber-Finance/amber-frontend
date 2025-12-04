@@ -49,7 +49,6 @@ export default function Hero({ title, subtitle, description, stats }: HeroProps)
                   label={stat.label}
                   isCurrency={stat.isCurrency}
                   prefix={stat.prefix}
-                  abbreviated={stat.abbreviated}
                 />
               ))}
             </div>

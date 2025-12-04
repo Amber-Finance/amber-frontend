@@ -3,7 +3,7 @@ import { FETCH_TIMEOUT, MAXBTC_DENOM } from '@/constants/query'
 import { fetchWithTimeout } from '@/utils/fetch'
 import { getUrl } from '@/utils/url'
 
-export default async function getMaxBtcDeposits(days: number = 7) {
+export default async function getMaxBtcDeposits(days: number = 30) {
   try {
     const url = getUrl(
       chainConfig.endpoints.amberBackend,
