@@ -31,27 +31,19 @@ export function StrategyFlowCard({
   collateralSupplyApy,
   debtBorrowApy,
 }: StrategyFlowCardProps) {
-  // Use actual strategy data if available, otherwise fall back to calculated values
-  const displayData = activeStrategy
-    ? {
-        supply:
-          activeStrategy.supply?.amountFormatted || activeStrategy.collateralAsset.amountFormatted,
-        borrow: activeStrategy.debtAsset.amountFormatted,
-        totalCollateral: activeStrategy.collateralAsset.amountFormatted,
-        leverage: activeStrategy.leverage,
-        netApy: activeStrategy.netApy / 100, // Convert from percentage
-      }
-    : {
-        supply: currentAmount,
-        borrow: positionCalcs.borrowAmount,
-        totalCollateral: positionCalcs.totalPosition,
-        leverage: multiplier,
-        netApy: positionCalcs.leveragedApy,
-      }
+  // Always use target multiplier for APY calculation (what user is aiming for)
+  // Use positionCalcs for projected position values
+  const displayData = {
+    supply: currentAmount,
+    borrow: positionCalcs.borrowAmount,
+    totalCollateral: positionCalcs.totalPosition,
+    leverage: multiplier,
+    netApy: positionCalcs.leveragedApy,
+  }
 
-  // Calculate correct leveraged APY: Supply APY × leverage - Borrow APY × (leverage - 1)
+  // Calculate correct leveraged APY using TARGET leverage (multiplier)
   const correctLeveragedApy =
-    collateralSupplyApy * displayData.leverage - debtBorrowApy * (displayData.leverage - 1)
+    collateralSupplyApy * multiplier - debtBorrowApy * (multiplier - 1)
 
   return (
     <InfoCard title='Strategy Flow'>

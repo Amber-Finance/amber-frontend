@@ -293,6 +293,8 @@ export function SimulationCard({
           swapError={swapError}
           isLeverageIncrease={isLeverageIncrease}
           initialCollateralAmount={currentAmount}
+          debtPrice={marketData?.debtPrice || 0}
+          leveragedApy={positionCalcs.leveragedApy}
         />
 
         {/* Price Impact Warning - only show when swapping */}
