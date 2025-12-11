@@ -3,10 +3,8 @@
 import { BigNumber } from 'bignumber.js'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 
-import FormattedValue from '@/components/common/FormattedValue'
 import TokenBalance from '@/components/common/TokenBalance'
 import { InfoCard } from '@/components/deposit'
-import { getPriceImpactColor } from '@/components/strategy/helpers'
 import { Separator } from '@/components/ui/separator'
 import { getHealthFactorColor } from '@/utils/blockchain/healthComputer'
 
@@ -40,6 +38,7 @@ interface SimulatedPositionOverviewProps {
     borrowAmount: number
     estimatedYearlyEarnings: number
     supplies?: number
+    leveragedApy?: number
   }
   healthFactor: number
   marketData?: any
@@ -59,6 +58,10 @@ interface SimulatedPositionOverviewProps {
 
   // Initial amounts (for deploy mode)
   initialCollateralAmount?: number
+
+  // Prices for swap value analysis
+  debtPrice?: number
+  leveragedApy?: number
 }
 
 export function SimulatedPositionOverview({
@@ -77,6 +80,8 @@ export function SimulatedPositionOverview({
   swapError = null,
   isLeverageIncrease = true,
   initialCollateralAmount = 0,
+  debtPrice = 0,
+  leveragedApy = 0,
 }: SimulatedPositionOverviewProps) {
   const hasExistingPosition = !!activeStrategy
   const isModifying = hasExistingPosition
@@ -105,9 +110,6 @@ export function SimulatedPositionOverview({
   if (showSwapDetails && !swapRouteInfo && !swapError) {
     return null
   }
-
-  // Calculate position values
-  const priceImpact = swapRouteInfo?.priceImpact?.toNumber() || 0
 
   // Current position values (for modify mode)
   const currentCollateral = hasExistingPosition ? activeStrategy.collateralAsset.amountFormatted : 0
@@ -178,22 +180,75 @@ export function SimulatedPositionOverview({
                     useCompactNotation={false}
                   />
                 </div>
-
-                {/* Price Impact */}
-                <div className='flex justify-between items-center text-xs'>
-                  <span className='text-muted-foreground'>Price Impact</span>
-                  <span className={getPriceImpactColor(priceImpact)}>
-                    {priceImpact > 0 && '+'}
-                    <FormattedValue
-                      value={priceImpact}
-                      maxDecimals={2}
-                      suffix='%'
-                      useCompactNotation={false}
-                    />
-                  </span>
-                </div>
               </div>
             </div>
+
+            {/* Swap Value Analysis - uses oracle prices only, not Skip API USD values */}
+            {(() => {
+              const SWAP_FEE = 0.0005 // 0.05%
+              const collateralPrice = marketData?.currentPrice || 0
+              const collateralDecimals = strategy.collateralAsset.decimals || 8
+
+              // Use borrowAmount from positionCalcs (oracle-based), not Skip's amountIn
+              const borrowAmount = positionCalcs.borrowAmount || 0
+              const amountOutFormatted = swapRouteInfo.amountOut
+                ?.shiftedBy(-collateralDecimals)
+                .toNumber() || 0
+              const netAmountOut = amountOutFormatted * (1 - SWAP_FEE)
+
+              // Calculate values using oracle prices
+              const inputValueUsd = borrowAmount * debtPrice
+              const outputValueUsd = netAmountOut * collateralPrice
+              const valueDiff = outputValueUsd - inputValueUsd
+              const valueDiffPercent = inputValueUsd > 0 ? (valueDiff / inputValueUsd) * 100 : 0
+
+              // Don't show if data is invalid or still loading
+              if (!inputValueUsd || !outputValueUsd || isNaN(valueDiff)) return null
+
+              return (
+                <div className='space-y-2 mt-3'>
+                  <div className='text-xs font-medium uppercase tracking-wider'>
+                    Swap Value Analysis
+                  </div>
+                  <div className='space-y-1.5'>
+                    {/* Input Value */}
+                    <div className='flex justify-between items-center text-xs'>
+                      <span className='text-muted-foreground'>Input Value</span>
+                      <div className='text-right'>
+                        <span className='font-medium text-foreground'>
+                          ${inputValueUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                        <span className='text-muted-foreground ml-1'>
+                          ({borrowAmount.toFixed(6)} {strategy.debtAsset.symbol})
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Output Value */}
+                    <div className='flex justify-between items-center text-xs'>
+                      <span className='text-muted-foreground'>Output Value</span>
+                      <div className='text-right'>
+                        <span className='font-medium text-foreground'>
+                          ${outputValueUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                        <span className='text-muted-foreground ml-1'>
+                          ({netAmountOut.toFixed(6)} {strategy.collateralAsset.symbol})
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Value Difference */}
+                    <div className='flex justify-between items-center text-xs'>
+                      <span className='text-muted-foreground'>Input → Output Difference</span>
+                      <span className={valueDiff < 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}>
+                        {valueDiff >= 0 ? '+' : ''}${valueDiff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {' '}({valueDiffPercent >= 0 ? '+' : ''}{valueDiffPercent.toFixed(2)}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
             <Separator />
           </>
         )}

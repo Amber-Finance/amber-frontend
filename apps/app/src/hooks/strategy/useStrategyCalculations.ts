@@ -40,6 +40,10 @@ export const useMarketData = (strategy: Strategy, markets: Market[] | null) =>
       ? new BigNumber(collateralMarket.price.price).toNumber()
       : 0
 
+    const debtPrice = debtMarket?.price?.price
+      ? new BigNumber(debtMarket.price.price).toNumber()
+      : 0
+
     const debtBorrowApy = debtMarket?.metrics?.borrow_rate
       ? new BigNumber(debtMarket.metrics.borrow_rate).toNumber()
       : strategy.borrowApy || 0
@@ -52,6 +56,7 @@ export const useMarketData = (strategy: Strategy, markets: Market[] | null) =>
       collateralMarket,
       debtMarket,
       currentPrice,
+      debtPrice,
       debtBorrowApy,
       dynamicMaxLeverage,
     }

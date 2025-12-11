@@ -3,14 +3,13 @@ import { useMemo } from 'react'
 /**
  * Hook to calculate fee breakdown and break-even time for strategy deployment/modification
  *
- * Calculates:
- * - Total fees from swaps (price impact)
- * - Break-even time based on leveraged APY
- * - Visual indicators for fee recovery timeline
+ * Calculates slippage as the USD value difference between input and output,
+ * using oracle prices only (not Skip API's USD values which are inaccurate).
  *
- * @param swapRouteInfo - Swap route information containing amountIn, amountOut, priceImpact
+ * @param swapRouteInfo - Swap route information (only amountOut is used)
  * @param positionCalcs - Position calculations including leveragedApy, totalPosition
- * @param collateralPrice - Price of collateral asset in USD
+ * @param collateralPrice - Oracle price of collateral asset in USD
+ * @param debtPrice - Oracle price of debt asset in USD
  * @param debtDecimals - Decimals for debt asset
  * @param collateralDecimals - Decimals for collateral asset
  * @param slippage - User's slippage tolerance percentage
@@ -23,31 +22,35 @@ export function useStrategyFeeBreakdown(
     leveragedApy: number
     totalPosition: number
     estimatedYearlyEarnings: number
+    borrowAmount: number
   },
   collateralPrice: number,
+  debtPrice: number,
   debtDecimals: number,
   collateralDecimals: number,
   slippage: number = 0.5,
 ) {
   return useMemo(() => {
     // Return null state if no swap route info
-    if (!swapRouteInfo || !swapRouteInfo.amountIn || !swapRouteInfo.amountOut) {
+    if (!swapRouteInfo || !swapRouteInfo.amountOut) {
       return createNullState()
     }
 
-    // Calculate fee components
+    // Calculate fee components using oracle prices only
     const feeComponents = calculateFeeComponents(
       swapRouteInfo,
       collateralPrice,
+      debtPrice,
       debtDecimals,
       collateralDecimals,
       slippage,
       positionCalcs.totalPosition,
+      positionCalcs.borrowAmount,
     )
 
     // Calculate break-even metrics
     const breakEvenMetrics = calculateBreakEvenMetrics(
-      feeComponents.totalFeesUsd,
+      feeComponents.slippageLossUsd,
       positionCalcs.estimatedYearlyEarnings * collateralPrice,
     )
 
@@ -60,7 +63,9 @@ export function useStrategyFeeBreakdown(
     positionCalcs.leveragedApy,
     positionCalcs.totalPosition,
     positionCalcs.estimatedYearlyEarnings,
+    positionCalcs.borrowAmount,
     collateralPrice,
+    debtPrice,
     debtDecimals,
     collateralDecimals,
     slippage,
@@ -70,9 +75,11 @@ export function useStrategyFeeBreakdown(
 // Helper function to create null state
 function createNullState() {
   return {
-    totalFeesUsd: 0,
+    inputValueUsd: 0,
+    outputValueUsd: 0,
     swapFeeUsd: 0,
-    priceImpactUsd: 0,
+    slippageLossUsd: 0,
+    slippagePercent: 0,
     maxSlippageLossUsd: 0,
     breakEvenDays: null,
     breakEvenFormatted: 'N/A',
@@ -83,57 +90,55 @@ function createNullState() {
   }
 }
 
-// Helper function to calculate fee components
+// Helper function to calculate fee components using oracle prices only
 function calculateFeeComponents(
   swapRouteInfo: SwapRouteInfo,
   collateralPrice: number,
+  debtPrice: number,
   debtDecimals: number,
   collateralDecimals: number,
   slippage: number,
   totalPosition: number,
+  borrowAmount: number,
 ) {
-  const priceImpactPercent = swapRouteInfo.priceImpact?.toNumber() || 0
+  // Contract swap fee: 0.0005 (0.05%)
+  const SWAP_FEE_RATE = 0.0005
 
-  // SwapRouteInfo amounts are in RAW units and need to be shifted by decimals
-  // amountOut is collateral asset (being swapped TO)
+  // Calculate input value using oracle price (borrow amount * debt oracle price)
+  const inputValueUsd = borrowAmount * debtPrice
+
+  // Get output amount from Skip (only thing we trust from Skip)
   const amountOutFormatted = swapRouteInfo.amountOut.shiftedBy(-collateralDecimals).toNumber()
 
-  // Contract swap fee: 0.0005 where 1 = 100% (so 0.0005 = 0.05%)
-  // The amountOut from swap route is the gross amount before fee deduction
-  // The contract will deduct the fee, so actual received = amountOut * (1 - swapFee)
-  const SWAP_FEE_RATE = 0.0005 // Contract fee rate where 1 = 100%
-
-  // Calculate the actual amount received after fee deduction
+  // Calculate net amount after 0.05% swap fee
   const netAmountOut = amountOutFormatted * (1 - SWAP_FEE_RATE)
 
-  // Calculate the swap fee that will be deducted
-  const swapFeeFormatted = amountOutFormatted - netAmountOut
-  const swapFeeUsd = swapFeeFormatted * collateralPrice
+  // Calculate swap fee in USD
+  const swapFeeAmount = amountOutFormatted - netAmountOut
+  const swapFeeUsd = swapFeeAmount * collateralPrice
 
-  // Calculate price impact loss in USD
-  // Price impact is calculated on the net amount (after fees) that user actually receives
-  const priceImpactLoss = (netAmountOut * Math.abs(priceImpactPercent)) / 100
-  const priceImpactUsd = priceImpactLoss * collateralPrice
+  // Calculate output value using oracle price
+  const outputValueUsd = netAmountOut * collateralPrice
 
-  // Calculate max slippage loss (worst-case if slippage tolerance is hit)
-  // Slippage tolerance is a protection limit - tx reverts if exceeded
-  // This is NOT an additional cost, just the maximum acceptable deviation
-  // Applied to the net amount the user receives
+  // Slippage is the difference between input and output values
+  const slippageLossUsd = inputValueUsd - outputValueUsd
+  const slippagePercent = inputValueUsd > 0 ? (slippageLossUsd / inputValueUsd) * 100 : 0
+
+  // Max slippage loss (worst-case if slippage tolerance is hit)
   const slippageToleranceAmount = (netAmountOut * slippage) / 100
   const maxSlippageLossUsd = slippageToleranceAmount * collateralPrice
 
-  // Total fees = Swap fee + price impact (actual expected costs)
-  // Slippage tolerance is NOT included as it's just a protection limit
-  const totalFeesUsd = swapFeeUsd + priceImpactUsd
-
   // Fees as percentage of position
   const positionValueUsd = totalPosition * collateralPrice
-  const feesAsPercentOfPosition = positionValueUsd > 0 ? (totalFeesUsd / positionValueUsd) * 100 : 0
+  const feesAsPercentOfPosition =
+    positionValueUsd > 0 ? (slippageLossUsd / positionValueUsd) * 100 : 0
 
   return {
-    totalFeesUsd,
+    inputValueUsd,
+    outputValueUsd,
     swapFeeUsd,
-    priceImpactUsd,
+    slippageLossUsd,
+    slippagePercent,
     maxSlippageLossUsd,
     feesAsPercentOfPosition,
   }
@@ -197,9 +202,21 @@ function getRecoveryHealth(days: number): {
 }
 
 // Helper function to calculate break-even metrics
-function calculateBreakEvenMetrics(totalFeesUsd: number, annualEarningsUsd: number) {
-  if (annualEarningsUsd > 0 && totalFeesUsd > 0) {
-    const yearsToBreakEven = totalFeesUsd / annualEarningsUsd
+function calculateBreakEvenMetrics(slippageLossUsd: number, annualEarningsUsd: number) {
+  // No loss or gained value - nothing to recover
+  if (slippageLossUsd <= 0) {
+    return {
+      breakEvenDays: 0,
+      breakEvenFormatted: 'Immediate',
+      canRecover: true,
+      recoveryHealthColor: 'text-emerald-600 dark:text-emerald-400',
+      recoveryHealthLabel: 'No Loss',
+    }
+  }
+
+  // Positive loss but positive earnings - can recover
+  if (annualEarningsUsd > 0) {
+    const yearsToBreakEven = slippageLossUsd / annualEarningsUsd
     const breakEvenDays = yearsToBreakEven * 365
     const health = getRecoveryHealth(breakEvenDays)
 
@@ -212,7 +229,7 @@ function calculateBreakEvenMetrics(totalFeesUsd: number, annualEarningsUsd: numb
     }
   }
 
-  // Negative or zero APY
+  // Negative or zero APY - cannot recover
   return {
     breakEvenDays: null,
     breakEvenFormatted: 'Never (Negative APY)',

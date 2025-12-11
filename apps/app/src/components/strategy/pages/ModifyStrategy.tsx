@@ -96,7 +96,6 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
 
   // Derived values
   const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy || 0
-  const collateralSupplyApy = effectiveMaxBtcApy / 100
   const isDataLoading = !markets || markets.length === 0 || maxBtcApy === null
 
   // Check if user has entered a deposit/withdraw amount
@@ -167,6 +166,13 @@ export function ModifyStrategy({ strategy }: ModifyStrategyProps) {
   // Market data
   const marketData = useMarketData(strategy, markets)
   const walletData = useWalletData(strategy, walletBalances || [], address)
+
+  // Calculate total collateral supply APY (Mars liquidity rate + maxBTC staking APY)
+  // This matches the calculation in useStrategyCommon.ts for consistency
+  const marsLiquidityRate = marketData.collateralMarket?.metrics?.liquidity_rate
+    ? parseFloat(marketData.collateralMarket.metrics.liquidity_rate)
+    : 0
+  const collateralSupplyApy = marsLiquidityRate + effectiveMaxBtcApy / 100
 
   // Debounce the target leverage AND deposit/withdraw amount with 2 second delay
   const { debouncedValue: debouncedTargetLeverage, isDebouncing: isLeverageDebouncing } =

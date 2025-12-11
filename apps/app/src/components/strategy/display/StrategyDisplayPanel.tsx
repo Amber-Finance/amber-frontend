@@ -103,8 +103,10 @@ export function StrategyDisplayPanel({
           positionCalcs={positionCalcs}
           slippage={slippage}
           currentPrice={currentPrice}
+          debtPrice={marketData?.debtPrice || 0}
           isCalculating={isCalculatingPositions}
           isSwapLoading={isSwapLoading}
+          mode={mode}
         />
       )}
 

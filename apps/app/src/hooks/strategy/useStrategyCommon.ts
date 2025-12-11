@@ -56,11 +56,17 @@ export function useStrategyCommon({ strategy, mode, accountId }: UseStrategyComm
   const effectiveMaxBtcApy = maxBtcError ? 0 : maxBtcApy || 0
   const isModifying = mode === 'modify'
   const currentAmount = parseFloat(collateralAmount || '0')
-  const collateralSupplyApy = effectiveMaxBtcApy / 100
 
   // Custom hooks
   const marketData = useMarketData(strategy, markets)
   const walletData = useWalletData(strategy, walletBalances || [], address)
+
+  // Calculate total collateral supply APY (Mars liquidity rate + maxBTC staking APY)
+  // This matches the calculation in usePortfolioData.ts for consistency
+  const marsLiquidityRate = marketData.collateralMarket?.metrics?.liquidity_rate
+    ? parseFloat(marketData.collateralMarket.metrics.liquidity_rate)
+    : 0
+  const collateralSupplyApy = marsLiquidityRate + effectiveMaxBtcApy / 100
 
   // Calculate debt-based limits
   const debtBasedLimits = useMemo(() => {
