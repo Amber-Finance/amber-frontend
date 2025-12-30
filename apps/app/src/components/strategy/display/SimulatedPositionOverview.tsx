@@ -188,22 +188,26 @@ export function SimulatedPositionOverview({
               const SWAP_FEE = 0.0005 // 0.05%
               const collateralPrice = marketData?.currentPrice || 0
               const collateralDecimals = strategy.collateralAsset.decimals || 8
+              const debtDecimals = strategy.debtAsset.decimals || 6
 
               // Use borrowAmount from positionCalcs (oracle-based), not Skip's amountIn
               const borrowAmount = positionCalcs.borrowAmount || 0
-              const amountOutFormatted = swapRouteInfo.amountOut
-                ?.shiftedBy(-collateralDecimals)
-                .toNumber() || 0
+
+              const outputDecimals = isLeverageIncrease ? collateralDecimals : debtDecimals
+              const outputPrice = isLeverageIncrease ? collateralPrice : debtPrice
+
+              const amountOutFormatted =
+                swapRouteInfo.amountOut?.shiftedBy(-outputDecimals).toNumber() || 0
               const netAmountOut = amountOutFormatted * (1 - SWAP_FEE)
 
               // Calculate values using oracle prices
               const inputValueUsd = borrowAmount * debtPrice
-              const outputValueUsd = netAmountOut * collateralPrice
+              const outputValueUsd = netAmountOut * outputPrice
               const valueDiff = outputValueUsd - inputValueUsd
               const valueDiffPercent = inputValueUsd > 0 ? (valueDiff / inputValueUsd) * 100 : 0
 
               // Don't show if data is invalid or still loading
-              if (!inputValueUsd || !outputValueUsd || isNaN(valueDiff)) return null
+              if (!inputValueUsd || !outputValueUsd || Number.isNaN(valueDiff)) return null
 
               return (
                 <div className='space-y-2 mt-3'>
@@ -216,7 +220,11 @@ export function SimulatedPositionOverview({
                       <span className='text-muted-foreground'>Input Value</span>
                       <div className='text-right'>
                         <span className='font-medium text-foreground'>
-                          ${inputValueUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          $
+                          {inputValueUsd.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </span>
                         <span className='text-muted-foreground ml-1'>
                           ({borrowAmount.toFixed(6)} {strategy.debtAsset.symbol})
@@ -229,7 +237,11 @@ export function SimulatedPositionOverview({
                       <span className='text-muted-foreground'>Output Value</span>
                       <div className='text-right'>
                         <span className='font-medium text-foreground'>
-                          ${outputValueUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          $
+                          {outputValueUsd.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </span>
                         <span className='text-muted-foreground ml-1'>
                           ({netAmountOut.toFixed(6)} {strategy.collateralAsset.symbol})
@@ -240,9 +252,20 @@ export function SimulatedPositionOverview({
                     {/* Value Difference */}
                     <div className='flex justify-between items-center text-xs'>
                       <span className='text-muted-foreground'>Input → Output Difference</span>
-                      <span className={valueDiff < 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}>
-                        {valueDiff >= 0 ? '+' : ''}${valueDiff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        {' '}({valueDiffPercent >= 0 ? '+' : ''}{valueDiffPercent.toFixed(2)}%)
+                      <span
+                        className={
+                          valueDiff < 0
+                            ? 'text-red-600 dark:text-red-400'
+                            : 'text-emerald-600 dark:text-emerald-400'
+                        }
+                      >
+                        {valueDiff >= 0 ? '+' : ''}$
+                        {valueDiff.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}{' '}
+                        ({valueDiffPercent >= 0 ? '+' : ''}
+                        {valueDiffPercent.toFixed(2)}%)
                       </span>
                     </div>
                   </div>
