@@ -13,6 +13,7 @@ import { useMemo } from 'react'
  * @param debtDecimals - Decimals for debt asset
  * @param collateralDecimals - Decimals for collateral asset
  * @param slippage - User's slippage tolerance percentage
+ * @param isLeverageIncrease - Whether leverage is increasing (true) or decreasing (false)
  *
  * @returns Fee breakdown with total fees, recovery time, and visual indicators
  */
@@ -29,10 +30,11 @@ export function useStrategyFeeBreakdown(
   debtDecimals: number,
   collateralDecimals: number,
   slippage: number = 0.5,
+  isLeverageIncrease: boolean = true,
 ) {
   return useMemo(() => {
     // Return null state if no swap route info
-    if (!swapRouteInfo || !swapRouteInfo.amountOut) {
+    if (!swapRouteInfo?.amountOut) {
       return createNullState()
     }
 
@@ -46,6 +48,7 @@ export function useStrategyFeeBreakdown(
       slippage,
       positionCalcs.totalPosition,
       positionCalcs.borrowAmount,
+      isLeverageIncrease,
     )
 
     // Calculate break-even metrics
@@ -69,6 +72,7 @@ export function useStrategyFeeBreakdown(
     debtDecimals,
     collateralDecimals,
     slippage,
+    isLeverageIncrease,
   ])
 }
 
@@ -100,6 +104,7 @@ function calculateFeeComponents(
   slippage: number,
   totalPosition: number,
   borrowAmount: number,
+  isLeverageIncrease: boolean,
 ) {
   // Contract swap fee: 0.0005 (0.05%)
   const SWAP_FEE_RATE = 0.0005
@@ -107,18 +112,23 @@ function calculateFeeComponents(
   // Calculate input value using oracle price (borrow amount * debt oracle price)
   const inputValueUsd = borrowAmount * debtPrice
 
+  // When increasing leverage: swap debt → collateral, amountOut is in collateral
+  // When decreasing leverage: swap collateral → debt, amountOut is in debt
+  const outputDecimals = isLeverageIncrease ? collateralDecimals : debtDecimals
+  const outputPrice = isLeverageIncrease ? collateralPrice : debtPrice
+
   // Get output amount from Skip (only thing we trust from Skip)
-  const amountOutFormatted = swapRouteInfo.amountOut.shiftedBy(-collateralDecimals).toNumber()
+  const amountOutFormatted = swapRouteInfo.amountOut.shiftedBy(-outputDecimals).toNumber()
 
   // Calculate net amount after 0.05% swap fee
   const netAmountOut = amountOutFormatted * (1 - SWAP_FEE_RATE)
 
   // Calculate swap fee in USD
   const swapFeeAmount = amountOutFormatted - netAmountOut
-  const swapFeeUsd = swapFeeAmount * collateralPrice
+  const swapFeeUsd = swapFeeAmount * outputPrice
 
   // Calculate output value using oracle price
-  const outputValueUsd = netAmountOut * collateralPrice
+  const outputValueUsd = netAmountOut * outputPrice
 
   // Slippage is the difference between input and output values
   const slippageLossUsd = inputValueUsd - outputValueUsd
@@ -126,7 +136,7 @@ function calculateFeeComponents(
 
   // Max slippage loss (worst-case if slippage tolerance is hit)
   const slippageToleranceAmount = (netAmountOut * slippage) / 100
-  const maxSlippageLossUsd = slippageToleranceAmount * collateralPrice
+  const maxSlippageLossUsd = slippageToleranceAmount * outputPrice
 
   // Fees as percentage of position
   const positionValueUsd = totalPosition * collateralPrice
