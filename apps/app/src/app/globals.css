@@ -334,21 +334,7 @@ input[type='number'] {
   font-family: inherit;
 }
 
-/* Add subtle animation */
-.Toastify__toast {
-  animation: slideInRight 0.3s ease-out;
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
+/* Let react-toastify handle its own enter/exit animations */
 
 /* Custom scrollbar for token selector modal */
 .token-selector-scrollbar::-webkit-scrollbar {

@@ -301,6 +301,26 @@ export function useBroadcast() {
         break
 
       case 'increase':
+        // Increase existing strategy - needs collateral as funds (deposit new capital)
+        contractAddress = chainConfig.contracts.creditManager
+        if ('collateral' in config) {
+          const collateralAmount = formatAmount(
+            config.collateral.amount,
+            config.collateral.decimals,
+          )
+          funds.push({
+            denom: config.collateral.denom,
+            amount: collateralAmount,
+          })
+        }
+        message = {
+          update_credit_account: {
+            account_id: config.accountId,
+            actions,
+          },
+        }
+        break
+
       case 'update':
       case 'decrease':
         contractAddress = chainConfig.contracts.creditManager

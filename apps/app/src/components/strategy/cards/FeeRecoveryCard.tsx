@@ -28,6 +28,7 @@ interface FeeRecoveryCardProps {
     totalPosition: number
     estimatedYearlyEarnings: number
     borrowAmount: number
+    isLeverageIncrease?: boolean
   }
   slippage: number
   currentPrice: number
@@ -62,6 +63,7 @@ export function FeeRecoveryCard({
   mode = 'deploy',
 }: FeeRecoveryCardProps) {
   const title = mode === 'modify' ? 'Update Costs Recovery Analysis' : 'Deploy Costs Recovery Analysis'
+  const isLeverageIncrease = positionCalcs.isLeverageIncrease ?? true
   const feeBreakdown = useStrategyFeeBreakdown(
     swapRouteInfo,
     positionCalcs,
@@ -70,6 +72,7 @@ export function FeeRecoveryCard({
     strategy.debtAsset.decimals || 6,
     strategy.collateralAsset.decimals || 8,
     slippage,
+    isLeverageIncrease,
   )
 
   // Loading state

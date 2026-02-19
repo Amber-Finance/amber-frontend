@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { BigNumber } from 'bignumber.js'
+import { toast } from 'react-toastify'
 
 import getNeutronRouteInfo from '@/api/swap/getNeutronRouteInfo'
 import chainConfig from '@/config/chain'
@@ -144,12 +145,12 @@ export function useStrategyWithdrawal() {
               route: routeResult.route,
             },
           },
-          // 2. Repay all debt using the exact amount
+          // 2. Repay all debt using account_balance to handle interest accrual
           {
             repay: {
               coin: {
                 denom: params.debtDenom,
-                amount: { exact: debtAmountFormatted },
+                amount: 'account_balance',
               },
             },
           },
@@ -177,6 +178,8 @@ export function useStrategyWithdrawal() {
         return result
       } catch (error) {
         console.error('Full strategy withdrawal error:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        toast.error(`Strategy closure failed: ${errorMessage}`, { autoClose: 4000 })
         throw error
       } finally {
         setIsProcessing(false)

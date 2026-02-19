@@ -107,6 +107,14 @@ export const CosmosKitProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       wallets={availableWallets as any}
       throwErrors={false}
       walletConnectOptions={walletConnectOptions}
+      endpointOptions={{
+        endpoints: {
+          [chainConfig.name]: {
+            rpc: [chainConfig.endpoints.rpcUrl, ...chainConfig.endpoints.fallbackRpcs],
+            rest: [chainConfig.endpoints.restUrl],
+          },
+        },
+      }}
       signerOptions={{
         signingCosmwasm: () => {
           return {

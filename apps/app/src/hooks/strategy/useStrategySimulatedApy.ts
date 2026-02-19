@@ -72,9 +72,10 @@ export const useStrategySimulatedApy = (
       const borrowAmountSmallest = borrowAmount.shiftedBy(decimals.debt).toString()
 
       // Additional check: if borrow amount in smallest units is too large, fallback
+      // For 18-decimal tokens (like solvBTC), 1e15 is only 0.001 tokens, so scale threshold by decimals
       const borrowAmountBN = new BigNumber(borrowAmountSmallest)
-      if (borrowAmountBN.isGreaterThan('1e15')) {
-        // 1 quadrillion units
+      const maxSmallestUnits = new BigNumber(1000).shiftedBy(decimals.debt) // 1000 tokens in smallest units
+      if (borrowAmountBN.isGreaterThan(maxSmallestUnits)) {
         console.warn('Borrow amount too large for simulation, using current APYs')
         const leveragedApy =
           currentApys.collateralSupplyApy * multiplier -

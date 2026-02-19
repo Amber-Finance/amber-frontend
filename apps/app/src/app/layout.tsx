@@ -58,15 +58,16 @@ export default function RootLayout({
 
                     <ToastContainer
                       position='bottom-right'
-                      autoClose={5000}
+                      autoClose={4000}
                       hideProgressBar={false}
                       newestOnTop
                       closeOnClick
                       rtl={false}
-                      pauseOnFocusLoss
+                      pauseOnFocusLoss={false}
                       draggable
-                      pauseOnHover
+                      pauseOnHover={false}
                       theme='dark'
+                      limit={3}
                       toastClassName='!bg-card/95 !text-foreground !border !border-border/50 !shadow-xl !rounded-xl !backdrop-blur-sm'
                       progressClassName='!bg-gradient-to-r !from-gradient-start !to-gradient-end'
                       style={{

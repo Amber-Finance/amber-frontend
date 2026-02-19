@@ -193,22 +193,22 @@ async function getNeutronRouteInfoInternal(
     const amountInWithDecimals = new BigNumber(routeParams.amountIn).integerValue().toString()
 
     const skipRouteParams = {
-      amount_in: amountInWithDecimals,
-      source_asset_chain_id: chainConfig.id,
-      source_asset_denom: denomIn,
-      dest_asset_chain_id: chainConfig.id,
-      dest_asset_denom: denomOut,
-      smart_relay: true,
-      experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
-      allow_multi_tx: true,
-      allow_unsafe: true,
-      smart_swap_options: {
-        split_routes: true,
-        evm_swaps: true,
+      amountIn: amountInWithDecimals,
+      sourceAssetChainId: chainConfig.id,
+      sourceAssetDenom: denomIn,
+      destAssetChainId: chainConfig.id,
+      destAssetDenom: denomOut,
+      smartRelay: true,
+      experimentalFeatures: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
+      allowMultiTx: true,
+      allowUnsafe: true,
+      smartSwapOptions: {
+        splitRoutes: true,
+        evmSwaps: true,
       },
       // Force only Duality swaps for Mars strategies
       swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
-      go_fast: false,
+      goFast: false,
     }
 
     const skipRouteResponse = (await skipRoute(skipRouteParams)) as SkipRouteResponse
@@ -276,24 +276,22 @@ export async function getNeutronRouteInfoReverse(
 
   try {
     const skipRouteParams = {
-      source_asset_chain_id: chainConfig.id,
-      source_asset_denom: denomIn,
-      dest_asset_chain_id: chainConfig.id,
-      dest_asset_denom: denomOut,
-      smart_relay: true,
-      experimental_features: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
-      allow_multi_tx: true,
-      allow_unsafe: true,
-      smart_swap_options: {
-        split_routes: true,
-        evm_swaps: true,
+      sourceAssetChainId: chainConfig.id,
+      sourceAssetDenom: denomIn,
+      destAssetChainId: chainConfig.id,
+      destAssetDenom: denomOut,
+      smartRelay: true,
+      experimentalFeatures: ['hyperlane', 'stargate', 'eureka', 'layer_zero'],
+      allowMultiTx: true,
+      allowUnsafe: true,
+      smartSwapOptions: {
+        splitRoutes: true,
+        evmSwaps: true,
       },
       swapVenues: [{ name: 'neutron-duality', chainId: chainConfig.id }],
-      experimentalFeatures: ['stargate', 'eureka'],
-      smartRelay: true,
-      go_fast: false,
+      goFast: false,
       // Use reverse routing parameters
-      amount_out: toIntegerString(amountOut),
+      amountOut: toIntegerString(amountOut),
     }
 
     const skipRouteResponse = (await skipRoute(skipRouteParams)) as SkipRouteResponse

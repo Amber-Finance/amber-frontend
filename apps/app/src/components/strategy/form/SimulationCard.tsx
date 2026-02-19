@@ -60,6 +60,7 @@ interface SimulationCardProps {
   onSlippageChange?: (slippage: number) => void
   marketData?: {
     currentPrice: number
+    debtPrice?: number
     debtMarket?: any
   }
   simulatedHealthFactor?: number
