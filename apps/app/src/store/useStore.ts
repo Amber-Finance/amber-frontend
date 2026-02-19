@@ -132,7 +132,7 @@ export const useStore = create<StoreState>()(
             [strategyId]: {
               ...strategy,
               cachedAt: Date.now(),
-              cacheVersion: 2, // Increment this when calculation logic changes
+              cacheVersion: 3, // Increment this when calculation logic changes
             },
           },
         }))
@@ -144,7 +144,7 @@ export const useStore = create<StoreState>()(
         if (!cached) return null
 
         // Check cache version - invalidate if version mismatch
-        const currentVersion = 2 // Must match the version in cacheStrategy
+        const currentVersion = 3 // Must match the version in cacheStrategy
         if ((cached as any).cacheVersion !== currentVersion) {
           return null
         }

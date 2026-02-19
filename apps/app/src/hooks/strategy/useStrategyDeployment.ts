@@ -20,7 +20,7 @@ export const useStrategyDeployment = ({
         collateral: {
           amount: params.collateralAmount,
           denom: strategy.collateralAsset.denom,
-          decimals: strategy.collateralAsset.decimals || 6,
+          decimals: strategy.collateralAsset.decimals || 8,
         },
         debt: {
           amount: borrowAmount,

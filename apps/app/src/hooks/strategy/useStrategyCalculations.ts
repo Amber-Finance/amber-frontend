@@ -74,7 +74,7 @@ export const useWalletData = (
 
     const userBalance = userWalletBalance
       ? new BigNumber(userWalletBalance.amount)
-          .shiftedBy(-(strategy.collateralAsset.decimals || 6))
+          .shiftedBy(-(strategy.collateralAsset.decimals || 8))
           .toNumber()
       : 0
 

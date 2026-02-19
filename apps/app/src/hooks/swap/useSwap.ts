@@ -43,7 +43,12 @@ export function useSwap() {
     try {
       const offlineSigner = getOfflineSigner()
       if (!offlineSigner) {
-        toast.error('Wallet not connected. Please connect your wallet first.', { autoClose: 5000 })
+        toast.update(pendingToastId, {
+          render: 'Wallet not connected. Please connect your wallet first.',
+          type: 'error',
+          isLoading: false,
+          autoClose: 5000,
+        })
         return
       }
 
@@ -89,7 +94,7 @@ export function useSwap() {
           render: `Swap successful! ${fromAmount} ${fromToken.symbol} → ${toToken.symbol}`,
           type: 'success',
           isLoading: false,
-          autoClose: 5000,
+          autoClose: 4000,
         })
 
         if (address) {
@@ -99,7 +104,12 @@ export function useSwap() {
         return result
       }
 
-      console.error('Swap failed - no transaction hash returned')
+      toast.update(pendingToastId, {
+        render: 'Swap failed: No transaction hash returned',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+      })
       return
     } catch (error) {
       console.error('Swap execution failed:', error)
@@ -107,7 +117,7 @@ export function useSwap() {
         render: `Swap failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
         type: 'error',
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 4000,
       })
       return
     } finally {
