@@ -35,7 +35,6 @@ export const calculateMaxPositionUsd = (collateralUsd: BigNumber, maxLTV: number
 export const filterDebtMarkets = (markets: MarketData[], excludeSymbol?: string): MarketData[] =>
   markets.filter(
     (market) =>
-      market.params.red_bank.borrow_enabled &&
       market.params.credit_manager.whitelisted &&
       (!excludeSymbol || market.asset.symbol !== excludeSymbol),
   )
