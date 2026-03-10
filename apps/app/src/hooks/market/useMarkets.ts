@@ -14,15 +14,9 @@ const createInitialMarkets = (
   tokensData: TokenInfo[],
   existingMarkets?: Market[] | null,
 ): Market[] => {
-  // First filter params to only include deposit-enabled assets
-  // Convert to proper Market objects and filter out nulls
+  // Filter params to whitelisted assets and convert to Market objects
   const marketsWithNulls = paramsData.data
-    .filter(
-      // Only include assets where deposits are enabled, credit_manager.whitelisted is true,
-      // and max_loan_to_value is not "0"
-      (param) => param.red_bank.deposit_enabled && param.credit_manager.whitelisted,
-      // && param.max_loan_to_value !== '0',
-    )
+    .filter((param) => param.credit_manager.whitelisted)
     .map((param) => {
       // Find matching token in tokens data
       const matchedToken = tokensData.find((token) => token.denom === param.denom)
